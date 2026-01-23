@@ -1,4 +1,5 @@
 import React from 'react';
+import { IMAGES } from '../constants/images';
 
 const Header = () => {
     return (
@@ -11,7 +12,7 @@ const Header = () => {
                 <div className="size-10 rounded-full overflow-hidden border border-primary/20">
                     <div
                         className="bg-center bg-no-repeat bg-cover w-full h-full"
-                        style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuC7MOXduoIXa9G2nCZpkFv5C2HYpQtjN90J2xA4ip6i4Qo5pWYW35IgPoBZz2vHwM6FTRPDgP9CPtviaQgL6H4a20cl7OJrXuvRMqZiA9zlGe4L-42kzJ09UTJAg3-vyEZ5CDBQvi2yK8q0kRM9sJ_3W5rTgVYnxpv1imSYbAncBFVDe0qXUGbB4dfesfPgTeTAoeSVZzKM_qlDdISxvP4A8R4pQ2pwp7htttmiKIgQ8INJelJvn27t5qYuaNSTUlTpTr7GZ4Q0fUc")' }}
+                        style={{ backgroundImage: `url("${IMAGES.USER_AVATAR}")` }}
                         aria-label="User profile portrait smiling"
                     >
                     </div>

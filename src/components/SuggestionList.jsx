@@ -1,4 +1,5 @@
 import React from 'react';
+import { IMAGES } from '../constants/images';
 
 const SuggestionList = () => {
     return (
@@ -12,7 +13,7 @@ const SuggestionList = () => {
                     <div className="h-32 w-full rounded-xl bg-gray-100 overflow-hidden relative">
                         <div
                             className="bg-center bg-no-repeat bg-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBiwLIygMWAPhIzPPnu8GLwKG-uzioqir-gGRJdJC1xpV28Uq6IhDltvOtQ_poh-sodAfpqHwGI6k7PxuTIgrAN5tJEuT6LZBxO38aAmAx9ZamDheX9mU0aMcOmNIcHtgWzdA4AxEyfbo0Zq4lQ85TzSjpwsfnRkDc1zclho4I_M2jYhcjbZPg_ccjzkO8U9mppUfLNpgyjY3tyzh34qTnNPJHdCPfW8RZql5m5rwDs4TrJuUrL2SZSOeNP0BRkf2bBCWWfD65bi4s")' }}
+                            style={{ backgroundImage: `url("${IMAGES.AC_FILTER}")` }}
                             aria-label="Air conditioner vent with filter being replaced"
                         >
                         </div>
@@ -33,7 +34,7 @@ const SuggestionList = () => {
                     <div className="h-32 w-full rounded-xl bg-gray-100 overflow-hidden relative">
                         <div
                             className="bg-center bg-no-repeat bg-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBc-YQMOfLE2Hj7ORfSETa78AWEhWBQYT4q0CFn06inNZgJNazctpAXXkMz7088GZxyW3eKtMUudO7ZaJJ_8jw1OrkEAFupWTdZhiFlsuXGFioulsJRb4jyi6Xa0MWC8op8ZGBmKcTgXSoDpVxdF4IaqdINpUdGex7TWtnkjmWF-pFJVTVP-2jGvdYsG55Lel2rR_vyGPDZ55FdubpC2TjXM8ynnP0AWjuivDxzXNMBg_GUWI3C0NxMHvC_yF8j0mcV8bPRtVBIzhk")' }}
+                            style={{ backgroundImage: `url("${IMAGES.GUTTER_CLEANING}")` }}
                             aria-label="Person cleaning leaves from roof gutter"
                         >
                         </div>
@@ -54,7 +55,7 @@ const SuggestionList = () => {
                     <div className="h-32 w-full rounded-xl bg-gray-100 overflow-hidden relative">
                         <div
                             className="bg-center bg-no-repeat bg-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuB-Kg7zC9e8dlVnp_aHlQyU8uxDz4lu_8h4es6yx4J_CcOu83GgWPCGIIjoBJu1QjPpDbucz0z5kCGakJLn-V3OYvJOonm0H0UgaV3HqdlMRYGjryNBxSqKD1deNQFLbz5j9jQxF9LvgGEHxieBnoXcKIwB61oip1A19p5JB3xUMTY0v4sZ0DPuMBnRR8mdGIqzN0V_thEuokw4F1Ip48gkW8aGnA7uu-k2B6p1IfRBQL1iViwJjV7EtJDyXtu_CQS3B6eC0Rd_QYw")' }}
+                            style={{ backgroundImage: `url("${IMAGES.SMOKE_DETECTOR}")` }}
                             aria-label="Outdoor water spigot wrapped with insulation"
                         >
                         </div>

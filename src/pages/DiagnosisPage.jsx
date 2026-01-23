@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { IMAGES } from '../constants/images';
 
 const DiagnosisPage = () => {
     return (
@@ -8,7 +9,7 @@ const DiagnosisPage = () => {
             <div className="absolute inset-0 w-full h-full z-0">
                 <div
                     className="w-full h-full bg-cover bg-center bg-no-repeat relative"
-                    style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDJ74Xos8GgVwd7L4_oeO79bvI9B_-R_02TYaOOsxLkbuLpeX6XRk4r0V-XizaUIKzS7Vc0UZMHkhphWx9k4EYkA7r4JHEICrcTOcnVoluDC5WZyVk4tMxAz2fb1nYlQyx6lOed1A_SnYWYLH9CFwzyoyTNl-ehNw9QddNseXfmsdvuWEg11ZalFn2EqB3aF5dE9m0tjsVeScWNsT4Hc6VnlSLNWESjZAr6HUBwMW5Zg5kJEE4lZEcmqC8rCznxzjRf0zJ6Eg6cZP0')" }}
+                    style={{ backgroundImage: `url("${IMAGES.CAM_CRACK}")` }}
                     aria-label="Close up of a textured wall with a small crack"
                 >
                     <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60"></div>
@@ -75,7 +76,7 @@ const DiagnosisPage = () => {
                         <button className="w-12 h-12 rounded-lg bg-gray-800 overflow-hidden border-2 border-white/20 active:scale-95 transition-transform">
                             <div
                                 className="w-full h-full bg-cover bg-center"
-                                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVXmmcIle65K4rR0RY6Q-48sJhUZIyp1lfndxSo9XM2FSWcWOhjh3V9hmHEUSg9cjN57OHRdaNc3lpM1-P5gSedvMtPUZGtMRAGX_E35eZO97JAgl3aAWhOKd2TMg5SCR61gDOfeMKB9YGlAYVgq6yYl9xROmRB-xLAjkqVsu0bnd-EgmG0NqrAMlwI8iS5rj3mrCIiRWjWG6-Esp6D7SJ718Z6FYd3cv9hA0n6ljgwbYDRlzEKy-HQHO5C7A_YWdGxDgQb7cplaM')" }}
+                                style={{ backgroundImage: `url("${IMAGES.CAM_THUMB}")` }}
                                 aria-label="Thumbnail of previous repair photo"
                             ></div>
                         </button>

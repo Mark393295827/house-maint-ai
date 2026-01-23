@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { IMAGES } from '../constants/images';
 
 const WelcomePage = () => {
     return (
@@ -12,7 +13,7 @@ const WelcomePage = () => {
                     <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
                         <div
                             className="absolute inset-0 bg-cover bg-center"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCIOe-qL3CxVNeGvHujtL4Ck_MMto7Ozj3VmffOMD_ifZFq4FL54GFgY3SSFdS-kU2KkKxOXBC1BDWtbMrwWcaPlAZAcuPruBHeYCs68FwkMZudqKYdb37Et03TmZeIwB_9MRPFr8Cqn3qBLAwZ88aw_tK_kGf7hBDvaT4Hu87SEqr-MBlhwePmWDrWzCTHNx_45Ko6-dKebpyVzJ0TsXu2-pgABT3qN36e1hR5Qv98s_1bt7xY9kKkvLPlmsYAkb2ohbrrn2_8gw8")' }}
+                            style={{ backgroundImage: `url("${IMAGES.WELCOME_HERO}")` }}
                             aria-label="Person holding a smartphone scanning a bathroom faucet"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>

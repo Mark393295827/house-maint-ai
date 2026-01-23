@@ -1,4 +1,5 @@
 import React from 'react';
+import { IMAGES } from '../constants/images';
 
 const ActivityCard = () => {
     return (
@@ -12,7 +13,7 @@ const ActivityCard = () => {
                     <div className="size-16 shrink-0 rounded-xl overflow-hidden bg-gray-100">
                         <div
                             className="bg-center bg-no-repeat bg-cover w-full h-full"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCD_b1ebU7AxZratOuRlpPC3leWIsvv_MSwcK0J7GRpFDXpSF9BIVgj-oSX7owf0LBGok5DFnwuO6AqwXYmcqVHRzTp66S8ce3zjPr1yl7pJwY0sARzjCAxoDCP3bO5ty5MrUugUVtBV2URA8lUEy6Md2kmONPh-fSo67cYITwrlwTMSpONh7HEmPAVI98nZlVnm0Q9fzrrqrkgy6_uAkgmljzKeUb00hLeyXyrnBMurW4Jjd0aPqcS6dOMey8-mxaAw9FscOlx7WA")' }}
+                            style={{ backgroundImage: `url("${IMAGES.LEAKING_PIPE}")` }}
                             aria-label="Close up of a leaking pipe under a kitchen sink"
                         >
                         </div>

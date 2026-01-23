@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { IMAGES } from '../constants/images';
 
 const RepairGuidePage = () => {
     const [completedSteps, setCompletedSteps] = useState([true, false, false, false]);
@@ -17,12 +18,12 @@ const RepairGuidePage = () => {
         {
             title: 'Turn off water',
             description: 'Locate the isolation valve under the sink and turn it clockwise.',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKJErAtamCKaHWmiI_iyGRqgHocp_N76AHfcI74MU0zXjV2NHKAh1C6YnqJBWBQj5OnN63r6xRhtRzE4urI62QeYAmlNARuylbUxKsfQ2JGZjJ_uDvN_UMTX9cA0CV00ihViwd3AIK5odRAGUvKNVkQo53GOhU1JsBzzkcMlx0wMqpRVVdBnxYqhfV2kZdBArGzxsWNK_rgFvlW3-sZzpxtR8z_YlfIkblC_UaGSfoAQqnThx4ruirngb1cnnrBQzACJET2BjhEZc',
+            image: IMAGES.STEP_VALVE,
         },
         {
             title: 'Remove handle',
             description: 'Use an Allen key to loosen the set screw, then lift the handle.',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYRiWaTBTRIAc2gAJysC-GCbxKSjel_eyiAwk-lWcuQ5leIlgHLE5gXfKraqzIwTYZuN8LPAAM_K0cBSggSn9eT6qNl1NVxHRajVMpBQUHsMz7zYbv-AD2VQoLuzRfFCVllK5uiyRlAesQImou4Wrhd0zeqje_AtcL0xCWphVnDK2rNgNbdYVkrw-3il7SBb_kjfPRzFE8DIlejpxLB1RkPyVVKavCfzW0NfNspjeiWOjH3GL3imyFifd2ssdQZ6mY11PTvFUtxmA',
+            image: IMAGES.STEP_WRENCH,
         },
         {
             title: 'Sealant Cure Time',
@@ -32,7 +33,7 @@ const RepairGuidePage = () => {
         {
             title: 'Reassemble parts',
             description: 'Reverse the steps to put the handle back on.',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA_ShkTF2gSUKBpblc1f31DxPp6yAAxNKUJLcEhbVIKUTF81vnsjpo9VxQkEnW_RvxNByqgymfTN7DqpOIMNG3YeHydsOT1RVDW5QnjjhhHaJJEzDDqW6u09wWoCe-KOjdAy8bJkTRBGA9S4Uv8xvHqCzKDmY6-IZgSJUNpBkg59RPzKrU9mmoIoy8U_ufDDbblAkH5DXx3M6XMLK7DGLGlqL8UaO_pU05cR7yzb8MiKcLxk2qjtawmZZq5CmCBBpUbzddybEB7w6w',
+            image: IMAGES.STEP_REASSEMBLE,
         },
     ];
 
@@ -83,10 +84,10 @@ const RepairGuidePage = () => {
                             <div className="flex flex-col justify-center flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${completedSteps[index]
-                                            ? 'bg-primary/10 text-primary'
-                                            : step.isTimer
-                                                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
-                                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                                        ? 'bg-primary/10 text-primary'
+                                        : step.isTimer
+                                            ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                                         }`}>
                                         Step {index + 1}{step.isTimer ? ' • Wait' : ''}
                                     </span>
@@ -99,8 +100,8 @@ const RepairGuidePage = () => {
                                 <button
                                     onClick={() => toggleStep(index)}
                                     className={`size-7 rounded-full border-2 transition-all cursor-pointer flex items-center justify-center ${completedSteps[index]
-                                            ? 'bg-primary border-primary'
-                                            : 'border-gray-300 dark:border-gray-600'
+                                        ? 'bg-primary border-primary'
+                                        : 'border-gray-300 dark:border-gray-600'
                                         }`}
                                 >
                                     {completedSteps[index] && (

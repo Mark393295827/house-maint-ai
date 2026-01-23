@@ -1,21 +1,25 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import WelcomePage from './pages/WelcomePage';
-import DiagnosisPage from './pages/DiagnosisPage';
-import RepairGuidePage from './pages/RepairGuidePage';
-import CalendarPage from './pages/CalendarPage';
+import LoadingSpinner from './components/LoadingSpinner';
+
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const WelcomePage = lazy(() => import('./pages/WelcomePage'));
+const DiagnosisPage = lazy(() => import('./pages/DiagnosisPage'));
+const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/welcome" element={<WelcomePage />} />
-        <Route path="/diagnosis" element={<DiagnosisPage />} />
-        <Route path="/repair/:id" element={<RepairGuidePage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-      </Routes>
+    <BrowserRouter basename="/house-maint-ai">
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/diagnosis" element={<DiagnosisPage />} />
+          <Route path="/repair/:id" element={<RepairGuidePage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
