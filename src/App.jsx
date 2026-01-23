@@ -7,6 +7,7 @@ const WelcomePage = lazy(() => import('./pages/WelcomePage'));
 const DiagnosisPage = lazy(() => import('./pages/DiagnosisPage'));
 const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
 const CalendarPage = lazy(() => import('./pages/CalendarPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/diagnosis" element={<DiagnosisPage />} />
           <Route path="/repair/:id" element={<RepairGuidePage />} />
           <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
