@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2bb673;
+  --color-primary-dark: #23945d;
+  --color-background-light: #f6f8f7;
+  --color-background-dark: #131f19;
+  --color-surface-light: #ffffff;
+  --color-surface-dark: #1c2e25;
+  --color-text-main-light: #0f1a15;
+  --color-text-main-dark: #e0e7e3;
+  --color-text-sub-light: #568f74;
+  --color-text-sub-dark: #8abfab;
+  --font-family-sans: "Manrope", sans-serif;
+  --font-family-display: "Manrope", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-sans min-h-screen transition-colors duration-200;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
