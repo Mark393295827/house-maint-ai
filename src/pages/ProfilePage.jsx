@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
 import BottomNav from '../components/BottomNav';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 
 const ProfilePage = () => {
+    const navigate = useNavigate();
+    const { user, logout, updateUser, isLoading } = useAuth();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    const [reports, setReports] = useState([]);
+    const [loadingReports, setLoadingReports] = useState(true);
+
     // Initialize dark mode from localStorage or system preference using lazy initialization
     const [darkMode, setDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -22,6 +32,23 @@ const ProfilePage = () => {
         }
     }, [darkMode]);
 
+    // Fetch user's reports
+    useEffect(() => {
+        const fetchReports = async () => {
+            try {
+                const data = await api.getReports(null, 5);
+                setReports(data.reports || []);
+            } catch (err) {
+                console.warn('Failed to fetch reports:', err);
+            } finally {
+                setLoadingReports(false);
+            }
+        };
+        if (user) {
+            fetchReports();
+        }
+    }, [user]);
+
     // Toggle dark mode function
     const toggleDarkMode = () => {
         if (darkMode) {
@@ -32,6 +59,54 @@ const ProfilePage = () => {
             document.documentElement.classList.add('dark');
             localStorage.setItem('theme', 'dark');
             setDarkMode(true);
+        }
+    };
+
+    // Handle edit profile
+    const handleEditProfile = () => {
+        setEditName(user?.name || '');
+        setIsEditing(true);
+    };
+
+    // Handle save profile
+    const handleSaveProfile = async () => {
+        if (!editName.trim()) return;
+        setIsSaving(true);
+        try {
+            await updateUser({ name: editName.trim() });
+            setIsEditing(false);
+        } catch (err) {
+            console.error('Failed to update profile:', err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // Handle logout
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    // Get status color
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'pending': return 'bg-yellow-100 text-yellow-700';
+            case 'in_progress': return 'bg-blue-100 text-blue-700';
+            case 'completed': return 'bg-green-100 text-green-700';
+            case 'cancelled': return 'bg-gray-100 text-gray-500';
+            default: return 'bg-gray-100 text-gray-500';
+        }
+    };
+
+    // Get status text
+    const getStatusText = (status) => {
+        switch (status) {
+            case 'pending': return '待处理';
+            case 'in_progress': return '处理中';
+            case 'completed': return '已完成';
+            case 'cancelled': return '已取消';
+            default: return status;
         }
     };
 
@@ -51,16 +126,99 @@ const ProfilePage = () => {
                     <div className="relative size-16">
                         <div
                             className="bg-center bg-no-repeat bg-cover w-full h-full rounded-full border-2 border-white dark:border-gray-700 shadow-sm"
-                            style={{ backgroundImage: `url("${IMAGES.USER_AVATAR}")` }}
+                            style={{ backgroundImage: `url("${user?.avatar || IMAGES.USER_AVATAR}")` }}
                         />
                         <div className="absolute bottom-0 right-0 w-5 h-5 bg-primary border-2 border-white dark:border-surface-dark rounded-full"></div>
                     </div>
                     <div className="flex-1">
-                        <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark">Alex Johnson</h2>
-                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark">alex.j@example.com</p>
+                        {isEditing ? (
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    className="flex-1 px-3 py-1 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:outline-none focus:ring-2 focus:ring-primary"
+                                    placeholder="您的姓名"
+                                />
+                                <button
+                                    onClick={handleSaveProfile}
+                                    disabled={isSaving}
+                                    className="px-3 py-1 bg-primary text-white rounded-lg text-sm font-bold"
+                                >
+                                    {isSaving ? '...' : '保存'}
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark">
+                                    {user?.name || 'User'}
+                                </h2>
+                                <p className="text-sm text-text-sub-light dark:text-text-sub-dark">
+                                    {user?.phone || 'Not logged in'}
+                                </p>
+                            </>
+                        )}
                     </div>
-                    <button className="text-primary font-semibold text-sm">Edit</button>
+                    {!isEditing && (
+                        <button onClick={handleEditProfile} className="text-primary font-semibold text-sm">
+                            Edit
+                        </button>
+                    )}
                 </div>
+            </div>
+
+            {/* Recent Reports */}
+            <div className="px-4 mb-6">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                        Recent Reports / 最近报修
+                    </h3>
+                    <Link to="/quick-report" className="text-xs text-primary font-bold">
+                        查看全部
+                    </Link>
+                </div>
+
+                {loadingReports ? (
+                    <div className="bg-white dark:bg-surface-dark rounded-2xl p-8 text-center">
+                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    </div>
+                ) : reports.length > 0 ? (
+                    <div className="bg-white dark:bg-surface-dark rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
+                        {reports.slice(0, 3).map((report, index) => (
+                            <div
+                                key={report.id}
+                                className={`flex items-center gap-3 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${index !== reports.length - 1 ? 'border-b border-gray-100 dark:border-gray-800' : ''
+                                    }`}
+                            >
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <span className="material-symbols-outlined text-xl">build</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-text-main-light dark:text-text-main-dark text-sm truncate">
+                                        {report.title || report.description?.substring(0, 30)}
+                                    </p>
+                                    <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
+                                        {new Date(report.created_at).toLocaleDateString('zh-CN')}
+                                    </p>
+                                </div>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
+                                    {getStatusText(report.status)}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="bg-white dark:bg-surface-dark rounded-2xl p-8 text-center">
+                        <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2">inbox</span>
+                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark">暂无报修记录</p>
+                        <Link
+                            to="/quick-report"
+                            className="inline-block mt-3 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg"
+                        >
+                            立即报修
+                        </Link>
+                    </div>
+                )}
             </div>
 
             {/* Settings Section */}
@@ -110,7 +268,7 @@ const ProfilePage = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-1 text-text-sub-light dark:text-text-sub-dark">
-                            <span className="text-sm">English</span>
+                            <span className="text-sm">中文</span>
                             <span className="material-symbols-outlined text-gray-400">chevron_right</span>
                         </div>
                     </div>
@@ -142,7 +300,7 @@ const ProfilePage = () => {
                             </div>
                             <div>
                                 <p className="font-bold text-text-main-light dark:text-text-main-dark">About</p>
-                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">关于版本 v1.0.2</p>
+                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">关于版本 v1.0.3</p>
                             </div>
                         </div>
                         <span className="material-symbols-outlined text-gray-400">chevron_right</span>
@@ -151,7 +309,10 @@ const ProfilePage = () => {
             </div>
 
             <div className="mt-8 mb-4 text-center">
-                <button className="text-red-500 font-bold text-sm bg-red-50 dark:bg-red-900/10 px-6 py-3 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors w-[90%]">
+                <button
+                    onClick={handleLogout}
+                    className="text-red-500 font-bold text-sm bg-red-50 dark:bg-red-900/10 px-6 py-3 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors w-[90%]"
+                >
                     Log Out / 退出登录
                 </button>
             </div>

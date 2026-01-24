@@ -1,0 +1,21 @@
+{
+    "name": "house-maint-api",
+    "version": "1.0.0",
+    "description": "House Maintenance AI Backend API",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "node --watch index.js",
+        "init-db": "node scripts/init-db.js"
+    },
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "better-sqlite3": "^11.0.0",
+        "cors": "^2.8.5",
+        "express": "^4.21.0",
+        "jsonwebtoken": "^9.0.2",
+        "multer": "^1.4.5-lts.1",
+        "zod": "^3.23.0"
+    }
+}

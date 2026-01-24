@@ -41,6 +41,15 @@ export function hapticSuccess() {
     }
 }
 
+/**
+ * Trigger haptic feedback for error
+ */
+export function hapticError() {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([20, 50, 20, 50, 20]); // Pattern: vibrate-pause-vibrate-pause-vibrate
+    }
+}
+
 // Video constraints per UI/UX standards
 export const VIDEO_CONSTRAINTS = {
     maxDuration: 15,        // 秒
@@ -64,6 +73,7 @@ export default {
     hapticButtonPress,
     hapticWarning,
     hapticSuccess,
+    hapticError,
     VIDEO_CONSTRAINTS,
     SENSITIVE_PATTERNS
 };

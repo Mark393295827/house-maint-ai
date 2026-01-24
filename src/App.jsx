@@ -2,6 +2,8 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const WelcomePage = lazy(() => import('./pages/WelcomePage'));
@@ -12,28 +14,50 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const QuickReportPage = lazy(() => import('./pages/QuickReportPage'));
 const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 
 function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename="/house-maint-ai">
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/welcome" element={<WelcomePage />} />
-            <Route path="/diagnosis" element={<DiagnosisPage />} />
-            <Route path="/repair/:id" element={<RepairGuidePage />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/quick-report" element={<QuickReportPage />} />
-            <Route path="/match" element={<WorkerMatchPage />} />
-            <Route path="/community" element={<CommunityPage />} />
-          </Routes>
-        </Suspense>
+        <AuthProvider>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/welcome" element={<WelcomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/diagnosis" element={<DiagnosisPage />} />
+              <Route path="/repair/:id" element={<RepairGuidePage />} />
+              <Route path="/community" element={<CommunityPage />} />
+
+              {/* Protected routes - require authentication */}
+              <Route path="/calendar" element={
+                <ProtectedRoute>
+                  <CalendarPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/quick-report" element={
+                <ProtectedRoute>
+                  <QuickReportPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/match" element={
+                <ProtectedRoute>
+                  <WorkerMatchPage />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </Suspense>
+        </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
   );
 }
 
 export default App;
-
