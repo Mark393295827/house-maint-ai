@@ -5,8 +5,11 @@ import QuickActions from '../components/QuickActions';
 import ActivityCard from '../components/ActivityCard';
 import SuggestionList from '../components/SuggestionList';
 import BottomNav from '../components/BottomNav';
+import QuickReportButton from '../components/QuickReportButton';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     return (
         <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden shadow-2xl">
             <Header />
@@ -16,6 +19,7 @@ const Dashboard = () => {
                 <ActivityCard />
                 <SuggestionList />
             </main>
+            <QuickReportButton onPress={() => navigate('/quick-report')} />
             <BottomNav />
         </div>
     );

@@ -14,6 +14,13 @@
   --color-text-main-dark: #e0e7e3;
   --color-text-sub-light: #568f74;
   --color-text-sub-dark: #8abfab;
+  /* UI/UX 报修端标准色 */
+  --color-action-primary: #007AFF;
+  --color-action-primary-dark: #0056B3;
+  --color-action-warning: #FF9500;
+  --color-action-warning-dark: #CC7700;
+  --color-success: #34C759;
+  --color-danger: #FF3B30;
   --font-family-sans: "Manrope", sans-serif;
   --font-family-display: "Manrope", sans-serif;
 }
@@ -40,5 +47,54 @@
 
   .pb-safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* UI/UX 报修端标准 - 录音动画 */
+  .recording-pulse {
+    animation: recording-pulse 1.5s ease-in-out infinite;
+  }
+}
+
+/* 核心操作按钮标准样式 */
+.btn-action {
+  min-height: 48px;
+  height: 3rem;
+  border-radius: 20px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-action-primary {
+  background-color: #007AFF;
+  color: white;
+}
+
+.btn-action-primary:hover {
+  background-color: #0056B3;
+}
+
+.btn-action-warning {
+  background-color: #FF9500;
+  color: white;
+}
+
+.btn-action-warning:hover {
+  background-color: #CC7700;
+}
+
+/* 录音呼吸灯动画 */
+@keyframes recording-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4);
+  }
+
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
   }
 }

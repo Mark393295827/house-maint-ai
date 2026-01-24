@@ -6,6 +6,17 @@
                 "name": "validate-path",
                 "description": "Validate file paths before tool execution",
                 "enabled": true
+            },
+            {
+                "name": "ui-test",
+                "description": "Run UI automation tests before code commits",
+                "command": "npm run test:ui",
+                "patterns": [
+                    "src/components/**/*.jsx",
+                    "src/components/**/*.tsx",
+                    "apps/**/*.tsx"
+                ],
+                "enabled": true
             }
         ],
         "PostToolUse": [
