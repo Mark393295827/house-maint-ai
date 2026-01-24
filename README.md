@@ -30,10 +30,10 @@ Connects users with expert workers for home repairs, featuring AI diagnosis, rea
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: React 18 + Vite
+- **Framework**: React 19 + Vite
 - **Styling**: Tailwind CSS 4
 - **State**: React Context API
-- **Routing**: React Router 6
+- **Routing**: React Router 7
 
 ### Backend
 - **Runtime**: Node.js + Express

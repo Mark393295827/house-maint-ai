@@ -1,4 +1,7 @@
+import 'dotenv/config';
+import './instrument.js'; // Sentry initialization must be first
 import express from 'express';
+import * as Sentry from '@sentry/node';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -9,9 +12,11 @@ import reportRoutes from './routes/reports.js';
 import workerRoutes from './routes/workers.js';
 import uploadRoutes from './routes/uploads.js';
 import communityRoutes from './routes/community.js';
+import aiRoutes from './routes/ai.js';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler.js';
+import { standardLimiter, strictLimiter } from './middleware/rateLimiter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,15 +32,22 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Apply standard rate limiting to all requests
+app.use(standardLimiter);
+
 // Static files for uploads
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
 // API Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', strictLimiter, authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/community', communityRoutes);
+app.use('/api/ai', strictLimiter, aiRoutes);
+
+// Sentry Error Handler (must be before custom error handler)
+Sentry.setupExpressErrorHandler(app);
 
 // Health check
 app.get('/api/health', (req, res) => {

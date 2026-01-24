@@ -13,7 +13,9 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@sentry/react": "^10.36.0",
     "lucide-react": "^0.556.0",
+    "mixpanel-browser": "^2.73.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

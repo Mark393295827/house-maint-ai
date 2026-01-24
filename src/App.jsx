@@ -4,6 +4,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import PageTracker from './components/PageTracker';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const WelcomePage = lazy(() => import('./pages/WelcomePage'));
@@ -20,6 +21,7 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <PageTracker />
         <AuthProvider>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
