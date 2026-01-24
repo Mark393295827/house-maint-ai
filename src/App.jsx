@@ -19,7 +19,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter basename="/house-maint-ai">
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AuthProvider>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
