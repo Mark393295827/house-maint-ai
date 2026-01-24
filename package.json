@@ -13,9 +13,12 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.975.0",
     "@sentry/react": "^10.36.0",
+    "@types/multer-s3": "^3.0.3",
     "lucide-react": "^0.556.0",
     "mixpanel-browser": "^2.73.0",
+    "multer-s3": "^3.0.1",
     "prop-types": "^15.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -41,6 +44,7 @@
     "jsdom": "^27.4.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
+    "typescript": "^5.6.3",
     "vite": "^7.2.4",
     "vitest": "^4.0.18"
   }

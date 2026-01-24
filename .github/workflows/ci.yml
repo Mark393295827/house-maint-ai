@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: house_maint
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Linting
+      run: npm run lint
+
+    - name: Type Check (Frontend)
+      run: npx tsc -p tsconfig.app.json --noEmit
+
+    - name: Type Check (Backend)
+      run: npx tsc -p server/tsconfig.json --noEmit
+
+    - name: Run Tests
+      # Using environment variables to match the service container
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: house_maint
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        # Playwright might complain if we don't skip it, assuming npm test runs both
+      run: npm test
+
+    - name: Build
+      run: npm run build
