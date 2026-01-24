@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: always
+
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server/data:/app/data
+      - ./server/uploads:/app/uploads
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      # Secret key for JWT (Change this in production)
+      - JWT_SECRET=house-maint-ai-secret-key-change-me
+    restart: always

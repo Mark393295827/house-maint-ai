@@ -242,6 +242,34 @@ export function uploadImage(file) {
     return uploadFile('image', file);
 }
 
+// ============ Community API ============
+
+/**
+ * Get community posts
+ */
+export async function getPosts(limit = 20, offset = 0) {
+    return fetchAPI(`/community/posts?limit=${limit}&offset=${offset}`);
+}
+
+/**
+ * Create a post
+ */
+export async function createPost(postData) {
+    return fetchAPI('/community/posts', {
+        method: 'POST',
+        body: JSON.stringify(postData),
+    });
+}
+
+/**
+ * Like a post
+ */
+export async function likePost(id) {
+    return fetchAPI(`/community/posts/${id}/like`, {
+        method: 'POST',
+    });
+}
+
 // ============ Health Check ============
 
 /**
@@ -271,5 +299,8 @@ export default {
     uploadVoice,
     uploadVideo,
     uploadImage,
+    getPosts,
+    createPost,
+    likePost,
     healthCheck,
 };

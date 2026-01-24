@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.js';
 import reportRoutes from './routes/reports.js';
 import workerRoutes from './routes/workers.js';
 import uploadRoutes from './routes/uploads.js';
+import communityRoutes from './routes/community.js';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/community', communityRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -52,9 +54,11 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Not Found', path: req.path });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 House Maint API running at http://localhost:${PORT}`);
-    console.log(`📚 API Docs: http://localhost:${PORT}/api/health`);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    app.listen(PORT, () => {
+        console.log(`🚀 House Maint API running at http://localhost:${PORT}`);
+        console.log(`📚 API Docs: http://localhost:${PORT}/api/health`);
+    });
+}
 
 export default app;

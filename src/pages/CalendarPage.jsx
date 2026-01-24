@@ -118,8 +118,18 @@ const CalendarPage = () => {
 
         setIsBooking(true);
         try {
-            // Simulate API call - in real app, call booking API
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const reportId = sessionStorage.getItem('lastReportId');
+
+            if (reportId && selectedWorker) {
+                // Update report status to 'matched' and assign worker
+                await api.updateReport(reportId, {
+                    status: 'matched',
+                    matched_worker_id: selectedWorker.id
+                });
+            } else {
+                // Fallback for demo without a real report
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
 
             hapticSuccess();
             setBookingSuccess(true);
@@ -128,12 +138,13 @@ const CalendarPage = () => {
             sessionStorage.removeItem('selectedWorker');
             sessionStorage.removeItem('lastReportId');
 
-            // Navigate back to home after delay
+            // Navigate back to home or profile after delay
             setTimeout(() => {
-                navigate('/');
+                navigate('/profile');
             }, 2000);
         } catch (err) {
             console.error('Booking failed:', err);
+            alert('预约失败，请重试');
         } finally {
             setIsBooking(false);
         }
@@ -285,8 +296,8 @@ const CalendarPage = () => {
                                 key={slot.id}
                                 onClick={() => setSelectedTime(slot.id)}
                                 className={`flex-1 flex flex-col items-center p-3 rounded-xl transition-all ${selectedTime === slot.id
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                                        : 'bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800'
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                                    : 'bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800'
                                     }`}
                             >
                                 <span className={`material-symbols-outlined text-2xl mb-1 ${selectedTime === slot.id ? 'text-white' : 'text-text-sub-light dark:text-text-sub-dark'
