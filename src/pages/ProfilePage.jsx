@@ -4,18 +4,23 @@ import { IMAGES } from '../constants/images';
 import BottomNav from '../components/BottomNav';
 
 const ProfilePage = () => {
-    const [darkMode, setDarkMode] = useState(false);
+    // Initialize dark mode from localStorage or system preference using lazy initialization
+    const [darkMode, setDarkMode] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('theme') === 'dark' ||
+                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        }
+        return false;
+    });
 
-    // Initialize dark mode from localStorage or system preference
+    // Sync dark mode class with state
     useEffect(() => {
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            setDarkMode(true);
+        if (darkMode) {
             document.documentElement.classList.add('dark');
         } else {
-            setDarkMode(false);
             document.documentElement.classList.remove('dark');
         }
-    }, []);
+    }, [darkMode]);
 
     // Toggle dark mode function
     const toggleDarkMode = () => {

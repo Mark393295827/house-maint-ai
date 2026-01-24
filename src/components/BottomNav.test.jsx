@@ -1,0 +1,39 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import BottomNav from '../components/BottomNav';
+
+// Helper to render with Router
+function renderBottomNav() {
+    return render(
+        <BrowserRouter>
+            <BottomNav />
+        </BrowserRouter>
+    );
+}
+
+describe('BottomNav', () => {
+    beforeEach(() => {
+        renderBottomNav();
+    });
+
+    it('renders all navigation links', () => {
+        const links = screen.getAllByRole('link');
+        expect(links).toHaveLength(5);
+    });
+
+    it('renders correct navigation paths', () => {
+        const links = screen.getAllByRole('link');
+        // React Router Link components render paths without the basename
+        expect(links[0]).toHaveAttribute('href', '/');
+        expect(links[1]).toHaveAttribute('href', '/diagnosis');
+        expect(links[2]).toHaveAttribute('href', '/calendar');
+        expect(links[3]).toHaveAttribute('href', '/community');
+        expect(links[4]).toHaveAttribute('href', '/profile');
+    });
+
+    it('contains material icons', () => {
+        const icons = document.querySelectorAll('.material-symbols-outlined');
+        expect(icons.length).toBe(5);
+    });
+});

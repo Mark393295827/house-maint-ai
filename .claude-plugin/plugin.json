@@ -1,0 +1,30 @@
+{
+    "name": "everything-claude-code",
+    "version": "1.0.0",
+    "description": "Comprehensive agent framework for AI-assisted development",
+    "author": "house-maint-ai",
+    "engine": "antigravity-v2",
+    "components": {
+        "agents": "./agents/*.md",
+        "skills": "./skills/*/SKILL.md",
+        "commands": "./commands/*.md",
+        "rules": "./rules/*.md",
+        "hooks": "./hooks/hooks.json",
+        "contexts": "./contexts/*.md"
+    },
+    "defaults": {
+        "agent": "planner",
+        "context": "dev"
+    },
+    "runtime": {
+        "verification_loop": {
+            "enabled": true,
+            "harness": "./skills/eval-harness"
+        },
+        "memory_persistence": {
+            "enabled": true,
+            "strategy": "longform-sync",
+            "path": "./hooks/memory-persistence"
+        }
+    }
+}

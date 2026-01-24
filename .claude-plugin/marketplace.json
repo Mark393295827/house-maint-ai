@@ -1,0 +1,26 @@
+{
+    "catalog": [
+        {
+            "id": "everything-claude-code",
+            "name": "Everything Claude Code",
+            "version": "1.0.0",
+            "description": "Complete AI-assisted development framework with agents, skills, and workflows",
+            "categories": [
+                "development",
+                "automation",
+                "testing"
+            ],
+            "install": {
+                "source": "local",
+                "path": "./"
+            }
+        }
+    ],
+    "sources": [
+        {
+            "name": "local",
+            "type": "filesystem",
+            "path": "./"
+        }
+    ]
+}

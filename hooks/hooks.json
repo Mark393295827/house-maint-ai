@@ -1,0 +1,85 @@
+{
+    "version": "1.0.0",
+    "hooks": {
+        "PreToolUse": [
+            {
+                "name": "validate-path",
+                "description": "Validate file paths before tool execution",
+                "enabled": true
+            }
+        ],
+        "PostToolUse": [
+            {
+                "name": "track-changes",
+                "description": "Track file changes for verification",
+                "enabled": true
+            }
+        ],
+        "SessionStart": [
+            {
+                "name": "load-context",
+                "description": "Load session context and patterns",
+                "script": "./scripts/hooks/session-start.js",
+                "enabled": true
+            }
+        ],
+        "SessionEnd": [
+            {
+                "name": "save-state",
+                "description": "Save session state and patterns",
+                "script": "./scripts/hooks/session-end.js",
+                "enabled": true
+            }
+        ],
+        "PreCompact": [
+            {
+                "name": "save-checkpoint",
+                "description": "Save state before compaction",
+                "script": "./scripts/hooks/pre-compact.js",
+                "enabled": true
+            }
+        ],
+        "Stop": [
+            {
+                "name": "evaluate-session",
+                "description": "Extract patterns from session",
+                "script": "./scripts/hooks/evaluate-session.js",
+                "enabled": true
+            }
+        ]
+    },
+    "triggers": {
+        "on_file_change": {
+            "patterns": [
+                "src/**/*.jsx",
+                "src/**/*.js"
+            ],
+            "actions": [
+                "lint"
+            ]
+        },
+        "on_test_complete": {
+            "actions": [
+                "coverage_report"
+            ]
+        },
+        "on_build_success": {
+            "actions": [
+                "bundle_analysis"
+            ]
+        }
+    },
+    "memory_persistence": {
+        "enabled": true,
+        "strategy": "longform-sync",
+        "path": "./hooks/memory-persistence",
+        "auto_checkpoint": true,
+        "checkpoint_interval": "15m"
+    },
+    "strategic_compact": {
+        "enabled": true,
+        "threshold": 85,
+        "auto_suggest": true,
+        "script": "./scripts/hooks/suggest-compact.js"
+    }
+}

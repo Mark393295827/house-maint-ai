@@ -1,0 +1,59 @@
+{
+    "name": "everything-claude-code-marketplace",
+    "version": "1.0.0",
+    "description": "Self-hosted marketplace for everything-claude-code plugins",
+    "plugins": [
+        {
+            "id": "everything-claude-code",
+            "name": "Everything Claude Code",
+            "version": "1.0.0",
+            "description": "Complete AI-assisted development framework",
+            "author": "house-maint-ai",
+            "categories": [
+                "development",
+                "automation",
+                "testing",
+                "review"
+            ],
+            "keywords": [
+                "agents",
+                "skills",
+                "commands",
+                "hooks",
+                "tdd",
+                "security"
+            ],
+            "compatibility": {
+                "engine": "antigravity-v2",
+                "minVersion": "1.0.0"
+            },
+            "components": {
+                "agents": 9,
+                "skills": 9,
+                "commands": 10,
+                "rules": 6
+            },
+            "install": {
+                "type": "local",
+                "path": "./"
+            }
+        }
+    ],
+    "sources": [
+        {
+            "name": "local",
+            "type": "filesystem",
+            "path": "./"
+        },
+        {
+            "name": "community",
+            "type": "url",
+            "url": "https://marketplace.claude-code.dev/plugins.json",
+            "enabled": false
+        }
+    ],
+    "settings": {
+        "autoUpdate": false,
+        "verifySignatures": false
+    }
+}
