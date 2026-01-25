@@ -3,6 +3,8 @@ import './instrument.js'; // Sentry initialization must be first
 import express from 'express';
 import * as Sentry from '@sentry/node';
 import cors from 'cors';
+import helmet from 'helmet';
+import hpp from 'hpp';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -29,6 +31,20 @@ app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
     credentials: true
 }));
+
+// Security Headers
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "img-src": ["'self'", "data:", "blob:", "https:"],
+        },
+    },
+}));
+
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
