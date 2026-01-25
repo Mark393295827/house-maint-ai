@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { IMAGES } from '../constants/images';
 
 const Header = () => {

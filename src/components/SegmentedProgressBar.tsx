@@ -1,8 +1,19 @@
-import PropTypes from 'prop-types';
+import type { Segment } from '../types';
+
+interface SegmentedProgressBarProps {
+    segments?: Segment[];
+    totalProgress?: number;
+    showLabels?: boolean;
+}
+
+interface CompactProgressBarProps {
+    progress?: number;
+    label?: string;
+}
 
 /**
  * SegmentedProgressBar - 分段进度条
- * 
+ *
  * 显示上传进度，减少用户焦虑。
  * 支持多段显示各阶段完成状态。
  */
@@ -10,7 +21,7 @@ export default function SegmentedProgressBar({
     segments = [],
     totalProgress = 0,
     showLabels = true
-}) {
+}: SegmentedProgressBarProps) {
     return (
         <div className="w-full space-y-3">
             {/* 总进度条 */}
@@ -75,22 +86,10 @@ export default function SegmentedProgressBar({
     );
 }
 
-SegmentedProgressBar.propTypes = {
-    /** Array of segment objects with name and progress */
-    segments: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        progress: PropTypes.number.isRequired,
-    })),
-    /** Total progress percentage (0-100) */
-    totalProgress: PropTypes.number,
-    /** Whether to show segment labels */
-    showLabels: PropTypes.bool,
-};
-
 /**
  * 紧凑版进度条 (无分段标签)
  */
-export function CompactProgressBar({ progress = 0, label = '' }) {
+export function CompactProgressBar({ progress = 0, label = '' }: CompactProgressBarProps) {
     return (
         <div className="w-full space-y-1">
             <div className="relative h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -108,11 +107,3 @@ export function CompactProgressBar({ progress = 0, label = '' }) {
         </div>
     );
 }
-
-CompactProgressBar.propTypes = {
-    /** Progress percentage (0-100) */
-    progress: PropTypes.number,
-    /** Label text */
-    label: PropTypes.string,
-};
-

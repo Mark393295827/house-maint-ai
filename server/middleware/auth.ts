@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'house-maint-ai-secret-key-2024';
+import { JWT_SECRET } from '../config/secrets.js';
 
 /**
  * JWT Authentication Middleware

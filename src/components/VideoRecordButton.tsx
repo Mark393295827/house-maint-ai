@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { hapticButtonPress, hapticSuccess, VIDEO_CONSTRAINTS } from '../utils/haptics';
+import type { RecordingData } from '../types';
 
 /**
  * VideoRecordButton - 视频录制按钮
- * 
+ *
  * 带进度环和时长限制的视频录制组件。
  * - 最大时长: 15秒
  * - 分辨率: 720p
@@ -12,7 +12,7 @@ import { hapticButtonPress, hapticSuccess, VIDEO_CONSTRAINTS } from '../utils/ha
  */
 interface VideoRecordButtonProps {
     onRecordStart?: () => void;
-    onRecordComplete?: (data: any) => void;
+    onRecordComplete?: (data: RecordingData) => void;
     maxDuration?: number;
 }
 
@@ -23,7 +23,7 @@ export default function VideoRecordButton({
 }: VideoRecordButtonProps) {
     const [isRecording, setIsRecording] = useState(false);
     const [duration, setDuration] = useState(0);
-    const timerRef = useRef(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // 计算进度环参数
     const circumference = 2 * Math.PI * 38; // r=38
@@ -37,23 +37,6 @@ export default function VideoRecordButton({
             }
         };
     }, []);
-
-    const startRecording = () => {
-        hapticButtonPress();
-        setIsRecording(true);
-        setDuration(0);
-        onRecordStart?.();
-
-        timerRef.current = setInterval(() => {
-            setDuration(d => {
-                if (d >= maxDuration - 1) {
-                    stopRecording();
-                    return maxDuration;
-                }
-                return d + 1;
-            });
-        }, 1000);
-    };
 
     const stopRecording = () => {
         hapticSuccess();
@@ -71,6 +54,23 @@ export default function VideoRecordButton({
             timestamp: new Date().toISOString()
         });
         setDuration(0);
+    };
+
+    const startRecording = () => {
+        hapticButtonPress();
+        setIsRecording(true);
+        setDuration(0);
+        onRecordStart?.();
+
+        timerRef.current = setInterval(() => {
+            setDuration(d => {
+                if (d >= maxDuration - 1) {
+                    stopRecording();
+                    return maxDuration;
+                }
+                return d + 1;
+            });
+        }, 1000);
     };
 
     return (
@@ -146,13 +146,3 @@ export default function VideoRecordButton({
         </div>
     );
 }
-
-VideoRecordButton.propTypes = {
-    /** Callback when recording starts */
-    onRecordStart: PropTypes.func,
-    /** Callback when recording completes with metadata */
-    onRecordComplete: PropTypes.func,
-    /** Maximum recording duration in seconds */
-    maxDuration: PropTypes.number,
-};
-

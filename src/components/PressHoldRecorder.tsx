@@ -1,22 +1,28 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { hapticButtonPress, hapticWarning } from '../utils/haptics';
+import type { RecordingData } from '../types';
+
+interface PressHoldRecorderProps {
+    onRecordStart?: () => void;
+    onRecordComplete?: (data: RecordingData) => void;
+    maxDuration?: number;
+}
 
 /**
  * PressHoldRecorder - 长按录音组件
- * 
- * 使用 onMouseDown/onMouseUp 和 onTouchStart/onTouchEnd 
+ *
+ * 使用 onMouseDown/onMouseUp 和 onTouchStart/onTouchEnd
  * 实现"长按录制"交互，模拟 React Native 的 onPressIn/onPressOut。
  */
 export default function PressHoldRecorder({
     onRecordStart,
     onRecordComplete,
     maxDuration = 60
-}) {
+}: PressHoldRecorderProps) {
     const [isRecording, setIsRecording] = useState(false);
     const [duration, setDuration] = useState(0);
-    const timerRef = useRef(null);
-    const startTimeRef = useRef(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const startTimeRef = useRef<number | null>(null);
 
     // 清理定时器
     useEffect(() => {
@@ -26,6 +32,27 @@ export default function PressHoldRecorder({
             }
         };
     }, []);
+
+    const stopRecording = useCallback(() => {
+        if (!isRecording && !timerRef.current) return;
+
+        hapticWarning();
+        setIsRecording(false);
+
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+
+        const startTime = startTimeRef.current ?? Date.now();
+        const finalDuration = Math.ceil((Date.now() - startTime) / 1000);
+
+        onRecordComplete?.({
+            duration: Math.min(finalDuration, maxDuration),
+            timestamp: new Date().toISOString()
+        });
+        setDuration(0);
+    }, [isRecording, maxDuration, onRecordComplete]);
 
     const startRecording = useCallback(() => {
         hapticButtonPress();
@@ -44,27 +71,7 @@ export default function PressHoldRecorder({
                 return d + 1;
             });
         }, 1000);
-    }, [maxDuration, onRecordStart]);
-
-    const stopRecording = useCallback(() => {
-        if (!isRecording && !timerRef.current) return;
-
-        hapticWarning();
-        setIsRecording(false);
-
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-        }
-
-        const finalDuration = Math.ceil((Date.now() - startTimeRef.current) / 1000);
-
-        onRecordComplete?.({
-            duration: Math.min(finalDuration, maxDuration),
-            timestamp: new Date().toISOString()
-        });
-        setDuration(0);
-    }, [isRecording, maxDuration, onRecordComplete]);
+    }, [maxDuration, onRecordStart, stopRecording]);
 
     // 处理鼠标/触摸离开按钮区域
     const handlePointerLeave = useCallback(() => {
@@ -73,7 +80,7 @@ export default function PressHoldRecorder({
         }
     }, [isRecording, stopRecording]);
 
-    const formatTime = (seconds) => {
+    const formatTime = (seconds: number): string => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins}:${String(secs).padStart(2, '0')}`;
@@ -128,13 +135,3 @@ export default function PressHoldRecorder({
         </div>
     );
 }
-
-PressHoldRecorder.propTypes = {
-    /** Callback when recording starts */
-    onRecordStart: PropTypes.func,
-    /** Callback when recording completes with duration and timestamp */
-    onRecordComplete: PropTypes.func,
-    /** Maximum recording duration in seconds */
-    maxDuration: PropTypes.number,
-};
-
