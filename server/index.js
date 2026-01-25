@@ -13,6 +13,7 @@ import workerRoutes from './routes/workers.js';
 import uploadRoutes from './routes/uploads.js';
 import communityRoutes from './routes/community.js';
 import aiRoutes from './routes/ai.js';
+import feedbackRoutes from './routes/feedback.js';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -45,6 +46,7 @@ app.use('/api/workers', workerRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/ai', strictLimiter, aiRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Sentry Error Handler (must be before custom error handler)
 Sentry.setupExpressErrorHandler(app);

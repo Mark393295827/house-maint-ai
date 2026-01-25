@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { analyzeImageFromUrl, analyzeImageFile } from '../services/ai';
+import FeedbackCapture from '../components/feedback/FeedbackCapture';
+import { feedbackTracker } from '../utils/feedbackTracker';
 
 const DiagnosisPage = () => {
     const navigate = useNavigate();
@@ -94,6 +96,8 @@ const DiagnosisPage = () => {
             if (result.detected) {
                 // Store result in sessionStorage for the repair page
                 sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
+                // Start tracking feedback session
+                feedbackTracker.startDiagnosisSession(result.issue_name);
             }
         } catch (error) {
             console.error('Analysis error:', error);
@@ -132,6 +136,9 @@ const DiagnosisPage = () => {
 
     // Reset capture
     const resetCapture = () => {
+        if (analysisResult?.detected) {
+            feedbackTracker.endDiagnosisSession(analysisResult.issue_name, 'internal_reset');
+        }
         if (capturedImage) {
             URL.revokeObjectURL(capturedImage);
         }
@@ -244,9 +251,9 @@ const DiagnosisPage = () => {
                     <div className="bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md rounded-2xl p-4 shadow-xl">
                         <div className="flex items-start gap-3">
                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${analysisResult.severity === 'critical' ? 'bg-red-100 text-red-500' :
-                                    analysisResult.severity === 'high' ? 'bg-orange-100 text-orange-500' :
-                                        analysisResult.severity === 'medium' ? 'bg-yellow-100 text-yellow-500' :
-                                            'bg-green-100 text-green-500'
+                                analysisResult.severity === 'high' ? 'bg-orange-100 text-orange-500' :
+                                    analysisResult.severity === 'medium' ? 'bg-yellow-100 text-yellow-500' :
+                                        'bg-green-100 text-green-500'
                                 }`}>
                                 <span className="material-symbols-outlined text-2xl">
                                     {analysisResult.severity === 'critical' || analysisResult.severity === 'high'
@@ -265,6 +272,12 @@ const DiagnosisPage = () => {
                                 </p>
                             </div>
                         </div>
+
+                        <FeedbackCapture
+                            diagnosisId={analysisResult.issue_name}
+                            onFeedbackSubmit={() => { }}
+                        />
+
                         <div className="flex gap-2 mt-3">
                             <button
                                 onClick={resetCapture}

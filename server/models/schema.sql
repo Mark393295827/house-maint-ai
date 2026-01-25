@@ -88,6 +88,15 @@ CREATE TABLE IF NOT EXISTS posts (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- 反馈事件表
+CREATE TABLE IF NOT EXISTS feedback_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+    event_type TEXT NOT NULL CHECK(event_type IN ('view', 'accept', 'correct', 'reject', 'rating_explicit', 'implicit_signal')),
+    data TEXT, -- JSON payload with details (e.g., correction fields, rating value)
+    timestamp TEXT DEFAULT (datetime('now'))
+);
+
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_reports_user_id ON reports(user_id);
 CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
