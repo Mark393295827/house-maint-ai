@@ -1,18 +1,30 @@
-import PropTypes from 'prop-types';
 import { calculateMatchScore, getMatchLevel } from '../utils/matchScore';
+import type { Worker, Report } from '../types';
+
+interface MatchScoreCardProps {
+    worker: Worker;
+    report: Report;
+    showDetails?: boolean;
+}
+
+interface ScoreItemProps {
+    icon: string;
+    label: string;
+    value: number;
+}
 
 /**
  * MatchScoreCard - 工人匹配度卡片
- * 
+ *
  * 显示工人的匹配度分数和等级。
  */
 export default function MatchScoreCard({
     worker,
     report,
     showDetails = true
-}) {
+}: MatchScoreCardProps) {
     const score = calculateMatchScore(worker, report);
-    const { level, label, color } = getMatchLevel(score);
+    const { label, color } = getMatchLevel(score);
 
     return (
         <div className="bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
@@ -75,7 +87,7 @@ export default function MatchScoreCard({
     );
 }
 
-function ScoreItem({ icon, label, value }) {
+function ScoreItem({ icon, label, value }: ScoreItemProps) {
     return (
         <div className="flex-1 flex flex-col items-center gap-1">
             <span className="material-symbols-outlined text-sm text-text-sub-light dark:text-text-sub-dark">
@@ -90,33 +102,3 @@ function ScoreItem({ icon, label, value }) {
         </div>
     );
 }
-
-MatchScoreCard.propTypes = {
-    /** Worker information object */
-    worker: PropTypes.shape({
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        name: PropTypes.string.isRequired,
-        avatar: PropTypes.string,
-        distance: PropTypes.number.isRequired,
-        rating: PropTypes.number.isRequired,
-        skills: PropTypes.arrayOf(PropTypes.string),
-        distanceScore: PropTypes.number,
-        technicalScore: PropTypes.number,
-    }).isRequired,
-    /** Report information for matching */
-    report: PropTypes.shape({
-        requiredSkills: PropTypes.arrayOf(PropTypes.string),
-    }).isRequired,
-    /** Whether to show detailed score breakdown */
-    showDetails: PropTypes.bool,
-};
-
-ScoreItem.propTypes = {
-    /** Material icon name */
-    icon: PropTypes.string.isRequired,
-    /** Label text */
-    label: PropTypes.string.isRequired,
-    /** Score value */
-    value: PropTypes.number.isRequired,
-};
-

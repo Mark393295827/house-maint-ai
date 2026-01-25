@@ -10,6 +10,8 @@ services:
     depends_on:
       - backend
     restart: always
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3001/api}
 
   backend:
     build:
@@ -20,39 +22,70 @@ services:
     volumes:
       - ./server/data:/app/data
       - ./server/uploads:/app/uploads
+    env_file:
+      - .env.docker
     environment:
       - PORT=3001
       - NODE_ENV=production
-      # Secret key for JWT (Change this in production)
-      - JWT_SECRET=house-maint-ai-secret-key-change-me
       - DB_HOST=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=house_maint
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    secrets:
+      - jwt_secret
+      - db_password
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   postgres:
     image: postgres:15-alpine
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=house_maint
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+      - POSTGRES_DB=${DB_NAME:-house_maint}
+    secrets:
+      - db_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./server/models/schema.pg.sql:/docker-entrypoint-initdb.d/init.sql:ro
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-house_maint}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
     restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+secrets:
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  db_password:
+    file: ./secrets/db_password.txt
 
 volumes:
   postgres_data:
+  redis_data:

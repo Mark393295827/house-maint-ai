@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ErrorBoundary from './ErrorBoundary';
 
 // Component that throws an error
-const ThrowError = ({ shouldThrow }) => {
+const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
     if (shouldThrow) {
         throw new Error('Test error');
     }
@@ -77,7 +77,7 @@ describe('ErrorBoundary', () => {
     });
 
     it('should reset error state when retry is clicked', () => {
-        const { rerender } = render(
+        render(
             <ErrorBoundary>
                 <ThrowError shouldThrow={true} />
             </ErrorBoundary>

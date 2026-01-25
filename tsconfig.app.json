@@ -20,10 +20,10 @@
         "noEmit": true,
         "jsx": "react-jsx",
         /* Linting */
-        "strict": false,
-        "noImplicitAny": false,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false,
+        "strict": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true
     },
     "include": [

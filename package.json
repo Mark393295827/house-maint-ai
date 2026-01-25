@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "load-test": "k6 run --env SCENARIO=load load-tests/api-load-test.js",
+    "load-test:smoke": "k6 run --env SCENARIO=smoke load-tests/api-load-test.js",
+    "load-test:stress": "k6 run --env SCENARIO=stress load-tests/api-load-test.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.975.0",
@@ -31,6 +34,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/prop-types": "^15.7.15",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",

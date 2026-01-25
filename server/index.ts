@@ -26,9 +26,37 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// CORS Configuration - supports multiple environments
+const getAllowedOrigins = (): (string | RegExp)[] => {
+    const origins: (string | RegExp)[] = [];
+
+    // Add configured origins from environment variable (comma-separated)
+    if (process.env.CORS_ORIGINS) {
+        origins.push(...process.env.CORS_ORIGINS.split(',').map(o => o.trim()));
+    }
+
+    // Default development origins
+    if (process.env.NODE_ENV !== 'production') {
+        origins.push(
+            'http://localhost:5173',
+            'http://localhost:5174',
+            'http://localhost:5175',
+            'http://localhost:5176',
+            'http://localhost:3000'
+        );
+    }
+
+    // Production origins pattern (if set)
+    if (process.env.CORS_PATTERN) {
+        origins.push(new RegExp(process.env.CORS_PATTERN));
+    }
+
+    return origins.length > 0 ? origins : ['http://localhost:5173'];
+};
+
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
+    origin: getAllowedOrigins(),
     credentials: true
 }));
 

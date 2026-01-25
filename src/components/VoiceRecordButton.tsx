@@ -1,17 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { hapticButtonPress, hapticWarning } from '../utils/haptics';
+import type { RecordingData } from '../types';
 
 /**
  * VoiceRecordButton - 语音录制按钮
- * 
+ *
  * 带呼吸灯动画的录音按钮，符合 UI/UX 标准。
  * - 录音状态: scale(1.1x) 动画 + 呼吸灯效果
  * - 震动反馈: 开始/停止时触发
  */
 interface VoiceRecordButtonProps {
     onRecordStart?: () => void;
-    onRecordComplete?: (data: any) => void;
+    onRecordComplete?: (data: RecordingData) => void;
     maxDuration?: number;
 }
 
@@ -22,7 +22,7 @@ export default function VoiceRecordButton({
 }: VoiceRecordButtonProps) {
     const [isRecording, setIsRecording] = useState(false);
     const [duration, setDuration] = useState(0);
-    const timerRef = useRef(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // 清理定时器
     useEffect(() => {
@@ -32,6 +32,22 @@ export default function VoiceRecordButton({
             }
         };
     }, []);
+
+    const stopRecording = () => {
+        hapticWarning();
+        setIsRecording(false);
+
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+
+        onRecordComplete?.({
+            duration: duration + 1,
+            timestamp: new Date().toISOString()
+        });
+        setDuration(0);
+    };
 
     const startRecording = () => {
         hapticButtonPress();
@@ -51,23 +67,7 @@ export default function VoiceRecordButton({
         }, 1000);
     };
 
-    const stopRecording = () => {
-        hapticWarning();
-        setIsRecording(false);
-
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-        }
-
-        onRecordComplete?.({
-            duration: duration + 1,
-            timestamp: new Date().toISOString()
-        });
-        setDuration(0);
-    };
-
-    const formatTime = (seconds) => {
+    const formatTime = (seconds: number): string => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins}:${String(secs).padStart(2, '0')}`;
@@ -118,13 +118,3 @@ export default function VoiceRecordButton({
         </div>
     );
 }
-
-VoiceRecordButton.propTypes = {
-    /** Callback when recording starts */
-    onRecordStart: PropTypes.func,
-    /** Callback when recording completes with duration and timestamp */
-    onRecordComplete: PropTypes.func,
-    /** Maximum recording duration in seconds */
-    maxDuration: PropTypes.number,
-};
-

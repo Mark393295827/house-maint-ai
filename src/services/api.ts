@@ -2,7 +2,8 @@
  * API Client for House Maint AI Backend
  */
 
-const API_BASE = 'http://localhost:3001/api';
+// API Base URL from environment variable with fallback to localhost
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Token storage
 let authToken = localStorage.getItem('authToken');
