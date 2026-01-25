@@ -9,7 +9,8 @@ const redisConfig = {
     retryStrategy: (times: number) => {
         const delay = Math.min(times * 50, 2000);
         return delay;
-    }
+    },
+    commandTimeout: 1000, // Fail commands after 1s if not connected
 };
 
 // Create Redis client
