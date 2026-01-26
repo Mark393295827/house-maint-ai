@@ -1,0 +1,226 @@
+{
+  "globalInterval": 30000,
+  "aggregateEndpoint": "/health",
+  "skills": [
+    {
+      "skillId": "home-issue-diagnosis-specialist",
+      "endpoint": "/health/home-issue-diagnosis-specialist",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "user-behavior-feedback-analyzer",
+      "endpoint": "/health/user-behavior-feedback-analyzer",
+      "timeout": 3000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "model-performance-monitor",
+      "endpoint": "/health/model-performance-monitor",
+      "timeout": 4000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "implicit-signal-detector",
+      "endpoint": "/health/implicit-signal-detector",
+      "timeout": 2000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "semantic-feedback-analyzer",
+      "endpoint": "/health/semantic-feedback-analyzer",
+      "timeout": 3000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "drift-detection-model",
+      "endpoint": "/health/drift-detection-model",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "prompt-optimizer",
+      "endpoint": "/health/prompt-optimizer",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "rag-knowledge-updater",
+      "endpoint": "/health/rag-knowledge-updater",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "confidence-calibrator",
+      "endpoint": "/health/confidence-calibrator",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "safety-validator",
+      "endpoint": "/health/safety-validator",
+      "timeout": 1000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "automatic-rollback-manager",
+      "endpoint": "/health/automatic-rollback-manager",
+      "timeout": 3000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "human-in-loop-coordinator",
+      "endpoint": "/health/human-in-loop-coordinator",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "feedback-ingestion-processor",
+      "endpoint": "/health/feedback-ingestion-processor",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "user-interaction-analyzer",
+      "endpoint": "/health/user-interaction-analyzer",
+      "timeout": 3000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "knowledge-base-curator",
+      "endpoint": "/health/knowledge-base-curator",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "diagnosis-flow-orchestrator",
+      "endpoint": "/health/diagnosis-flow-orchestrator",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "feedback-detection-flow",
+      "endpoint": "/health/feedback-detection-flow",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "auto-update-pipeline-orchestrator",
+      "endpoint": "/health/auto-update-pipeline-orchestrator",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "real-time-metrics-calculator",
+      "endpoint": "/health/real-time-metrics-calculator",
+      "timeout": 5000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    },
+    {
+      "skillId": "alert-notification-manager",
+      "endpoint": "/health/alert-notification-manager",
+      "timeout": 3000,
+      "interval": 30000,
+      "expectedStatus": 200,
+      "thresholds": {
+        "unhealthy": 3,
+        "healthy": 2
+      }
+    }
+  ]
+}

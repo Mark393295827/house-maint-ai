@@ -1,0 +1,192 @@
+{
+  "generated": "2026-01-26T09:20:00.378282",
+  "version": "1.0.0",
+  "environment": "production",
+  "totalSkills": 20,
+  "deploymentOrder": [
+    {
+      "id": "safety-validator",
+      "name": "Safety Validator",
+      "version": "1.0.0",
+      "priority": "CRITICAL",
+      "timeout": 1000,
+      "checksum": "ea1bb6d6b267"
+    },
+    {
+      "id": "feedback-ingestion-processor",
+      "name": "Feedback Ingestion Processor",
+      "version": "1.0.0",
+      "priority": "CRITICAL",
+      "timeout": 30000,
+      "checksum": "1e1383c97181"
+    },
+    {
+      "id": "diagnosis-flow-orchestrator",
+      "name": "Diagnosis Flow Orchestrator",
+      "version": "1.0.0",
+      "priority": "CRITICAL",
+      "timeout": 5000,
+      "checksum": "42fab4350de4"
+    },
+    {
+      "id": "auto-update-pipeline-orchestrator",
+      "name": "Auto-Update Pipeline Orchestrator",
+      "version": "1.0.0",
+      "priority": "CRITICAL",
+      "timeout": 20000,
+      "checksum": "59af31373185"
+    },
+    {
+      "id": "automatic-rollback-manager",
+      "name": "Automatic Rollback Manager",
+      "version": "1.0.0",
+      "priority": "CRITICAL",
+      "timeout": 3000,
+      "checksum": "3cb9f68213c6"
+    },
+    {
+      "id": "home-issue-diagnosis-specialist",
+      "name": "Home Issue Diagnosis Specialist",
+      "version": "1.0.0",
+      "priority": "HIGH",
+      "timeout": 5000,
+      "checksum": "adcb877ef7c5"
+    },
+    {
+      "id": "user-behavior-feedback-analyzer",
+      "name": "User Behavior Feedback Analyzer",
+      "version": "1.0.0",
+      "priority": "HIGH",
+      "timeout": 3000,
+      "checksum": "bdf77c87a9ca"
+    },
+    {
+      "id": "model-performance-monitor",
+      "name": "Model Performance Monitor",
+      "version": "1.0.0",
+      "priority": "HIGH",
+      "timeout": 4000,
+      "checksum": "80b7ada262d8"
+    },
+    {
+      "id": "human-in-loop-coordinator",
+      "name": "Human-in-the-Loop Coordinator",
+      "version": "1.0.0",
+      "priority": "HIGH",
+      "timeout": 5000,
+      "checksum": "ae288f389e1c"
+    },
+    {
+      "id": "alert-notification-manager",
+      "name": "Alert & Notification Manager",
+      "version": "1.0.0",
+      "priority": "HIGH",
+      "timeout": 3000,
+      "checksum": "c798aa0c547f"
+    },
+    {
+      "id": "real-time-metrics-calculator",
+      "name": "Real-Time Metrics Calculator",
+      "version": "1.0.0",
+      "priority": "HIGH",
+      "timeout": 5000,
+      "checksum": "28f2802bc3bf"
+    },
+    {
+      "id": "feedback-detection-flow",
+      "name": "Feedback Detection Flow",
+      "version": "1.0.0",
+      "priority": "HIGH",
+      "timeout": 8000,
+      "checksum": "e0de7af5dc57"
+    },
+    {
+      "id": "implicit-signal-detector",
+      "name": "Implicit Signal Detector",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 2000,
+      "checksum": "02fc6ef893ad"
+    },
+    {
+      "id": "semantic-feedback-analyzer",
+      "name": "Semantic Feedback Analyzer",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 3000,
+      "checksum": "b104733417e6"
+    },
+    {
+      "id": "drift-detection-model",
+      "name": "Drift Detection Model",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 5000,
+      "checksum": "b0e833cb3c2f"
+    },
+    {
+      "id": "prompt-optimizer",
+      "name": "Prompt Optimizer",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 15000,
+      "checksum": "5a52602b2f93"
+    },
+    {
+      "id": "rag-knowledge-updater",
+      "name": "RAG Knowledge Updater",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 10000,
+      "checksum": "0d4109d926bc"
+    },
+    {
+      "id": "confidence-calibrator",
+      "name": "Confidence Calibrator",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 5000,
+      "checksum": "09f9a136b845"
+    },
+    {
+      "id": "user-interaction-analyzer",
+      "name": "User Interaction Analyzer",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 3000,
+      "checksum": "839d86b95b55"
+    },
+    {
+      "id": "knowledge-base-curator",
+      "name": "Knowledge Base Curator",
+      "version": "1.0.0",
+      "priority": "MEDIUM",
+      "timeout": 10000,
+      "checksum": "ff6de664ec01"
+    }
+  ],
+  "safetyConstraints": {
+    "lockedFields": [
+      "safety_warnings",
+      "professional_required_categories",
+      "building_code_references",
+      "liability_disclaimers"
+    ],
+    "rollbackThresholds": {
+      "accuracyDropMax": 0.05,
+      "latencyIncreaseMax": 200,
+      "errorRateMax": 0.02
+    }
+  },
+  "performanceTargets": {
+    "diagnosisLatency": "< 3000ms",
+    "feedbackDetectionLatency": "< 500ms",
+    "metricsCalculationInterval": "5 minutes",
+    "throughput": "1000+ diagnoses/second"
+  },
+  "rollbackThresholds": {
+    "accuracyDropMax": 0.05,
+    "latencyIncreaseMax": 200,
+    "errorRateMax": 0.02
+  }
+}

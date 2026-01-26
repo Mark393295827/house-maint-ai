@@ -1,0 +1,3098 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "name": "Home Maintenance AI Architecture Skills",
+    "description": "Comprehensive Claude Skills suite for home issue diagnosis with AI-powered continuous learning feedback loop",
+    "author": "House Maintenance AI Team",
+    "created": "2026-01-25",
+    "deploymentTarget": "Claude API v1",
+    "version": "1.0.0",
+    "updated": "2026-01-26"
+  },
+  "skillGroups": {
+    "coreDiagnosis": {
+      "id": "core-diagnosis-group",
+      "description": "核心诊断技能组",
+      "skills": [
+        "home-issue-diagnosis-specialist",
+        "user-behavior-feedback-analyzer",
+        "model-performance-monitor"
+      ]
+    },
+    "aiPowered": {
+      "id": "ai-powered-group",
+      "description": "AI驱动的检测与分析技能组",
+      "skills": [
+        "implicit-signal-detector",
+        "semantic-feedback-analyzer",
+        "drift-detection-model"
+      ]
+    },
+    "optimization": {
+      "id": "optimization-group",
+      "description": "优化与改进技能组",
+      "skills": [
+        "prompt-optimizer",
+        "rag-knowledge-updater",
+        "confidence-calibrator"
+      ]
+    },
+    "safety": {
+      "id": "safety-group",
+      "description": "安全卫士技能组",
+      "skills": [
+        "safety-validator",
+        "automatic-rollback-manager",
+        "human-in-loop-coordinator"
+      ]
+    },
+    "dataProcessing": {
+      "id": "data-processing-group",
+      "description": "数据处理技能组",
+      "skills": [
+        "feedback-ingestion-processor",
+        "user-interaction-analyzer",
+        "knowledge-base-curator"
+      ]
+    },
+    "orchestration": {
+      "id": "orchestration-group",
+      "description": "集成与编排技能组",
+      "skills": [
+        "diagnosis-flow-orchestrator",
+        "feedback-detection-flow",
+        "auto-update-pipeline-orchestrator"
+      ]
+    },
+    "observability": {
+      "id": "observability-group",
+      "description": "性能与可观测性技能组",
+      "skills": [
+        "real-time-metrics-calculator",
+        "alert-notification-manager"
+      ]
+    }
+  },
+  "skills": {
+    "home-issue-diagnosis-specialist": {
+      "id": "skill-001",
+      "name": "Home Issue Diagnosis Specialist",
+      "chineseName": "家庭问题诊断专家",
+      "version": "1.0.0",
+      "description": "Analyzes house images and issues to provide accurate diagnoses with calibrated confidence scores",
+      "capabilities": [
+        "Image analysis and problem recognition",
+        "Problem severity assessment",
+        "DIY vs professional recommendation",
+        "Confidence score calibration",
+        "Multi-category issue detection"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "issueDescription": {
+            "type": "string",
+            "description": "Detailed description of the house issue"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "URL of the issue image (optional)"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location in house (kitchen, bathroom, etc.)"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "description": "Estimated severity level"
+          }
+        },
+        "required": [
+          "issueDescription"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "diagnosis": {
+            "type": "string",
+            "description": "Primary diagnosis result"
+          },
+          "category": {
+            "type": "string",
+            "description": "Issue category (electrical, plumbing, HVAC, structural, etc.)"
+          },
+          "confidenceScore": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Calibrated confidence score based on historical accuracy"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "description": "Severity level of the issue"
+          },
+          "recommendedAction": {
+            "type": "string",
+            "enum": [
+              "diy",
+              "professional",
+              "monitor",
+              "urgent"
+            ],
+            "description": "Recommended action for the issue"
+          },
+          "safetyWarnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Critical safety warnings if applicable"
+          },
+          "estimatedCost": {
+            "type": "object",
+            "properties": {
+              "diyEstimate": {
+                "type": "number"
+              },
+              "professionalEstimate": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "description": "Estimated repair cost breakdown"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "HIGH",
+        "timeout": 5000,
+        "retryPolicy": {
+          "maxRetries": 3,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": true,
+        "cacheTTL": 3600
+      }
+    },
+    "user-behavior-feedback-analyzer": {
+      "id": "skill-002",
+      "name": "User Behavior Feedback Analyzer",
+      "chineseName": "用户行为反馈分析器",
+      "version": "1.0.0",
+      "description": "Analyzes user interactions to detect implicit feedback signals and classify sentiment",
+      "capabilities": [
+        "Implicit feedback signal detection",
+        "User behavior pattern analysis",
+        "Sentiment classification",
+        "Data drift detection",
+        "Automatic training pair generation"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userSessionId": {
+            "type": "string",
+            "description": "Unique identifier for the user session"
+          },
+          "originalDiagnosis": {
+            "type": "string",
+            "description": "The original diagnosis result to analyze"
+          },
+          "actionSequence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "duration": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Sequence of user actions with timestamps"
+          },
+          "sessionOutcome": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected",
+              "modified",
+              "abandoned"
+            ],
+            "description": "Final outcome of the user session"
+          },
+          "userComments": {
+            "type": "string",
+            "description": "Optional user feedback comments"
+          }
+        },
+        "required": [
+          "userSessionId",
+          "actionSequence"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "feedbackClassification": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative",
+              "neutral"
+            ],
+            "description": "Overall feedback classification"
+          },
+          "confidenceScore": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Confidence score between 0 and 1"
+          },
+          "implicitSignals": {
+            "type": "object",
+            "properties": {
+              "timeToAction": {
+                "type": "string"
+              },
+              "editDetected": {
+                "type": "boolean"
+              },
+              "abandonmentRisk": {
+                "type": "number"
+              },
+              "resubmissionCount": {
+                "type": "integer"
+              },
+              "scrollDepth": {
+                "type": "number"
+              }
+            },
+            "description": "Detected implicit feedback signals"
+          },
+          "incorrectFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Fields that may be incorrect based on user behavior"
+          },
+          "suggestedTrainingLabel": {
+            "type": "object",
+            "properties": {
+              "originalInput": {
+                "type": "string"
+              },
+              "correctedOutput": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number"
+              }
+            },
+            "description": "Suggested label for training data"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "HIGH",
+        "timeout": 3000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": true,
+        "cacheable": true,
+        "cacheTTL": 1800
+      }
+    },
+    "model-performance-monitor": {
+      "id": "skill-003",
+      "name": "Model Performance Monitor",
+      "chineseName": "模型性能监控器",
+      "version": "1.0.0",
+      "description": "Continuously assesses model performance and detects degradation",
+      "capabilities": [
+        "Accuracy metric calculation",
+        "Performance anomaly detection",
+        "Drift detection and alerting",
+        "Category distribution analysis",
+        "Update trigger determination"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "metricsData": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "diagnosis": {
+                  "type": "string"
+                },
+                "actualResult": {
+                  "type": "string"
+                },
+                "isCorrect": {
+                  "type": "boolean"
+                },
+                "category": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Array of metrics data points for analysis"
+          },
+          "timeWindow": {
+            "type": "string",
+            "enum": [
+              "1h",
+              "6h",
+              "24h",
+              "7d"
+            ],
+            "description": "Analysis time window"
+          }
+        },
+        "required": [
+          "metricsData"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "accuracyScore": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Calculated accuracy score"
+          },
+          "categoryBreakdown": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Breakdown of results by category"
+          },
+          "correctionRate": {
+            "type": "number",
+            "description": "Rate of user corrections"
+          },
+          "driftScore": {
+            "type": "number",
+            "description": "Statistical drift metric (0-1)"
+          },
+          "anomalies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Detected anomalies or issues"
+          },
+          "updateTrigger": {
+            "type": "boolean",
+            "description": "Should auto-update pipeline be triggered"
+          },
+          "triggerReason": {
+            "type": "string",
+            "enum": [
+              "accuracy_below_threshold",
+              "correction_rate_high",
+              "drift_detected",
+              "none"
+            ],
+            "description": "Reason for triggering action"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "HIGH",
+        "timeout": 4000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": true,
+        "cacheTTL": 300
+      }
+    },
+    "implicit-signal-detector": {
+      "id": "skill-004",
+      "name": "Implicit Signal Detector",
+      "chineseName": "隐性信号检测器",
+      "version": "1.0.0",
+      "description": "Detects implicit user feedback signals from behavioral patterns",
+      "capabilities": [
+        "Time-to-action analysis",
+        "Edit and correction detection",
+        "Abandonment tracking",
+        "Re-submission pattern analysis",
+        "Scroll depth measurement"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userEvents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventType": {
+                  "type": "string",
+                  "enum": [
+                    "view",
+                    "edit",
+                    "submit",
+                    "abandon",
+                    "scroll",
+                    "click"
+                  ]
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "metadata": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Array of user interaction events"
+          },
+          "diagnosisResult": {
+            "type": "string",
+            "description": "Complete diagnosis result"
+          }
+        },
+        "required": [
+          "userEvents"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "signals": {
+            "type": "object",
+            "properties": {
+              "timeToAction": {
+                "type": "object",
+                "properties": {
+                  "milliseconds": {
+                    "type": "number"
+                  },
+                  "interpretation": {
+                    "type": "string"
+                  }
+                }
+              },
+              "editDetected": {
+                "type": "boolean"
+              },
+              "editCount": {
+                "type": "integer"
+              },
+              "abandonmentDetected": {
+                "type": "boolean"
+              },
+              "resubmissionCount": {
+                "type": "integer"
+              },
+              "scrollDepth": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Proportion of content scrolled (0-1)"
+              }
+            },
+            "description": "Detected user signals"
+          },
+          "signalInterpretation": {
+            "type": "string",
+            "description": "Human-readable interpretation of signals"
+          },
+          "feedbackSentiment": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative",
+              "neutral"
+            ],
+            "description": "Overall sentiment of feedback"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 2000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": true,
+        "cacheable": false
+      }
+    },
+    "semantic-feedback-analyzer": {
+      "id": "skill-005",
+      "name": "Semantic Feedback Analyzer",
+      "chineseName": "语义反馈分析器",
+      "version": "1.0.0",
+      "description": "Analyzes semantic content of user feedback for sentiment and specific issues",
+      "capabilities": [
+        "Sentiment analysis from comments",
+        "Complaint extraction",
+        "Category identification",
+        "Sarcasm detection",
+        "Field-level feedback mapping"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userFeedback": {
+            "type": "string",
+            "description": "User comments or feedback text"
+          },
+          "originalDiagnosis": {
+            "type": "string",
+            "description": "The original diagnosis result to analyze"
+          },
+          "diagnosisFields": {
+            "type": "object",
+            "description": "Individual diagnosis fields for mapping"
+          }
+        },
+        "required": [
+          "userFeedback"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "sentiment": {
+            "type": "string",
+            "enum": [
+              "very_negative",
+              "negative",
+              "neutral",
+              "positive",
+              "very_positive"
+            ],
+            "description": "Sentiment classification result"
+          },
+          "sentimentScore": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1,
+            "description": "Numeric sentiment score"
+          },
+          "extractedComplaints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Complaints extracted from feedback"
+          },
+          "extractedPraise": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Praise extracted from feedback"
+          },
+          "mentionedCategories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Categories mentioned in feedback"
+          },
+          "sarcasmDetected": {
+            "type": "boolean",
+            "description": "Whether sarcasm was detected"
+          },
+          "frustrationLevel": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "User frustration level estimate"
+          },
+          "fieldMappings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Feedback mapped to specific diagnosis fields"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 3000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": true,
+        "cacheable": true,
+        "cacheTTL": 3600
+      }
+    },
+    "drift-detection-model": {
+      "id": "skill-006",
+      "name": "Drift Detection Model",
+      "chineseName": "数据漂移检测模型",
+      "version": "1.0.0",
+      "description": "Monitors data distribution changes and emerging patterns",
+      "capabilities": [
+        "Category distribution shift detection",
+        "Seasonal pattern change tracking",
+        "Confidence score degradation detection",
+        "Emerging issue type identification",
+        "Statistical anomaly alerting"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "historicalData": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "confidenceScore": {
+                  "type": "number"
+                },
+                "isCorrect": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Historical data points for comparison"
+          },
+          "recentData": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "confidenceScore": {
+                  "type": "number"
+                },
+                "isCorrect": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Recent data points for analysis"
+          },
+          "seasonalityEnabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to account for seasonal patterns"
+          }
+        },
+        "required": [
+          "historicalData",
+          "recentData"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "driftDetected": {
+            "type": "boolean",
+            "description": "Whether data drift was detected"
+          },
+          "driftScore": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Calculated drift score"
+          },
+          "categoryShifts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "previousProportion": {
+                  "type": "number"
+                },
+                "currentProportion": {
+                  "type": "number"
+                },
+                "changePercent": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Detected category distribution shifts"
+          },
+          "confidenceDegradation": {
+            "type": "object",
+            "properties": {
+              "detected": {
+                "type": "boolean"
+              },
+              "averageHistorical": {
+                "type": "number"
+              },
+              "averageRecent": {
+                "type": "number"
+              },
+              "degradationPercent": {
+                "type": "number"
+              }
+            },
+            "description": "Confidence score degradation info"
+          },
+          "emergingCategories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Newly emerging issue categories"
+          },
+          "seasonalPatterns": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            },
+            "description": "Detected seasonal patterns"
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "severity": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Generated alert messages"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 5000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": true,
+        "cacheTTL": 600
+      }
+    },
+    "prompt-optimizer": {
+      "id": "skill-007",
+      "name": "Prompt Optimizer",
+      "chineseName": "提示词优化器",
+      "version": "1.0.0",
+      "description": "Generates and evaluates optimized diagnostic prompts using DSPy patterns",
+      "capabilities": [
+        "Failed diagnosis collection",
+        "Prompt variation generation",
+        "Candidate evaluation on test sets",
+        "Performance comparison",
+        "A/B testing orchestration"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "failedDiagnoses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "string"
+                },
+                "predictedOutput": {
+                  "type": "string"
+                },
+                "correctOutput": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Array of failed diagnosis cases"
+          },
+          "currentPrompt": {
+            "type": "string",
+            "description": "Current prompt being optimized"
+          },
+          "testSet": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "string"
+                },
+                "expectedOutput": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Test dataset for evaluation"
+          },
+          "variationCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 5,
+            "description": "Number of prompt variations to generate"
+          }
+        },
+        "required": [
+          "failedDiagnoses",
+          "currentPrompt"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "prompt": {
+                  "type": "string"
+                },
+                "testSetScore": {
+                  "type": "number"
+                },
+                "improvementPercent": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Generated candidate prompts"
+          },
+          "topCandidate": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              }
+            },
+            "description": "Best performing candidate"
+          },
+          "shadowTestRecommendation": {
+            "type": "boolean",
+            "description": "Whether to proceed with shadow testing"
+          },
+          "trafficAllocation": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 0.5,
+            "default": 0.1,
+            "description": "Traffic allocation percentage"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 15000,
+        "retryPolicy": {
+          "maxRetries": 1,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": false
+      }
+    },
+    "rag-knowledge-updater": {
+      "id": "skill-008",
+      "name": "RAG Knowledge Updater",
+      "chineseName": "RAG知识库更新器",
+      "version": "1.0.0",
+      "description": "Updates vector store and knowledge base with successful diagnosis patterns",
+      "capabilities": [
+        "Successful pattern identification",
+        "Embedding generation",
+        "Vector store updates",
+        "Low-performing example pruning",
+        "Category distribution rebalancing"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "successfulDiagnoses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "string"
+                },
+                "output": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "accuracy": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Array of successful diagnosis cases"
+          },
+          "vectorStoreConfig": {
+            "type": "object",
+            "properties": {
+              "embeddingModel": {
+                "type": "string"
+              },
+              "dimensions": {
+                "type": "integer"
+              },
+              "similarity": {
+                "type": "string"
+              }
+            },
+            "description": "Configuration for vector store"
+          },
+          "pruneThreshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.6,
+            "description": "Threshold for pruning low-quality examples"
+          }
+        },
+        "required": [
+          "successfulDiagnoses"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "addedExamples": {
+            "type": "integer",
+            "description": "Number of examples added"
+          },
+          "removedExamples": {
+            "type": "integer",
+            "description": "Number of examples removed"
+          },
+          "categoryBalance": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Category distribution balance"
+          },
+          "vectorStoreStats": {
+            "type": "object",
+            "properties": {
+              "totalVectors": {
+                "type": "integer"
+              },
+              "averageSimilarity": {
+                "type": "number"
+              }
+            },
+            "description": "Vector store statistics"
+          },
+          "fewShotContext": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "example": {
+                  "type": "string"
+                },
+                "relevanceScore": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Few-shot learning context"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 10000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": false
+      }
+    },
+    "confidence-calibrator": {
+      "id": "skill-009",
+      "name": "Confidence Calibrator",
+      "chineseName": "置信度校准器",
+      "version": "1.0.0",
+      "description": "Calibrates confidence scores based on historical accuracy data",
+      "capabilities": [
+        "Predicted vs actual accuracy comparison",
+        "Per-category calibration curves",
+        "Threshold adjustment",
+        "Uncertainty flagging rules",
+        "Display recommendation generation"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "predictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "predictedConfidence": {
+                  "type": "number"
+                },
+                "actualAccuracy": {
+                  "type": "boolean"
+                },
+                "category": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Array of prediction results"
+          }
+        },
+        "required": [
+          "predictions"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "calibrationCurves": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "confidenceRange": {
+                    "type": "string"
+                  },
+                  "actualAccuracy": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "description": "Calculated calibration curves"
+          },
+          "newThresholds": {
+            "type": "object",
+            "properties": {
+              "highConfidenceThreshold": {
+                "type": "number"
+              },
+              "uncertaintyThreshold": {
+                "type": "number"
+              },
+              "lowConfidenceThreshold": {
+                "type": "number"
+              }
+            },
+            "description": "Updated confidence thresholds"
+          },
+          "calibrationQuality": {
+            "type": "number",
+            "description": "Expected Calibration Error (ECE)"
+          },
+          "uncertaintyFlaggingRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Rules for flagging uncertainty"
+          },
+          "displayRecommendations": {
+            "type": "object",
+            "properties": {
+              "showConfidencePercentage": {
+                "type": "boolean"
+              },
+              "showUncertaintyIndicator": {
+                "type": "boolean"
+              },
+              "recommendProfessional": {
+                "type": "boolean"
+              }
+            },
+            "description": "Display recommendation settings"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 5000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": true,
+        "cacheTTL": 3600
+      }
+    },
+    "safety-validator": {
+      "id": "skill-010",
+      "name": "Safety Validator",
+      "chineseName": "安全验证器",
+      "version": "1.0.0",
+      "description": "Enforces safety constraints and validates against dangerous recommendations",
+      "capabilities": [
+        "Electrical/gas DIY prevention",
+        "Structural issue professional requirement",
+        "Building code compliance checking",
+        "Liability disclaimer enforcement",
+        "Emergency detection"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "diagnosis": {
+            "type": "string",
+            "description": "The diagnosis to validate"
+          },
+          "category": {
+            "type": "string",
+            "description": "Issue category classification"
+          },
+          "recommendedAction": {
+            "type": "string",
+            "description": "Recommended action for the issue"
+          },
+          "severity": {
+            "type": "string",
+            "description": "Severity level of the issue"
+          }
+        },
+        "required": [
+          "diagnosis",
+          "category"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "validated": {
+            "type": "boolean",
+            "description": "Whether validation passed"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "warning",
+                    "error",
+                    "critical"
+                  ]
+                },
+                "message": {
+                  "type": "string"
+                },
+                "remediation": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Safety rule violations found"
+          },
+          "requiredWarnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Mandatory safety warnings"
+          },
+          "mustBeElectricianOnly": {
+            "type": "boolean",
+            "description": "Requires licensed electrician"
+          },
+          "mustBeProfessional": {
+            "type": "boolean",
+            "description": "Requires professional service"
+          },
+          "buildingCodeReferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Relevant building codes"
+          },
+          "liabilityDisclaimer": {
+            "type": "string",
+            "description": "Required liability disclaimer"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "CRITICAL",
+        "timeout": 1000,
+        "retryPolicy": {
+          "maxRetries": 0
+        },
+        "parallelizable": false,
+        "cacheable": true,
+        "cacheTTL": 86400
+      }
+    },
+    "automatic-rollback-manager": {
+      "id": "skill-011",
+      "name": "Automatic Rollback Manager",
+      "chineseName": "自动回滚管理器",
+      "version": "1.0.0",
+      "description": "Monitors metrics and triggers automatic rollbacks if thresholds breached",
+      "capabilities": [
+        "Real-time metric monitoring",
+        "Threshold breach detection",
+        "Rollback execution",
+        "Alert generation",
+        "Cooldown period management"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "postDeploymentMetrics": {
+            "type": "object",
+            "properties": {
+              "accuracy": {
+                "type": "number"
+              },
+              "latencyP95": {
+                "type": "number"
+              },
+              "errorRate": {
+                "type": "number"
+              }
+            },
+            "description": "Metrics collected after deployment"
+          },
+          "baselineMetrics": {
+            "type": "object",
+            "properties": {
+              "accuracy": {
+                "type": "number"
+              },
+              "latencyP95": {
+                "type": "number"
+              },
+              "errorRate": {
+                "type": "number"
+              }
+            },
+            "description": "Baseline metrics for comparison"
+          },
+          "deploymentId": {
+            "type": "string",
+            "description": "Unique deployment identifier"
+          }
+        },
+        "required": [
+          "postDeploymentMetrics",
+          "baselineMetrics",
+          "deploymentId"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "rollbackRequired": {
+            "type": "boolean",
+            "description": "Whether rollback is needed"
+          },
+          "rollbackReasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Reasons for rollback"
+          },
+          "metricsComparison": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "baseline": {
+                  "type": "number"
+                },
+                "current": {
+                  "type": "number"
+                },
+                "changePercent": {
+                  "type": "number"
+                },
+                "threshold": {
+                  "type": "number"
+                },
+                "breached": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Comparison of metrics"
+          },
+          "rollbackExecuted": {
+            "type": "boolean",
+            "description": "Whether rollback was executed"
+          },
+          "alertSent": {
+            "type": "boolean",
+            "description": "Whether alert was sent"
+          },
+          "cooldownUntil": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Cooldown period end time"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "CRITICAL",
+        "timeout": 3000,
+        "retryPolicy": {
+          "maxRetries": 1,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": false
+      }
+    },
+    "human-in-loop-coordinator": {
+      "id": "skill-012",
+      "name": "Human-in-the-Loop Coordinator",
+      "chineseName": "人工审核协调器",
+      "version": "1.0.0",
+      "description": "Coordinates human review and approval workflows for critical changes",
+      "capabilities": [
+        "Approval request generation",
+        "Human review coordination",
+        "Audit trail maintenance",
+        "Change scheduling",
+        "Notification management"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "changeType": {
+            "type": "string",
+            "enum": [
+              "prompt_update",
+              "category_removal",
+              "safety_rule_change",
+              "auto_update"
+            ],
+            "description": "Type of change being coordinated"
+          },
+          "changeDetails": {
+            "type": "object",
+            "description": "Detailed information about the change"
+          },
+          "requiresApproval": {
+            "type": "boolean",
+            "description": "Whether human approval is required"
+          },
+          "urgencyLevel": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "description": "Urgency level of the change"
+          }
+        },
+        "required": [
+          "changeType",
+          "requiresApproval"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "reviewRequested": {
+            "type": "boolean",
+            "description": "Whether review was requested"
+          },
+          "reviewId": {
+            "type": "string",
+            "description": "Unique review identifier"
+          },
+          "approvalStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "scheduled"
+            ],
+            "description": "Current approval status"
+          },
+          "assignedReviewers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of assigned reviewers"
+          },
+          "notificationSent": {
+            "type": "boolean",
+            "description": "Whether notification was sent"
+          },
+          "scheduledDeploymentTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled deployment time"
+          },
+          "auditLog": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "actor": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Audit trail entries"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "HIGH",
+        "timeout": 5000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": false,
+        "cacheable": false
+      }
+    },
+    "feedback-ingestion-processor": {
+      "id": "skill-013",
+      "name": "Feedback Ingestion Processor",
+      "chineseName": "反馈摄取处理器",
+      "version": "1.0.0",
+      "description": "High-throughput feedback collection with real-time validation",
+      "capabilities": [
+        "Event ingestion (1000+ events/sec)",
+        "Real-time validation",
+        "Data deduplication",
+        "Time-series storage preparation",
+        "Training pair generation"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "feedbackEvents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventId": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "eventType": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Array of feedback events to process"
+          },
+          "batchSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "description": "Number of events to process per batch"
+          }
+        },
+        "required": [
+          "feedbackEvents"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "processedCount": {
+            "type": "integer",
+            "description": "Number of items processed"
+          },
+          "validatedCount": {
+            "type": "integer",
+            "description": "Number of items validated"
+          },
+          "deduplicatedCount": {
+            "type": "integer",
+            "description": "Number of duplicates removed"
+          },
+          "validationErrors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventId": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Validation error details"
+          },
+          "trainingPairsGenerated": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "string"
+                },
+                "output": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Generated training pairs"
+          },
+          "storageReady": {
+            "type": "boolean",
+            "description": "Whether storage is ready"
+          },
+          "processingStats": {
+            "type": "object",
+            "properties": {
+              "totalProcessingTime": {
+                "type": "number"
+              },
+              "throughput": {
+                "type": "number"
+              }
+            },
+            "description": "Processing statistics"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "CRITICAL",
+        "timeout": 30000,
+        "retryPolicy": {
+          "maxRetries": 3,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": true,
+        "cacheable": false
+      }
+    },
+    "user-interaction-analyzer": {
+      "id": "skill-014",
+      "name": "User Interaction Analyzer",
+      "chineseName": "用户交互分析器",
+      "version": "1.0.0",
+      "description": "Analyzes user interaction patterns and journeys",
+      "capabilities": [
+        "Time-to-action measurement",
+        "Page dwell time tracking",
+        "Edit count analysis",
+        "Feature usage path mapping",
+        "Abandon/completion rate calculation"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userJourney": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "component": {
+                  "type": "string"
+                },
+                "metadata": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Complete user journey data"
+          }
+        },
+        "required": [
+          "userJourney"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "timeMetrics": {
+            "type": "object",
+            "properties": {
+              "timeToFirstAction": {
+                "type": "number"
+              },
+              "timeToCompletion": {
+                "type": "number"
+              },
+              "totalSessionTime": {
+                "type": "number"
+              }
+            },
+            "description": "Time-based metrics"
+          },
+          "dwellTimes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Page dwell time data"
+          },
+          "editCounts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "Edit count by field"
+          },
+          "featureUsagePath": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Feature usage sequence"
+          },
+          "completionStatus": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "abandoned",
+              "in_progress"
+            ],
+            "description": "Task completion status"
+          },
+          "conversionRate": {
+            "type": "number",
+            "description": "Conversion rate metric"
+          },
+          "behaviorProfile": {
+            "type": "string",
+            "enum": [
+              "quick_acceptor",
+              "careful_reviewer",
+              "uncertain",
+              "rejector"
+            ],
+            "description": "User behavior profile"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 3000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": true,
+        "cacheable": true,
+        "cacheTTL": 1800
+      }
+    },
+    "knowledge-base-curator": {
+      "id": "skill-015",
+      "name": "Knowledge Base Curator",
+      "chineseName": "知识库维护器",
+      "version": "1.0.0",
+      "description": "Maintains and curates the knowledge base for optimal performance",
+      "capabilities": [
+        "New diagnosis pattern archival",
+        "Vector embedding updates",
+        "Outdated knowledge removal",
+        "Category balance maintenance",
+        "Seasonal pattern tracking"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "add",
+              "remove",
+              "update",
+              "rebalance",
+              "archive"
+            ],
+            "description": "Action to perform on knowledge base"
+          },
+          "knowledgeItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Knowledge items to add/update/remove"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "itemsAdded": {
+            "type": "integer",
+            "description": "Number of items added"
+          },
+          "itemsRemoved": {
+            "type": "integer",
+            "description": "Number of items removed"
+          },
+          "itemsUpdated": {
+            "type": "integer",
+            "description": "Number of items updated"
+          },
+          "knowledgeBaseStats": {
+            "type": "object",
+            "properties": {
+              "totalItems": {
+                "type": "integer"
+              },
+              "byCategory": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              },
+              "averageConfidence": {
+                "type": "number"
+              }
+            },
+            "description": "Knowledge base statistics"
+          },
+          "seasonalPatterns": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "month": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "frequency": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "description": "Detected seasonal patterns"
+          },
+          "curatedSuccessfully": {
+            "type": "boolean",
+            "description": "Curation success status"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "MEDIUM",
+        "timeout": 10000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": false
+      }
+    },
+    "diagnosis-flow-orchestrator": {
+      "id": "skill-016",
+      "name": "Diagnosis Flow Orchestrator",
+      "chineseName": "诊断流程协调器",
+      "version": "1.0.0",
+      "description": "Orchestrates end-to-end diagnosis workflow",
+      "capabilities": [
+        "Diagnosis workflow coordination",
+        "Image upload handling",
+        "Confidence calibration integration",
+        "Result display preparation",
+        "Implicit feedback tracking initialization"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "issueInput": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "imageUrl": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              }
+            },
+            "description": "User input describing the issue"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Unique user identifier"
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Unique session identifier for tracking"
+          }
+        },
+        "required": [
+          "issueInput",
+          "sessionId"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "diagnosisResult": {
+            "type": "object",
+            "description": "Complete diagnosis result"
+          },
+          "displayResult": {
+            "type": "object",
+            "properties": {
+              "diagnosis": {
+                "type": "string"
+              },
+              "confidenceDisplay": {
+                "type": "string"
+              },
+              "uncertaintyIndicator": {
+                "type": "boolean"
+              },
+              "recommendedAction": {
+                "type": "string"
+              }
+            },
+            "description": "Result formatted for display"
+          },
+          "feedbackTrackingEnabled": {
+            "type": "boolean",
+            "description": "Feedback tracking status"
+          },
+          "processingTime": {
+            "type": "number",
+            "description": "Total processing time in milliseconds"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "CRITICAL",
+        "timeout": 5000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": false,
+        "cacheable": false
+      }
+    },
+    "feedback-detection-flow": {
+      "id": "skill-017",
+      "name": "Feedback Detection Flow",
+      "chineseName": "反馈检测流程",
+      "version": "1.0.0",
+      "description": "Orchestrates feedback detection and model improvement workflow",
+      "capabilities": [
+        "User behavior stream ingestion",
+        "LLM feedback classification",
+        "Automatic training pair generation",
+        "Quality metric updates",
+        "Update trigger execution"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userSession": {
+            "type": "object",
+            "properties": {
+              "sessionId": {
+                "type": "string"
+              },
+              "events": {
+                "type": "array"
+              },
+              "originalDiagnosis": {
+                "type": "string"
+              }
+            },
+            "description": "Complete user session data"
+          }
+        },
+        "required": [
+          "userSession"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "feedbackProcessed": {
+            "type": "boolean",
+            "description": "Feedback processing status"
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative",
+              "neutral"
+            ],
+            "description": "Feedback classification"
+          },
+          "trainingPairGenerated": {
+            "type": "boolean",
+            "description": "Training pair generation status"
+          },
+          "metricsUpdated": {
+            "type": "boolean",
+            "description": "Metrics update status"
+          },
+          "updateTriggerFired": {
+            "type": "boolean",
+            "description": "Update trigger status"
+          },
+          "processingDetails": {
+            "type": "object",
+            "description": "Detailed processing info"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "HIGH",
+        "timeout": 8000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": true,
+        "cacheable": false
+      }
+    },
+    "auto-update-pipeline-orchestrator": {
+      "id": "skill-018",
+      "name": "Auto-Update Pipeline Orchestrator",
+      "chineseName": "自动更新管道编排器",
+      "version": "1.0.0",
+      "description": "Orchestrates the automated model update pipeline with safety checks",
+      "capabilities": [
+        "Degradation detection",
+        "Prompt optimization",
+        "Shadow deployment management",
+        "A/B testing orchestration",
+        "Automatic promotion with rollback capability"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "triggerEvent": {
+            "type": "object",
+            "properties": {
+              "triggerReason": {
+                "type": "string"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "data": {
+                "type": "object"
+              }
+            },
+            "description": "Event that triggered the pipeline"
+          }
+        },
+        "required": [
+          "triggerEvent"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "pipelineExecuted": {
+            "type": "boolean",
+            "description": "Pipeline execution status"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "prompt_optimization",
+              "shadow_deployment",
+              "a_b_testing",
+              "promotion",
+              "rollback"
+            ],
+            "description": "Current pipeline stage"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Generated candidate prompts"
+          },
+          "shadowTestResults": {
+            "type": "object",
+            "properties": {
+              "candidatePerformance": {
+                "type": "number"
+              },
+              "baselinePerformance": {
+                "type": "number"
+              },
+              "improvement": {
+                "type": "number"
+              },
+              "recommendation": {
+                "type": "string"
+              }
+            },
+            "description": "Shadow test results"
+          },
+          "promotionStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "promoted",
+              "rejected",
+              "rolled_back"
+            ],
+            "description": "Promotion status"
+          },
+          "featureFlagUpdate": {
+            "type": "boolean",
+            "description": "Feature flag update status"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "CRITICAL",
+        "timeout": 20000,
+        "retryPolicy": {
+          "maxRetries": 1,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": false,
+        "cacheable": false
+      }
+    },
+    "real-time-metrics-calculator": {
+      "id": "skill-019",
+      "name": "Real-Time Metrics Calculator",
+      "chineseName": "实时指标计算器",
+      "version": "1.0.0",
+      "description": "Calculates real-time performance metrics and KPIs",
+      "capabilities": [
+        "Accuracy rate calculation (hourly/daily/weekly)",
+        "Average confidence per category",
+        "User acceptance rates",
+        "Correction rates",
+        "System latency (p50/p95/p99)",
+        "Throughput measurement"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "metricsWindow": {
+            "type": "string",
+            "enum": [
+              "1h",
+              "6h",
+              "24h",
+              "7d",
+              "30d"
+            ],
+            "description": "Time window for metrics calculation"
+          },
+          "eventData": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Event data for metrics calculation"
+          }
+        },
+        "required": [
+          "metricsWindow"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 formatted timestamp"
+          },
+          "window": {
+            "type": "string",
+            "description": "Time window for metrics"
+          },
+          "accuracyRate": {
+            "type": "number",
+            "description": "Calculated accuracy rate"
+          },
+          "averageConfidenceByCategory": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Average confidence by category"
+          },
+          "userAcceptanceRate": {
+            "type": "number",
+            "description": "User acceptance rate"
+          },
+          "correctionRate": {
+            "type": "number",
+            "description": "Rate of user corrections"
+          },
+          "latencyMetrics": {
+            "type": "object",
+            "properties": {
+              "p50": {
+                "type": "number"
+              },
+              "p95": {
+                "type": "number"
+              },
+              "p99": {
+                "type": "number"
+              }
+            },
+            "description": "Latency percentile metrics"
+          },
+          "throughput": {
+            "type": "number",
+            "description": "Diagnoses per second"
+          },
+          "trends": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Trend analysis data"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "HIGH",
+        "timeout": 5000,
+        "retryPolicy": {
+          "maxRetries": 2,
+          "backoffMultiplier": 2
+        },
+        "parallelizable": true,
+        "cacheable": true,
+        "cacheTTL": 300
+      }
+    },
+    "alert-notification-manager": {
+      "id": "skill-020",
+      "name": "Alert & Notification Manager",
+      "chineseName": "告警与通知管理器",
+      "version": "1.0.0",
+      "description": "Manages alerts and notifications for system health and performance",
+      "capabilities": [
+        "Rapid accuracy degradation detection",
+        "Anomalous error rate alerting",
+        "Performance degradation detection",
+        "Data drift warnings",
+        "Auto-update event notifications",
+        "Rollback event alerts"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "alertTriggers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "metric": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "threshold": {
+                  "type": "number"
+                },
+                "severity": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Conditions that trigger alerts"
+          },
+          "notificationChannels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "email",
+                "slack",
+                "dashboard",
+                "sms"
+              ]
+            },
+            "description": "Channels for sending notifications"
+          }
+        },
+        "required": [
+          "alertTriggers"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "alertsGenerated": {
+            "type": "integer",
+            "description": "Number of alerts generated"
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "severity": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Generated alert messages"
+          },
+          "notificationsSent": {
+            "type": "integer",
+            "description": "Number of notifications sent"
+          },
+          "notificationStatus": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "sent": {
+                  "type": "boolean"
+                },
+                "recipients": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Status of sent notifications"
+          },
+          "error": {
+            "type": "object",
+            "description": "Error information if processing failed",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the operation completed successfully"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the operation completed"
+          }
+        }
+      },
+      "invocationConfig": {
+        "priority": "HIGH",
+        "timeout": 3000,
+        "retryPolicy": {
+          "maxRetries": 3,
+          "backoffMultiplier": 1.5
+        },
+        "parallelizable": true,
+        "cacheable": false
+      }
+    }
+  },
+  "deploymentConfig": {
+    "environment": "production",
+    "apiVersion": "1.0",
+    "invocationStrategy": {
+      "parallelizable": [
+        "implicit-signal-detector",
+        "semantic-feedback-analyzer",
+        "user-interaction-analyzer",
+        "feedback-ingestion-processor",
+        "real-time-metrics-calculator",
+        "alert-notification-manager"
+      ],
+      "sequential": [
+        "home-issue-diagnosis-specialist",
+        "confidence-calibrator",
+        "prompt-optimizer",
+        "rag-knowledge-updater"
+      ],
+      "asyncBackground": [
+        "real-time-metrics-calculator",
+        "alert-notification-manager",
+        "knowledge-base-curator"
+      ]
+    },
+    "priorityOrder": {
+      "CRITICAL": [
+        "safety-validator",
+        "feedback-ingestion-processor",
+        "diagnosis-flow-orchestrator",
+        "auto-update-pipeline-orchestrator",
+        "automatic-rollback-manager"
+      ],
+      "HIGH": [
+        "home-issue-diagnosis-specialist",
+        "user-behavior-feedback-analyzer",
+        "model-performance-monitor",
+        "human-in-loop-coordinator",
+        "alert-notification-manager",
+        "real-time-metrics-calculator",
+        "feedback-detection-flow"
+      ],
+      "MEDIUM": [
+        "implicit-signal-detector",
+        "semantic-feedback-analyzer",
+        "drift-detection-model",
+        "prompt-optimizer",
+        "rag-knowledge-updater",
+        "confidence-calibrator",
+        "user-interaction-analyzer",
+        "knowledge-base-curator"
+      ]
+    },
+    "resourceRequirements": {
+      "cpu": "4-8 cores",
+      "memory": "16-32 GB",
+      "storage": "500 GB minimum",
+      "vectorStore": "High-performance vector DB (e.g., Pinecone, Weaviate)"
+    },
+    "performanceTargets": {
+      "diagnosisLatency": "< 3000ms",
+      "feedbackDetectionLatency": "< 500ms",
+      "metricsCalculationInterval": "5 minutes",
+      "throughput": "1000+ diagnoses/second"
+    },
+    "safetyConstraints": {
+      "lockedFields": [
+        "safety_warnings",
+        "professional_required_categories",
+        "building_code_references",
+        "liability_disclaimers"
+      ],
+      "rollbackThresholds": {
+        "accuracyDropMax": 0.05,
+        "latencyIncreaseMax": 200,
+        "errorRateMax": 0.02
+      }
+    },
+    "updateConfig": {
+      "triggers": {
+        "accuracyThreshold": 0.9,
+        "correctionRateMax": 0.15,
+        "driftScoreMax": 0.25,
+        "minSampleSize": 100
+      },
+      "shadowTest": {
+        "trafficPercent": 0.1,
+        "minDuration": "24h",
+        "significanceLevel": 0.95,
+        "autoPromoteThreshold": 0.05
+      }
+    }
+  },
+  "integrations": {
+    "externalServices": {
+      "geminiVisionAPI": {
+        "endpoint": "https://api.gemini.google.com/v1/vision",
+        "rateLimiting": "1000 req/sec",
+        "timeout": 3000
+      },
+      "vectorStore": {
+        "type": "pinecone",
+        "endpoint": "https://api.pinecone.io",
+        "indexName": "home-maintenance-diagnoses",
+        "timeout": 5000
+      },
+      "database": {
+        "type": "sqlite",
+        "path": "/data/home-maintenance.db",
+        "endpoint": "file:///data/home-maintenance.db",
+        "timeout": 5000
+      },
+      "dataLake": {
+        "type": "s3",
+        "bucket": "home-maintenance-feedback-lake",
+        "endpoint": "https://s3.amazonaws.com",
+        "timeout": 30000
+      }
+    },
+    "notificationChannels": {
+      "email": {
+        "provider": "sendgrid",
+        "enabled": true
+      },
+      "slack": {
+        "enabled": true,
+        "webhook": "${SLACK_WEBHOOK_URL}"
+      },
+      "dashboard": {
+        "enabled": true,
+        "updateInterval": 300000
+      }
+    }
+  },
+  "monitoring": {
+    "logging": {
+      "level": "INFO",
+      "format": "json",
+      "destination": "cloudwatch"
+    },
+    "tracing": {
+      "enabled": true,
+      "samplingRate": 0.1
+    },
+    "metrics": {
+      "collection": "enabled",
+      "exportInterval": 60000
+    },
+    "healthChecks": {
+      "interval": 30000,
+      "timeout": 5000
+    }
+  },
+  "versioning": {
+    "currentVersion": "1.0.0",
+    "apiCompatibility": "1.0",
+    "deprecationPolicy": "Maintain backward compatibility for minimum 6 months"
+  }
+}
