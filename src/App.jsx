@@ -16,6 +16,7 @@ const QuickReportPage = lazy(() => import('./pages/QuickReportPage'));
 const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Dashboard />} />
+              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/welcome" element={<WelcomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/diagnosis" element={<DiagnosisPage />} />

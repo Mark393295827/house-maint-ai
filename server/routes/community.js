@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import db from '../config/database.js';
+import db from '../config/db.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
@@ -16,56 +16,61 @@ const postSchema = z.object({
  * GET /api/community/posts
  * Get all community posts
  */
-router.get('/posts', (req, res) => {
-    const { limit = 20, offset = 0 } = req.query;
+router.get('/posts', async (req, res, next) => {
+    try {
+        const { limit = 20, offset = 0 } = req.query;
 
-    const posts = db.prepare(`
-        SELECT p.*, u.name as author_name, u.avatar as author_avatar
-        FROM posts p
-        JOIN users u ON p.user_id = u.id
-        ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
-    `).all(limit, offset);
+        const posts = await db.all(`
+            SELECT p.*, u.name as author_name, u.avatar as author_avatar
+            FROM posts p
+            JOIN users u ON p.user_id = u.id
+            ORDER BY p.created_at DESC
+            LIMIT $1 OFFSET $2
+        `, [parseInt(limit), parseInt(offset)]);
 
-    // Parse tags
-    const formattedPosts = posts.map(post => ({
-        ...post,
-        tags: post.tags ? JSON.parse(post.tags) : []
-    }));
+        // Parse tags
+        const formattedPosts = posts.map(post => ({
+            ...post,
+            tags: typeof post.tags === 'string' ? JSON.parse(post.tags) : (post.tags || [])
+        }));
 
-    res.json({ posts: formattedPosts });
+        res.json({ posts: formattedPosts });
+    } catch (error) {
+        next(error);
+    }
 });
 
 /**
  * POST /api/community/posts
  * Create a new post
  */
-router.post('/posts', authenticate, (req, res, next) => {
+router.post('/posts', authenticate, async (req, res, next) => {
     try {
         const data = postSchema.parse(req.body);
 
-        const result = db.prepare(`
-            INSERT INTO posts (user_id, title, content, tags)
-            VALUES (?, ?, ?, ?)
-        `).run(
+        const insertSql = db.isUsingPostgres()
+            ? `INSERT INTO posts (user_id, title, content, tags) VALUES ($1, $2, $3, $4) RETURNING id`
+            : `INSERT INTO posts (user_id, title, content, tags) VALUES ($1, $2, $3, $4)`;
+
+        const result = await db.run(insertSql, [
             req.user.id,
             data.title,
             data.content,
             data.tags ? JSON.stringify(data.tags) : '[]'
-        );
+        ]);
 
-        const post = db.prepare(`
+        const post = await db.get(`
             SELECT p.*, u.name as author_name, u.avatar as author_avatar
             FROM posts p
             JOIN users u ON p.user_id = u.id
-            WHERE p.id = ?
-        `).get(result.lastInsertRowid);
+            WHERE p.id = $1
+        `, [result.lastInsertRowid]);
 
         res.status(201).json({
             message: 'Post created successfully',
             post: {
                 ...post,
-                tags: JSON.parse(post.tags)
+                tags: typeof post.tags === 'string' ? JSON.parse(post.tags) : (post.tags || [])
             }
         });
     } catch (error) {
@@ -77,18 +82,20 @@ router.post('/posts', authenticate, (req, res, next) => {
  * POST /api/community/posts/:id/like
  * Like a post
  */
-router.post('/posts/:id/like', authenticate, (req, res) => {
-    // Ideally we should have a separate likes table to prevent double liking
-    // For MVP, just incrementing the counter
-    const result = db.prepare(`
-        UPDATE posts SET likes = likes + 1 WHERE id = ?
-    `).run(req.params.id);
+router.post('/posts/:id/like', authenticate, async (req, res, next) => {
+    try {
+        // Ideally we should have a separate likes table to prevent double liking
+        // For MVP, just incrementing the counter
+        const result = await db.run(`UPDATE posts SET likes = likes + 1 WHERE id = $1`, [req.params.id]);
 
-    if (result.changes === 0) {
-        return res.status(404).json({ error: 'Post not found' });
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        res.json({ success: true, message: 'Post liked' });
+    } catch (error) {
+        next(error);
     }
-
-    res.json({ success: true, message: 'Post liked' });
 });
 
 export default router;

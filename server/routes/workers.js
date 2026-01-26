@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import db from '../config/database.js';
+import db from '../config/db.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
@@ -37,7 +37,7 @@ function calculateRatingScore(rating) {
 
 function calculateSkillScore(workerSkills, requiredCategory) {
     if (!requiredCategory) return 100;
-    const skills = JSON.parse(workerSkills || '[]');
+    const skills = typeof workerSkills === 'string' ? JSON.parse(workerSkills) : (workerSkills || []);
     return skills.includes(requiredCategory) ? 100 : 50;
 }
 
@@ -63,133 +63,155 @@ function calculateMatchScore(worker, report, weights = DEFAULT_WEIGHTS) {
  * GET /api/workers
  * Get all available workers
  */
-router.get('/', optionalAuth, (req, res) => {
-    const { skill, available = 1 } = req.query;
+router.get('/', optionalAuth, async (req, res, next) => {
+    try {
+        const { skill, available = 1 } = req.query;
+        const isAvailable = db.isUsingPostgres() ? (parseInt(available) === 1) : parseInt(available);
 
-    let query = `
-        SELECT w.*, u.name, u.phone, u.avatar
-        FROM workers w
-        JOIN users u ON w.user_id = u.id
-        WHERE w.available = ?
-    `;
-    const params = [parseInt(available)];
+        let paramIndex = 1;
+        let query = `
+            SELECT w.*, u.name, u.phone, u.avatar
+            FROM workers w
+            JOIN users u ON w.user_id = u.id
+            WHERE w.available = $${paramIndex++}
+        `;
+        const params = [isAvailable];
 
-    if (skill) {
-        query += ` AND w.skills LIKE ?`;
-        params.push(`%${skill}%`);
+        if (skill) {
+            if (db.isUsingPostgres()) {
+                query += ` AND w.skills::text LIKE $${paramIndex++}`;
+            } else {
+                query += ` AND w.skills LIKE $${paramIndex++}`;
+            }
+            params.push(`%${skill}%`);
+        }
+
+        query += ' ORDER BY w.rating DESC';
+
+        const workers = await db.all(query, params);
+
+        // Parse skills JSON
+        workers.forEach(w => {
+            w.skills = typeof w.skills === 'string' ? JSON.parse(w.skills) : (w.skills || []);
+        });
+
+        res.json({ workers });
+    } catch (error) {
+        next(error);
     }
-
-    query += ' ORDER BY w.rating DESC';
-
-    const workers = db.prepare(query).all(...params);
-
-    // Parse skills JSON
-    workers.forEach(w => {
-        w.skills = JSON.parse(w.skills || '[]');
-    });
-
-    res.json({ workers });
 });
 
 /**
  * GET /api/workers/match
  * Get matched workers for a report
  */
-router.get('/match', authenticate, (req, res) => {
-    const { report_id, latitude, longitude, category, limit = 5 } = req.query;
+router.get('/match', authenticate, async (req, res, next) => {
+    try {
+        const { report_id, latitude, longitude, category, limit = 5 } = req.query;
 
-    // Get report if report_id provided
-    let report = null;
-    if (report_id) {
-        report = db.prepare('SELECT * FROM reports WHERE id = ?').get(report_id);
-    } else {
-        report = {
-            latitude: parseFloat(latitude) || null,
-            longitude: parseFloat(longitude) || null,
-            category: category || null
-        };
+        // Get report if report_id provided
+        let report = null;
+        if (report_id) {
+            report = await db.get('SELECT * FROM reports WHERE id = $1', [report_id]);
+        } else {
+            report = {
+                latitude: parseFloat(latitude) || null,
+                longitude: parseFloat(longitude) || null,
+                category: category || null
+            };
+        }
+
+        // Get available workers
+        const isAvailable = db.isUsingPostgres() ? true : 1;
+        const workers = await db.all(`
+            SELECT w.*, u.name, u.phone, u.avatar
+            FROM workers w
+            JOIN users u ON w.user_id = u.id
+            WHERE w.available = $1
+        `, [isAvailable]);
+
+        // Calculate match scores
+        const matchedWorkers = workers.map(worker => {
+            const scores = calculateMatchScore(worker, report);
+            return {
+                ...worker,
+                skills: typeof worker.skills === 'string' ? JSON.parse(worker.skills) : (worker.skills || []),
+                ...scores
+            };
+        });
+
+        // Sort by score descending
+        matchedWorkers.sort((a, b) => b.score - a.score);
+
+        // Return top matches
+        const topMatches = matchedWorkers.slice(0, parseInt(limit));
+
+        res.json({
+            matches: topMatches,
+            total: workers.length
+        });
+    } catch (error) {
+        next(error);
     }
-
-    // Get available workers
-    const workers = db.prepare(`
-        SELECT w.*, u.name, u.phone, u.avatar
-        FROM workers w
-        JOIN users u ON w.user_id = u.id
-        WHERE w.available = 1
-    `).all();
-
-    // Calculate match scores
-    const matchedWorkers = workers.map(worker => {
-        const scores = calculateMatchScore(worker, report);
-        return {
-            ...worker,
-            skills: JSON.parse(worker.skills || '[]'),
-            ...scores
-        };
-    });
-
-    // Sort by score descending
-    matchedWorkers.sort((a, b) => b.score - a.score);
-
-    // Return top matches
-    const topMatches = matchedWorkers.slice(0, parseInt(limit));
-
-    res.json({
-        matches: topMatches,
-        total: workers.length
-    });
 });
 
 /**
  * GET /api/workers/:id
  * Get worker details
  */
-router.get('/:id', optionalAuth, (req, res) => {
-    const worker = db.prepare(`
-        SELECT w.*, u.name, u.phone, u.avatar
-        FROM workers w
-        JOIN users u ON w.user_id = u.id
-        WHERE w.id = ?
-    `).get(req.params.id);
+router.get('/:id', optionalAuth, async (req, res, next) => {
+    try {
+        const worker = await db.get(`
+            SELECT w.*, u.name, u.phone, u.avatar
+            FROM workers w
+            JOIN users u ON w.user_id = u.id
+            WHERE w.id = $1
+        `, [req.params.id]);
 
-    if (!worker) {
-        return res.status(404).json({ error: 'Worker not found' });
+        if (!worker) {
+            return res.status(404).json({ error: 'Worker not found' });
+        }
+
+        worker.skills = typeof worker.skills === 'string' ? JSON.parse(worker.skills) : (worker.skills || []);
+
+        // Get recent reviews
+        const reviews = await db.all(`
+            SELECT r.*, u.name as reviewer_name
+            FROM reviews r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.worker_id = $1
+            ORDER BY r.created_at DESC
+            LIMIT 5
+        `, [req.params.id]);
+
+        res.json({ worker, reviews });
+    } catch (error) {
+        next(error);
     }
-
-    worker.skills = JSON.parse(worker.skills || '[]');
-
-    // Get recent reviews
-    const reviews = db.prepare(`
-        SELECT r.*, u.name as reviewer_name
-        FROM reviews r
-        JOIN users u ON r.user_id = u.id
-        WHERE r.worker_id = ?
-        ORDER BY r.created_at DESC
-        LIMIT 5
-    `).all(req.params.id);
-
-    res.json({ worker, reviews });
 });
 
 /**
  * PUT /api/workers/:id/availability
  * Update worker availability
  */
-router.put('/:id/availability', authenticate, (req, res) => {
-    const { available } = req.body;
+router.put('/:id/availability', authenticate, async (req, res, next) => {
+    try {
+        const { available } = req.body;
 
-    // Check if user owns this worker profile
-    const worker = db.prepare('SELECT * FROM workers WHERE id = ? AND user_id = ?')
-        .get(req.params.id, req.user.id);
+        // Check if user owns this worker profile
+        const worker = await db.get('SELECT * FROM workers WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
 
-    if (!worker && req.user.role !== 'admin') {
-        return res.status(403).json({ error: 'Not authorized' });
+        if (!worker && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
+        const availableValue = db.isUsingPostgres() ? !!available : (available ? 1 : 0);
+        await db.run('UPDATE workers SET available = $1 WHERE id = $2', [availableValue, req.params.id]);
+
+        res.json({ message: 'Availability updated' });
+    } catch (error) {
+        next(error);
     }
-
-    db.prepare('UPDATE workers SET available = ? WHERE id = ?')
-        .run(available ? 1 : 0, req.params.id);
-
-    res.json({ message: 'Availability updated' });
 });
 
 export default router;

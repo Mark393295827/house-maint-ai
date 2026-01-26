@@ -2,7 +2,7 @@
  * API Client for House Maint AI Backend
  */
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
 // Token storage
 let authToken = localStorage.getItem('authToken');
@@ -302,5 +302,9 @@ export default {
     getPosts,
     createPost,
     likePost,
+
+    // ============ Feedback API ============
+    getFeedbackEvents: (limit = 50) => fetchAPI(`/feedback?limit=${limit}`),
+
     healthCheck,
 };

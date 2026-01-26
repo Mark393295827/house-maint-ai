@@ -1,10 +1,10 @@
 import express from 'express';
-import db from '../config/database.js';
+import db from '../config/db.js';
 
 const router = express.Router();
 
 // 接收反馈事件
-router.post('/', (req, res) => {
+router.post('/', async (req, res, next) => {
     try {
         const { session_id, event_type, data } = req.body;
 
@@ -20,33 +20,56 @@ router.post('/', (req, res) => {
         // Store JSON data as string if it's an object
         const dataStr = typeof data === 'object' ? JSON.stringify(data) : data;
 
-        const stmt = db.prepare(`
+        await db.run(`
             INSERT INTO feedback_events (session_id, event_type, data)
-            VALUES (?, ?, ?)
-        `);
-
-        stmt.run(session_id, event_type, dataStr);
+            VALUES ($1, $2, $3)
+        `, [session_id, event_type, dataStr]);
 
         res.status(201).json({ success: true, message: 'Feedback recorded' });
     } catch (error) {
         console.error('Error recording feedback:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
+    }
+});
+
+// Admin: List feedback events
+router.get('/', async (req, res, next) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = parseInt(req.query.offset) || 0;
+
+        const events = await db.all(`
+            SELECT * FROM feedback_events 
+            ORDER BY timestamp DESC 
+            LIMIT $1 OFFSET $2
+        `, [limit, offset]);
+
+        // Parse data JSON string back to object
+        const parsedEvents = events.map(event => ({
+            ...event,
+            data: typeof event.data === 'string' ? JSON.parse(event.data || '{}') : (event.data || {})
+        }));
+
+        res.json(parsedEvents);
+    } catch (error) {
+        console.error('Error fetching feedback:', error);
+        next(error);
     }
 });
 
 // 获取反馈统计 (Simple aggregation for dev verification)
-router.get('/stats', (req, res) => {
+router.get('/stats', async (req, res, next) => {
     try {
-        const stats = db.prepare(`
+        const stats = await db.all(`
             SELECT event_type, COUNT(*) as count 
             FROM feedback_events 
             GROUP BY event_type
-        `).all();
+        `, []);
 
         res.json(stats);
     } catch (error) {
         console.error('Error fetching stats:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
     }
 });
 

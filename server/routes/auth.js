@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import db from '../config/database.js';
+import db from '../config/db.js';
 import { authenticate, generateToken } from '../middleware/auth.js';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.post('/register', async (req, res, next) => {
         const data = registerSchema.parse(req.body);
 
         // Check if user exists
-        const existing = db.prepare('SELECT id FROM users WHERE phone = ?').get(data.phone);
+        const existing = await db.get('SELECT id FROM users WHERE phone = $1', [data.phone]);
         if (existing) {
             return res.status(409).json({ error: 'Phone number already registered' });
         }
@@ -37,13 +37,17 @@ router.post('/register', async (req, res, next) => {
         const passwordHash = bcrypt.hashSync(data.password, 10);
 
         // Insert user
-        const result = db.prepare(`
-            INSERT INTO users (phone, password_hash, name, role)
-            VALUES (?, ?, ?, ?)
-        `).run(data.phone, passwordHash, data.name, data.role);
+        const insertSql = db.isUsingPostgres()
+            ? `INSERT INTO users (phone, password_hash, name, role) VALUES ($1, $2, $3, $4) RETURNING id`
+            : `INSERT INTO users (phone, password_hash, name, role) VALUES ($1, $2, $3, $4)`;
 
-        const user = db.prepare('SELECT id, phone, name, role, avatar, created_at FROM users WHERE id = ?')
-            .get(result.lastInsertRowid);
+        const result = await db.run(insertSql, [data.phone, passwordHash, data.name, data.role]);
+        const userId = db.isUsingPostgres() ? result.lastInsertRowid : result.lastInsertRowid;
+
+        const user = await db.get(
+            'SELECT id, phone, name, role, avatar, created_at FROM users WHERE id = $1',
+            [userId]
+        );
 
         // Generate token
         const token = generateToken(user);
@@ -67,7 +71,7 @@ router.post('/login', async (req, res, next) => {
         const data = loginSchema.parse(req.body);
 
         // Find user
-        const user = db.prepare('SELECT * FROM users WHERE phone = ?').get(data.phone);
+        const user = await db.get('SELECT * FROM users WHERE phone = $1', [data.phone]);
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -98,36 +102,41 @@ router.post('/login', async (req, res, next) => {
  * GET /api/auth/me
  * Get current user
  */
-router.get('/me', authenticate, (req, res) => {
-    const user = db.prepare(`
-        SELECT id, phone, name, role, avatar, created_at 
-        FROM users WHERE id = ?
-    `).get(req.user.id);
+router.get('/me', authenticate, async (req, res, next) => {
+    try {
+        const user = await db.get(
+            `SELECT id, phone, name, role, avatar, created_at FROM users WHERE id = $1`,
+            [req.user.id]
+        );
 
-    if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ user });
+    } catch (error) {
+        next(error);
     }
-
-    res.json({ user });
 });
 
 /**
  * PUT /api/auth/profile
  * Update user profile
  */
-router.put('/profile', authenticate, (req, res, next) => {
+router.put('/profile', authenticate, async (req, res, next) => {
     try {
         const { name, avatar } = req.body;
 
-        db.prepare(`
-            UPDATE users SET name = ?, avatar = ?, updated_at = datetime('now')
-            WHERE id = ?
-        `).run(name || req.user.name, avatar, req.user.id);
+        const updateSql = db.isUsingPostgres()
+            ? `UPDATE users SET name = $1, avatar = $2, updated_at = NOW() WHERE id = $3`
+            : `UPDATE users SET name = $1, avatar = $2, updated_at = datetime('now') WHERE id = $3`;
 
-        const user = db.prepare(`
-            SELECT id, phone, name, role, avatar, created_at 
-            FROM users WHERE id = ?
-        `).get(req.user.id);
+        await db.run(updateSql, [name || req.user.name, avatar, req.user.id]);
+
+        const user = await db.get(
+            `SELECT id, phone, name, role, avatar, created_at FROM users WHERE id = $1`,
+            [req.user.id]
+        );
 
         res.json({ message: 'Profile updated', user });
     } catch (error) {
