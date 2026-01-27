@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.dev.vars
+
+# Wrangler
+.wrangler/
+worker-configuration.d.ts
