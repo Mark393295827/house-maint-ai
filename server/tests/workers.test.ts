@@ -2,6 +2,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
+
+// Mock redis to prevent connection errors
+vi.mock('../config/redis.js', () => ({
+    default: {
+        get: vi.fn().mockResolvedValue(null),
+        setex: vi.fn().mockResolvedValue('OK'),
+        on: vi.fn()
+    }
+}));
 import workerRoutes from '../routes/workers.js';
 import { authenticate } from '../middleware/auth.js';
 
