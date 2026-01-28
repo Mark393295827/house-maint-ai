@@ -62,8 +62,9 @@ House Maint AI has evolved into a production-grade, enterprise-ready platform. F
 
 While the project is exceptional, continuous improvement never stops:
 1.  **Metric Alerts**: Set up Prometheus/Grafana or CloudWatch alerts for real-time monitoring.
-2.  **Performance Testing**: Run `k6` load tests to tune Redis TTLs and Rate Limits.
-3.  **Real-User Monitoring (RUM)**: Enable Sentry performance tracing in the frontend.
+2.  **Performance Testing**: Run `k6` load tests (Requires local k6 installation).
+3.  ~~**Real-User Monitoring (RUM)**~~: Enabled in `src/services/sentry.ts` (Requires DSN).
+4.  **Backend Resilience**: Implemented In-Memory Redis Fallback for local dev.
 
 ---
 

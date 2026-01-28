@@ -1,5 +1,14 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import request from 'supertest';
+
+// Mock redis to prevent connection errors
+vi.mock('../config/redis.js', () => ({
+    default: {
+        get: vi.fn().mockResolvedValue(null),
+        setex: vi.fn().mockResolvedValue('OK'),
+        on: vi.fn()
+    }
+}));
 import app from '../index.js';
 import db from '../config/database.js';
 

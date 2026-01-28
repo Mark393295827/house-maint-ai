@@ -1,5 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
+
+// Mock redis to prevent connection errors
+vi.mock('../config/redis.js', () => ({
+    default: {
+        get: vi.fn().mockResolvedValue(null),
+        setex: vi.fn().mockResolvedValue('OK'),
+        on: vi.fn()
+    }
+}));
 import app from '../index.js';
 
 const runTests = process.env.CI || process.env.DB_HOST ? describe : describe.skip;
