@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     name TEXT NOT NULL,
     avatar TEXT,
-    role TEXT DEFAULT 'user' CHECK(role IN ('user', 'worker', 'admin')),
+    role TEXT DEFAULT 'user' CHECK(role IN ('user', 'worker', 'admin', 'manager', 'tenant')),
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
 );
@@ -93,3 +93,16 @@ CREATE INDEX IF NOT EXISTS idx_reports_user_id ON reports(user_id);
 CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
 CREATE INDEX IF NOT EXISTS idx_workers_available ON workers(available);
 CREATE INDEX IF NOT EXISTS idx_matches_report_id ON matches(report_id);
+
+-- 模式缓存表 (AI Learning)
+CREATE TABLE IF NOT EXISTS patterns (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    problem_type TEXT NOT NULL,
+    context_signature TEXT NOT NULL,
+    solution TEXT NOT NULL, -- JSON
+    success_rate REAL DEFAULT 1.0,
+    usage_count INTEGER DEFAULT 1,
+    last_used TEXT DEFAULT (datetime('now')),
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(problem_type, context_signature)
+);

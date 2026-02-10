@@ -3,15 +3,26 @@ import { Link, useNavigate } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
 import BottomNav from '../components/BottomNav';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import api from '../services/api';
 
+
+interface Report {
+    id: string;
+    title: string;
+    description: string;
+    created_at: string;
+    status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+}
+
 const ProfilePage = () => {
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const { user, logout, updateUser, isLoading } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState('');
     const [isSaving, setIsSaving] = useState(false);
-    const [reports, setReports] = useState([]);
+    const [reports, setReports] = useState<Report[]>([]);
     const [loadingReports, setLoadingReports] = useState(true);
 
     // Initialize dark mode from localStorage or system preference using lazy initialization
@@ -89,7 +100,7 @@ const ProfilePage = () => {
     };
 
     // Get status color
-    const getStatusColor = (status) => {
+    const getStatusColor = (status: string) => {
         switch (status) {
             case 'pending': return 'bg-yellow-100 text-yellow-700';
             case 'in_progress': return 'bg-blue-100 text-blue-700';
@@ -100,21 +111,15 @@ const ProfilePage = () => {
     };
 
     // Get status text
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'pending': return '待处理';
-            case 'in_progress': return '处理中';
-            case 'completed': return '已完成';
-            case 'cancelled': return '已取消';
-            default: return status;
-        }
+    const getStatusText = (status: string) => {
+        return t(`profile.status.${status}`) || status;
     };
 
     return (
         <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden transition-colors duration-300">
             {/* Header */}
             <div className="flex items-center justify-between p-4 pt-6">
-                <h1 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark">Profile / 我的</h1>
+                <h1 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark">{t('profile.title')}</h1>
                 <button className="p-2 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors">
                     <span className="material-symbols-outlined">settings</span>
                 </button>
@@ -138,30 +143,30 @@ const ProfilePage = () => {
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                     className="flex-1 px-3 py-1 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:outline-none focus:ring-2 focus:ring-primary"
-                                    placeholder="您的姓名"
+                                    placeholder={t('profile.namePlaceholder')}
                                 />
                                 <button
                                     onClick={handleSaveProfile}
                                     disabled={isSaving}
                                     className="px-3 py-1 bg-primary text-white rounded-lg text-sm font-bold"
                                 >
-                                    {isSaving ? '...' : '保存'}
+                                    {isSaving ? '...' : t('profile.save')}
                                 </button>
                             </div>
                         ) : (
                             <>
                                 <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark">
-                                    {user?.name || 'User'}
+                                    {user?.name || t('profile.defaultUser')}
                                 </h2>
                                 <p className="text-sm text-text-sub-light dark:text-text-sub-dark">
-                                    {user?.phone || 'Not logged in'}
+                                    {user?.phone || t('profile.notLoggedIn')}
                                 </p>
                             </>
                         )}
                     </div>
                     {!isEditing && (
                         <button onClick={handleEditProfile} className="text-primary font-semibold text-sm">
-                            Edit
+                            {t('profile.edit')}
                         </button>
                     )}
                 </div>
@@ -171,10 +176,10 @@ const ProfilePage = () => {
             <div className="px-4 mb-6">
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-                        Recent Reports / 最近报修
+                        {t('profile.reports.title')}
                     </h3>
                     <Link to="/quick-report" className="text-xs text-primary font-bold">
-                        查看全部
+                        {t('profile.reports.viewAll')}
                     </Link>
                 </div>
 
@@ -210,12 +215,12 @@ const ProfilePage = () => {
                 ) : (
                     <div className="bg-white dark:bg-surface-dark rounded-2xl p-8 text-center">
                         <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2">inbox</span>
-                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark">暂无报修记录</p>
+                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark">{t('profile.reports.empty')}</p>
                         <Link
                             to="/quick-report"
                             className="inline-block mt-3 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg"
                         >
-                            立即报修
+                            {t('profile.reports.create')}
                         </Link>
                     </div>
                 )}
@@ -223,7 +228,7 @@ const ProfilePage = () => {
 
             {/* Settings Section */}
             <div className="px-4 space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark px-1">Settings / 设置</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark px-1">{t('profile.settings.title')}</h3>
 
                 <div className="bg-white dark:bg-surface-dark rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
                     {/* Dark Mode Toggle */}
@@ -233,8 +238,7 @@ const ProfilePage = () => {
                                 <span className="material-symbols-outlined">{darkMode ? 'dark_mode' : 'light_mode'}</span>
                             </div>
                             <div>
-                                <p className="font-bold text-text-main-light dark:text-text-main-dark">Dark Mode</p>
-                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">深色模式</p>
+                                <p className="font-bold text-text-main-light dark:text-text-main-dark">{t('profile.settings.darkMode')}</p>
                             </div>
                         </div>
                         <div className={`w-12 h-7 rounded-full p-1 transition-colors duration-300 ${darkMode ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`}>
@@ -249,8 +253,7 @@ const ProfilePage = () => {
                                 <span className="material-symbols-outlined">notifications</span>
                             </div>
                             <div>
-                                <p className="font-bold text-text-main-light dark:text-text-main-dark">Notifications</p>
-                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">通知提醒</p>
+                                <p className="font-bold text-text-main-light dark:text-text-main-dark">{t('profile.settings.notifications')}</p>
                             </div>
                         </div>
                         <span className="material-symbols-outlined text-gray-400">chevron_right</span>
@@ -263,8 +266,7 @@ const ProfilePage = () => {
                                 <span className="material-symbols-outlined">language</span>
                             </div>
                             <div>
-                                <p className="font-bold text-text-main-light dark:text-text-main-dark">Language</p>
-                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">语言设置</p>
+                                <p className="font-bold text-text-main-light dark:text-text-main-dark">{t('profile.settings.language')}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-1 text-text-sub-light dark:text-text-sub-dark">
@@ -277,7 +279,7 @@ const ProfilePage = () => {
 
             {/* Support Section */}
             <div className="px-4 mt-6 space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark px-1">Support / 支持</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark px-1">{t('profile.support.title')}</h3>
 
                 <div className="bg-white dark:bg-surface-dark rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
                     <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
@@ -286,8 +288,7 @@ const ProfilePage = () => {
                                 <span className="material-symbols-outlined">help</span>
                             </div>
                             <div>
-                                <p className="font-bold text-text-main-light dark:text-text-main-dark">Help Center</p>
-                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">帮助中心</p>
+                                <p className="font-bold text-text-main-light dark:text-text-main-dark">{t('profile.support.help')}</p>
                             </div>
                         </div>
                         <span className="material-symbols-outlined text-gray-400">chevron_right</span>
@@ -299,8 +300,7 @@ const ProfilePage = () => {
                                 <span className="material-symbols-outlined">info</span>
                             </div>
                             <div>
-                                <p className="font-bold text-text-main-light dark:text-text-main-dark">About</p>
-                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">关于版本 v1.0.3</p>
+                                <p className="font-bold text-text-main-light dark:text-text-main-dark">{t('profile.support.about')}</p>
                             </div>
                         </div>
                         <span className="material-symbols-outlined text-gray-400">chevron_right</span>
@@ -313,7 +313,7 @@ const ProfilePage = () => {
                     onClick={handleLogout}
                     className="text-red-500 font-bold text-sm bg-red-50 dark:bg-red-900/10 px-6 py-3 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors w-[90%]"
                 >
-                    Log Out / 退出登录
+                    {t('profile.logout')}
                 </button>
             </div>
 

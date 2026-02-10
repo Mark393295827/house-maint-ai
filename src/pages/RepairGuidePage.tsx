@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const RepairGuidePage = () => {
+    const { t } = useLanguage();
     const [completedSteps, setCompletedSteps] = useState([true, false, false, false]);
 
-    const toggleStep = (index) => {
+    const toggleStep = (index: number) => {
         const newCompleted = [...completedSteps];
         newCompleted[index] = !newCompleted[index];
         setCompletedSteps(newCompleted);
@@ -16,23 +18,23 @@ const RepairGuidePage = () => {
 
     const steps = [
         {
-            title: 'Turn off water',
-            description: 'Locate the isolation valve under the sink and turn it clockwise.',
+            title: t('repair.steps.valve.title'),
+            description: t('repair.steps.valve.desc'),
             image: IMAGES.STEP_VALVE,
         },
         {
-            title: 'Remove handle',
-            description: 'Use an Allen key to loosen the set screw, then lift the handle.',
+            title: t('repair.steps.handle.title'),
+            description: t('repair.steps.handle.desc'),
             image: IMAGES.STEP_WRENCH,
         },
         {
-            title: 'Sealant Cure Time',
-            description: 'Wait for the silicone to set properly before testing.',
+            title: t('repair.steps.cure.title'),
+            description: t('repair.steps.cure.desc'),
             isTimer: true,
         },
         {
-            title: 'Reassemble parts',
-            description: 'Reverse the steps to put the handle back on.',
+            title: t('repair.steps.reassemble.title'),
+            description: t('repair.steps.reassemble.desc'),
             image: IMAGES.STEP_REASSEMBLE,
         },
     ];
@@ -45,15 +47,19 @@ const RepairGuidePage = () => {
                     <Link to="/" className="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-text-main-light dark:text-white">
                         <span className="material-symbols-outlined text-2xl">arrow_back</span>
                     </Link>
-                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center text-text-main-light dark:text-white">Leaky Faucet Repair</h2>
+                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center text-text-main-light dark:text-white">
+                        {t('repair.title')}
+                    </h2>
                     <button className="flex items-center justify-center h-10 px-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                        <span className="text-primary text-sm font-bold tracking-[0.015em]">Help</span>
+                        <span className="text-primary text-sm font-bold tracking-[0.015em]">{t('repair.help')}</span>
                     </button>
                 </div>
                 {/* Progress Indicator */}
                 <div className="px-6 pb-4">
                     <div className="flex justify-between items-end mb-2">
-                        <p className="text-sm font-semibold text-text-main-light dark:text-text-main-dark">{completedCount} of 4 steps completed</p>
+                        <p className="text-sm font-semibold text-text-main-light dark:text-text-main-dark">
+                            {t('repair.progress', { completed: completedCount, total: 4 })}
+                        </p>
                         <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{Math.round(progress)}%</span>
                     </div>
                     <div className="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -89,7 +95,8 @@ const RepairGuidePage = () => {
                                             ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
                                             : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                                         }`}>
-                                        Step {index + 1}{step.isTimer ? ' • Wait' : ''}
+                                        {t('repair.step', { step: index + 1 })}
+                                        {step.isTimer ? ` • ${t('repair.wait')}` : ''}
                                     </span>
                                 </div>
                                 <h3 className="text-base font-bold text-text-main-light dark:text-white leading-tight mb-1">{step.title}</h3>
@@ -117,17 +124,17 @@ const RepairGuidePage = () => {
                                     <div className="flex gap-2 text-center">
                                         <div className="flex flex-col">
                                             <span className="text-2xl font-black text-primary tracking-tight">15</span>
-                                            <span className="text-[10px] uppercase text-gray-400 font-bold tracking-wider">Min</span>
+                                            <span className="text-[10px] uppercase text-gray-400 font-bold tracking-wider">{t('repair.timer.min')}</span>
                                         </div>
                                         <span className="text-2xl font-black text-primary/50 -mt-1">:</span>
                                         <div className="flex flex-col">
                                             <span className="text-2xl font-black text-primary tracking-tight">00</span>
-                                            <span className="text-[10px] uppercase text-gray-400 font-bold tracking-wider">Sec</span>
+                                            <span className="text-[10px] uppercase text-gray-400 font-bold tracking-wider">{t('repair.timer.sec')}</span>
                                         </div>
                                     </div>
                                     <button className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md shadow-primary/30 hover:bg-primary-dark transition-transform active:scale-95">
                                         <span className="material-symbols-outlined text-[20px]">play_arrow</span>
-                                        Start Timer
+                                        {t('repair.timer.start')}
                                     </button>
                                 </div>
                             </div>
@@ -142,11 +149,11 @@ const RepairGuidePage = () => {
                 <div className="flex flex-col gap-3">
                     <button className="w-full h-14 bg-primary text-white rounded-xl font-bold text-lg shadow-lg shadow-primary/30 flex items-center justify-center gap-2 hover:bg-primary-dark transition-transform active:scale-[0.98]">
                         <span className="material-symbols-outlined">build</span>
-                        Start Fix
+                        {t('repair.action.start')}
                     </button>
                     <button className="w-full h-12 bg-transparent border-2 border-primary/30 text-primary rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-primary/5 transition-colors">
                         <span className="material-symbols-outlined">calendar_today</span>
-                        Add to Weekly Plan
+                        {t('repair.action.plan')}
                     </button>
                 </div>
             </footer>

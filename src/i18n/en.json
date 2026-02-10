@@ -1,0 +1,224 @@
+{
+    "app": {
+        "name": "House Maint AI",
+        "tagline": "Smart Home Maintenance Assistant"
+    },
+    "nav": {
+        "home": "Home",
+        "diagnosis": "Diagnosis",
+        "calendar": "Calendar",
+        "community": "Community",
+        "profile": "Profile"
+    },
+    "header": {
+        "location": "San Francisco, CA",
+        "greeting": "Good morning, Alex"
+    },
+    "search": {
+        "placeholder": "Search for issues"
+    },
+    "quickActions": {
+        "title": "Quick Actions",
+        "scan": "Scan",
+        "import": "Import",
+        "plan": "Plan",
+        "tools": "Tools"
+    },
+    "activity": {
+        "title": "Continue Activity",
+        "viewAll": "View All",
+        "step": "Step 2 of 4 • Analyzing damage",
+        "leakingPipe": "Leaking pipe under sink"
+    },
+    "suggestions": {
+        "title": "Suggested for You",
+        "season": "Fall",
+        "acFilter": "AC Filter Check",
+        "gutter": "Gutter Cleaning",
+        "pipes": "Winterize Pipes",
+        "urgency": {
+            "low": "Low Urgency",
+            "med": "Med Urgency",
+            "high": "High Urgency"
+        },
+        "difficulty": {
+            "easy": "Easy",
+            "medium": "Medium",
+            "hard": "Hard"
+        },
+        "time": {
+            "minutes": "m",
+            "hour": "hr"
+        }
+    },
+    "quickReport": {
+        "button": "Quick Report"
+    },
+    "welcome": {
+        "title": "Welcome to House Maint AI",
+        "subtitle": "Your Smart Home Assistant",
+        "scanTitle": "AI Repair Recognition",
+        "scanDesc": "Identify issues instantly with your camera",
+        "strategiesTitle": "Multiple Fix Strategies",
+        "strategiesDesc": "DIY guides or Pro recommendations",
+        "checklistTitle": "Maintenance Checklists",
+        "checklistDesc": "Keep your home in top shape",
+        "getStarted": "Get Started",
+        "issueDetected": "Issue Detected"
+    },
+    "diagnosis": {
+        "camera": {
+            "permission": "Please allow camera access to use diagnosis",
+            "error": "Cannot access camera, please check permissions"
+        },
+        "upload": "Upload Image",
+        "analyzing": {
+            "title": "AI Analyzing...",
+            "desc": "Analyzing..."
+        },
+        "result": {
+            "match": "Match",
+            "noIssue": "No obvious issue detected",
+            "retry": "Retake Photo",
+            "guide": "View Guide",
+            "confidence": "Match"
+        },
+        "mode": {
+            "import": "Import",
+            "photo": "Photo",
+            "batch": "Batch"
+        },
+        "guide": {
+            "point": "Point at the issue"
+        }
+    },
+    "profile": {
+        "title": "Profile",
+        "edit": "Edit",
+        "save": "Save",
+        "namePlaceholder": "Your Name",
+        "reports": {
+            "title": "Recent Reports",
+            "viewAll": "View All",
+            "empty": "No reports yet",
+            "create": "Report Now"
+        },
+        "settings": {
+            "title": "Settings",
+            "darkMode": "Dark Mode",
+            "notifications": "Notifications",
+            "language": "Language"
+        },
+        "support": {
+            "title": "Support",
+            "help": "Help Center",
+            "about": "About"
+        },
+        "logout": "Log Out",
+        "status": {
+            "pending": "Pending",
+            "in_progress": "In Progress",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        }
+    },
+    "community": {
+        "title": "Community",
+        "create": {
+            "title": "Create Post",
+            "titlePlaceholder": "Title",
+            "contentPlaceholder": "Share your experience...",
+            "cancel": "Cancel",
+            "submit": "Post",
+            "success": "Posted successfully",
+            "fail": "Failed to post"
+        },
+        "tabs": {
+            "recommend": "Recommend",
+            "following": "Following",
+            "qa": "Q&A"
+        },
+        "empty": "No posts yet, be the first!",
+        "anonymous": "Anonymous",
+        "time": {
+            "justNow": "Just now",
+            "minsAgo": "mins ago",
+            "hoursAgo": "hours ago"
+        }
+    },
+    "calendar": {
+        "title": "Maintenance Plan",
+        "subtitle": "Your home health schedule",
+        "selectWorker": "Select Booking Time",
+        "selectWorkerSub": "Select booking time",
+        "tasks": {
+            "none": "No tasks",
+            "add": "Add Task"
+        },
+        "booking": {
+            "selectTime": "Select Time Slot",
+            "confirm": "Confirm Booking",
+            "processing": "Booking...",
+            "success": "Booking Confirmed!"
+        },
+        "sections": {
+            "morning": "Morning",
+            "afternoon": "Afternoon",
+            "night": "Night"
+        },
+        "time": {
+            "morning": "8:00 AM - 12:00 PM",
+            "afternoon": "12:00 PM - 5:00 PM",
+            "night": "5:00 PM - 9:00 PM"
+        }
+    },
+    "repair": {
+        "title": "Leaky Faucet Repair",
+        "help": "Help",
+        "progress": "{{completed}} of {{total}} steps completed",
+        "step": "Step {{step}}",
+        "wait": "Wait",
+        "timer": {
+            "start": "Start Timer",
+            "min": "Min",
+            "sec": "Sec"
+        },
+        "action": {
+            "start": "Start Fix",
+            "plan": "Add to Weekly Plan"
+        },
+        "steps": {
+            "valve": {
+                "title": "Turn off water",
+                "desc": "Locate the isolation valve under the sink and turn it clockwise."
+            },
+            "handle": {
+                "title": "Remove handle",
+                "desc": "Use an Allen key to loosen the set screw, then lift the handle."
+            },
+            "cure": {
+                "title": "Sealant Cure Time",
+                "desc": "Wait for the silicone to set properly before testing."
+            },
+            "reassemble": {
+                "title": "Reassemble parts",
+                "desc": "Reverse the steps to put the handle back on."
+            }
+        }
+    },
+    "match": {
+        "title": "Matching Workers",
+        "loading": "AI Matching in progress...",
+        "report": {
+            "title": "Report Issue",
+            "fallback": "Plumbing Issue"
+        },
+        "analysis": {
+            "title": "AI Analysis",
+            "description": "Based on your location and required skills, we found {{count}} suitable experts."
+        },
+        "demo_mode": "(Demo Mode)",
+        "empty": "No workers matched",
+        "help": "Click a worker card to view details and book service"
+    }
+}

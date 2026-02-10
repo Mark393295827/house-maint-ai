@@ -1,24 +1,45 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { analyzeImageFromUrl, analyzeImageFile } from '../services/ai';
+import { useLanguage } from '../i18n/LanguageContext';
+
+
+interface DiagnosisResult {
+    raw_response: any;
+    detected: boolean;
+    issue_name: string;
+    issue_name_en: string;
+    confidence: number;
+    severity: string;
+    description: string;
+    description_en: string;
+    possible_causes: string[];
+    recommended_actions: any[];
+    diy_difficulty: string;
+    estimated_cost: string;
+    urgency: string;
+    steps: any[];
+    safety_warning: any;
+}
 
 const DiagnosisPage = () => {
+    const { t } = useLanguage();
     const navigate = useNavigate();
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const fileInputRef = useRef(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Camera state
-    const [stream, setStream] = useState(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
     const [isCameraReady, setIsCameraReady] = useState(false);
-    const [cameraError, setCameraError] = useState(null);
+    const [cameraError, setCameraError] = useState<string | null>(null);
     const [flashEnabled, setFlashEnabled] = useState(false);
 
     // Capture state
-    const [capturedImage, setCapturedImage] = useState(null);
+    const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [analysisResult, setAnalysisResult] = useState(null);
-    const [analysisError, setAnalysisError] = useState(null);
+    const [analysisResult, setAnalysisResult] = useState<DiagnosisResult | null>(null);
+    const [analysisError, setAnalysisError] = useState<string | null>(null);
 
     // Mode: 'photo' | 'import' | 'batch'
     const [mode, setMode] = useState('photo');
@@ -42,11 +63,12 @@ const DiagnosisPage = () => {
                         setIsCameraReady(true);
                     };
                 }
-            } catch (error) {
-                console.error('Camera access error:', error);
+            } catch (error: any) {
+                console.error('Error accessing camera:', error);
+                setIsCameraReady(false);
                 setCameraError(error.name === 'NotAllowedError'
-                    ? '请允许访问摄像头以使用诊断功能'
-                    : '无法访问摄像头，请检查设备权限');
+                    ? t('diagnosis.camera.permission')
+                    : t('diagnosis.camera.error'));
             }
         };
 
@@ -55,7 +77,8 @@ const DiagnosisPage = () => {
         // Cleanup
         return () => {
             if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+                setStream(null);
             }
         };
     }, []);
@@ -67,6 +90,7 @@ const DiagnosisPage = () => {
         const video = videoRef.current;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -74,6 +98,7 @@ const DiagnosisPage = () => {
 
         // Convert to blob URL
         canvas.toBlob((blob) => {
+            if (!blob) return;
             const imageUrl = URL.createObjectURL(blob);
             setCapturedImage(imageUrl);
             analyzePhoto(imageUrl);
@@ -81,7 +106,7 @@ const DiagnosisPage = () => {
     }, []);
 
     // Analyze captured photo
-    const analyzePhoto = async (imageUrl) => {
+    const analyzePhoto = async (imageUrl: string) => {
         setIsAnalyzing(true);
         setAnalysisError(null);
         setAnalysisResult(null);
@@ -97,7 +122,7 @@ const DiagnosisPage = () => {
             }
         } catch (error) {
             console.error('Analysis error:', error);
-            setAnalysisError('分析失败，请重试');
+            setAnalysisError(t('diagnosis.error.analysis') || 'Analysis failed, please try again');
         } finally {
             setIsAnalyzing(false);
         }
@@ -124,7 +149,7 @@ const DiagnosisPage = () => {
             }
         } catch (error) {
             console.error('Analysis error:', error);
-            setAnalysisError('分析失败，请重试');
+            setAnalysisError(t('diagnosis.error.analysis') || 'Analysis failed, please try again');
         } finally {
             setIsAnalyzing(false);
         }
@@ -170,7 +195,7 @@ const DiagnosisPage = () => {
                             onClick={() => fileInputRef.current?.click()}
                             className="px-6 py-3 bg-primary rounded-xl font-bold"
                         >
-                            上传图片诊断
+                            {t('diagnosis.upload')}
                         </button>
                     </div>
                 ) : capturedImage ? (
@@ -209,14 +234,14 @@ const DiagnosisPage = () => {
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             <div className="flex flex-col items-center gap-4 bg-black/50 backdrop-blur-md rounded-2xl p-6">
                                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                <p className="text-white font-bold">AI 分析中...</p>
-                                <p className="text-white/70 text-sm">Analyzing...</p>
+                                <p className="text-white font-bold">{t('diagnosis.analyzing.title')}</p>
+                                <p className="text-white/70 text-sm">{t('diagnosis.analyzing.desc')}</p>
                             </div>
                         </div>
                     ) : analysisResult?.detected ? (
                         <div className="absolute top-[30%] left-[10%] w-[200px] border-2 border-primary rounded-lg animate-pulse flex flex-col items-start justify-end p-2 bg-primary/10">
                             <div className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm mb-2 ml-auto">
-                                {analysisResult.confidence}% Match / 匹配
+                                {analysisResult.confidence}% {t('diagnosis.result.match')}
                             </div>
                             <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
                                 <span className="material-symbols-outlined text-primary text-[16px]">warning</span>
@@ -230,7 +255,7 @@ const DiagnosisPage = () => {
                             <div className="bg-green-500/90 backdrop-blur-sm text-white px-6 py-3 rounded-xl shadow-lg">
                                 <div className="flex items-center gap-2">
                                     <span className="material-symbols-outlined">check_circle</span>
-                                    <span className="font-bold">未检测到明显问题</span>
+                                    <span className="font-bold">{t('diagnosis.result.noIssue')}</span>
                                 </div>
                             </div>
                         </div>
@@ -244,9 +269,9 @@ const DiagnosisPage = () => {
                     <div className="bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md rounded-2xl p-4 shadow-xl">
                         <div className="flex items-start gap-3">
                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${analysisResult.severity === 'critical' ? 'bg-red-100 text-red-500' :
-                                    analysisResult.severity === 'high' ? 'bg-orange-100 text-orange-500' :
-                                        analysisResult.severity === 'medium' ? 'bg-yellow-100 text-yellow-500' :
-                                            'bg-green-100 text-green-500'
+                                analysisResult.severity === 'high' ? 'bg-orange-100 text-orange-500' :
+                                    analysisResult.severity === 'medium' ? 'bg-yellow-100 text-yellow-500' :
+                                        'bg-green-100 text-green-500'
                                 }`}>
                                 <span className="material-symbols-outlined text-2xl">
                                     {analysisResult.severity === 'critical' || analysisResult.severity === 'high'
@@ -271,13 +296,13 @@ const DiagnosisPage = () => {
                                 className="flex-1 h-10 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium rounded-xl flex items-center justify-center gap-1"
                             >
                                 <span className="material-symbols-outlined text-lg">refresh</span>
-                                <span>重新拍照</span>
+                                <span>{t('diagnosis.result.retry')}</span>
                             </button>
                             <button
                                 onClick={goToRepairGuide}
                                 className="flex-1 h-10 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-1"
                             >
-                                <span>查看指南</span>
+                                <span>{t('diagnosis.result.guide')}</span>
                                 <span className="material-symbols-outlined text-lg">arrow_forward</span>
                             </button>
                         </div>
@@ -297,7 +322,7 @@ const DiagnosisPage = () => {
                             onClick={resetCapture}
                             className="w-full mt-3 h-10 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 font-medium rounded-xl"
                         >
-                            重新尝试
+                            {t('diagnosis.result.retry')}
                         </button>
                     </div>
                 </div>
@@ -327,7 +352,7 @@ const DiagnosisPage = () => {
                             <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg max-w-[95%]">
                                 <span className="material-symbols-outlined text-primary text-[20px] shrink-0">lightbulb</span>
                                 <p className="text-gray-900 text-sm font-medium truncate">
-                                    对准问题区域拍照 / Point at the issue
+                                    {t('diagnosis.guide.point')}
                                 </p>
                             </div>
                         </div>
@@ -345,21 +370,21 @@ const DiagnosisPage = () => {
                             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${mode === 'import' ? 'bg-primary text-white shadow-md' : 'text-white/70 hover:text-white'
                                 }`}
                         >
-                            Import / 导入
+                            {t('diagnosis.mode.import')}
                         </button>
                         <button
                             onClick={() => setMode('photo')}
                             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${mode === 'photo' ? 'bg-primary text-white shadow-md' : 'text-white/70 hover:text-white'
                                 }`}
                         >
-                            Photo / 拍照
+                            {t('diagnosis.mode.photo')}
                         </button>
                         <button
                             onClick={() => setMode('batch')}
                             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${mode === 'batch' ? 'bg-primary text-white shadow-md' : 'text-white/70 hover:text-white'
                                 }`}
                         >
-                            Batch / 批量
+                            {t('diagnosis.mode.batch')}
                         </button>
                     </div>
 

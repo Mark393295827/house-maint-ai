@@ -26,4 +26,17 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]|^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
   },
+  // k6 load tests - add k6 globals
+  {
+    files: ['load-tests/**/*.js'],
+    languageOptions: {
+      globals: {
+        __ENV: 'readonly',
+        sleep: 'readonly',
+        check: 'readonly',
+        group: 'readonly',
+      },
+    },
+  },
 ])
+

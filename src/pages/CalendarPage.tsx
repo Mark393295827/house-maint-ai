@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import api from '../services/api';
 import { hapticSuccess } from '../utils/haptics';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const CalendarPage = () => {
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const [selectedDay, setSelectedDay] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
@@ -40,9 +42,9 @@ const CalendarPage = () => {
 
     // Available time slots
     const timeSlots = [
-        { id: 'morning', label: '上午', time: '8:00 - 12:00', icon: 'wb_sunny' },
-        { id: 'afternoon', label: '下午', time: '12:00 - 17:00', icon: 'wb_twilight' },
-        { id: 'evening', label: '晚上', time: '17:00 - 21:00', icon: 'nights_stay' },
+        { id: 'morning', label: t('calendar.time.morning'), time: '8:00 - 12:00', icon: 'wb_sunny' },
+        { id: 'afternoon', label: t('calendar.time.afternoon'), time: '12:00 - 17:00', icon: 'wb_twilight' },
+        { id: 'evening', label: t('calendar.time.night'), time: '17:00 - 21:00', icon: 'nights_stay' },
     ];
 
     // Load selected worker and reports on mount
@@ -144,7 +146,7 @@ const CalendarPage = () => {
             }, 2000);
         } catch (err) {
             console.error('Booking failed:', err);
-            alert('预约失败，请重试');
+            alert('Booking failed, please try again'); // Add to i18n if needed
         } finally {
             setIsBooking(false);
         }
@@ -197,7 +199,7 @@ const CalendarPage = () => {
                             <span className="material-symbols-outlined text-green-500 text-4xl">check_circle</span>
                         </div>
                         <h3 className="text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2">
-                            预约成功！
+                            {t('calendar.booking.success')}
                         </h3>
                         <p className="text-text-sub-light dark:text-text-sub-dark">
                             Booking Confirmed
@@ -211,10 +213,10 @@ const CalendarPage = () => {
                 <div className="flex items-center p-4 justify-between">
                     <div className="flex-1">
                         <h1 className="text-xl font-bold leading-tight tracking-[-0.015em] text-text-main-light dark:text-text-main-dark">
-                            {selectedWorker ? '选择预约时间' : 'Maintenance Plan'}
+                            {selectedWorker ? t('calendar.selectWorker') : t('calendar.title')}
                         </h1>
                         <p className="text-xs font-medium text-text-sub-light dark:text-text-sub-dark mt-0.5">
-                            {selectedWorker ? 'Select booking time' : 'Your home health schedule'}
+                            {selectedWorker ? t('calendar.selectWorkerSub') : t('calendar.subtitle')}
                         </p>
                     </div>
                     <button className="flex items-center justify-center rounded-xl h-10 w-10 bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all duration-300">
@@ -288,7 +290,7 @@ const CalendarPage = () => {
             {selectedWorker && (
                 <div className="px-4 py-4">
                     <h3 className="text-sm font-bold text-text-sub-light dark:text-text-sub-dark mb-3">
-                        选择时间段 / Select Time Slot
+                        {t('calendar.booking.selectTime')}
                     </h3>
                     <div className="flex gap-3">
                         {timeSlots.map((slot) => (
@@ -319,7 +321,7 @@ const CalendarPage = () => {
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-lg font-bold leading-tight tracking-[-0.015em] flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
-                                Morning / 上午
+                                {t('calendar.sections.morning')}
                             </h3>
                             <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">8:00 AM - 12:00 PM</span>
                         </div>
@@ -327,7 +329,7 @@ const CalendarPage = () => {
                             tasks.morning.map((task, index) => renderTaskCard(task, index))
                         ) : (
                             <div className="text-center py-6 text-text-sub-light dark:text-text-sub-dark text-sm">
-                                无任务 / No tasks
+                                {t('calendar.tasks.none')}
                             </div>
                         )}
                     </div>
@@ -337,7 +339,7 @@ const CalendarPage = () => {
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-lg font-bold leading-tight tracking-[-0.015em] flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-orange-400"></span>
-                                Afternoon / 下午
+                                {t('calendar.sections.afternoon')}
                             </h3>
                             <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">12:00 PM - 5:00 PM</span>
                         </div>
@@ -345,7 +347,7 @@ const CalendarPage = () => {
                             tasks.afternoon.map((task, index) => renderTaskCard(task, index, true))
                         ) : (
                             <div className="text-center py-6 text-text-sub-light dark:text-text-sub-dark text-sm">
-                                无任务 / No tasks
+                                {t('calendar.tasks.none')}
                             </div>
                         )}
                     </div>
@@ -355,7 +357,7 @@ const CalendarPage = () => {
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-lg font-bold leading-tight tracking-[-0.015em] flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
-                                Night / 晚上
+                                {t('calendar.sections.night')}
                             </h3>
                             <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">5:00 PM - 9:00 PM</span>
                         </div>
@@ -363,7 +365,7 @@ const CalendarPage = () => {
                             <div className="w-10 h-10 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-2">
                                 <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">add</span>
                             </div>
-                            <span className="text-sm font-medium text-gray-400 dark:text-gray-500">点击添加任务</span>
+                            <span className="text-sm font-medium text-gray-400 dark:text-gray-500">{t('calendar.tasks.add')}</span>
                         </div>
                     </div>
                 </>
@@ -384,12 +386,12 @@ const CalendarPage = () => {
                         {isBooking ? (
                             <>
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                <span>预约中...</span>
+                                <span>{t('calendar.booking.processing')}</span>
                             </>
                         ) : (
                             <>
                                 <span className="material-symbols-outlined">event_available</span>
-                                <span>确认预约</span>
+                                <span>{t('calendar.booking.confirm')}</span>
                             </>
                         )}
                     </button>

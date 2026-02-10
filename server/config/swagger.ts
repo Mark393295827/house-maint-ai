@@ -14,12 +14,8 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:3001',
-                description: 'Local Development Server',
-            },
-            {
-                url: 'https://api.production.com',
-                description: 'Production Server',
+                url: process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 3001}`,
+                description: process.env.NODE_ENV === 'production' ? 'Production Server' : 'Local Development Server',
             },
         ],
         components: {

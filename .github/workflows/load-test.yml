@@ -1,0 +1,85 @@
+name: Load Test
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Weekly run
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Load test scenario (smoke, load, stress)'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+        - smoke
+        - load
+        - stress
+
+jobs:
+  load-test:
+    name: Run k6 Load Test
+    runs-on: ubuntu-latest
+    
+    services:
+      # Use same services as dev/prod
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: house_maint
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd server && npm ci
+
+      - name: Start Backend
+        env:
+          NODE_ENV: test
+          PORT: 3001
+          DB_HOST: localhost
+          DB_USER: postgres
+          DB_PASSWORD: password
+          DB_NAME: house_maint
+          REDIS_HOST: localhost
+          JWT_SECRET: test-secret
+          # Mock AI to avoid API costs during load tests
+          AI_MOCK_MODE: true 
+        run: |
+          cd server
+          npm run build
+          # Start in background
+          npm start &
+          # Wait for API to be ready
+          npx wait-on http://localhost:3001/api/health
+
+      - name: Run k6 Load Test
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: load-tests/api-load-test.js
+          flags: --env SCENARIO=${{ inputs.scenario || 'smoke' }}
+        env:
+          API_BASE_URL: http://localhost:3001/api

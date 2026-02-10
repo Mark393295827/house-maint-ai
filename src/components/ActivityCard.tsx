@@ -1,12 +1,14 @@
 
 import { IMAGES } from '../constants/images';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const ActivityCard = () => {
+    const { t } = useLanguage();
     return (
         <section className="px-5">
             <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-lg font-bold">Continue Activity / 继续活动</h3>
-                <a className="text-sm font-semibold text-primary" href="#">View All</a>
+                <h3 className="text-lg font-bold">{t('activity.title')}</h3>
+                <a className="text-sm font-semibold text-primary" href="#">{t('activity.viewAll')}</a>
             </div>
             <div className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col gap-4">
                 <div className="flex gap-4">
@@ -19,8 +21,8 @@ const ActivityCard = () => {
                         </div>
                     </div>
                     <div className="flex flex-col justify-center flex-1 min-w-0">
-                        <h4 className="font-bold text-text-main-light dark:text-text-main-dark truncate">Leaking pipe under sink / 水槽漏水</h4>
-                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark mt-1">Step 2 of 4 • Analyzing damage</p>
+                        <h4 className="font-bold text-text-main-light dark:text-text-main-dark truncate">{t('activity.leakingPipe')}</h4>
+                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark mt-1">{t('activity.step')}</p>
                     </div>
                     <div className="flex items-center">
                         <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">
