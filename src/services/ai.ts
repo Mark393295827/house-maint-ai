@@ -4,12 +4,13 @@
  * Integrates with Backend /api/ai/diagnose for analysis
  */
 
-const API_BASE_URL = 'http://localhost:3001/api/ai';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = `${API_BASE}/ai`;
 
 /**
  * Convert image file to base64
  */
-async function imageToBase64(file) {
+async function imageToBase64(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -26,7 +27,7 @@ async function imageToBase64(file) {
 /**
  * Convert blob URL to base64
  */
-async function blobUrlToBase64(blobUrl) {
+async function blobUrlToBase64(blobUrl: string): Promise<string> {
     const response = await fetch(blobUrl);
     const blob = await response.blob();
     return imageToBase64(blob);
@@ -38,7 +39,7 @@ async function blobUrlToBase64(blobUrl) {
  * @param {string} mimeType - Image MIME type (e.g., 'image/jpeg')
  * @returns {Promise<object>} Analysis result
  */
-export async function analyzeImage(imageBase64, mimeType = 'image/jpeg') {
+export async function analyzeImage(imageBase64: string, mimeType = 'image/jpeg') {
     try {
         const response = await fetch(`${API_BASE_URL}/diagnose`, {
             method: 'POST',
@@ -85,7 +86,7 @@ export async function analyzeImage(imageBase64, mimeType = 'image/jpeg') {
             possible_causes: [diagnosis.description], // Simplified
             recommended_actions: data.solution?.steps || [],
             diy_difficulty: data.solution?.can_diy ? 'easy' : 'hard',
-            estimated_cost: data.solution?.required_parts?.map(p => p.estimated_price).join(', ') || 'Unknown',
+            estimated_cost: data.solution?.required_parts?.map((p: any) => p.estimated_price).join(', ') || 'Unknown',
             urgency: data.worker_matching_criteria?.urgency === 'immediate' ? '立即处理' : '可以等待',
 
             // Extra fields for logic
@@ -102,7 +103,7 @@ export async function analyzeImage(imageBase64, mimeType = 'image/jpeg') {
 /**
  * Analyze image from file input
  */
-export async function analyzeImageFile(file) {
+export async function analyzeImageFile(file: File) {
     const base64 = await imageToBase64(file);
     return analyzeImage(base64, file.type);
 }
@@ -110,7 +111,7 @@ export async function analyzeImageFile(file) {
 /**
  * Analyze image from blob URL (e.g., from camera capture)
  */
-export async function analyzeImageFromUrl(blobUrl, mimeType = 'image/jpeg') {
+export async function analyzeImageFromUrl(blobUrl: string, mimeType = 'image/jpeg') {
     const base64 = await blobUrlToBase64(blobUrl);
     return analyzeImage(base64, mimeType);
 }
@@ -119,13 +120,13 @@ export async function analyzeImageFromUrl(blobUrl, mimeType = 'image/jpeg') {
  * Generate repair steps based on diagnosis
  * (Now just extracts from the already-fetched AI response if available)
  */
-export async function generateRepairSteps(diagnosis) {
+export async function generateRepairSteps(diagnosis: any) {
     // If we have the raw response or steps from the new backend, use them
     if (diagnosis.steps && diagnosis.steps.length > 0) {
         return {
             title: `${diagnosis.issue_name} 修复指南`,
             title_en: `${diagnosis.issue_name_en} Repair Guide`,
-            steps: diagnosis.steps.map((step, index) => ({
+            steps: diagnosis.steps.map((step: string, index: number) => ({
                 step_number: index + 1,
                 title: `Step ${index + 1}`,
                 title_en: `Step ${index + 1}`,
@@ -137,7 +138,7 @@ export async function generateRepairSteps(diagnosis) {
                 warnings: diagnosis.safety_warning ? [diagnosis.safety_warning] : []
             })),
             total_duration: 'Variable',
-            materials_needed: diagnosis.raw_response?.solution?.required_parts?.map(p => p.name) || [],
+            materials_needed: diagnosis.raw_response?.solution?.required_parts?.map((p: any) => p.name) || [],
             safety_notes: diagnosis.safety_warning ? [diagnosis.safety_warning] : [],
             when_to_call_pro: diagnosis.diy_difficulty === 'hard' ? 'Recommended' : 'Optional'
         };

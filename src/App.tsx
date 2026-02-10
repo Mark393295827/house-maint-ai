@@ -16,6 +16,8 @@ const QuickReportPage = lazy(() => import('./pages/QuickReportPage'));
 const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const DevicePreview = lazy(() => import('./pages/DevicePreview'));
+const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
 
 function App() {
   return (
@@ -25,6 +27,9 @@ function App() {
         <AuthProvider>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
+              {/* Device Preview — standalone, no auth required */}
+              <Route path="/preview" element={<DevicePreview />} />
+
               {/* Public routes */}
               <Route path="/" element={<Dashboard />} />
               <Route path="/welcome" element={<WelcomePage />} />
@@ -52,6 +57,13 @@ function App() {
               <Route path="/match" element={
                 <ProtectedRoute>
                   <WorkerMatchPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Enterprise Routes */}
+              <Route path="/enterprise/*" element={
+                <ProtectedRoute>
+                  <EnterpriseDashboard />
                 </ProtectedRoute>
               } />
             </Routes>

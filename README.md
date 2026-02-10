@@ -11,133 +11,115 @@ Connects users with expert workers for home repairs, featuring AI diagnosis, rea
 ## ✨ Features
 
 - **📱 Mobile-First Design**: Smooth, app-like experience with TailwindCSS.
-- **🤖 AI Diagnosis**: 
-  - Identify home issues using Google Gemini Vision API.
-  - Get instant repair guides and DIY suggestions.
-- **⚡ Quick Report**: 
-  - Voice & Video reporting.
-  - Smart categorization (Plumbing, Electrical, HVAC, etc.).
-- **🤝 Intelligent Macthing**: 
-  - Match with workers based on skill, location, and rating.
-  - Real-time availability checking.
-- **📅 Booking System**: 
-  - Schedule appointments.
-  - Track order status.
-- **💬 Community**: 
-  - Share maintenance tips.
-  - Q&A with experts.
+- **🤖 AI Diagnosis**: Identify home issues using Google Gemini Vision API with instant repair guides.
+- **⚡ Quick Report**: Voice & Video reporting with smart categorization.
+- **🤝 Intelligent Matching**: Workers matched by skill, location, and rating.
+- **📅 Booking System**: Schedule appointments and track order status.
+- **💬 Community**: Share maintenance tips and Q&A with experts.
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework**: React 19 + Vite
-- **Styling**: Tailwind CSS 4
-- **State**: React Context API
-- **Routing**: React Router 7
-
-### Backend
-- **Runtime**: Node.js + Express
-- **Database**: SQLite (better-sqlite3)
-- **Auth**: JWT + bcrypt
-- **Storage**: Local file system (Multer)
-
-### DevOps
-- **Container**: Docker + Docker Compose
-- **Server**: Nginx (Frontend proxy)
-- **Test**: Vitest + Supertest
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19 + Vite, Tailwind CSS 4, React Router 7 |
+| Backend | Node.js 20 + Express, TypeScript |
+| Database | PostgreSQL 15 (prod), SQLite (dev fallback) |
+| Cache | Redis 7 (with in-memory fallback) |
+| Auth | JWT + bcrypt |
+| AI | Google Gemini Vision API |
+| Monitoring | Sentry (errors), Mixpanel (analytics) |
+| DevOps | Docker, Nginx, GitHub Actions CI/CD |
+| Testing | Vitest + Supertest (147 tests) |
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- Docker (optional)
-- Google Gemini API Key
+- Node.js 20+
+- Docker (optional, for full-stack deployment)
 
 ### 🔧 Local Development
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Mark393295827/house-maint-ai.git
-   cd house-maint-ai
-   ```
-
-2. **Environment Setup**
-   Copy the example environment file:
-   ```bash
-   cp .env.example .env.local
-   # Edit .env.local and add your VITE_GEMINI_API_KEY
-   ```
-
-3. **Install Dependencies**
-   ```bash
-   # Install root dependencies (Frontend)
-   npm install
-
-   # Install server dependencies (Backend)
-   cd server
-   npm install
-   cd ..
-   ```
-
-4. **Initialize Database**
-   ```bash
-   cd server
-   npm run init-db
-   cd ..
-   ```
-
-5. **Start Development Servers**
-   Open two terminals:
-
-   Terminal 1 (Frontend):
-   ```bash
-   npm run dev
-   ```
-
-   Terminal 2 (Backend):
-   ```bash
-   cd server
-   npm run dev
-   ```
-
-### 🐳 Docker Deployment
-
-Run the entire application with a single command:
-
 ```bash
-docker-compose up --build
+# 1. Clone
+git clone https://github.com/Mark393295827/house-maint-ai.git
+cd house-maint-ai
+
+# 2. Install dependencies
+npm install
+cd server && npm install && cd ..
+
+# 3. Start dev servers (two terminals)
+npm run dev          # Frontend → http://localhost:5173
+cd server && npm run dev  # Backend  → http://localhost:3001
 ```
 
-Access the application at `http://localhost:5173`.
+> The backend auto-falls back to SQLite + in-memory Redis, so no DB setup needed for local dev.
+
+### 🐳 Docker (Full Stack)
+
+```bash
+# Generate secrets (first time only)
+node -e "require('crypto').randomBytes(48).toString('hex')" > secrets/jwt_secret.txt
+node -e "require('crypto').randomBytes(24).toString('hex')" > secrets/db_password.txt
+
+# Launch all services
+docker compose up --build
+```
+
+Services: Frontend (:80), Backend (:3001), PostgreSQL (:5432), Redis (:6379)
 
 ## 🧪 Testing
 
 ```bash
-# Run all tests (Frontend + Backend)
-npm test
-
-# Run backend specific tests
-cd server && npm test
+npm test              # All tests (Frontend + Backend)
+npm run build         # Production build verification
 ```
+
+## 🚢 Production Deployment
+
+### Frontend → Vercel / GitHub Pages
+
+The frontend auto-deploys via `.github/workflows/deploy.yml` on push to `main`.
+
+**Vercel**: Import the repo on [vercel.com](https://vercel.com). Set env var:
+- `VITE_API_URL` = your backend URL (e.g., `https://house-maint-api.onrender.com/api`)
+
+### Backend → Render
+
+1. Create a **Web Service** on [render.com](https://render.com) pointing to this repo.
+2. Set **Root Directory** to `server`, **Build Command** to `npm install && npm run build`, **Start Command** to `npm start`.
+3. Add environment variables: `NODE_ENV=production`, `PORT=3001`, `CORS_ORIGINS=https://your-frontend-domain.com`, `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `REDIS_HOST` (or omit for in-memory fallback).
+4. Add **RENDER_SERVICE_ID** and **RENDER_API_KEY** as GitHub repo secrets for auto-deploy via `.github/workflows/deploy-backend.yml`.
+
+### Environment Files
+
+| File | Purpose | Gitignored? |
+|------|---------|-------------|
+| `.env.example` | Template with all variables | ❌ (committed) |
+| `.env.production.example` | Production template | ❌ (committed) |
+| `.env.production` | Actual production values | ✅ |
+| `secrets/jwt_secret.txt` | JWT signing key | ✅ |
+| `secrets/db_password.txt` | Database password | ✅ |
 
 ## 📂 Project Structure
 
 ```
 house-maint-ai/
-├── src/                # Frontend Source
+├── src/                # Frontend (React + Vite)
 │   ├── components/     # Reusable UI components
 │   ├── pages/          # Application pages
 │   ├── contexts/       # Global state (Auth)
-│   ├── services/       # API clients (AI, Backend)
-│   └── utils/          # Helpers
-├── server/             # Backend Source
-│   ├── routes/         # API Endpoints
-│   ├── models/         # Database Schema
-│   ├── middleware/     # Auth & Error handling
+│   └── services/       # API clients (AI, Backend)
+├── server/             # Backend (Express + TypeScript)
+│   ├── routes/         # API endpoints
+│   ├── models/         # Database schema (PG + SQLite)
+│   ├── config/         # DB, Redis, Swagger, Secrets
 │   └── tests/          # Backend API tests
-├── Dockerfile          # Frontend container config
-├── docker-compose.yml  # Orchestration config
-└── vite.config.js      # Vite configuration
+├── .github/workflows/  # CI/CD pipelines
+├── agents/             # AI agent definitions
+├── Dockerfile          # Frontend container (Nginx)
+├── server/Dockerfile   # Backend container (Node)
+└── docker-compose.yml  # Full-stack orchestration
 ```
 
 ## 📄 License

@@ -1,16 +1,18 @@
 
 import { Link, useLocation } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const BottomNav = () => {
+    const { t } = useLanguage();
     const location = useLocation();
     const currentPath = location.pathname;
 
     const navItems = [
-        { path: '/', icon: 'home', label: 'Home', labelCn: '首页' },
-        { path: '/diagnosis', icon: 'build', label: 'Diagnosis', labelCn: '诊断' },
-        { path: '/calendar', icon: 'calendar_today', label: 'Calendar', labelCn: '日历' },
-        { path: '/community', icon: 'group', label: 'Community', labelCn: '社区' },
-        { path: '/profile', icon: 'person', label: 'Profile', labelCn: '我的' },
+        { path: '/', icon: 'home', label: t('nav.home') },
+        { path: '/diagnosis', icon: 'build', label: t('nav.diagnosis') },
+        { path: '/calendar', icon: 'calendar_today', label: t('nav.calendar') },
+        { path: '/community', icon: 'group', label: t('nav.community') },
+        { path: '/profile', icon: 'person', label: t('nav.profile') },
     ];
 
     return (
@@ -32,7 +34,7 @@ const BottomNav = () => {
                                 {item.icon}
                             </span>
                             <span className={`text-[10px] text-center leading-tight ${isActive ? 'font-semibold' : 'font-medium'}`}>
-                                {item.label}<br />{item.labelCn}
+                                {item.label}
                             </span>
                         </Link>
                     );

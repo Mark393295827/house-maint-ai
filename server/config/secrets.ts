@@ -36,6 +36,13 @@ export const DB_PASSWORD = readSecret(
     'postgres'
 );
 
+// DeepSeek API Key - for reasoning tasks
+export const DEEPSEEK_API_KEY = readSecret(
+    'deepseek_api_key',
+    'DEEPSEEK_API_KEY',
+    '' // No default in production/dev, must be provided for feature to work
+);
+
 // Validate required secrets in production
 if (process.env.NODE_ENV === 'production') {
     if (JWT_SECRET === 'house-maint-ai-dev-secret-change-in-production') {
@@ -46,4 +53,5 @@ if (process.env.NODE_ENV === 'production') {
 export default {
     JWT_SECRET,
     DB_PASSWORD,
+    DEEPSEEK_API_KEY,
 };

@@ -16,7 +16,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     name VARCHAR(100) NOT NULL,
     avatar TEXT,
-    role VARCHAR(20) DEFAULT 'user' CHECK(role IN ('user', 'worker', 'admin')),
+    role VARCHAR(20) DEFAULT 'user' CHECK(role IN ('user', 'worker', 'admin', 'manager', 'tenant')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -91,4 +91,17 @@ CREATE TABLE posts (
 CREATE INDEX idx_reports_user_id ON reports(user_id);
 CREATE INDEX idx_reports_status ON reports(status);
 CREATE INDEX idx_workers_available ON workers(available);
-CREATE INDEX idx_matches_report_id ON matches(report_id);
+CREATE INDEX IF NOT EXISTS idx_matches_report_id ON matches(report_id);
+
+-- Patterns Table (AI Learning)
+CREATE TABLE patterns (
+    id SERIAL PRIMARY KEY,
+    problem_type VARCHAR(50) NOT NULL,
+    context_signature VARCHAR(255) NOT NULL,
+    solution TEXT NOT NULL, -- JSON
+    success_rate DECIMAL(3, 2) DEFAULT 1.0,
+    usage_count INTEGER DEFAULT 1,
+    last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(problem_type, context_signature)
+);

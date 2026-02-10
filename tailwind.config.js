@@ -27,8 +27,8 @@ export default {
                 "danger": "#FF3B30",
             },
             fontFamily: {
-                "sans": ["Manrope", "sans-serif"],
-                "display": ["Manrope", "sans-serif"]
+                "sans": ["Inter", "Noto Sans SC", "system-ui", "sans-serif"],
+                "display": ["Inter", "Noto Sans SC", "system-ui", "sans-serif"]
             },
             borderRadius: {
                 "DEFAULT": "0.5rem",

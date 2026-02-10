@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import * as Sentry from '@sentry/react';
 
 interface Props {
     children: React.ReactNode;
@@ -37,7 +38,9 @@ class ErrorBoundary extends Component<Props, State> {
         // 将错误信息记录到错误报告服务
         this.setState({ errorInfo });
 
-        // TODO: 接入错误监控服务 (Sentry, LogRocket 等)
+        // Report error to Sentry
+        Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+
         if (import.meta.env.MODE === 'development') {
             console.error('ErrorBoundary caught an error:', error, errorInfo);
         }
@@ -52,7 +55,7 @@ class ErrorBoundary extends Component<Props, State> {
     };
 
     handleGoHome = () => {
-        window.location.href = '/house-maint-ai/';
+        window.location.href = import.meta.env.BASE_URL || '/';
     };
 
     render() {

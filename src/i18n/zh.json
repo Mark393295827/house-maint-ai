@@ -1,0 +1,226 @@
+{
+    "app": {
+        "name": "House Maint AI",
+        "tagline": "智能房屋维护助手"
+    },
+    "nav": {
+        "home": "首页",
+        "diagnosis": "诊断",
+        "calendar": "日历",
+        "community": "社区",
+        "profile": "我的"
+    },
+    "header": {
+        "location": "San Francisco, CA",
+        "greeting": "早上好, Alex"
+    },
+    "search": {
+        "placeholder": "搜索维修问题"
+    },
+    "quickActions": {
+        "title": "快速操作",
+        "scan": "扫描",
+        "import": "导入",
+        "plan": "计划",
+        "tools": "工具"
+    },
+    "repair": {
+        "title": "漏水水龙头维修",
+        "help": "帮助",
+        "progress": "已完成 {{total}} 步中的 {{completed}} 步",
+        "step": "步骤 {{step}}",
+        "wait": "等待",
+        "timer": {
+            "start": "开始计时",
+            "min": "分",
+            "sec": "秒"
+        },
+        "action": {
+            "start": "开始维修",
+            "plan": "添加到周计划"
+        },
+        "steps": {
+            "valve": {
+                "title": "关闭水源",
+                "desc": "找到水槽下的隔离阀并顺时针旋转。"
+            },
+            "handle": {
+                "title": "拆卸把手",
+                "desc": "使用内六角扳手松开紧定螺钉，然后提起把手。"
+            },
+            "cure": {
+                "title": "密封胶固化时间",
+                "desc": "在测试前等待硅胶完全固化。"
+            },
+            "reassemble": {
+                "title": "重新组装零件",
+                "desc": "按照相反步骤重新安装把手。"
+            }
+        }
+    },
+    "match": {
+        "title": "匹配工人",
+        "loading": "AI 正在匹配中...",
+        "report": {
+            "title": "报修问题",
+            "fallback": "水管维修问题"
+        },
+        "analysis": {
+            "title": "AI 分析",
+            "description": "基于您的位置和所需技能，我们找到了 {{count}} 位合适的专家。"
+        },
+        "demo_mode": "(演示模式)",
+        "empty": "暂无匹配的工人",
+        "help": "点击工人卡片查看详情并预约服务"
+    },
+    "activity": {
+        "title": "继续活动",
+        "viewAll": "查看全部",
+        "step": "第 2 步，共 4 步 • 分析损坏情况",
+        "leakingPipe": "水槽下漏水"
+    },
+    "suggestions": {
+        "title": "为您推荐",
+        "season": "秋季",
+        "acFilter": "空调滤网检查",
+        "gutter": "清理排水沟",
+        "pipes": "管道防冻",
+        "urgency": {
+            "low": "低紧急度",
+            "med": "中紧急度",
+            "high": "高紧急度"
+        },
+        "difficulty": {
+            "easy": "简单",
+            "medium": "中等",
+            "hard": "困难"
+        },
+        "time": {
+            "minutes": "分钟",
+            "hour": "小时"
+        }
+    },
+    "quickReport": {
+        "button": "快速报修"
+    },
+    "welcome": {
+        "title": "欢迎使用 House Maint AI",
+        "subtitle": "您的智能房屋维护助手",
+        "scanTitle": "AI 维修识别",
+        "scanDesc": "拍照即刻识别问题",
+        "strategiesTitle": "多种维修方案",
+        "strategiesDesc": "DIY 指南或专业建议",
+        "checklistTitle": "房屋维护清单",
+        "checklistDesc": "保持房屋最佳状态",
+        "getStarted": "立即开始",
+        "issueDetected": "检测到问题"
+    },
+    "diagnosis": {
+        "camera": {
+            "permission": "请允许访问摄像头以使用诊断功能",
+            "error": "无法访问摄像头，请检查设备权限"
+        },
+        "upload": "上传图片诊断",
+        "analyzing": {
+            "title": "AI 分析中...",
+            "desc": "正在分析..."
+        },
+        "result": {
+            "match": "匹配",
+            "noIssue": "未检测到明显问题",
+            "retry": "重新拍照",
+            "guide": "查看指南",
+            "confidence": "匹配度"
+        },
+        "mode": {
+            "import": "导入",
+            "photo": "拍照",
+            "batch": "批量"
+        },
+        "guide": {
+            "point": "对准问题区域拍照"
+        }
+    },
+    "profile": {
+        "title": "我的",
+        "defaultUser": "用户",
+        "notLoggedIn": "未登录",
+        "edit": "编辑",
+        "save": "保存",
+        "namePlaceholder": "您的姓名",
+        "reports": {
+            "title": "最近报修",
+            "viewAll": "查看全部",
+            "empty": "暂无报修记录",
+            "create": "立即报修"
+        },
+        "settings": {
+            "title": "设置",
+            "darkMode": "深色模式",
+            "notifications": "通知提醒",
+            "language": "语言设置"
+        },
+        "support": {
+            "title": "支持",
+            "help": "帮助中心",
+            "about": "关于"
+        },
+        "logout": "退出登录",
+        "status": {
+            "pending": "待处理",
+            "in_progress": "处理中",
+            "completed": "已完成",
+            "cancelled": "已取消"
+        }
+    },
+    "community": {
+        "title": "社区",
+        "create": {
+            "title": "发布帖子",
+            "titlePlaceholder": "标题",
+            "contentPlaceholder": "分享你的经验...",
+            "cancel": "取消",
+            "submit": "发布",
+            "success": "发布成功",
+            "fail": "发布失败"
+        },
+        "tabs": {
+            "recommend": "推荐",
+            "following": "关注",
+            "qa": "问答"
+        },
+        "empty": "暂无帖子，快来发布第一条吧！",
+        "anonymous": "匿名用户",
+        "time": {
+            "justNow": "刚刚",
+            "minsAgo": "分钟前",
+            "hoursAgo": "小时前"
+        }
+    },
+    "calendar": {
+        "title": "房屋维护计划",
+        "subtitle": "您的房屋健康计划",
+        "selectWorker": "选择预约时间",
+        "selectWorkerSub": "选择预约时间段",
+        "tasks": {
+            "none": "无任务",
+            "add": "点击添加任务"
+        },
+        "booking": {
+            "selectTime": "选择时间段",
+            "confirm": "确认预约",
+            "processing": "预约中...",
+            "success": "预约成功！"
+        },
+        "sections": {
+            "morning": "上午",
+            "afternoon": "下午",
+            "night": "晚上"
+        },
+        "time": {
+            "morning": "8:00 - 12:00",
+            "afternoon": "12:00 - 17:00",
+            "night": "17:00 - 21:00"
+        }
+    }
+}

@@ -3,6 +3,7 @@ import BottomNav from '../components/BottomNav';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useLanguage } from '../i18n/LanguageContext';
 
 /**
  * CommunityPage - 社区页面
@@ -10,6 +11,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
  * 展示维修经验分享、问答社区等内容。
  */
 const CommunityPage = () => {
+    const { t } = useLanguage();
     const { isAuthenticated } = useAuth();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ const CommunityPage = () => {
             setIsCreating(false);
         } catch (err) {
             console.error('Failed to create post:', err);
-            alert('发布失败，请重试');
+            alert(t('community.create.fail'));
         }
     };
 
@@ -75,9 +77,9 @@ const CommunityPage = () => {
         const now = new Date();
         const diff = Math.floor((now.getTime() - date.getTime()) / 1000); // seconds
 
-        if (diff < 60) return '刚刚';
-        if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)}小时前`;
+        if (diff < 60) return t('community.time.justNow');
+        if (diff < 3600) return `${Math.floor(diff / 60)}${t('community.time.minsAgo')}`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}${t('community.time.hoursAgo')}`;
         return date.toLocaleDateString();
     };
 
@@ -87,16 +89,16 @@ const CommunityPage = () => {
             {isCreating && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-surface-dark w-full max-w-sm rounded-2xl p-4 shadow-xl">
-                        <h3 className="font-bold text-lg mb-4 text-text-main-light dark:text-text-main-dark">发布帖子</h3>
+                        <h3 className="font-bold text-lg mb-4 text-text-main-light dark:text-text-main-dark">{t('community.create.title')}</h3>
                         <input
                             type="text"
-                            placeholder="标题"
+                            placeholder={t('community.create.titlePlaceholder')}
                             className="w-full mb-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-surface-dark"
                             value={newPost.title}
                             onChange={e => setNewPost({ ...newPost, title: e.target.value })}
                         />
                         <textarea
-                            placeholder="分享你的经验..."
+                            placeholder={t('community.create.contentPlaceholder')}
                             className="w-full h-32 mb-4 p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-surface-dark resize-none"
                             value={newPost.content}
                             onChange={e => setNewPost({ ...newPost, content: e.target.value })}
@@ -106,13 +108,13 @@ const CommunityPage = () => {
                                 onClick={() => setIsCreating(false)}
                                 className="flex-1 py-3 text-gray-500 font-bold"
                             >
-                                取消
+                                {t('community.create.cancel')}
                             </button>
                             <button
                                 onClick={handleCreatePost}
                                 className="flex-1 py-3 bg-primary text-white rounded-xl font-bold"
                             >
-                                发布
+                                {t('community.create.submit')}
                             </button>
                         </div>
                     </div>
@@ -123,7 +125,7 @@ const CommunityPage = () => {
             <div className="sticky top-0 z-10 bg-white dark:bg-surface-dark shadow-sm">
                 <div className="flex items-center justify-between p-4 pt-6">
                     <h1 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark">
-                        社区
+                        {t('community.title')}
                     </h1>
                     {isAuthenticated && (
                         <button
@@ -141,19 +143,19 @@ const CommunityPage = () => {
                         onClick={() => setActiveTab('recommend')}
                         className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'recommend' ? 'text-action-primary border-b-2 border-action-primary' : 'text-text-sub-light dark:text-text-sub-dark'}`}
                     >
-                        推荐
+                        {t('community.tabs.recommend')}
                     </button>
                     <button
                         onClick={() => setActiveTab('following')}
                         className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'following' ? 'text-action-primary border-b-2 border-action-primary' : 'text-text-sub-light dark:text-text-sub-dark'}`}
                     >
-                        关注
+                        {t('community.tabs.following')}
                     </button>
                     <button
                         onClick={() => setActiveTab('qa')}
                         className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'qa' ? 'text-action-primary border-b-2 border-action-primary' : 'text-text-sub-light dark:text-text-sub-dark'}`}
                     >
-                        问答
+                        {t('community.tabs.qa')}
                     </button>
                 </div>
             </div>
@@ -179,7 +181,7 @@ const CommunityPage = () => {
                                 />
                                 <div>
                                     <h3 className="font-medium text-text-main-light dark:text-text-main-dark">
-                                        {post.author_name || '匿名用户'}
+                                        {post.author_name || t('community.anonymous')}
                                     </h3>
                                     <span className="text-xs text-text-sub-light dark:text-text-sub-dark">
                                         {formatTime(post.created_at)}
@@ -229,7 +231,7 @@ const CommunityPage = () => {
                 ) : (
                     <div className="text-center py-12">
                         <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2">forum</span>
-                        <p className="text-text-sub-light dark:text-text-sub-dark">暂无帖子，快来发布第一条吧！</p>
+                        <p className="text-text-sub-light dark:text-text-sub-dark">{t('community.empty')}</p>
                     </div>
                 )}
             </main>
