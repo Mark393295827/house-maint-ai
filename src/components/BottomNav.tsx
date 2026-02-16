@@ -24,11 +24,17 @@ const BottomNav = () => {
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${isActive ? 'text-primary' : 'text-gray-400 dark:text-gray-500 hover:text-primary'
+                            className={`relative flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${isActive ? 'text-primary' : 'text-gray-400 dark:text-gray-500 hover:text-primary'
                                 }`}
                         >
+                            {/* Active dot indicator */}
+                            {isActive && (
+                                <div className="absolute top-1 w-1 h-1 rounded-full bg-primary" style={{
+                                    animation: 'fadeSlideIn 0.25s ease both'
+                                }} />
+                            )}
                             <span
-                                className="material-symbols-outlined text-[26px]"
+                                className={`material-symbols-outlined transition-transform duration-200 ${isActive ? 'text-[28px] -translate-y-0.5' : 'text-[26px]'}`}
                                 style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
                             >
                                 {item.icon}

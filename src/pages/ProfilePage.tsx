@@ -116,7 +116,7 @@ const ProfilePage = () => {
     };
 
     return (
-        <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden transition-colors duration-300">
+        <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden transition-colors duration-300 page-enter">
             {/* Header */}
             <div className="flex items-center justify-between p-4 pt-6">
                 <h1 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark">{t('profile.title')}</h1>

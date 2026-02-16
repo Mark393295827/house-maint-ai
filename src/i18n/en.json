@@ -81,7 +81,11 @@
             "noIssue": "No obvious issue detected",
             "retry": "Retake Photo",
             "guide": "View Guide",
-            "confidence": "Match"
+            "confidence": "Match",
+            "report": "Quick Report"
+        },
+        "error": {
+            "analysis": "Analysis failed, please try again"
         },
         "mode": {
             "import": "Import",
@@ -187,6 +191,17 @@
             "start": "Start Fix",
             "plan": "Add to Weekly Plan"
         },
+        "aiGenerated": "AI Generated",
+        "safetyWarning": "Safety Warning",
+        "tools": "Tools Needed",
+        "parts": "Parts Required",
+        "findWorker": "Find a Professional",
+        "findWorkerDesc": "This repair is complex — we recommend expert help",
+        "executing": "🔧 Executing",
+        "inProgress": "In Progress — Check Steps",
+        "creatingReport": "Creating Report...",
+        "completionTitle": "Repair Complete!",
+        "completionDesc": "All steps have been completed successfully.",
         "steps": {
             "valve": {
                 "title": "Turn off water",
@@ -220,5 +235,29 @@
         "demo_mode": "(Demo Mode)",
         "empty": "No workers matched",
         "help": "Click a worker card to view details and book service"
+    },
+    "metrics": {
+        "title": "System Metrics",
+        "subtitle": "Real-time system monitoring",
+        "refresh": "Refresh",
+        "error": "Connection Error",
+        "retry": "Retry",
+        "uptime": "Uptime",
+        "totalRequests": "Total Requests",
+        "successRate": "Success Rate",
+        "avgResponse": "Avg Response",
+        "sdaCycles": "SDA Cycles",
+        "simulate": "Simulate",
+        "deploy": "Deploy",
+        "augment": "Augment",
+        "memory": "Memory",
+        "requestBreakdown": "Request Breakdown",
+        "success": "Success",
+        "errors": "Errors",
+        "systemHealth": "System Health",
+        "platform": "Platform",
+        "agentActivity": "Agent Activity",
+        "noAgents": "No agent activity yet",
+        "lastUpdated": "Last updated"
     }
 }

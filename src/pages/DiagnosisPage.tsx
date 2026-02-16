@@ -119,6 +119,8 @@ const DiagnosisPage = () => {
             if (result.detected) {
                 // Store result in sessionStorage for the repair page
                 sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
+                // Also store the captured image for display on repair page
+                sessionStorage.setItem('capturedImage', imageUrl);
             }
         } catch (error) {
             console.error('Analysis error:', error);
@@ -129,7 +131,7 @@ const DiagnosisPage = () => {
     };
 
     // Handle file import
-    const handleFileImport = async (e) => {
+    const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -146,6 +148,7 @@ const DiagnosisPage = () => {
 
             if (result.detected) {
                 sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
+                sessionStorage.setItem('capturedImage', imageUrl);
             }
         } catch (error) {
             console.error('Analysis error:', error);
@@ -306,6 +309,13 @@ const DiagnosisPage = () => {
                                 <span className="material-symbols-outlined text-lg">arrow_forward</span>
                             </button>
                         </div>
+                        <button
+                            onClick={() => navigate('/quick-report')}
+                            className="w-full h-10 mt-2 bg-transparent border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 font-medium rounded-xl flex items-center justify-center gap-1"
+                        >
+                            <span className="material-symbols-outlined text-lg">description</span>
+                            <span>{t('diagnosis.result.report', { defaultValue: 'Quick Report' })}</span>
+                        </button>
                     </div>
                 </div>
             )}

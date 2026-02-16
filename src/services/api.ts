@@ -3,7 +3,15 @@
  */
 
 // API Base URL from environment variable with fallback to localhost
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+let API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+// Force localhost for local development/testing to ensure stability
+if (import.meta.env.DEV && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    API_BASE = 'http://localhost:3001/api';
+    console.log('DEBUG: Forced API_BASE to localhost for dev');
+} else {
+    console.log('DEBUG: API_BASE =', API_BASE);
+}
 
 // Token storage
 let authToken = localStorage.getItem('authToken');
@@ -271,6 +279,22 @@ export async function likePost(id) {
     });
 }
 
+// ============ Metrics API ============
+
+/**
+ * Get system metrics (admin only)
+ */
+export async function getMetrics() {
+    return fetchAPI('/metrics');
+}
+
+/**
+ * Get system health stats (admin only)
+ */
+export async function getMetricsHealth() {
+    return fetchAPI('/metrics/health');
+}
+
 // ============ Health Check ============
 
 /**
@@ -304,4 +328,7 @@ export default {
     createPost,
     likePost,
     healthCheck,
+    getMetrics,
+    getMetricsHealth,
 };
+

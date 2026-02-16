@@ -21,6 +21,7 @@ import analyticsRoutes from './routes/analytics.js';
 // Middleware
 import { errorHandler } from './middleware/errorHandler.js';
 import { standardLimiter, strictLimiter } from './middleware/rateLimiter.js';
+import { metricsCollector } from './middleware/metricsCollector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -37,15 +38,9 @@ const getAllowedOrigins = (): (string | RegExp)[] => {
         origins.push(...process.env.CORS_ORIGINS.split(',').map(o => o.trim()));
     }
 
-    // Default development origins
+    // Default development origins - allow all for easier mobile testing
     if (process.env.NODE_ENV !== 'production') {
-        origins.push(
-            'http://localhost:5173',
-            'http://localhost:5174',
-            'http://localhost:5175',
-            'http://localhost:5176',
-            'http://localhost:3000'
-        );
+        return ['*'];
     }
 
     // Production origins pattern (if set)
@@ -58,8 +53,32 @@ const getAllowedOrigins = (): (string | RegExp)[] => {
 
 // Middleware
 app.use(cors({
-    origin: getAllowedOrigins(),
-    credentials: true
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        // In development, allow any origin (reflect it)
+        if (process.env.NODE_ENV !== 'production') {
+            return callback(null, true);
+        }
+
+        const allowedOrigins = getAllowedOrigins();
+
+        // Check if origin is allowed
+        const isAllowed = allowedOrigins.some(o => {
+            if (o instanceof RegExp) return o.test(origin);
+            return o === origin;
+        });
+
+        if (isAllowed) {
+            return callback(null, true);
+        } else {
+            return callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Security Headers
@@ -75,11 +94,14 @@ app.use(helmet({
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Apply standard rate limiting to all requests
 app.use(standardLimiter);
+
+// Metrics collection — auto-track request count, success/error, and response times
+app.use(metricsCollector);
 
 // Swagger
 import swaggerUi from 'swagger-ui-express';
