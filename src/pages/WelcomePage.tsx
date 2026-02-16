@@ -6,7 +6,7 @@ import LanguageToggle from '../components/LanguageToggle';
 const WelcomePage = () => {
     const { t } = useLanguage();
     return (
-        <div className="relative flex h-full min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-sans text-text-main-light dark:text-text-main-dark overflow-x-hidden">
+        <div className="relative flex h-full min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-sans text-text-main-light dark:text-text-main-dark overflow-x-hidden page-enter">
             <div className="flex items-center justify-between pt-8 pb-4 px-6">
                 <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] text-center uppercase tracking-wider opacity-80">{t('app.name')}</h2>
                 <LanguageToggle />

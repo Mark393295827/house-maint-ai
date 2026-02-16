@@ -1,14 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { LanguageProvider } from '../i18n/LanguageContext';
 import BottomNav from '../components/BottomNav';
 
-// Helper to render with Router
+// Helper to render with Router + LanguageProvider
 function renderBottomNav() {
     return render(
-        <BrowserRouter>
-            <BottomNav />
-        </BrowserRouter>
+        <LanguageProvider>
+            <BrowserRouter>
+                <BottomNav />
+            </BrowserRouter>
+        </LanguageProvider>
     );
 }
 

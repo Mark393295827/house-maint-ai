@@ -18,6 +18,7 @@ const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DevicePreview = lazy(() => import('./pages/DevicePreview'));
 const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
+const MetricsDashboard = lazy(() => import('./pages/MetricsDashboard'));
 
 function App() {
   return (
@@ -57,6 +58,13 @@ function App() {
               <Route path="/match" element={
                 <ProtectedRoute>
                   <WorkerMatchPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Admin routes */}
+              <Route path="/metrics" element={
+                <ProtectedRoute>
+                  <MetricsDashboard />
                 </ProtectedRoute>
               } />
 

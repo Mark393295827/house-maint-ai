@@ -34,3 +34,7 @@ secrets/*.txt
 
 # Coverage reports
 coverage/
+test_output*.txt
+test_failures*.txt
+test_frontend_results*.txt
+git_status_output.txt

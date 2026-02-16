@@ -1,28 +1,20 @@
 import { Router, Request, Response } from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
+import { metricsStore, resetMetrics } from '../middleware/metricsCollector.js';
 
 const router = Router();
 
 // Protect all metrics routes - Admin only
 router.use(authenticate, authorize('admin'));
 
-// In-memory metrics storage
-const metrics = {
-    requests: { total: 0, success: 0, error: 0 },
-    responseTime: { total: 0, count: 0, min: Infinity, max: 0 },
-    sda: { cycles: 0, simulatePasses: 0, deploys: 0, augments: 0 },
-    agents: { invocations: 0, byAgent: {} as Record<string, number> },
-    startTime: new Date(),
-};
-
 /**
  * GET /api/metrics
  * Returns current system metrics
  */
 router.get('/', (_req: Request, res: Response) => {
-    const uptime = Date.now() - metrics.startTime.getTime();
-    const avgResponseTime = metrics.responseTime.count > 0
-        ? metrics.responseTime.total / metrics.responseTime.count
+    const uptime = Date.now() - metricsStore.startTime.getTime();
+    const avgResponseTime = metricsStore.responseTime.count > 0
+        ? metricsStore.responseTime.total / metricsStore.responseTime.count
         : 0;
 
     res.json({
@@ -31,66 +23,78 @@ router.get('/', (_req: Request, res: Response) => {
             uptime_human: formatUptime(uptime),
         },
         requests: {
-            total: metrics.requests.total,
-            success: metrics.requests.success,
-            error: metrics.requests.error,
-            success_rate: metrics.requests.total > 0
-                ? (metrics.requests.success / metrics.requests.total * 100).toFixed(2) + '%'
+            total: metricsStore.requests.total,
+            success: metricsStore.requests.success,
+            error: metricsStore.requests.error,
+            success_rate: metricsStore.requests.total > 0
+                ? (metricsStore.requests.success / metricsStore.requests.total * 100).toFixed(2) + '%'
                 : 'N/A',
         },
         response_time: {
             avg_ms: avgResponseTime.toFixed(2),
-            min_ms: metrics.responseTime.min === Infinity ? 0 : metrics.responseTime.min,
-            max_ms: metrics.responseTime.max,
+            min_ms: metricsStore.responseTime.min === Infinity ? 0 : metricsStore.responseTime.min,
+            max_ms: metricsStore.responseTime.max,
         },
         sda_cycles: {
-            total: metrics.sda.cycles,
-            simulate_passes: metrics.sda.simulatePasses,
-            deploys: metrics.sda.deploys,
-            augments: metrics.sda.augments,
+            total: metricsStore.sda.cycles,
+            simulate_passes: metricsStore.sda.simulatePasses,
+            deploys: metricsStore.sda.deploys,
+            augments: metricsStore.sda.augments,
         },
         agents: {
-            total_invocations: metrics.agents.invocations,
-            by_agent: metrics.agents.byAgent,
+            total_invocations: metricsStore.agents.invocations,
+            by_agent: metricsStore.agents.byAgent,
         },
     });
 });
 
 /**
+ * GET /api/metrics/health
+ * Returns Node.js process health stats
+ */
+router.get('/health', (_req: Request, res: Response) => {
+    const mem = process.memoryUsage();
+    const cpu = process.cpuUsage();
+
+    res.json({
+        memory: {
+            rss_mb: +(mem.rss / 1024 / 1024).toFixed(2),
+            heap_used_mb: +(mem.heapUsed / 1024 / 1024).toFixed(2),
+            heap_total_mb: +(mem.heapTotal / 1024 / 1024).toFixed(2),
+            external_mb: +(mem.external / 1024 / 1024).toFixed(2),
+        },
+        cpu: {
+            user_ms: +(cpu.user / 1000).toFixed(2),
+            system_ms: +(cpu.system / 1000).toFixed(2),
+        },
+        node_version: process.version,
+        platform: process.platform,
+        pid: process.pid,
+    });
+});
+
+/**
  * POST /api/metrics/record
- * Record a metric event
+ * Record a metric event (for SDA/agent external reporting)
  */
 router.post('/record', (req: Request, res: Response) => {
     const { type, data } = req.body;
 
     switch (type) {
-        case 'request':
-            metrics.requests.total++;
-            if (data.success) metrics.requests.success++;
-            else metrics.requests.error++;
-            break;
-
-        case 'response_time':
-            metrics.responseTime.total += data.duration;
-            metrics.responseTime.count++;
-            metrics.responseTime.min = Math.min(metrics.responseTime.min, data.duration);
-            metrics.responseTime.max = Math.max(metrics.responseTime.max, data.duration);
-            break;
-
         case 'sda':
-            metrics.sda.cycles++;
-            if (data.phase === 'simulate' && data.pass) metrics.sda.simulatePasses++;
-            if (data.phase === 'deploy') metrics.sda.deploys++;
-            if (data.phase === 'augment') metrics.sda.augments++;
+            metricsStore.sda.cycles++;
+            if (data.phase === 'simulate' && data.pass) metricsStore.sda.simulatePasses++;
+            if (data.phase === 'deploy') metricsStore.sda.deploys++;
+            if (data.phase === 'augment') metricsStore.sda.augments++;
             break;
 
         case 'agent':
-            metrics.agents.invocations++;
-            metrics.agents.byAgent[data.agent] = (metrics.agents.byAgent[data.agent] || 0) + 1;
+            metricsStore.agents.invocations++;
+            metricsStore.agents.byAgent[data.agent] = (metricsStore.agents.byAgent[data.agent] || 0) + 1;
             break;
 
         default:
-            return res.status(400).json({ error: 'Unknown metric type' });
+            return res.status(400).json({ error: 'Unknown metric type. Use "sda" or "agent".' });
     }
 
     res.json({ success: true });
@@ -101,12 +105,7 @@ router.post('/record', (req: Request, res: Response) => {
  * Reset all metrics
  */
 router.post('/reset', (_req: Request, res: Response) => {
-    metrics.requests = { total: 0, success: 0, error: 0 };
-    metrics.responseTime = { total: 0, count: 0, min: Infinity, max: 0 };
-    metrics.sda = { cycles: 0, simulatePasses: 0, deploys: 0, augments: 0 };
-    metrics.agents = { invocations: 0, byAgent: {} };
-    metrics.startTime = new Date();
-
+    resetMetrics();
     res.json({ success: true, message: 'Metrics reset' });
 });
 

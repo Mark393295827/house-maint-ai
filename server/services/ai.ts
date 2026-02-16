@@ -95,9 +95,47 @@ JSON
             model: "gemini-1.5-flash",
             systemInstruction: this.systemPrompt
         });
+        this.hasApiKey = !!apiKey;
     }
 
+    private hasApiKey: boolean;
+
     async diagnose(image?: string, mimeType?: string, text?: string): Promise<DiagnosisResult> {
+        // Demo fallback when no API key is configured
+        if (!this.hasApiKey) {
+            console.warn('[AI] No GEMINI_API_KEY set — returning demo diagnosis');
+            return {
+                diagnosis: {
+                    issue_identified: "吊扇异响 / Ceiling Fan Noise",
+                    description: "吊扇运行时发出异常噪音，可能由轴承磨损、叶片不平衡或螺丝松动导致。建议检查固定螺丝和叶片平衡状态。(Demo Mode — set GEMINI_API_KEY for real AI diagnosis)",
+                    category: "Electrical",
+                    severity_score: 2,
+                    safety_warning: "操作前请关闭吊扇电源开关，确保叶片完全停止旋转再进行检查。"
+                },
+                solution: {
+                    can_diy: true,
+                    steps: [
+                        "关闭吊扇电源开关，等待叶片完全停止",
+                        "使用梯子安全地靠近吊扇，检查所有固定螺丝是否松动",
+                        "逐一检查每个叶片，确认是否有裂痕或变形",
+                        "使用平衡夹测试叶片平衡，调整至均等",
+                        "清洁叶片表面灰尘，润滑轴承部位",
+                        "重新拧紧所有螺丝，开启电源测试运行"
+                    ],
+                    required_parts: [
+                        { name: "吊扇平衡夹", spec: "通用型", estimated_price: "¥5-15" },
+                        { name: "轴承润滑油", spec: "WD-40 或同类", estimated_price: "¥15-30" }
+                    ],
+                    tools_needed: ["十字螺丝刀", "梯子", "抹布", "润滑油"]
+                },
+                worker_matching_criteria: {
+                    required_skill: "Electrical",
+                    urgency: "flexible",
+                    estimated_man_hours: "0.5-1小时"
+                }
+            };
+        }
+
         const promptParts: any[] = [
             "请诊断这张图片中的家居维修问题，并按要求返回 JSON。"
         ];

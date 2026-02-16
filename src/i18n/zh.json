@@ -24,40 +24,6 @@
         "plan": "计划",
         "tools": "工具"
     },
-    "repair": {
-        "title": "漏水水龙头维修",
-        "help": "帮助",
-        "progress": "已完成 {{total}} 步中的 {{completed}} 步",
-        "step": "步骤 {{step}}",
-        "wait": "等待",
-        "timer": {
-            "start": "开始计时",
-            "min": "分",
-            "sec": "秒"
-        },
-        "action": {
-            "start": "开始维修",
-            "plan": "添加到周计划"
-        },
-        "steps": {
-            "valve": {
-                "title": "关闭水源",
-                "desc": "找到水槽下的隔离阀并顺时针旋转。"
-            },
-            "handle": {
-                "title": "拆卸把手",
-                "desc": "使用内六角扳手松开紧定螺钉，然后提起把手。"
-            },
-            "cure": {
-                "title": "密封胶固化时间",
-                "desc": "在测试前等待硅胶完全固化。"
-            },
-            "reassemble": {
-                "title": "重新组装零件",
-                "desc": "按照相反步骤重新安装把手。"
-            }
-        }
-    },
     "match": {
         "title": "匹配工人",
         "loading": "AI 正在匹配中...",
@@ -130,7 +96,11 @@
             "noIssue": "未检测到明显问题",
             "retry": "重新拍照",
             "guide": "查看指南",
-            "confidence": "匹配度"
+            "confidence": "匹配度",
+            "report": "快速报修"
+        },
+        "error": {
+            "analysis": "分析失败，请重试"
         },
         "mode": {
             "import": "导入",
@@ -222,5 +192,74 @@
             "afternoon": "12:00 - 17:00",
             "night": "17:00 - 21:00"
         }
+    },
+    "repair": {
+        "title": "水龙头维修",
+        "help": "帮助",
+        "progress": "已完成 {{completed}} / {{total}} 步",
+        "step": "步骤 {{step}}",
+        "wait": "等待",
+        "timer": {
+            "start": "开始计时",
+            "min": "分钟",
+            "sec": "秒"
+        },
+        "action": {
+            "start": "开始修复",
+            "plan": "加入每周计划"
+        },
+        "aiGenerated": "AI 生成方案",
+        "safetyWarning": "安全警告",
+        "tools": "所需工具",
+        "parts": "所需零件",
+        "findWorker": "找专业师傅",
+        "findWorkerDesc": "此维修较复杂 — 建议寻求专业帮助",
+        "executing": "🔧 维修中",
+        "inProgress": "维修进行中 — 请检查步骤",
+        "creatingReport": "正在创建报修...",
+        "completionTitle": "维修完成！",
+        "completionDesc": "所有步骤均已成功完成。",
+        "steps": {
+            "valve": {
+                "title": "关闭水阀",
+                "desc": "找到水槽下方的截止阀，顺时针拧紧。"
+            },
+            "handle": {
+                "title": "拆卸手柄",
+                "desc": "使用内六角扳手松开固定螺丝，然后取下手柄。"
+            },
+            "cure": {
+                "title": "密封胶固化",
+                "desc": "等待硅胶正确凝固后再测试。"
+            },
+            "reassemble": {
+                "title": "重新组装",
+                "desc": "按反向步骤将手柄装回。"
+            }
+        }
+    },
+    "metrics": {
+        "title": "系统指标",
+        "subtitle": "实时系统监控",
+        "refresh": "刷新",
+        "error": "连接错误",
+        "retry": "重试",
+        "uptime": "运行时间",
+        "totalRequests": "总请求数",
+        "successRate": "成功率",
+        "avgResponse": "平均响应",
+        "sdaCycles": "SDA 循环",
+        "simulate": "模拟",
+        "deploy": "部署",
+        "augment": "增强",
+        "memory": "内存",
+        "requestBreakdown": "请求分析",
+        "success": "成功",
+        "errors": "错误",
+        "systemHealth": "系统健康",
+        "platform": "平台",
+        "agentActivity": "代理活动",
+        "noAgents": "暂无代理活动",
+        "lastUpdated": "上次更新"
     }
 }

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
+import { LanguageProvider } from '../i18n/LanguageContext';
 import DiagnosisPage from './DiagnosisPage';
 
 // Mock the AI service
@@ -40,9 +41,11 @@ const mockRevokeObjectURL = vi.fn();
 
 const renderDiagnosisPage = () => {
     return render(
-        <BrowserRouter>
-            <DiagnosisPage />
-        </BrowserRouter>
+        <LanguageProvider>
+            <BrowserRouter>
+                <DiagnosisPage />
+            </BrowserRouter>
+        </LanguageProvider>
     );
 };
 
@@ -77,7 +80,7 @@ describe('DiagnosisPage', () => {
         await waitFor(() => {
             // Should have back button
             expect(screen.getByRole('link', { name: /arrow_back/i }) ||
-                   screen.getByText('arrow_back')).toBeInTheDocument();
+                screen.getByText('arrow_back')).toBeInTheDocument();
         });
     });
 
@@ -88,7 +91,7 @@ describe('DiagnosisPage', () => {
         renderDiagnosisPage();
 
         await waitFor(() => {
-            expect(screen.getByText('请允许访问摄像头以使用诊断功能')).toBeInTheDocument();
+            expect(screen.getByText('Please allow camera access to use diagnosis')).toBeInTheDocument();
         });
     });
 
@@ -99,7 +102,7 @@ describe('DiagnosisPage', () => {
         renderDiagnosisPage();
 
         await waitFor(() => {
-            expect(screen.getByText('无法访问摄像头，请检查设备权限')).toBeInTheDocument();
+            expect(screen.getByText('Cannot access camera, please check permissions')).toBeInTheDocument();
         });
     });
 
@@ -109,7 +112,7 @@ describe('DiagnosisPage', () => {
         renderDiagnosisPage();
 
         await waitFor(() => {
-            expect(screen.getByText('上传图片诊断')).toBeInTheDocument();
+            expect(screen.getByText('Upload Image')).toBeInTheDocument();
         });
     });
 
