@@ -16,8 +16,11 @@ const BottomNav = () => {
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 pb-safe-bottom">
-            <div className="flex items-center justify-around h-[70px] px-2">
+        <nav
+            className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 pb-safe-bottom"
+            aria-label={t('nav.ariaLabel', { defaultValue: 'Main Navigation' })}
+        >
+            <div className="flex items-center justify-around h-[70px] px-2" role="menubar">
                 {navItems.map((item) => {
                     const isActive = currentPath === item.path;
                     return (
@@ -26,6 +29,9 @@ const BottomNav = () => {
                             to={item.path}
                             className={`relative flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${isActive ? 'text-primary' : 'text-gray-400 dark:text-gray-500 hover:text-primary'
                                 }`}
+                            role="menuitem"
+                            aria-current={isActive ? 'page' : undefined}
+                            aria-label={item.label}
                         >
                             {/* Active dot indicator */}
                             {isActive && (
@@ -36,6 +42,7 @@ const BottomNav = () => {
                             <span
                                 className={`material-symbols-outlined transition-transform duration-200 ${isActive ? 'text-[28px] -translate-y-0.5' : 'text-[26px]'}`}
                                 style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                                aria-hidden="true"
                             >
                                 {item.icon}
                             </span>

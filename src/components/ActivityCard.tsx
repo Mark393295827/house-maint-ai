@@ -2,17 +2,25 @@
 import { useNavigate } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useReports } from '../hooks/useReports';
 
 interface ActivityCardProps {
     hasActivity?: boolean;
 }
 
-const ActivityCard = ({ hasActivity = true }: ActivityCardProps) => {
+const ActivityCard = ({ hasActivity: _hasActivity = true }: ActivityCardProps) => {
     const { t, locale } = useLanguage();
     const navigate = useNavigate();
 
+    // Fetch recent pending reports
+    const { data: reportsData, isLoading } = useReports('pending', 1);
+
+    // Determine active task based on API data
+    const activeReport = reportsData?.reports?.[0];
+    const hasActiveTask = !!activeReport;
+
     // Empty state
-    if (!hasActivity) {
+    if (!hasActiveTask && !isLoading) {
         return (
             <section className="px-5 page-enter" style={{ animationDelay: '150ms' }}>
                 <div className="flex items-center justify-between mb-3 px-1">
@@ -34,28 +42,36 @@ const ActivityCard = ({ hasActivity = true }: ActivityCardProps) => {
         );
     }
 
+    if (isLoading) {
+        return (
+            <section className="px-5 page-enter" style={{ animationDelay: '150ms' }}>
+                <div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+            </section>
+        );
+    }
+
     return (
         <section className="px-5 page-enter" style={{ animationDelay: '150ms' }}>
             <div className="flex items-center justify-between mb-3 px-1">
                 <h3 className="text-lg font-bold">{t('activity.title')}</h3>
-                <a className="text-sm font-semibold text-primary" href="#">{t('activity.viewAll')}</a>
+                <a className="text-sm font-semibold text-primary" href="#" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>{t('activity.viewAll')}</a>
             </div>
             <div
                 className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col gap-4 cursor-pointer press-scale"
-                onClick={() => navigate('/repair')}
+                onClick={() => navigate(activeReport ? `/reports/${activeReport.id}` : '/repair')}
             >
                 <div className="flex gap-4">
                     <div className="size-16 shrink-0 rounded-xl overflow-hidden bg-gray-100">
                         <div
                             className="bg-center bg-no-repeat bg-cover w-full h-full"
-                            style={{ backgroundImage: `url("${IMAGES.LEAKING_PIPE}")` }}
-                            aria-label="Close up of a leaking pipe under a kitchen sink"
+                            style={{ backgroundImage: `url("${activeReport ? (activeReport.image_urls?.[0] || IMAGES.LEAKING_PIPE) : IMAGES.LEAKING_PIPE}")` }}
+                            aria-label={activeReport?.title || "Active task"}
                         >
                         </div>
                     </div>
                     <div className="flex flex-col justify-center flex-1 min-w-0">
-                        <h4 className="font-bold text-text-main-light dark:text-text-main-dark truncate">{t('activity.leakingPipe')}</h4>
-                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark mt-1">{t('activity.step')}</p>
+                        <h4 className="font-bold text-text-main-light dark:text-text-main-dark truncate">{activeReport?.title || t('activity.leakingPipe')}</h4>
+                        <p className="text-sm text-text-sub-light dark:text-text-sub-dark mt-1">{activeReport?.status || t('activity.step')}</p>
                     </div>
                     <div className="flex items-center">
                         <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">

@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import request from 'supertest';
+import express from 'express';
+import cookieParser from 'cookie-parser';
 
-// Mock redis to prevent connection errors
-vi.mock('../config/redis.js', () => ({
+// Mock dependencies
+vi.mock('../config/redis', () => ({
     default: {
         get: vi.fn().mockResolvedValue(null),
         setex: vi.fn().mockResolvedValue('OK'),
@@ -11,15 +13,12 @@ vi.mock('../config/redis.js', () => ({
     }
 }));
 
-// In-memory user store for auth tests
+// Mock database
 const mockUsers: any[] = [];
-
-// Mock database — intercept SQL queries with in-memory storage
-vi.mock('../config/database.js', () => {
+vi.mock('../config/database', () => {
     const queryFn = vi.fn(async (text: string, params?: any[]) => {
         const sql = text.trim().toUpperCase();
 
-        // DELETE FROM users WHERE phone = $1
         if (sql.startsWith('DELETE')) {
             const phone = params?.[0];
             const idx = mockUsers.findIndex((u: any) => u.phone === phone);
@@ -27,14 +26,12 @@ vi.mock('../config/database.js', () => {
             return { rows: [], rowCount: idx >= 0 ? 1 : 0 };
         }
 
-        // SELECT id FROM users WHERE phone = $1 (register check)
         if (sql.startsWith('SELECT ID FROM') || sql.startsWith('SELECT ID')) {
             const phone = params?.[0];
             const user = mockUsers.find((u: any) => u.phone === phone);
             return { rows: user ? [{ id: user.id }] : [], rowCount: user ? 1 : 0 };
         }
 
-        // INSERT INTO users (phone, password_hash, name, role) VALUES ($1, $2, $3, $4) RETURNING ...
         if (sql.startsWith('INSERT')) {
             const [phone, password_hash, name, role] = params || [];
             const user = {
@@ -50,11 +47,15 @@ vi.mock('../config/database.js', () => {
             return { rows: [user], rowCount: 1 };
         }
 
-        // SELECT * FROM users WHERE phone = $1 (login lookup)
         if (sql.startsWith('SELECT')) {
             const phone = params?.[0];
             const user = mockUsers.find((u: any) => u.phone === phone);
             return { rows: user ? [{ ...user }] : [], rowCount: user ? 1 : 0 };
+        }
+
+        // Profile update
+        if (sql.startsWith('UPDATE')) {
+            return { rows: [{ ...mockUsers[0], name: params?.[0] }], rowCount: 1 };
         }
 
         return { rows: [], rowCount: 0 };
@@ -62,14 +63,20 @@ vi.mock('../config/database.js', () => {
 
     return {
         default: { query: queryFn, on: vi.fn() },
-        query: queryFn,
-        isSQLite: false
+        query: queryFn
     };
 });
 
-import app from '../index.js';
+// Import routes after mocking
+import authRoutes from '../routes/auth.js';
 
-describe('Auth API', () => {
+// Setup isolated app
+const app = express();
+app.use(express.json());
+app.use(cookieParser());
+app.use('/api/auth', authRoutes);
+
+describe('Auth API (Isolated)', () => {
     const testUser = {
         phone: '13800138000',
         password: 'password123',
@@ -84,17 +91,25 @@ describe('Auth API', () => {
         mockUsers.length = 0;
     });
 
-    it('should register a new user', async () => {
+    it('should register a new user and set httpOnly cookie', async () => {
         const res = await request(app)
             .post('/api/auth/register')
             .send(testUser);
 
         expect(res.status).toBe(201);
-        expect(res.body).toHaveProperty('token');
+
+        // Verify Cookie
+        const cookies = res.headers['set-cookie'];
+        expect(cookies).toBeDefined();
+        expect(cookies[0]).toMatch(/token=.+; Path=\//);
+        expect(cookies[0]).toMatch(/HttpOnly/);
+
+        // Verify Body
+        expect(res.body).not.toHaveProperty('token');
         expect(res.body.user).toHaveProperty('phone', testUser.phone);
     });
 
-    it('should login the user', async () => {
+    it('should login the user and set httpOnly cookie', async () => {
         const res = await request(app)
             .post('/api/auth/login')
             .send({
@@ -103,7 +118,15 @@ describe('Auth API', () => {
             });
 
         expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty('token');
+
+        // Verify Cookie
+        const cookies = res.headers['set-cookie'];
+        expect(cookies).toBeDefined();
+        expect(cookies[0]).toMatch(/token=.+; Path=\//);
+        expect(cookies[0]).toMatch(/HttpOnly/);
+
+        // Verify Body
+        expect(res.body).not.toHaveProperty('token');
     });
 
     it('should fail login with wrong password', async () => {
@@ -115,5 +138,6 @@ describe('Auth API', () => {
             });
 
         expect(res.status).toBe(401);
+        expect(res.headers['set-cookie']).toBeUndefined();
     });
 });

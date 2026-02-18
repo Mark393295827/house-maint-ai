@@ -1,6 +1,18 @@
 /**
  * API Client for House Maint AI Backend
+ * Fully typed with generics and response interfaces
  */
+import type {
+    User,
+    Report,
+    Worker,
+    Post,
+    LoginResponse,
+    ReportsResponse,
+    PostsResponse,
+    WorkersResponse,
+    HealthResponse,
+} from '../types';
 
 // API Base URL from environment variable with fallback to localhost
 let API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -8,59 +20,73 @@ let API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 // Force localhost for local development/testing to ensure stability
 if (import.meta.env.DEV && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     API_BASE = 'http://localhost:3001/api';
-    console.log('DEBUG: Forced API_BASE to localhost for dev');
-} else {
-    console.log('DEBUG: API_BASE =', API_BASE);
 }
 
-// Token storage
-let authToken = localStorage.getItem('authToken');
+// Refresh token state
+let isRefreshing = false;
+let refreshSubscribers: ((success: boolean) => void)[] = [];
 
-/**
- * Set the auth token
- */
-export function setAuthToken(token) {
-    authToken = token;
-    if (token) {
-        localStorage.setItem('authToken', token);
-    } else {
-        localStorage.removeItem('authToken');
-    }
+function onRefreshed(success: boolean) {
+    refreshSubscribers.forEach((cb) => cb(success));
+    refreshSubscribers = [];
 }
 
 /**
- * Get the current auth token
+ * Fetch wrapper with credentials, type safety, and auto-refresh
  */
-export function getAuthToken() {
-    return authToken;
-}
-
-/**
- * Check if user is authenticated
- */
-export function isAuthenticated() {
-    return !!authToken;
-}
-
-/**
- * Fetch wrapper with auth headers
- */
-async function fetchAPI(endpoint: string, options: any = {}) {
+async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE}${endpoint}`;
 
-    const headers: any = {
-        'Content-Type': 'application/json',
-        ...options.headers,
+    const headers: Record<string, string> = {
+        ...(options.headers as Record<string, string>),
     };
 
-    if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
+    // Only set JSON Content-Type if body is not FormData
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
     }
 
     const response = await fetch(url, {
         ...options,
         headers,
+        credentials: 'include',
     });
+
+    // Handle 401 Unauthorized (Token expired)
+    if (response.status === 401) {
+        // Don't retry if we're already trying to login or refresh
+        if (endpoint.includes('/auth/login') || endpoint.includes('/auth/refresh')) {
+            const data = await response.json();
+            throw new Error(data.error || 'Authentication failed');
+        }
+
+        if (isRefreshing) {
+            // Queue this request
+            return new Promise<T>((resolve, reject) => {
+                refreshSubscribers.push((success) => {
+                    if (success) {
+                        resolve(fetchAPI<T>(endpoint, options));
+                    } else {
+                        reject(new Error('Session expired'));
+                    }
+                });
+            });
+        }
+
+        isRefreshing = true;
+        try {
+            // Attempt to refresh
+            await fetchAPI('/auth/refresh', { method: 'POST' });
+            isRefreshing = false;
+            onRefreshed(true);
+            // Retry original request
+            return fetchAPI<T>(endpoint, options);
+        } catch (error) {
+            isRefreshing = false;
+            onRefreshed(false);
+            throw error; // Refresh failed, propagate error (UI should redirect to login)
+        }
+    }
 
     const data = await response.json();
 
@@ -68,7 +94,7 @@ async function fetchAPI(endpoint: string, options: any = {}) {
         throw new Error(data.error || 'API Error');
     }
 
-    return data;
+    return data as T;
 }
 
 // ============ Auth API ============
@@ -76,46 +102,46 @@ async function fetchAPI(endpoint: string, options: any = {}) {
 /**
  * Register a new user
  */
-export async function register(phone, password, name, role = 'user') {
-    const data = await fetchAPI('/auth/register', {
+export async function register(phone: string, password: string, name: string, role: string = 'user'): Promise<LoginResponse> {
+    return fetchAPI<LoginResponse>('/auth/register', {
         method: 'POST',
         body: JSON.stringify({ phone, password, name, role }),
     });
-    setAuthToken(data.token);
-    return data;
 }
 
 /**
  * Login user
  */
-export async function login(phone, password) {
-    const data = await fetchAPI('/auth/login', {
+export async function login(phone: string, password: string): Promise<LoginResponse> {
+    return fetchAPI<LoginResponse>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ phone, password }),
     });
-    setAuthToken(data.token);
-    return data;
 }
 
 /**
- * Logout user
+ * Logout user (clears httpOnly cookie on server)
  */
-export function logout() {
-    setAuthToken(null);
+export async function logout(): Promise<void> {
+    try {
+        await fetchAPI<{ message: string }>('/auth/logout', { method: 'POST' });
+    } catch {
+        // Logout should not throw even if server is unreachable
+    }
 }
 
 /**
  * Get current user
  */
-export async function getCurrentUser() {
-    return fetchAPI('/auth/me');
+export async function getCurrentUser(): Promise<{ user: User }> {
+    return fetchAPI<{ user: User }>('/auth/me');
 }
 
 /**
  * Update user profile
  */
-export async function updateProfile(name, avatar) {
-    return fetchAPI('/auth/profile', {
+export async function updateProfile(name: string, avatar?: string): Promise<{ user: User }> {
+    return fetchAPI<{ user: User }>('/auth/profile', {
         method: 'PUT',
         body: JSON.stringify({ name, avatar }),
     });
@@ -126,8 +152,8 @@ export async function updateProfile(name, avatar) {
 /**
  * Create a new report
  */
-export async function createReport(reportData) {
-    return fetchAPI('/reports', {
+export async function createReport(reportData: Partial<Report>): Promise<{ report: Report }> {
+    return fetchAPI<{ report: Report }>('/reports', {
         method: 'POST',
         body: JSON.stringify(reportData),
     });
@@ -136,24 +162,24 @@ export async function createReport(reportData) {
 /**
  * Get all reports for current user
  */
-export async function getReports(status, limit = 20, offset = 0) {
+export async function getReports(status?: string | null, limit: number = 20, offset: number = 0): Promise<ReportsResponse> {
     let url = `/reports?limit=${limit}&offset=${offset}`;
     if (status) url += `&status=${status}`;
-    return fetchAPI(url);
+    return fetchAPI<ReportsResponse>(url);
 }
 
 /**
  * Get a specific report
  */
-export async function getReport(id) {
-    return fetchAPI(`/reports/${id}`);
+export async function getReport(id: number | string): Promise<{ report: Report }> {
+    return fetchAPI<{ report: Report }>(`/reports/${id}`);
 }
 
 /**
  * Update report status
  */
-export async function updateReport(id, data) {
-    return fetchAPI(`/reports/${id}`, {
+export async function updateReport(id: number | string, data: Partial<Report>): Promise<{ report: Report }> {
+    return fetchAPI<{ report: Report }>(`/reports/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     });
@@ -162,8 +188,8 @@ export async function updateReport(id, data) {
 /**
  * Delete a report
  */
-export async function deleteReport(id) {
-    return fetchAPI(`/reports/${id}`, {
+export async function deleteReport(id: number | string): Promise<{ message: string }> {
+    return fetchAPI<{ message: string }>(`/reports/${id}`, {
         method: 'DELETE',
     });
 }
@@ -173,52 +199,59 @@ export async function deleteReport(id) {
 /**
  * Get all available workers
  */
-export async function getWorkers(skill) {
+export async function getWorkers(skill?: string): Promise<WorkersResponse> {
     let url = '/workers';
     if (skill) url += `?skill=${skill}`;
-    return fetchAPI(url);
+    return fetchAPI<WorkersResponse>(url);
 }
 
 /**
  * Get matched workers for a report
  */
-export async function getMatchedWorkers(reportId: any, { latitude, longitude, category, limit = 5 }: any = {}) {
+export async function getMatchedWorkers(
+    reportId?: number | string,
+    options: { latitude?: number; longitude?: number; category?: string; limit?: number } = {}
+): Promise<WorkersResponse> {
+    const { latitude, longitude, category, limit = 5 } = options;
     let url = '/workers/match?';
     if (reportId) url += `report_id=${reportId}&`;
     if (latitude) url += `latitude=${latitude}&`;
     if (longitude) url += `longitude=${longitude}&`;
     if (category) url += `category=${category}&`;
     url += `limit=${limit}`;
-    return fetchAPI(url);
+    return fetchAPI<WorkersResponse>(url);
 }
 
 /**
  * Get worker details
  */
-export async function getWorker(id) {
-    return fetchAPI(`/workers/${id}`);
+export async function getWorker(id: number | string): Promise<{ worker: Worker }> {
+    return fetchAPI<{ worker: Worker }>(`/workers/${id}`);
 }
 
 // ============ Upload API ============
 
+interface UploadResponse {
+    url: string;
+    filename?: string;
+}
+
 /**
  * Upload a file
  */
-async function uploadFile(type, file) {
+async function uploadFile(type: string, file: File | Blob): Promise<UploadResponse> {
     const formData = new FormData();
     formData.append(type, file);
 
     const url = `${API_BASE}/uploads/${type}`;
 
-    const headers = {};
-    if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
-    }
+    const headers: Record<string, string> = {};
 
     const response = await fetch(url, {
         method: 'POST',
         headers,
         body: formData,
+        credentials: 'include',
     });
 
     const data = await response.json();
@@ -227,27 +260,27 @@ async function uploadFile(type, file) {
         throw new Error(data.error || 'Upload failed');
     }
 
-    return data;
+    return data as UploadResponse;
 }
 
 /**
  * Upload voice recording
  */
-export function uploadVoice(file) {
+export function uploadVoice(file: File | Blob): Promise<UploadResponse> {
     return uploadFile('voice', file);
 }
 
 /**
  * Upload video
  */
-export function uploadVideo(file) {
+export function uploadVideo(file: File | Blob): Promise<UploadResponse> {
     return uploadFile('video', file);
 }
 
 /**
  * Upload image
  */
-export function uploadImage(file) {
+export function uploadImage(file: File | Blob): Promise<UploadResponse> {
     return uploadFile('image', file);
 }
 
@@ -256,15 +289,15 @@ export function uploadImage(file) {
 /**
  * Get community posts
  */
-export async function getPosts(limit = 20, offset = 0) {
-    return fetchAPI(`/community/posts?limit=${limit}&offset=${offset}`);
+export async function getPosts(limit: number = 20, offset: number = 0): Promise<PostsResponse> {
+    return fetchAPI<PostsResponse>(`/community/posts?limit=${limit}&offset=${offset}`);
 }
 
 /**
  * Create a post
  */
-export async function createPost(postData) {
-    return fetchAPI('/community/posts', {
+export async function createPost(postData: { title: string; content: string; tags?: string[] }): Promise<{ post: Post }> {
+    return fetchAPI<{ post: Post }>('/community/posts', {
         method: 'POST',
         body: JSON.stringify(postData),
     });
@@ -273,8 +306,8 @@ export async function createPost(postData) {
 /**
  * Like a post
  */
-export async function likePost(id) {
-    return fetchAPI(`/community/posts/${id}/like`, {
+export async function likePost(id: number | string): Promise<{ likes: number }> {
+    return fetchAPI<{ likes: number }>(`/community/posts/${id}/like`, {
         method: 'POST',
     });
 }
@@ -284,14 +317,14 @@ export async function likePost(id) {
 /**
  * Get system metrics (admin only)
  */
-export async function getMetrics() {
+export async function getMetrics(): Promise<unknown> {
     return fetchAPI('/metrics');
 }
 
 /**
  * Get system health stats (admin only)
  */
-export async function getMetricsHealth() {
+export async function getMetricsHealth(): Promise<unknown> {
     return fetchAPI('/metrics/health');
 }
 
@@ -300,14 +333,11 @@ export async function getMetricsHealth() {
 /**
  * Check API health
  */
-export async function healthCheck() {
-    return fetchAPI('/health');
+export async function healthCheck(): Promise<HealthResponse> {
+    return fetchAPI<HealthResponse>('/health');
 }
 
 export default {
-    setAuthToken,
-    getAuthToken,
-    isAuthenticated,
     register,
     login,
     logout,
@@ -331,4 +361,3 @@ export default {
     getMetrics,
     getMetricsHealth,
 };
-

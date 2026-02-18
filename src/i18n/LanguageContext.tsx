@@ -3,7 +3,6 @@ import en from './en.json';
 import zh from './zh.json';
 
 type Locale = 'en' | 'zh';
-type Translations = typeof en;
 
 interface LanguageContextType {
     locale: Locale;

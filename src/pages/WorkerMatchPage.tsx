@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import MatchScoreCard from '../components/MatchScoreCard';
 import BottomNav from '../components/BottomNav';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { getMatchedWorkers, getReport, isAuthenticated } from '../services/api';
+import { getMatchedWorkers, getReport } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import { mockWorkers, mockReport } from '../__mocks__/mockData';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { Worker, Report } from '../types';
@@ -11,6 +12,7 @@ import type { Worker, Report } from '../types';
 const WorkerMatchPage = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [workers, setWorkers] = useState<Worker[]>([]);
@@ -22,7 +24,7 @@ const WorkerMatchPage = () => {
         const fetchData = async () => {
             try {
                 // Try to use real API if authenticated
-                if (isAuthenticated()) {
+                if (user) {
                     // Get report ID from URL params or sessionStorage
                     let reportId = searchParams.get('report_id');
                     if (!reportId) {

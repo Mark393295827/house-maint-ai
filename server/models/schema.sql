@@ -106,3 +106,14 @@ CREATE TABLE IF NOT EXISTS patterns (
     created_at TEXT DEFAULT (datetime('now')),
     UNIQUE(problem_type, context_signature)
 );
+
+-- Refresh Tokens
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    revoked INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

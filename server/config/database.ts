@@ -29,10 +29,12 @@ class SQLiteFallback {
     private initialized: boolean = false;
 
     constructor(dbPath: string) {
-        // Ensure data directory exists
-        const dataDir = path.dirname(dbPath);
-        if (!fs.existsSync(dataDir)) {
-            fs.mkdirSync(dataDir, { recursive: true });
+        // Ensure data directory exists (skip for in-memory DB)
+        if (dbPath !== ':memory:') {
+            const dataDir = path.dirname(dbPath);
+            if (!fs.existsSync(dataDir)) {
+                fs.mkdirSync(dataDir, { recursive: true });
+            }
         }
 
         this.db = new Database(dbPath);
@@ -166,7 +168,7 @@ const useSQLite = process.env.DB_USE_SQLITE === 'true' ||
 let pool: DatabaseAdapter;
 
 if (useSQLite) {
-    const dbPath = path.join(__dirname, '..', 'data', 'dev.db');
+    const dbPath = process.env.SQLITE_DB_PATH || path.join(__dirname, '..', 'data', 'dev.db');
     pool = new SQLiteFallback(dbPath);
 } else {
     pool = pgPool as unknown as DatabaseAdapter;

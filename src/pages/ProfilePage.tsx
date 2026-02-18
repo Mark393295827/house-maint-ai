@@ -1,24 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
 import BottomNav from '../components/BottomNav';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import api from '../services/api';
+import type { Report } from '../types';
 
-
-interface Report {
-    id: string;
-    title: string;
-    description: string;
-    created_at: string;
-    status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-}
 
 const ProfilePage = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
-    const { user, logout, updateUser, isLoading } = useAuth();
+    const { user, logout, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState('');
     const [isSaving, setIsSaving] = useState(false);

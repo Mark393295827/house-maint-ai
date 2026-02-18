@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { analyzeImageFromUrl, analyzeImageFile } from '../services/ai';
 import { useLanguage } from '../i18n/LanguageContext';
 
 
 interface DiagnosisResult {
-    raw_response: any;
+    raw_response: Record<string, unknown>;
     detected: boolean;
     issue_name: string;
     issue_name_en: string;
@@ -14,12 +14,12 @@ interface DiagnosisResult {
     description: string;
     description_en: string;
     possible_causes: string[];
-    recommended_actions: any[];
+    recommended_actions: { action: string; detail?: string }[];
     diy_difficulty: string;
     estimated_cost: string;
     urgency: string;
-    steps: any[];
-    safety_warning: any;
+    steps: { step: number; action: string; detail: string }[];
+    safety_warning: string | null;
 }
 
 const DiagnosisPage = () => {
@@ -172,10 +172,10 @@ const DiagnosisPage = () => {
     const toggleFlash = async () => {
         if (stream) {
             const track = stream.getVideoTracks()[0];
-            const capabilities = track.getCapabilities?.();
+            const capabilities = track.getCapabilities?.() as Record<string, unknown> | undefined;
             if (capabilities?.torch) {
                 const newFlashState = !flashEnabled;
-                await track.applyConstraints({ advanced: [{ torch: newFlashState }] });
+                await track.applyConstraints({ advanced: [{ torch: newFlashState } as MediaTrackConstraintSet] });
                 setFlashEnabled(newFlashState);
             }
         }
