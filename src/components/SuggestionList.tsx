@@ -1,12 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
 import { useLanguage } from '../i18n/LanguageContext';
+import { usePosts } from '../hooks/useCommunity';
 
 const SuggestionList = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
+    const { data: postsData, isLoading } = usePosts(5);
 
-    const suggestions = [
+    // Fallback static suggestions if API fails or is loading (skeleton could be better but keeping it simple)
+    const staticSuggestions = [
         {
             image: IMAGES.AC_FILTER,
             alt: 'Air conditioner vent with filter being replaced',
@@ -33,6 +36,18 @@ const SuggestionList = () => {
         },
     ];
 
+    const displayItems = (postsData?.posts?.length ?? 0) > 0
+        ? postsData!.posts.map(post => ({
+            image: post.image || IMAGES.AC_FILTER, // Fallback image if post has none
+            alt: post.title,
+            time: `10${t('suggestions.time.minutes')}`, // Mock time for posts
+            title: post.title,
+            urgency: { label: t('suggestions.urgency.med'), color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300' }, // Default urgency
+            difficulty: { label: t('suggestions.difficulty.medium'), color: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-300' },
+            id: post.id
+        }))
+        : staticSuggestions;
+
     return (
         <section className="pl-5 pb-4 page-enter" style={{ animationDelay: '250ms' }}>
             <div className="flex items-center justify-between pr-5 mb-3 px-1">
@@ -40,11 +55,19 @@ const SuggestionList = () => {
                 <span className="text-sm text-text-sub-light dark:text-text-sub-dark">{t('suggestions.season')}</span>
             </div>
             <div className="flex overflow-x-auto gap-4 hide-scrollbar pb-4 pr-5 snap-x snap-mandatory">
-                {suggestions.map((item, i) => (
+                {isLoading && (
+                    <div className="flex gap-4">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="w-[280px] h-48 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse shrink-0" />
+                        ))}
+                    </div>
+                )}
+
+                {!isLoading && displayItems.map((item, i) => (
                     <div
                         key={i}
                         className="snap-start shrink-0 w-[280px] bg-white dark:bg-surface-dark rounded-2xl p-3 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-3 group cursor-pointer hover:border-primary/30 active:scale-[0.98] transition-all press-scale"
-                        onClick={() => navigate('/repair')}
+                        onClick={() => navigate('/community')}
                     >
                         <div className="h-32 w-full rounded-xl bg-gray-100 overflow-hidden relative">
                             <div
@@ -57,7 +80,7 @@ const SuggestionList = () => {
                             </div>
                         </div>
                         <div>
-                            <h4 className="font-bold text-base mb-2">{item.title}</h4>
+                            <h4 className="font-bold text-base mb-2 line-clamp-1">{item.title}</h4>
                             <div className="flex flex-wrap gap-2">
                                 <span className={`px-2 py-1 rounded-md text-xs font-semibold ${item.urgency.color}`}>{item.urgency.label}</span>
                                 <span className={`px-2 py-1 rounded-md text-xs font-semibold ${item.difficulty.color}`}>{item.difficulty.label}</span>

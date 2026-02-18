@@ -2,6 +2,50 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { DEEPSEEK_API_KEY } from '../config/secrets.js';
 import * as Sentry from '@sentry/node';
 
+// ============ Retry & Validation Helpers ============
+
+/**
+ * Retry an async function with exponential backoff
+ */
+async function withRetry<T>(
+    fn: () => Promise<T>,
+    maxAttempts: number = 3,
+    baseDelayMs: number = 1000
+): Promise<T> {
+    let lastError: Error | undefined;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            return await fn();
+        } catch (error) {
+            lastError = error instanceof Error ? error : new Error(String(error));
+            if (attempt < maxAttempts) {
+                const delay = baseDelayMs * Math.pow(2, attempt - 1);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+    throw lastError;
+}
+
+/**
+ * Safely parse AI JSON response and validate expected fields
+ */
+function parseAiJson<T>(raw: string, requiredFields: string[]): T {
+    const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+    let parsed: T;
+    try {
+        parsed = JSON.parse(cleaned);
+    } catch {
+        throw new Error(`Invalid JSON from AI: ${cleaned.substring(0, 200)}`);
+    }
+    for (const field of requiredFields) {
+        if (!(field in (parsed as Record<string, unknown>))) {
+            throw new Error(`AI response missing required field: ${field}`);
+        }
+    }
+    return parsed;
+}
+
 // Define common interfaces
 export interface DiagnosisResult {
     diagnosis: {
@@ -152,9 +196,7 @@ JSON
 
         const result = await this.model.generateContent(promptParts);
         const responseText = result.response.text();
-        const jsonStr = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        return JSON.parse(jsonStr);
+        return parseAiJson<DiagnosisResult>(responseText, ['diagnosis']);
     }
 }
 
@@ -194,7 +236,10 @@ class DeepSeekProvider implements AiProvider {
                 throw new Error(`DeepSeek API Error: ${response.status} - ${error}`);
             }
 
-            const data = await response.json() as any;
+            const data = await response.json() as { choices: { message: { content: string } }[] };
+            if (!data.choices?.[0]?.message?.content) {
+                throw new Error('DeepSeek returned empty response');
+            }
             return data.choices[0].message.content;
         } catch (error) {
             console.error('DeepSeek Call Failed:', error);
@@ -234,9 +279,8 @@ class AiService {
      */
     async diagnoseIssue(image?: string, mimeType?: string, text?: string): Promise<DiagnosisResult> {
         try {
-            return await this.gemini.diagnose(image, mimeType, text);
+            return await withRetry(() => this.gemini.diagnose(image, mimeType, text));
         } catch (error) {
-            console.error('Diagnosis Failed:', error);
             Sentry.captureException(error);
             throw new Error('AI Diagnosis service unavailable');
         }
@@ -245,13 +289,11 @@ class AiService {
     /**
      * Generate a detailed repair plan using Reasoning AI (DeepSeek R1)
      */
-    async generateRepairPlan(issueDetails: any): Promise<string> {
+    async generateRepairPlan(issueDetails: Record<string, unknown>): Promise<string> {
         try {
-            return await this.deepseek.generatePlan(issueDetails);
+            return await withRetry(() => this.deepseek.generatePlan(issueDetails));
         } catch (error) {
-            console.error('Plan Generation Failed:', error);
-            // Fallback to Gemini if DeepSeek fails? Or just error out?
-            // For now, let's return a basic plan or error.
+            Sentry.captureException(error);
             return "Unable to generate detailed plan at this time. Please consult a professional.";
         }
     }
@@ -261,9 +303,9 @@ class AiService {
      */
     async chatWithExpert(messages: ChatMessage[]): Promise<string> {
         try {
-            return await this.deepseek.chat(messages);
+            return await withRetry(() => this.deepseek.chat(messages), 2);
         } catch (error) {
-            console.error('Expert Chat Failed:', error);
+            Sentry.captureException(error);
             return "I'm having trouble connecting to my knowledge base right now. Please try again later.";
         }
     }

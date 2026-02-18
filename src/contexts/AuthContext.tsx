@@ -14,18 +14,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Check if user is authenticated on mount
+    // Check if user is authenticated on mount by calling /auth/me
+    // The httpOnly cookie is sent automatically
     useEffect(() => {
         const checkAuth = async () => {
-            if (api.isAuthenticated()) {
-                try {
-                    const data = await api.getCurrentUser();
-                    setUser(data.user);
-                } catch (_err) {
-                    // Token expired or invalid
-                    api.logout();
-                    setUser(null);
-                }
+            try {
+                const data = await api.getCurrentUser();
+                setUser(data.user);
+            } catch (_err) {
+                // No valid cookie — user is not authenticated
+                setUser(null);
             }
             setIsLoading(false);
         };
@@ -66,9 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Logout function
-    const logout = useCallback(() => {
-        api.logout();
+    // Logout function — calls server to clear httpOnly cookie
+    const logout = useCallback(async () => {
+        await api.logout();
         setUser(null);
         setError(null);
     }, []);
@@ -76,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Update user info
     const updateUser = useCallback(async (data: { name?: string; avatar?: string }): Promise<AuthResult> => {
         try {
-            const result = await api.updateProfile(data.name, data.avatar);
+            const result = await api.updateProfile(data.name ?? '', data.avatar);
             setUser(result.user);
             return { success: true, user: result.user };
         } catch (err) {

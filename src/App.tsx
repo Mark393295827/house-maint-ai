@@ -1,10 +1,13 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoadingSpinner from './components/LoadingSpinner';
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary'; // Keeping existing as component-level boundary
+import GlobalErrorBoundary from './components/ui/GlobalErrorBoundary'; // New app-level boundary
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import PageTracker from './components/PageTracker';
+import SkipLink from './components/ui/SkipLink';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const WelcomePage = lazy(() => import('./pages/WelcomePage'));
@@ -22,64 +25,72 @@ const MetricsDashboard = lazy(() => import('./pages/MetricsDashboard'));
 
 function App() {
   return (
-    <ErrorBoundary>
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
-        <PageTracker />
-        <AuthProvider>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              {/* Device Preview — standalone, no auth required */}
-              <Route path="/preview" element={<DevicePreview />} />
+    <GlobalErrorBoundary>
+      <ToastProvider>
+        <ErrorBoundary>
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
+            <PageTracker />
+            <SkipLink />
+            <AuthProvider>
+              <Suspense fallback={<LoadingSpinner />}>
+                <div id="main-content" className="min-h-screen outline-none" tabIndex={-1}>
+                  <Routes>
+                    {/* Device Preview — standalone, no auth required */}
+                    <Route path="/preview" element={<DevicePreview />} />
 
-              {/* Public routes */}
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/welcome" element={<WelcomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/diagnosis" element={<DiagnosisPage />} />
-              <Route path="/repair/:id" element={<RepairGuidePage />} />
-              <Route path="/community" element={<CommunityPage />} />
+                    {/* Public routes */}
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/welcome" element={<WelcomePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/diagnosis" element={<DiagnosisPage />} />
+                    <Route path="/repair/:id" element={<RepairGuidePage />} />
+                    <Route path="/community" element={<CommunityPage />} />
 
-              {/* Protected routes - require authentication */}
-              <Route path="/calendar" element={
-                <ProtectedRoute>
-                  <CalendarPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              } />
-              <Route path="/quick-report" element={
-                <ProtectedRoute>
-                  <QuickReportPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/match" element={
-                <ProtectedRoute>
-                  <WorkerMatchPage />
-                </ProtectedRoute>
-              } />
+                    {/* Protected routes - require authentication */}
+                    <Route path="/calendar" element={
+                      <ProtectedRoute>
+                        <CalendarPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <ProfilePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/quick-report" element={
+                      <ProtectedRoute>
+                        <QuickReportPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/match" element={
+                      <ProtectedRoute>
+                        <WorkerMatchPage />
+                      </ProtectedRoute>
+                    } />
 
-              {/* Admin routes */}
-              <Route path="/metrics" element={
-                <ProtectedRoute>
-                  <MetricsDashboard />
-                </ProtectedRoute>
-              } />
+                    {/* Admin routes */}
+                    <Route path="/metrics" element={
+                      <ProtectedRoute>
+                        <MetricsDashboard />
+                      </ProtectedRoute>
+                    } />
 
-              {/* Enterprise Routes */}
-              <Route path="/enterprise/*" element={
-                <ProtectedRoute>
-                  <EnterpriseDashboard />
-                </ProtectedRoute>
-              } />
-            </Routes>
-          </Suspense>
-        </AuthProvider>
-      </BrowserRouter>
-    </ErrorBoundary>
+                    {/* Enterprise Routes */}
+                    <Route path="/enterprise/*" element={
+                      <ProtectedRoute>
+                        <EnterpriseDashboard />
+                      </ProtectedRoute>
+                    } />
+                  </Routes>
+                </div>
+              </Suspense>
+            </AuthProvider>
+          </BrowserRouter>
+        </ErrorBoundary>
+      </ToastProvider>
+    </GlobalErrorBoundary>
   );
 }
 
 export default App;
+

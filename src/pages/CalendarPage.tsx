@@ -1,20 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import BottomNav from '../components/BottomNav';
 import api from '../services/api';
 import { hapticSuccess } from '../utils/haptics';
 import { useLanguage } from '../i18n/LanguageContext';
+import type { Worker } from '../types';
+
+import type { TaskItem } from '../components/calendar/TaskCard';
+import BookingSuccessModal from '../components/calendar/BookingSuccessModal';
+import WorkerBanner from '../components/calendar/WorkerBanner';
+import WeekSelector from '../components/calendar/WeekSelector';
+import DateStrip from '../components/calendar/DateStrip';
+import TimeSlotPicker from '../components/calendar/TimeSlotPicker';
+import DaySection from '../components/calendar/DaySection';
 
 const CalendarPage = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
-    const [selectedDay, setSelectedDay] = useState(null);
-    const [selectedTime, setSelectedTime] = useState(null);
-    const [selectedWorker, setSelectedWorker] = useState(null);
+    const [selectedDay, setSelectedDay] = useState<number | null>(null);
+    const [selectedTime, setSelectedTime] = useState<string | null>(null);
+    const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
     const [isBooking, setIsBooking] = useState(false);
     const [bookingSuccess, setBookingSuccess] = useState(false);
-    const [reports, setReports] = useState([]);
-    const [loadingReports, setLoadingReports] = useState(true);
+
+    // Fetch reports with React Query
+    // const { data: reportsData } = useQuery({
+    //     queryKey: ['reports'],
+    //     queryFn: () => api.getReports(),
+    // });
+    // const reports = reportsData?.reports ?? []; // kept for future use if we filter by report
 
     // Get current date info
     const today = new Date();
@@ -63,19 +78,6 @@ const CalendarPage = () => {
         if (days.length > 0) {
             setSelectedDay(days[0].date);
         }
-
-        // Fetch user's reports/bookings
-        const fetchReports = async () => {
-            try {
-                const data = await api.getReports('pending', 10);
-                setReports(data.reports || []);
-            } catch (err) {
-                console.warn('Failed to fetch reports:', err);
-            } finally {
-                setLoadingReports(false);
-            }
-        };
-        fetchReports();
     }, []);
 
     // Get tasks for selected day
@@ -83,7 +85,7 @@ const CalendarPage = () => {
         if (!selectedDay) return { morning: [], afternoon: [], night: [] };
 
         // Mock tasks - in real app, filter from reports
-        const morningTasks = selectedDay === days[0]?.date ? [
+        const morningTasks: TaskItem[] = selectedDay === days[0]?.date ? [
             {
                 title: 'Fix Leaking Faucet',
                 titleZh: '修复漏水龙头',
@@ -96,7 +98,7 @@ const CalendarPage = () => {
             },
         ] : [];
 
-        const afternoonTasks = selectedDay === days[2]?.date ? [
+        const afternoonTasks: TaskItem[] = selectedDay === days[2]?.date ? [
             {
                 title: 'Gutter Cleaning',
                 titleZh: '清理雨水槽',
@@ -152,61 +154,9 @@ const CalendarPage = () => {
         }
     };
 
-    // Render task card
-    const renderTaskCard = (task, index, isHighlighted = false) => (
-        <div
-            key={index}
-            className={`group relative flex flex-col bg-white dark:bg-surface-dark rounded-xl p-4 mb-3 shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5
-                ${isHighlighted ? 'border-l-4 border-l-primary border-t border-r border-b border-gray-100 dark:border-gray-800' : 'border border-gray-100 dark:border-gray-800'}`}
-        >
-            <div className="absolute top-4 right-4 text-gray-300 dark:text-gray-600 cursor-grab hover:text-primary transition-colors">
-                <span className="material-symbols-outlined">drag_indicator</span>
-            </div>
-            <div className="flex items-start gap-4">
-                <div className={`flex-shrink-0 w-12 h-12 rounded-xl ${task.iconBg} flex items-center justify-center ${task.iconColor}`}>
-                    <span className="material-symbols-outlined">{task.icon}</span>
-                </div>
-                <div className="flex-1 pr-8">
-                    <h4 className="text-base font-bold text-text-main-light dark:text-text-main-dark leading-tight mb-1">{task.title}</h4>
-                    <p className="text-sm text-text-sub-light dark:text-text-sub-dark mb-3">{task.location}</p>
-                    <div className="flex items-center flex-wrap gap-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                            <span className="material-symbols-outlined text-[14px]">schedule</span> {task.duration}
-                        </span>
-                        {task.hasAiScan && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-100 dark:bg-blue-900/30 text-xs font-bold text-blue-700 dark:text-blue-300">
-                                <span className="material-symbols-outlined text-[14px]">smart_toy</span> AI Scan
-                            </span>
-                        )}
-                        {task.isAutoFilled && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-xs font-bold text-primary">
-                                <span className="material-symbols-outlined text-[14px]">autorenew</span> Auto-filled
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-
     return (
         <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden shadow-2xl page-enter">
-            {/* Booking Success Modal */}
-            {bookingSuccess && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-surface-dark rounded-2xl p-8 mx-4 text-center animate-bounce-in">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-green-500 text-4xl">check_circle</span>
-                        </div>
-                        <h3 className="text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2">
-                            {t('calendar.booking.success')}
-                        </h3>
-                        <p className="text-text-sub-light dark:text-text-sub-dark">
-                            Booking Confirmed
-                        </p>
-                    </div>
-                </div>
-            )}
+            <BookingSuccessModal visible={bookingSuccess} />
 
             {/* Top App Bar */}
             <div className="sticky top-0 z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
@@ -227,147 +177,67 @@ const CalendarPage = () => {
 
             {/* Selected Worker Banner */}
             {selectedWorker && (
-                <div className="px-4 py-3">
-                    <div className="flex items-center gap-3 bg-primary/10 rounded-xl p-3">
-                        <div
-                            className="w-12 h-12 rounded-full bg-cover bg-center border-2 border-white"
-                            style={{ backgroundImage: `url("${selectedWorker.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + selectedWorker.name}")` }}
-                        />
-                        <div className="flex-1">
-                            <h3 className="font-bold text-text-main-light dark:text-text-main-dark">
-                                {selectedWorker.name}
-                            </h3>
-                            <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-                                ⭐ {selectedWorker.rating?.toFixed(1)} · {selectedWorker.distance}km
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => { setSelectedWorker(null); sessionStorage.removeItem('selectedWorker'); }}
-                            className="p-2 text-gray-400 hover:text-red-500"
-                        >
-                            <span className="material-symbols-outlined text-sm">close</span>
-                        </button>
-                    </div>
-                </div>
+                <WorkerBanner
+                    worker={selectedWorker}
+                    onDismiss={() => { setSelectedWorker(null); sessionStorage.removeItem('selectedWorker'); }}
+                />
             )}
 
             {/* Week Selector */}
-            <div className="relative flex items-center justify-center py-4 bg-background-light dark:bg-background-dark">
-                <button className="p-2 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined">chevron_left</span>
-                </button>
-                <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] px-4 text-center">
-                    {currentMonth} {days[0]?.date} - {currentMonth} {days[6]?.date}, {currentYear}
-                </h2>
-                <button className="p-2 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined">chevron_right</span>
-                </button>
-            </div>
+            <WeekSelector
+                currentMonth={currentMonth}
+                currentYear={currentYear}
+                startDate={days[0]?.date}
+                endDate={days[6]?.date}
+            />
 
             {/* Date Tabs */}
-            <div className="pb-2 overflow-x-auto hide-scrollbar px-4">
-                <div className="flex justify-between gap-3 min-w-[360px]">
-                    {days.slice(0, 5).map((d) => (
-                        <button
-                            key={d.date}
-                            onClick={() => setSelectedDay(d.date)}
-                            className={`flex flex-col items-center justify-center rounded-2xl w-16 h-20 flex-shrink-0 transition-all ${selectedDay === d.date
-                                ? 'bg-primary shadow-lg shadow-primary/25 text-white'
-                                : 'bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 text-text-sub-light dark:text-text-sub-dark hover:border-primary/50'
-                                }`}
-                        >
-                            <span className={`text-xs font-medium mb-1 ${selectedDay === d.date ? 'opacity-80' : ''}`}>{d.day}</span>
-                            <span className={`text-xl font-bold ${selectedDay === d.date ? '' : 'text-text-main-light dark:text-text-main-dark'}`}>{d.date}</span>
-                            {(selectedDay === d.date || d.hasTask) && (
-                                <div className={`w-1.5 h-1.5 rounded-full mt-1 ${selectedDay === d.date ? 'bg-white' : 'bg-primary/40'}`}></div>
-                            )}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            <DateStrip
+                days={days}
+                selectedDay={selectedDay}
+                onSelectDay={setSelectedDay}
+            />
 
             {/* Time Slot Selection (when booking) */}
             {selectedWorker && (
-                <div className="px-4 py-4">
-                    <h3 className="text-sm font-bold text-text-sub-light dark:text-text-sub-dark mb-3">
-                        {t('calendar.booking.selectTime')}
-                    </h3>
-                    <div className="flex gap-3">
-                        {timeSlots.map((slot) => (
-                            <button
-                                key={slot.id}
-                                onClick={() => setSelectedTime(slot.id)}
-                                className={`flex-1 flex flex-col items-center p-3 rounded-xl transition-all ${selectedTime === slot.id
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                                    : 'bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800'
-                                    }`}
-                            >
-                                <span className={`material-symbols-outlined text-2xl mb-1 ${selectedTime === slot.id ? 'text-white' : 'text-text-sub-light dark:text-text-sub-dark'
-                                    }`}>{slot.icon}</span>
-                                <span className="text-sm font-bold">{slot.label}</span>
-                                <span className={`text-xs ${selectedTime === slot.id ? 'opacity-80' : 'text-text-sub-light dark:text-text-sub-dark'}`}>
-                                    {slot.time}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                <TimeSlotPicker
+                    slots={timeSlots}
+                    selectedTime={selectedTime}
+                    onSelectTime={setSelectedTime}
+                    title={t('calendar.booking.selectTime')}
+                />
             )}
 
             {/* Morning Section */}
             {!selectedWorker && (
                 <>
-                    <div className="px-4 pt-4">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-lg font-bold leading-tight tracking-[-0.015em] flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
-                                {t('calendar.sections.morning')}
-                            </h3>
-                            <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">8:00 AM - 12:00 PM</span>
-                        </div>
-                        {tasks.morning.length > 0 ? (
-                            tasks.morning.map((task, index) => renderTaskCard(task, index))
-                        ) : (
-                            <div className="text-center py-6 text-text-sub-light dark:text-text-sub-dark text-sm">
-                                {t('calendar.tasks.none')}
-                            </div>
-                        )}
-                    </div>
+                    <DaySection
+                        title={t('calendar.sections.morning')}
+                        timeRange="8:00 AM - 12:00 PM"
+                        colorClass="bg-yellow-400"
+                        tasks={tasks.morning}
+                        emptyMessage={t('calendar.tasks.none')}
+                    />
 
                     {/* Afternoon Section */}
-                    <div className="px-4 pt-2">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-lg font-bold leading-tight tracking-[-0.015em] flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-orange-400"></span>
-                                {t('calendar.sections.afternoon')}
-                            </h3>
-                            <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">12:00 PM - 5:00 PM</span>
-                        </div>
-                        {tasks.afternoon.length > 0 ? (
-                            tasks.afternoon.map((task, index) => renderTaskCard(task, index, true))
-                        ) : (
-                            <div className="text-center py-6 text-text-sub-light dark:text-text-sub-dark text-sm">
-                                {t('calendar.tasks.none')}
-                            </div>
-                        )}
-                    </div>
+                    <DaySection
+                        title={t('calendar.sections.afternoon')}
+                        timeRange="12:00 PM - 5:00 PM"
+                        colorClass="bg-orange-400"
+                        tasks={tasks.afternoon}
+                        emptyMessage={t('calendar.tasks.none')}
+                        isHighlighted={true}
+                    />
 
-                    {/* Night Section (Empty State) */}
-                    <div className="px-4 pt-2 mb-8">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-lg font-bold leading-tight tracking-[-0.015em] flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
-                                {t('calendar.sections.night')}
-                            </h3>
-                            <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">5:00 PM - 9:00 PM</span>
-                        </div>
-                        <div className="w-full h-32 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-surface-dark/30 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-300">
-                            <div className="w-10 h-10 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-2">
-                                <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">add</span>
-                            </div>
-                            <span className="text-sm font-medium text-gray-400 dark:text-gray-500">{t('calendar.tasks.add')}</span>
-                        </div>
-                    </div>
+                    {/* Night Section (Empty State / Add Button) */}
+                    <DaySection
+                        title={t('calendar.sections.night')}
+                        timeRange="5:00 PM - 9:00 PM"
+                        colorClass="bg-indigo-400"
+                        tasks={[]}
+                        emptyMessage={t('calendar.tasks.add')}
+                        showAddButton={true}
+                    />
                 </>
             )}
 

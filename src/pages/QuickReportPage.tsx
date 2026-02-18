@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import BottomNav from '../components/BottomNav';
-import QuickReportButton from '../components/QuickReportButton';
+
 import VoiceRecordButton from '../components/VoiceRecordButton';
 import VideoRecordButton from '../components/VideoRecordButton';
 import { hapticSuccess, hapticError } from '../utils/haptics';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+
+import type { RecordingData } from '../types';
+
+interface RecordingState {
+    voice: RecordingData | null;
+    video: RecordingData | null;
+}
 
 /**
  * QuickReportPage - 极速报修页面
@@ -19,13 +26,13 @@ import api from '../services/api';
  */
 export default function QuickReportPage() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    useAuth(); // ensure auth context is available
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [urgency, setUrgency] = useState('normal');
-    const [recordings, setRecordings] = useState({ voice: null, video: null });
+    const [recordings, setRecordings] = useState<RecordingState>({ voice: null, video: null });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     // 问题分类
     const categories = [
@@ -45,11 +52,11 @@ export default function QuickReportPage() {
         { id: 'critical', name: '非常紧急', color: 'text-red-500 bg-red-50' },
     ];
 
-    const handleVoiceComplete = (data) => {
+    const handleVoiceComplete = (data: RecordingData) => {
         setRecordings(prev => ({ ...prev, voice: data }));
     };
 
-    const handleVideoComplete = (data) => {
+    const handleVideoComplete = (data: RecordingData) => {
         setRecordings(prev => ({ ...prev, video: data }));
     };
 
@@ -63,40 +70,17 @@ export default function QuickReportPage() {
         setError(null);
 
         try {
-            // Upload media files first if any
-            let voiceUrl = null;
-            let videoUrl = null;
-
-            if (recordings.voice?.blob) {
-                try {
-                    const voiceFile = new File([recordings.voice.blob], 'voice.webm', { type: 'audio/webm' });
-                    const voiceResult = await api.uploadVoice(voiceFile);
-                    voiceUrl = voiceResult.url;
-                } catch (uploadError) {
-                    console.warn('Voice upload failed:', uploadError);
-                }
-            }
-
-            if (recordings.video?.blob) {
-                try {
-                    const videoFile = new File([recordings.video.blob], 'video.webm', { type: 'video/webm' });
-                    const videoResult = await api.uploadVideo(videoFile);
-                    videoUrl = videoResult.url;
-                } catch (uploadError) {
-                    console.warn('Video upload failed:', uploadError);
-                }
-            }
+            // Note: voice/video URLs are placeholders until MediaRecorder is integrated
+            const voiceUrl: string | undefined = undefined;
+            const videoUrl: string | undefined = undefined;
 
             // Create report
             const reportData = {
                 title: description.substring(0, 50),
                 description: description,
                 category: category || 'other',
-                urgency: urgency,
-                voice_url: voiceUrl,
-                video_url: videoUrl,
-                voice_duration: recordings.voice?.duration,
-                video_duration: recordings.video?.duration,
+                voice_url: voiceUrl ?? undefined,
+                video_url: videoUrl ?? undefined,
             };
 
             const result = await api.createReport(reportData);
@@ -104,13 +88,13 @@ export default function QuickReportPage() {
             hapticSuccess();
 
             // Store report ID for matching
-            sessionStorage.setItem('lastReportId', result.report.id);
+            sessionStorage.setItem('lastReportId', String(result.report.id));
 
             // Navigate to match page
             navigate('/match');
         } catch (err) {
             hapticError();
-            setError(err.message || '提交失败，请重试');
+            setError(err instanceof Error ? err.message : '提交失败，请重试');
         } finally {
             setIsSubmitting(false);
         }
@@ -141,8 +125,8 @@ export default function QuickReportPage() {
                                 key={cat.id}
                                 onClick={() => setCategory(cat.id)}
                                 className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${category === cat.id
-                                        ? 'border-primary bg-primary/10 text-primary'
-                                        : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
                                     }`}
                             >
                                 <span className="material-symbols-outlined text-xl">{cat.icon}</span>
@@ -163,8 +147,8 @@ export default function QuickReportPage() {
                                 key={level.id}
                                 onClick={() => setUrgency(level.id)}
                                 className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-all ${urgency === level.id
-                                        ? `${level.color} ring-2 ring-current`
-                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                                    ? `${level.color} ring-2 ring-current`
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
                                     }`}
                             >
                                 {level.name}

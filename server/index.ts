@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/node';
 import cors from 'cors';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -96,6 +97,7 @@ app.use(hpp());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // Apply standard rate limiting to all requests
 app.use(standardLimiter);

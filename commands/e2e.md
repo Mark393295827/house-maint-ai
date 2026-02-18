@@ -1,5 +1,6 @@
 ---
 description: Generate and run E2E tests with Playwright
+command: true
 ---
 
 # E2E Command
@@ -18,14 +19,24 @@ Use `/e2e [action]` to work with end-to-end tests.
 /e2e report             # Show test report
 ```
 
+## What This Command Does
+Generates a complete Playwright E2E test suite for a specific feature, including:
+1. **Page Object Model** (POM) class
+2. **Spec file** with happy/sad paths
+3. **Fixture** updates (if needed)
+
 ## Generated Test Template
 
 ```javascript
 import { test, expect } from '@playwright/test';
+import { PageName } from '../pages/PageName';
 
 test.describe('Page Name', () => {
+  let pageName: PageName;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/page-url');
+    pageName = new PageName(page);
+    await pageName.goto();
   });
 
   test('should load correctly', async ({ page }) => {
@@ -33,8 +44,8 @@ test.describe('Page Name', () => {
   });
 
   test('should handle user interaction', async ({ page }) => {
-    await page.click('[data-testid="button"]');
-    await expect(page.locator('.result')).toBeVisible();
+    await pageName.clickButton();
+    await expect(pageName.result).toBeVisible();
   });
 });
 ```
@@ -67,6 +78,7 @@ npx playwright show-report
 3. Test critical user paths first
 4. Keep tests independent
 5. Use page objects for complex pages
+6. Use **fixtures** for common setup (auth, data)
 
 ## Example Session
 
@@ -75,10 +87,11 @@ npx playwright show-report
 
 Generating E2E tests for Dashboard...
 
-Created: e2e/dashboard.spec.js
+Created: tests/e2e/pages/DashboardPage.ts
+Created: tests/e2e/specs/dashboard.spec.ts
 - Test: should display header
 - Test: should show quick actions
 - Test: should navigate to diagnosis
 
-Run with: npx playwright test e2e/dashboard.spec.js
+Run with: npx playwright test dashboard.spec.ts
 ```

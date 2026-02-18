@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import BottomNav from '../components/BottomNav';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../i18n/LanguageContext';
+import type { Post } from '../types';
 
 /**
  * CommunityPage - 社区页面
@@ -13,59 +15,42 @@ import { useLanguage } from '../i18n/LanguageContext';
 const CommunityPage = () => {
     const { t } = useLanguage();
     const { isAuthenticated } = useAuth();
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const qc = useQueryClient();
     const [isCreating, setIsCreating] = useState(false);
     const [newPost, setNewPost] = useState({ title: '', content: '' });
     const [activeTab, setActiveTab] = useState('recommend');
 
-    // Fetch posts
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const data = await api.getPosts();
-                setPosts(data.posts || []);
-            } catch (err) {
-                console.warn('Failed to fetch posts:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPosts();
-    }, []);
+    // Fetch posts with React Query
+    const { data: postsData, isLoading: loading, error: fetchError } = useQuery({
+        queryKey: ['posts'],
+        queryFn: () => api.getPosts(),
+    });
+    const posts: Post[] = postsData?.posts ?? [];
 
-    // Handle create post
-    const handleCreatePost = async () => {
-        if (!newPost.title.trim() || !newPost.content.trim()) return;
-
-        try {
-            const data = await api.createPost({
-                title: newPost.title,
-                content: newPost.content,
-                tags: ['DIY'] // Default tag for now
-            });
-
-            // Add new post to list
-            setPosts([data.post, ...posts]);
-
-            // Reset form
+    // Create post mutation
+    const createMutation = useMutation({
+        mutationFn: (data: { title: string; content: string; tags?: string[] }) => api.createPost(data),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['posts'] });
             setNewPost({ title: '', content: '' });
             setIsCreating(false);
-        } catch (err) {
-            console.error('Failed to create post:', err);
+        },
+        onError: () => {
             alert(t('community.create.fail'));
-        }
+        },
+    });
+
+    const handleCreatePost = () => {
+        if (!newPost.title.trim() || !newPost.content.trim()) return;
+        createMutation.mutate({ title: newPost.title, content: newPost.content, tags: ['DIY'] });
     };
 
     // Handle like post
-    const handleLike = async (id) => {
+    const handleLike = async (id: number) => {
         if (!isAuthenticated) return;
-
         try {
             await api.likePost(id);
-            setPosts(posts.map(post =>
-                post.id === id ? { ...post, likes: post.likes + 1 } : post
-            ));
+            qc.invalidateQueries({ queryKey: ['posts'] });
         } catch (err) {
             console.error('Failed to like post:', err);
         }

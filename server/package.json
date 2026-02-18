@@ -9,6 +9,8 @@
         "build": "tsc",
         "dev": "tsx watch index.ts",
         "init-db": "tsx scripts/init-db.ts",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
         "test": "vitest"
     },
     "dependencies": {
@@ -22,6 +24,7 @@
         "@types/swagger-ui-express": "^4.1.8",
         "bcryptjs": "^2.4.3",
         "better-sqlite3": "^12.6.2",
+        "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "dotenv": "^17.2.3",
         "express": "^4.21.0",
@@ -40,6 +43,7 @@
     "devDependencies": {
         "@types/bcryptjs": "^2.4.6",
         "@types/better-sqlite3": "^7.6.13",
+        "@types/cookie-parser": "^1.4.10",
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
         "@types/hpp": "^0.2.7",
