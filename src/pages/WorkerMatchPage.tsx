@@ -1,98 +1,90 @@
-import React, { useState, useEffect } from 'react';
+
+import { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import MatchScoreCard from '../components/MatchScoreCard';
 import BottomNav from '../components/BottomNav';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { getMatchedWorkers, getReport } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { mockWorkers, mockReport } from '../__mocks__/mockData';
 import { useLanguage } from '../i18n/LanguageContext';
-import type { Worker, Report } from '../types';
+import type { Worker } from '../types';
+import { useReport } from '../hooks/useReports';
+import { useMatchedWorkers } from '../hooks/useWorkers';
 
 const WorkerMatchPage = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
     const { user } = useAuth();
     const [searchParams] = useSearchParams();
-    const [loading, setLoading] = useState(true);
-    const [workers, setWorkers] = useState<Worker[]>([]);
-    const [report, setReport] = useState<Report | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [usingMockData, setUsingMockData] = useState(false);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Try to use real API if authenticated
-                if (user) {
-                    // Get report ID from URL params or sessionStorage
-                    let reportId = searchParams.get('report_id');
-                    if (!reportId) {
-                        reportId = sessionStorage.getItem('lastReportId');
-                    }
+    // Get params
+    const reportIdParam = searchParams.get('report_id');
+    const storedReportId = sessionStorage.getItem('lastReportId');
+    const reportId = reportIdParam || storedReportId;
+    const categoryParam = searchParams.get('category') || 'plumbing';
 
-                    // Fetch report details if we have an ID
-                    let reportData: any = mockReport;
-                    if (reportId) {
-                        try {
-                            const reportResult = await getReport(reportId);
-                            reportData = {
-                                id: reportResult.report.id,
-                                category: reportResult.report.category,
-                                description: reportResult.report.description,
-                                urgency: reportResult.report.urgency,
-                            } as any;
-                            setReport(reportData);
-                        } catch (reportErr) {
-                            console.warn('Failed to fetch report:', reportErr);
-                        }
-                    }
+    // Queries
+    // 1. Fetch Report
+    const {
+        data: reportRes,
+        isError: isReportError,
+        isLoading: isReportLoading
+    } = useReport(reportId ? Number(reportId) : 0);
 
-                    const category = reportData.category || searchParams.get('category') || 'plumbing';
+    const report = reportRes?.report;
+    const activeCategory = report?.category || categoryParam;
 
-                    const data = await getMatchedWorkers(reportId, {
-                        category,
-                        latitude: 37.7749,
-                        longitude: -122.4194,
-                        limit: 5
-                    });
+    // 2. Fetch Workers
+    const {
+        data: workersRes,
+        isError: isWorkersError,
+        isLoading: isWorkersLoading
+    } = useMatchedWorkers({
+        reportId: reportId ? Number(reportId) : undefined,
+        category: activeCategory,
+        latitude: 37.7749,
+        longitude: -122.4194,
+        limit: 5
+    });
 
-                    // Transform API response to match component expectations
-                    const transformedWorkers = data.matches.map(w => ({
-                        id: w.id,
-                        name: w.name,
-                        avatar: w.avatar,
-                        distance: calculateDistance(w.latitude, w.longitude, 37.7749, -122.4194),
-                        rating: w.rating,
-                        skills: w.skills,
-                        distanceScore: w.distanceScore,
-                        technicalScore: w.skillScore,
-                    }));
+    const isError = isReportError || isWorkersError || !user;
+    const isLoading = (isReportLoading || isWorkersLoading) && !!user;
 
-                    setWorkers(transformedWorkers);
-                    if (!report) setReport(reportData);
-                } else {
-                    // Use mock data when not authenticated
-                    throw new Error('Not authenticated, using mock data');
-                }
-            } catch (err) {
-                console.log('Using mock data:', err.message);
-                setUsingMockData(true);
-                setWorkers(mockWorkers);
-                setReport(mockReport);
-            } finally {
-                setLoading(false);
-            }
+    // Determine displayed data (Real vs Mock)
+    const displayData = useMemo(() => {
+        if (isError || !user) {
+            return {
+                workers: mockWorkers,
+                report: mockReport,
+                isMock: true
+            };
+        }
+
+        const transformedWorkers = (workersRes?.matches || []).map((w: Worker) => ({
+            ...w,
+            id: w.id,
+            name: w.name,
+            avatar: w.avatar,
+            distance: calculateDistance(w.latitude, w.longitude, 37.7749, -122.4194),
+            rating: w.rating,
+            skills: w.skills,
+            distanceScore: w.distanceScore,
+            technicalScore: w.skillScore,
+        }));
+
+        return {
+            workers: transformedWorkers,
+            report: report,
+            isMock: false
         };
+    }, [isError, user, workersRes, report]);
 
-        // Simulate a small delay for UX
-        const timer = setTimeout(fetchData, 500);
-        return () => clearTimeout(timer);
-    }, [searchParams]);
+    const { workers, report: activeReport, isMock } = displayData;
+
 
     // Helper function to calculate distance
-    function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
-        if (!lat1 || !lng1 || !lat2 || !lng2) return 2.0;
+    function calculateDistance(lat1?: number, lng1?: number, lat2?: number, lng2?: number) {
+        if (lat1 === undefined || lng1 === undefined || lat2 === undefined || lng2 === undefined) return 2.0;
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLng = (lng2 - lng1) * Math.PI / 180;
@@ -125,7 +117,7 @@ const WorkerMatchPage = () => {
             </div>
 
             <main className="flex-1 p-4 flex flex-col gap-4">
-                {loading ? (
+                {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-64">
                         <LoadingSpinner />
                         <p className="mt-4 text-text-sub-light dark:text-text-sub-dark animate-pulse">
@@ -135,7 +127,7 @@ const WorkerMatchPage = () => {
                 ) : (
                     <>
                         {/* Report Summary */}
-                        {report && (
+                        {activeReport && (
                             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl mb-2">
                                 <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -146,7 +138,7 @@ const WorkerMatchPage = () => {
                                             {t('match.report.title')}
                                         </h3>
                                         <p className="text-xs text-text-sub-light dark:text-text-sub-dark line-clamp-2 mt-1">
-                                            {report.description || t('match.report.fallback')}
+                                            {activeReport.description || t('match.report.fallback')}
                                         </p>
                                     </div>
                                 </div>
@@ -161,7 +153,7 @@ const WorkerMatchPage = () => {
                             </h2>
                             <p className="text-sm text-text-sub-light dark:text-text-sub-dark">
                                 {t('match.analysis.description', { distance: 'D', skills: 'T', count: workers.length })}
-                                {usingMockData && (
+                                {isMock && (
                                     <span className="text-xs text-orange-500 ml-1">{t('match.demo_mode')}</span>
                                 )}
                             </p>
@@ -173,7 +165,7 @@ const WorkerMatchPage = () => {
                                 <div key={worker.id} onClick={() => handleSelectWorker(worker)} className="cursor-pointer">
                                     <MatchScoreCard
                                         worker={worker}
-                                        report={report || mockReport}
+                                        report={activeReport || mockReport}
                                     />
                                 </div>
                             ))

@@ -1,5 +1,5 @@
 import { DEEPSEEK_API_KEY } from '../../config/secrets.js';
-import { AiProvider, ChatMessage, withRetry } from '../common.js';
+import { AiProvider, AiResponse, ChatMessage, withRetry } from '../common.js';
 
 // DeepSeek Provider for Reasoning (CLAW 2)
 export class PlanningAgent implements AiProvider {
@@ -11,11 +11,14 @@ export class PlanningAgent implements AiProvider {
         this.apiKey = DEEPSEEK_API_KEY;
     }
 
-    async chat(messages: ChatMessage[]): Promise<string> {
+    async chat(messages: ChatMessage[]): Promise<AiResponse<string>> {
         // Mock fallback if no API key
         if (!this.apiKey) {
             console.warn('DeepSeek API Key missing. Using mock response.');
-            return "Mock DeepSeek Response: Detailed plan would be here.";
+            return {
+                result: "Mock DeepSeek Response: Detailed plan would be here.",
+                usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'deepseek-reasoner-mock' }
+            };
         }
 
         try {
@@ -37,18 +40,31 @@ export class PlanningAgent implements AiProvider {
                 throw new Error(`DeepSeek API Error: ${response.status} - ${error}`);
             }
 
-            const data = await response.json() as { choices: { message: { content: string } }[] };
+            const data = await response.json() as {
+                choices: { message: { content: string } }[],
+                usage: { prompt_tokens: number, completion_tokens: number, total_tokens: number }
+            };
+
             if (!data.choices?.[0]?.message?.content) {
                 throw new Error('DeepSeek returned empty response');
             }
-            return data.choices[0].message.content;
+
+            return {
+                result: data.choices[0].message.content,
+                usage: {
+                    input_tokens: data.usage.prompt_tokens,
+                    output_tokens: data.usage.completion_tokens,
+                    total_tokens: data.usage.total_tokens,
+                    model_name: 'deepseek-reasoner'
+                }
+            };
         } catch (error) {
             console.error('DeepSeek Call Failed:', error);
             throw error;
         }
     }
 
-    async generatePlan(issueDetails: any): Promise<string> {
+    async generatePlan(issueDetails: any): Promise<AiResponse<string>> {
         const messages: ChatMessage[] = [
             {
                 role: 'system',
@@ -85,3 +101,4 @@ export class PlanningAgent implements AiProvider {
 }
 
 export const planningAgent = new PlanningAgent();
+

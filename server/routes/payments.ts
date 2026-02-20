@@ -1,19 +1,22 @@
 import express from 'express';
 import Stripe from 'stripe';
 import { authenticate } from '../middleware/auth.js';
+import db from '../config/database.js';
+import { emitToWorkers } from '../socket.js';
 
 const router = express.Router();
+// ... (rest of imports remains)
 
 // Initialize Stripe (API Key should be in .env)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-    apiVersion: '2025-01-27.acacia', // Latest API version
+    apiVersion: '2026-01-28.clover',
 });
 
 /**
- * POST /api/payments/create-intent
- * Create a Payment Intent for a job
+ * POST /api/payments/checkout
+ * Create a Stripe Checkout Session
  */
-router.post('/create-intent', authenticate, async (req, res, next) => {
+router.post('/checkout', authenticate, async (req, res) => {
     try {
         const { amount, currency = 'usd', reportId } = req.body;
 
@@ -21,31 +24,39 @@ router.post('/create-intent', authenticate, async (req, res, next) => {
             return res.status(400).json({ error: 'Amount is required' });
         }
 
-        // Create a PaymentIntent with the order amount and currency
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(amount * 100), // Convert to cents
-            currency,
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency,
+                        product_data: {
+                            name: `Maintenance Job #${reportId}`,
+                        },
+                        unit_amount: Math.round(amount * 100),
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment/cancel`,
             metadata: {
                 reportId,
-                userId: req.user.id
-            },
-            automatic_payment_methods: {
-                enabled: true,
+                userId: req.user.id.toString(),
             },
         });
 
-        res.json({
-            clientSecret: paymentIntent.client_secret,
-        });
-    } catch (error) {
-        console.error('Stripe Error:', error);
-        res.status(500).json({ error: 'Payment initialization failed' });
+        res.json({ id: session.id, url: session.url });
+    } catch (error: any) {
+        console.error('Stripe Checkout Error:', error);
+        res.status(500).json({ error: error.message || 'Checkout failed' });
     }
 });
 
 /**
  * POST /api/payments/webhook
- * Handle Stripe Webhooks (Payment Success/Failure)
+ * Handle Stripe Webhooks
  */
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
@@ -64,18 +75,65 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    // Handle the event
-    switch (event.type) {
-        case 'payment_intent.succeeded':
-            const paymentIntent = event.data.object;
-            console.log(`💰 Payment succeeded for Report: ${paymentIntent.metadata.reportId}`);
-            // Logic to update database status to 'paid' would go here
-            break;
-        default:
-        // console.log(`Unhandled event type ${event.type}`);
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const reportId = session.metadata?.reportId;
+
+        console.log(`💰 Payment succeeded for Session: ${session.id} (Report: ${reportId})`);
+
+        if (reportId) {
+            try {
+                // 1. Update report status to 'matching'
+                const { rows } = await db.query(`
+                    UPDATE reports 
+                    SET status = 'matching', 
+                        updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = $1 
+                    RETURNING *
+                `, [reportId]);
+
+                const report = rows[0];
+
+                // 2. Notify all workers about the new available job
+                if (report) {
+                    emitToWorkers('new_job_available', {
+                        reportId: report.id,
+                        category: report.category,
+                        title: report.title,
+                        description: report.description
+                    });
+                }
+            } catch (dbError) {
+                console.error('Database update failed after payment:', dbError);
+                // Even if DB update fails, we should respond 200 to Stripe to avoid retries
+            }
+        }
     }
 
-    res.send();
+    res.send({ received: true });
+});
+
+/**
+ * GET /api/payments/history/:userId
+ * Get payment history for a user
+ */
+router.get('/history/:userId', authenticate, async (req, res) => {
+    try {
+        const { userId } = req.params;
+        // Verify user is requesting their own history or is admin
+        if (req.user.id.toString() !== userId && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+
+        // Mock history for now, implementation would query DB
+        const mockHistory = [
+            { id: '1', amount: 50.00, status: 'succeeded', date: new Date().toISOString() }
+        ];
+
+        res.json({ history: mockHistory });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 export default router;

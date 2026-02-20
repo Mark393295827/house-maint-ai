@@ -1,6 +1,7 @@
 import db from '../config/database.js';
 import { aiService } from './ai.js';
 import * as Sentry from '@sentry/node';
+import { aiUsageService } from './aiUsage.js';
 
 export class PlanningClawService {
     private interval: NodeJS.Timeout | null = null;
@@ -68,11 +69,23 @@ export class PlanningClawService {
             }
 
             // Call DeepSeek via AI Service (or fallback)
-            const planString = await aiService.generateRepairPlan(
-                report.title,
-                report.description,
+            const startTime = Date.now();
+            const response = await aiService.generateRepairPlan({
+                title: report.title,
+                description: report.description,
                 diagnosis
-            );
+            });
+            const durationMs = Date.now() - startTime;
+            const planString = response.result;
+
+            // Log Background AI Usage
+            await aiUsageService.logUsage({
+                userId: report.user_id,
+                usage: response.usage,
+                endpoint: 'claw:planning',
+                durationMs
+            });
+
 
             let plan: any = {};
             try {
@@ -81,6 +94,7 @@ export class PlanningClawService {
                 // Fallback if parsing fails
                 plan = { steps: [], priority_protocol: 'batch' };
             }
+
 
             // Extract priority protocol (default to batch)
             const priorityProtocol = plan.priority_protocol || 'batch';

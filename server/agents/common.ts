@@ -89,3 +89,15 @@ export interface ChatMessage {
 export interface AiProvider {
     name: string;
 }
+
+export interface AiUsage {
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+    model_name?: string;
+}
+
+export interface AiResponse<T> {
+    result: T;
+    usage: AiUsage;
+}

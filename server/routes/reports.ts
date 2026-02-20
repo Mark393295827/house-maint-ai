@@ -306,13 +306,15 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
 
         // 4. Generate Plan via DeepSeek
         // This might take 10-30 seconds, so client should handle loading state
-        const planMarkdown = await aiService.generateRepairPlan(issueContext);
+        // Call DeepSeek via AI Service (or fallback)
+        const diagnosis = issueContext.home_context; // home_context serves as diagnosis context here
+        const plan = await aiService.generateRepairPlan(issueContext as any);
 
         // 5. Return plan (and optionally save it to a notes field or separate plans table)
         // For MVP, we return it directly. Client can choose to save it as a "Resolution Draft".
         res.json({
             report_id: reportId,
-            plan: planMarkdown,
+            plan: plan,
             provider: 'DeepSeek R1'
         });
 

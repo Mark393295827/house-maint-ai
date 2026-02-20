@@ -1,36 +1,47 @@
+import { Worker } from '../types';
+
 /**
  * Mock Workers Data
  * 
  * 用于 WorkerMatchPage 的模拟工人数据
  */
-export const mockWorkers = [
+export const mockWorkers: Worker[] = [
     {
         id: 1,
+        user_id: 101,
         name: "Wang Shifu",
         avatar: "https://randomuser.me/api/portraits/men/32.jpg",
         distance: 1.2,
         rating: 4.8,
         skills: ["plumbing", "electrical"],
+        total_jobs: 156,
+        available: true,
         technicalScore: 95,
         distanceScore: 88
     },
     {
         id: 2,
+        user_id: 102,
         name: "Li Shifu",
         avatar: "https://randomuser.me/api/portraits/men/45.jpg",
         distance: 3.5,
         rating: 4.5,
         skills: ["plumbing"],
+        total_jobs: 89,
+        available: true,
         technicalScore: 85,
         distanceScore: 65
     },
     {
         id: 3,
+        user_id: 103,
         name: "Zhang Shifu",
         avatar: "https://randomuser.me/api/portraits/men/22.jpg",
         distance: 0.8,
         rating: 4.2,
         skills: ["electrical"],
+        total_jobs: 42,
+        available: false,
         technicalScore: 75,
         distanceScore: 92
     }
@@ -41,7 +52,13 @@ export const mockWorkers = [
  * 
  * 用于匹配计算的模拟报修数据
  */
-export const mockReport = {
+export const mockReport: any = {
+    id: 999,
+    user_id: 1,
+    title: "Simulated Report",
+    description: "This is a simulated report for demonstration.",
+    status: "matching",
+    created_at: new Date().toISOString(),
     requiredSkills: ["plumbing"]
 };
 

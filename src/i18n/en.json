@@ -259,5 +259,20 @@
         "agentActivity": "Agent Activity",
         "noAgents": "No agent activity yet",
         "lastUpdated": "Last updated"
+    },
+    "payment": {
+        "title": "Payment",
+        "processing": "Processing...",
+        "payNow": "Pay Now",
+        "success": {
+            "title": "Payment Successful!",
+            "message": "Your payment has been processed. The worker has been notified."
+        },
+        "cancel": {
+            "title": "Payment Cancelled",
+            "message": "The payment process was aborted. No charges were made."
+        },
+        "backToHome": "Back to Home",
+        "tryAgain": "Try Again"
     }
 }

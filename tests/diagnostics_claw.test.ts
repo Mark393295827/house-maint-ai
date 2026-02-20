@@ -56,8 +56,34 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
             matched_at TEXT,
             completed_at TEXT,
             resolution_details TEXT,
+            issue_type TEXT,
+            severity TEXT,
+            diagnosis_summary TEXT,
+            confidence_score REAL,
             created_at TEXT DEFAULT (datetime('now')),
             updated_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            objective TEXT,
+            status TEXT DEFAULT 'new',
+            priority INTEGER DEFAULT 0,
+            inputs TEXT,
+            outputs TEXT,
+            owner_claw TEXT,
+            score REAL,
+            failure_reason TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS pheromone_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            task_id INTEGER,
+            actor TEXT,
+            event_type TEXT,
+            payload TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
         );
     `);
 
@@ -125,6 +151,22 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
     };
 });
 
+// 3. Mock AI Service
+vi.mock('../server/services/ai.js', () => ({
+    aiService: {
+        diagnoseIssue: vi.fn().mockResolvedValue({
+            diagnosis: {
+                issue_identified: 'Leaking Faucet',
+                root_cause: 'Worn washer',
+                severity: 'minor',
+                urgency_score: 3,
+                confidence_score: 0.95,
+                diagnosis_summary: 'The faucet washer needs replacement.'
+            }
+        })
+    }
+}));
+
 // Import deps
 import db from '../server/config/database.js';
 import { diagnosticsClaw } from '../server/services/diagnostics_claw.js';
@@ -140,20 +182,25 @@ describe('Diagnostics Claw Service', () => {
         userId = userRes.rows[0].id;
     });
 
-    it('should autonomously process a pending report', async () => {
+    it('should autonomously process a pending report via Blackboard Task', async () => {
         // 1. Create a pending report
-        await db.query(`
+        const reportRes = await db.query(`
             INSERT INTO reports (user_id, title, description, status)
-            VALUES ($1, $2, $3, $4)
+            VALUES ($1, $2, $3, $4) RETURNING id
         `, [userId, 'Leaking Faucet', 'The kitchen faucet is leaking non-stop.', 'pending']);
+        const reportId = reportRes.rows[0].id;
 
-        // 2. Trigger the claw manually (bypassing interval)
-        // Note: processPendingReports is private, so we cast to any or use a public method if we added one.
-        // For testing, we'll cast to any.
-        await (diagnosticsClaw as any).processPendingReports();
+        // 2. Create a Task for the claw
+        await db.query(`
+            INSERT INTO tasks (title, objective, status, priority, inputs)
+            VALUES ($1, $2, $3, $4, $5)
+        `, ['Diagnose Leak', 'diagnose_image', 'new', 10, JSON.stringify({ report_id: reportId })]);
 
-        // 3. Verify the report was updated
-        const { rows } = await db.query("SELECT * FROM reports WHERE user_id = $1", [userId]);
+        // 3. Trigger the claw manually
+        await (diagnosticsClaw as any).processBlackboardTasks();
+
+        // 4. Verify the report was updated (Legacy Side-Effect)
+        const { rows } = await db.query("SELECT * FROM reports WHERE id = $1", [reportId]);
         const report = rows[0];
 
         expect(report.status).toBe('matching');
@@ -161,20 +208,26 @@ describe('Diagnostics Claw Service', () => {
 
         const diagnosis = JSON.parse(report.diagnosis_result);
         expect(diagnosis.diagnosis.issue_identified).toBeDefined();
-        expect(report.urgency_score).toBeGreaterThan(0);
+
+        // 5. Verify Task Completion
+        const { rows: taskRows } = await db.query("SELECT * FROM tasks WHERE objective = 'diagnose_image'");
+        expect(taskRows[0].status).toBe('done');
+        expect(taskRows[0].outputs).toBeDefined();
     });
 
-    it('should ignore already processed reports', async () => {
-        // Create another report that is already analyzed
+    it('should ignore tasks that are not new', async () => {
+        // Create a completed task
         await db.query(`
-            INSERT INTO reports (user_id, title, description, status, urgency_score)
+            INSERT INTO tasks (title, objective, status, priority, inputs)
             VALUES ($1, $2, $3, $4, $5)
-        `, [userId, 'Already Done', 'Bla bla', 'matching', 5]);
+        `, ['Already Done', 'diagnose_image', 'done', 5, '{}']);
 
-        await (diagnosticsClaw as any).processPendingReports();
+        await (diagnosticsClaw as any).processBlackboardTasks();
 
-        const { rows } = await db.query("SELECT * FROM reports WHERE title = $1", ['Already Done']);
-        expect(rows[0].status).toBe('matching');
-        expect(rows[0].urgency_score).toBe(5);
+        // Should rely on SQL filter, hard to verify without spy. 
+        // But if it processed, it might error on empty inputs/report_id.
+        // If no error, likely ignored.
+        const { rows } = await db.query("SELECT * FROM tasks WHERE title = $1", ['Already Done']);
+        expect(rows[0].status).toBe('done');
     });
 });

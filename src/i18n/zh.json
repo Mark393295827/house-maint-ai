@@ -261,5 +261,20 @@
         "agentActivity": "代理活动",
         "noAgents": "暂无代理活动",
         "lastUpdated": "上次更新"
+    },
+    "payment": {
+        "title": "支付",
+        "processing": "正在处理...",
+        "payNow": "立即支付",
+        "success": {
+            "title": "支付成功！",
+            "message": "您的支付已处理。工人已收到通知。"
+        },
+        "cancel": {
+            "title": "支付已取消",
+            "message": "支付流程已中止。未扣费。"
+        },
+        "backToHome": "回到首页",
+        "tryAgain": "重试"
     }
 }

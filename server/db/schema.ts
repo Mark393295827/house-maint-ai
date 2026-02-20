@@ -68,6 +68,7 @@ export const reviews = sqliteTable('reviews', {
     workerId: integer('worker_id').notNull().references(() => workers.id, { onDelete: 'cascade' }),
     rating: integer('rating').notNull(),
     comment: text('comment'),
+    photos: text('photos'), // JSON array of photo URLs
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
 
@@ -130,3 +131,25 @@ export const priceGuide = sqliteTable('price_guide', {
     unit: text('unit').notNull(), // 'per_item', 'per_hour', 'fixed'
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
+
+// AI Usage Logs Table (Phase 13)
+export const aiUsageLogs = sqliteTable('ai_usage_logs', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+    modelName: text('model_name').notNull(),
+    inputTokens: integer('input_tokens').default(0),
+    outputTokens: integer('output_tokens').default(0),
+    totalTokens: integer('total_tokens').default(0),
+    costUsd: real('cost_usd').default(0.0),
+    endpoint: text('endpoint'),
+    durationMs: integer('duration_ms'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+// AI Settings Table (Phase 13)
+export const aiSettings = sqliteTable('ai_settings', {
+    key: text('key').primaryKey(),
+    value: text('value').notNull(),
+    updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+});
+

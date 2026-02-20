@@ -1,7 +1,7 @@
 import db from '../config/database.js';
 import { aiService } from './ai.js';
 import * as Sentry from '@sentry/node';
-import * as fs from 'fs';
+import { aiUsageService } from './aiUsage.js';
 
 export class DiagnosticsClawService {
     private interval: NodeJS.Timeout | null = null;
@@ -87,11 +87,23 @@ export class DiagnosticsClawService {
             console.log(`🤖 Diagnosing Report #${report.id}...`);
 
             // AI Call (Delegated to DiagnosisAgent via Facade)
-            const diagnosis = await aiService.diagnoseIssue(
+            const startTime = Date.now();
+            const response = await aiService.diagnoseIssue(
                 undefined,
                 undefined,
                 `Title: ${report.title}\nDescription: ${report.description}`
             );
+            const durationMs = Date.now() - startTime;
+            const diagnosis = response.result;
+
+            // Log Background AI Usage
+            await aiUsageService.logUsage({
+                userId: report.user_id,
+                usage: response.usage,
+                endpoint: 'claw:diagnostics',
+                durationMs
+            });
+
 
             // Stigmergy: Store result in Task Outputs
             await db.query(`
@@ -108,7 +120,7 @@ export class DiagnosticsClawService {
             // Legacy Side-Effect: Update Reports Table for UI
             const { issue_type, severity, diagnosis_summary, confidence_score } = diagnosis.diagnosis;
 
-            let status = 'analyzed';
+            let status = 'matching';
             if (confidence_score && confidence_score < 0.7) {
                 status = 'flagged_for_review';
             }
@@ -134,6 +146,7 @@ export class DiagnosticsClawService {
                 status,
                 report.id
             ]);
+
 
             console.log(`✅ Task #${task.id} Complete. Report #${report.id} updated.`);
 

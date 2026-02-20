@@ -19,6 +19,8 @@ import aiRoutes from './routes/ai.js';
 import metricsRoutes from './routes/metrics.js';
 import analyticsRoutes from './routes/analytics.js';
 import assetsRoutes from './routes/assets.js';
+import paymentRoutes from './routes/payments.js';
+import reviewRoutes from './routes/reviews.js';
 import { diagnosticsClaw } from './services/diagnostics_claw.js';
 import { vendorClaw } from './services/vendor_claw.js';
 import { csrfGuard } from './middleware/auth.js';
@@ -131,8 +133,6 @@ app.use('/uploads', express.static(join(__dirname, 'uploads')));
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-import paymentRoutes from './routes/payments.js';
-
 // API Routes
 app.use('/api/auth', strictLimiter, authRoutes);
 app.use('/api/reports', reportRoutes);
@@ -144,6 +144,7 @@ app.use('/api/metrics', metricsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Sentry Error Handler (must be before custom error handler)
 Sentry.setupExpressErrorHandler(app);

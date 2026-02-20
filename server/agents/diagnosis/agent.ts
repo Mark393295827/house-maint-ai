@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AiProvider, DiagnosisResult, parseAiJson, withRetry } from '../common.js';
+import { AiProvider, AiResponse, DiagnosisResult, parseAiJson, withRetry } from '../common.js';
 
 // Gemini Provider for Multimodal (CLAW 1)
 export class DiagnosisAgent implements AiProvider {
@@ -61,31 +61,34 @@ JSON Schema:
         this.hasApiKey = !!apiKey;
     }
 
-    async diagnose(image?: string, mimeType?: string, text?: string): Promise<DiagnosisResult> {
+    async diagnose(image?: string, mimeType?: string, text?: string): Promise<AiResponse<DiagnosisResult>> {
         // Demo fallback when no API key is configured
         if (!this.hasApiKey) {
             console.warn('[AI] No GEMINI_API_KEY set — returning demo diagnosis');
             return {
-                diagnosis: {
-                    issue_type: "Ceiling Fan Noise",
-                    severity: "moderate",
-                    diagnosis_summary: "Abnormal noise likely due to bearing wear or imbalance.",
-                    confidence_score: 0.95,
-                    category: "Electrical",
-                    urgency_score: 3,
-                    safety_warning: "Ensure power is off before inspection."
+                result: {
+                    diagnosis: {
+                        issue_type: "Ceiling Fan Noise",
+                        severity: "moderate",
+                        diagnosis_summary: "Abnormal noise likely due to bearing wear or imbalance.",
+                        confidence_score: 0.95,
+                        category: "Electrical",
+                        urgency_score: 3,
+                        safety_warning: "Ensure power is off before inspection."
+                    },
+                    solution: {
+                        can_diy: true,
+                        steps: ["Turn off power", "Check screws", "Check balance"],
+                        required_parts: [{ name: "Balance Kit", spec: "Universal", estimated_price: "$5" }],
+                        tools_needed: ["Screwdriver", "Ladder"]
+                    },
+                    worker_matching_criteria: {
+                        required_skill: "Electrical",
+                        urgency: "flexible",
+                        estimated_man_hours: "1h"
+                    }
                 },
-                solution: {
-                    can_diy: true,
-                    steps: ["Turn off power", "Check screws", "Check balance"],
-                    required_parts: [{ name: "Balance Kit", spec: "Universal", estimated_price: "$5" }],
-                    tools_needed: ["Screwdriver", "Ladder"]
-                },
-                worker_matching_criteria: {
-                    required_skill: "Electrical",
-                    urgency: "flexible",
-                    estimated_man_hours: "1h"
-                }
+                usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'gemini-1.5-flash-mock' }
             };
         }
 
@@ -106,28 +109,51 @@ JSON Schema:
         return withRetry(async () => {
             const result = await this.model.generateContent(promptParts);
             const responseText = result.response.text();
-            return parseAiJson<DiagnosisResult>(responseText, ['diagnosis']);
+            const usage = result.response.usageMetadata || { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
+
+            return {
+                result: parseAiJson<DiagnosisResult>(responseText, ['diagnosis']),
+                usage: {
+                    input_tokens: usage.promptTokenCount,
+                    output_tokens: usage.candidatesTokenCount,
+                    total_tokens: usage.totalTokenCount,
+                    model_name: 'gemini-1.5-flash'
+                }
+            };
         });
     }
 
     // Pattern Extraction Capability (Proprietary Data Moat)
-    async extractPattern(prompt: string): Promise<any> {
+    async extractPattern(prompt: string): Promise<AiResponse<any>> {
         // This is a special capability of Claw 1
         if (!this.hasApiKey) {
             // Mock return
             return {
-                problem_type: "Demo Pattern",
-                context_signature: "demo",
-                solution: { steps: [], parts_spec: [] }
+                result: {
+                    problem_type: "Demo Pattern",
+                    context_signature: "demo",
+                    solution: { steps: [], parts_spec: [] }
+                },
+                usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'gemini-1.5-flash-mock' }
             };
         }
         return withRetry(async () => {
             const result = await this.model.generateContent([prompt]);
             const responseText = result.response.text();
-            // Just return whatever JSON it gave for now, validation handled by caller or loose
-            return JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
+            const usage = result.response.usageMetadata || { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
+
+            return {
+                result: JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim()),
+                usage: {
+                    input_tokens: usage.promptTokenCount,
+                    output_tokens: usage.candidatesTokenCount,
+                    total_tokens: usage.totalTokenCount,
+                    model_name: 'gemini-1.5-flash'
+                }
+            };
         });
     }
 }
 
 export const diagnosisAgent = new DiagnosisAgent();
+

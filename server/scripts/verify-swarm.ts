@@ -1,40 +1,46 @@
-
 import db, { query, isSQLite } from '../config/database.js';
 import { diagnosticsClaw } from '../services/diagnostics_claw.js';
 import { planningClaw } from '../services/planning_claw.js';
 import { vendorClaw } from '../services/vendor_claw.js';
 import { learningService } from '../services/learning.js';
 import { aiService } from '../services/ai.js';
+import { DiagnosisResult, AiResponse, RepairPattern } from '../agents/common.js';
 import * as fs from 'fs';
 
-// Mock AI Service
-aiService.diagnoseIssue = async () => ({
-    diagnosis: {
-        issue_type: 'Simulated Leak',
-        severity: 'critical',
-        diagnosis_summary: 'A simulated critical test leak.',
-        confidence_score: 0.95,
-        issue_identified: 'Simulated Leak',
-        description: 'Leak test',
-        category: 'Plumbing',
-        severity_score: 5,
-        urgency_score: 9,
-        safety_warning: 'SHUT OFF WATER'
+// Mock AI Service with AiResponse structure
+aiService.diagnoseIssue = async (): Promise<AiResponse<DiagnosisResult>> => ({
+    result: {
+        diagnosis: {
+            issue_type: 'Simulated Leak',
+            severity: 'critical',
+            diagnosis_summary: 'A simulated critical test leak.',
+            confidence_score: 0.95,
+            category: 'Plumbing',
+            urgency_score: 9,
+            safety_warning: 'SHUT OFF WATER'
+        },
+        solution: { can_diy: true, steps: ['Fix it'], required_parts: [], tools_needed: [] },
+        worker_matching_criteria: { required_skill: 'Plumbing', urgency: 'immediate', estimated_man_hours: '1h' }
     },
-    solution: { can_diy: true, steps: ['Fix it'], required_parts: [], tools_needed: [] },
-    worker_matching_criteria: { required_skill: 'Plumbing', urgency: 'immediate', estimated_man_hours: '1h' }
+    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30, model_name: 'gemini-1.5-flash-mock' }
 });
 
-aiService.generateRepairPlan = async () => ({
-    steps: ['Step 1: Inspect', 'Step 2: Repair', 'Step 3: Verify'],
-    estimated_cost: '$50-100',
-    priority_protocol: 'immediate'
+aiService.generateRepairPlan = async (): Promise<AiResponse<any>> => ({
+    result: {
+        steps: ['Step 1: Inspect', 'Step 2: Repair', 'Step 3: Verify'],
+        estimated_cost_range: { min: 50, max: 100 },
+        priority_protocol: 'immediate'
+    },
+    usage: { input_tokens: 100, output_tokens: 200, total_tokens: 300, model_name: 'deepseek-reasoner-mock' }
 });
 
-aiService.extractRepairPattern = async () => ({
-    problem_type: 'Simulated Leak Pattern',
-    context_signature: 'test, leak, simulation',
-    solution: { steps: ['Fix'], parts_spec: ['Tape'] }
+aiService.extractRepairPattern = async (): Promise<AiResponse<RepairPattern>> => ({
+    result: {
+        problem_type: 'Simulated Leak Pattern',
+        context_signature: 'test, leak, simulation',
+        solution: { steps: ['Fix'], parts_spec: ['Tape'] }
+    },
+    usage: { input_tokens: 5, output_tokens: 10, total_tokens: 15, model_name: 'gemini-1.5-flash-mock' }
 });
 
 const LOG_FILE = 'verify_debug.log';

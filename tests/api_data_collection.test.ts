@@ -45,7 +45,7 @@ describe('Data Collection APIs', () => {
         it('should add a new asset', async () => {
             const res = await request(app)
                 .post('/api/assets')
-                .set('Authorization', `Bearer ${userToken}`)
+                .set('Cookie', [`accessToken=${userToken}`])
                 .send({
                     type: 'appliance',
                     name: 'My Fridge',
@@ -61,7 +61,7 @@ describe('Data Collection APIs', () => {
         it('should list assets', async () => {
             const res = await request(app)
                 .get('/api/assets')
-                .set('Authorization', `Bearer ${userToken}`);
+                .set('Cookie', [`accessToken=${userToken}`]);
 
             expect(res.status).toBe(200);
             expect(res.body.assets.length).toBeGreaterThan(0);
@@ -82,7 +82,7 @@ describe('Data Collection APIs', () => {
             // 2. Complete it
             const res = await request(app)
                 .put(`/api/reports/${reportId}/complete`)
-                .set('Authorization', `Bearer ${workerToken}`)
+                .set('Cookie', [`accessToken=${workerToken}`])
                 .send({
                     resolution_details: {
                         steps: ['Checked compressor', 'Replaced relay'],
@@ -107,7 +107,7 @@ describe('Data Collection APIs', () => {
 
             const res = await request(app)
                 .put(`/api/reports/${reportId}/complete`)
-                .set('Authorization', `Bearer ${otherToken}`)
+                .set('Cookie', [`accessToken=${otherToken}`])
                 .send({ resolution_details: {} });
 
             expect(res.status).toBe(403);

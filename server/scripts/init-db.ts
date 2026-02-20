@@ -39,14 +39,12 @@ const initDb = async () => {
         for (const user of testUsers) {
             try {
                 if (isSQLite) {
-                    // SQLite: Use INSERT OR REPLACE
                     await pool.query(
                         `INSERT OR REPLACE INTO users (phone, password_hash, name, avatar, role)
                          VALUES ($1, $2, $3, $4, $5)`,
                         [user.phone, passwordHash, user.name, user.avatar, user.role]
                     );
                 } else {
-                    // PostgreSQL: Use ON CONFLICT
                     await pool.query(
                         `INSERT INTO users (phone, password_hash, name, avatar, role)
                          VALUES ($1, $2, $3, $4, $5)
@@ -61,10 +59,8 @@ const initDb = async () => {
 
         console.log('✅ Test users created');
 
-        // Get worker user IDs
         const { rows: workerUsers } = await pool.query(`SELECT id, name FROM users WHERE role = 'worker'`);
 
-        // Create worker profiles
         const workerProfiles = [
             { skills: '["plumbing", "electrical"]', rating: 4.8, lat: 37.7749, lng: -122.4194 },
             { skills: '["plumbing"]', rating: 4.5, lat: 37.7849, lng: -122.4094 },
@@ -98,7 +94,6 @@ const initDb = async () => {
 
         console.log('✅ Worker profiles created');
 
-        // Create a test report
         try {
             const { rows: users } = await pool.query('SELECT id FROM users WHERE role = $1 LIMIT 1', ['user']);
             if (users.length > 0) {
@@ -111,60 +106,64 @@ const initDb = async () => {
                 console.log('✅ Test report created');
             }
 
-            // Update patterns table schema for Talent Engine
+            console.log('⭐ Seeding test reviews...');
+            const { rows: allReports } = await pool.query(`SELECT id, user_id, matched_worker_id FROM reports WHERE matched_worker_id IS NOT NULL LIMIT 5`);
+            for (const report of allReports) {
+                try {
+                    await pool.query(
+                        `INSERT INTO reviews (report_id, user_id, worker_id, rating, comment)
+                         VALUES ($1, $2, $3, $4, $5)
+                         ON CONFLICT (report_id) DO NOTHING`,
+                        [report.id, report.user_id, report.matched_worker_id, 5, 'Excellent service and quick repair!']
+                    );
+                } catch (e) { }
+            }
+            console.log('✅ Test reviews seeded');
+
             console.log('🔄 Checking patterns table schema...');
             if (isSQLite) {
-                // SQLite: Add columns if they don't exist
                 try {
                     await pool.query(`ALTER TABLE patterns ADD COLUMN performance_score REAL DEFAULT 0`);
-                    console.log('✅ Added performance_score to patterns');
-                } catch (e) { /* Column likely exists */ }
+                } catch (e) { }
                 try {
                     await pool.query(`ALTER TABLE patterns ADD COLUMN generation_version INTEGER DEFAULT 1`);
-                    console.log('✅ Added generation_version to patterns');
-                } catch (e) { /* Column likely exists */ }
+                } catch (e) { }
             } else {
-                // PostgreSQL: Add columns if they don't exist
                 await pool.query(`
                     ALTER TABLE patterns 
                     ADD COLUMN IF NOT EXISTS performance_score REAL DEFAULT 0,
                     ADD COLUMN IF NOT EXISTS generation_version INTEGER DEFAULT 1
                 `);
-                console.log('✅ Patterns table schema updated');
             }
 
             console.log('🔄 Checking reports table schema for pattern_id...');
             if (isSQLite) {
                 try {
                     await pool.query(`ALTER TABLE reports ADD COLUMN pattern_id INTEGER`);
-                    console.log('✅ Added pattern_id to reports');
-                } catch (e) { /* Likely exists */ }
+                } catch (e) { }
             } else {
                 await pool.query(`
                     ALTER TABLE reports 
                     ADD COLUMN IF NOT EXISTS pattern_id INTEGER
                 `);
-                console.log('✅ Reports table schema updated');
             }
 
-            console.log('🔄 Checking reports table schema for OpenClaw v1.0 fields...');
             const newColumns = [
                 { name: 'issue_type', type: 'TEXT' },
-                { name: 'severity', type: 'TEXT' }, // enum: critical, moderate, cosmetic
+                { name: 'severity', type: 'TEXT' },
                 { name: 'diagnosis_summary', type: 'TEXT' },
                 { name: 'confidence_score', type: 'REAL' },
-                { name: 'priority_protocol', type: 'TEXT' }, // enum: immediate, batch
+                { name: 'priority_protocol', type: 'TEXT' },
                 { name: 'match_score', type: 'REAL' },
                 { name: 'estimated_arrival', type: 'TEXT' },
-                { name: 'resolution_plan', type: 'TEXT' } // Added validation for missing column
+                { name: 'resolution_plan', type: 'TEXT' }
             ];
 
             for (const col of newColumns) {
                 if (isSQLite) {
                     try {
                         await pool.query(`ALTER TABLE reports ADD COLUMN ${col.name} ${col.type}`);
-                        console.log(`✅ Added ${col.name} to reports`);
-                    } catch (e) { /* Likely exists */ }
+                    } catch (e) { }
                 } else {
                     await pool.query(`
                         ALTER TABLE reports 
@@ -172,15 +171,15 @@ const initDb = async () => {
                     `);
                 }
             }
+
             const patternColumns = [
-                { name: 'status', type: 'TEXT' } // active, testing, deprecated
+                { name: 'status', type: 'TEXT' }
             ];
             for (const col of patternColumns) {
                 if (isSQLite) {
                     try {
                         await pool.query(`ALTER TABLE patterns ADD COLUMN ${col.name} ${col.type}`);
-                        console.log(`✅ Added ${col.name} to patterns`);
-                    } catch (e) { /* Likely exists */ }
+                    } catch (e) { }
                 } else {
                     await pool.query(`
                         ALTER TABLE patterns 
@@ -188,16 +187,18 @@ const initDb = async () => {
                     `);
                 }
             }
-            if (!isSQLite) console.log('✅ Patterns table schema updated (Postgres)');
 
             console.log('✅ Database initialization complete!');
             process.exit(0);
 
         } catch (e) {
             console.error('Error in init-db:', e);
-            fs.writeFileSync('init_error.log', `Error: ${e}\n${JSON.stringify(e, Object.getOwnPropertyNames(e))}`);
             process.exit(1);
         }
-    };
+    } catch (e) {
+        console.error('Outer error in init-db:', e);
+        process.exit(1);
+    }
+};
 
-    initDb();
+initDb();

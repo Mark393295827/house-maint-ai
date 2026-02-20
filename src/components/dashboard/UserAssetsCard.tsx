@@ -1,13 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
-import type { UserAsset } from '../../types';
+import React, { useState } from 'react';
+import { useAssets, useAddAsset, useDeleteAsset } from '../../hooks/useAssets';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 const UserAssetsCard = () => {
-    const { t } = useLanguage();
-    const [assets, setAssets] = useState<UserAsset[]>([]);
-    const [loading, setLoading] = useState(true);
+    // const { t } = useLanguage(); // Unused
+    const { data, isLoading } = useAssets();
+    const addAssetMutation = useAddAsset();
+    const deleteAssetMutation = useDeleteAsset();
+
     const [showAddForm, setShowAddForm] = useState(false);
     const [newAsset, setNewAsset] = useState({
         name: '',
@@ -16,28 +17,14 @@ const UserAssetsCard = () => {
         model: ''
     });
 
-    useEffect(() => {
-        loadAssets();
-    }, []);
-
-    const loadAssets = async () => {
-        try {
-            const data = await api.getAssets();
-            setAssets(data.assets || []);
-        } catch (err) {
-            console.error('Failed to load assets', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const assets = data?.assets || [];
 
     const handleAddAsset = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await api.addAsset(newAsset);
+            await addAssetMutation.mutateAsync(newAsset);
             setShowAddForm(false);
             setNewAsset({ name: '', type: 'appliance', brand: '', model: '' });
-            loadAssets();
         } catch (err) {
             alert('Failed to add asset');
         }
@@ -46,8 +33,7 @@ const UserAssetsCard = () => {
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure?')) return;
         try {
-            await api.deleteAsset(id);
-            loadAssets();
+            await deleteAssetMutation.mutateAsync(id);
         } catch (err) {
             console.error(err);
         }
@@ -101,14 +87,18 @@ const UserAssetsCard = () => {
                                 className="p-2 rounded border dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             />
                         </div>
-                        <button type="submit" className="bg-primary text-white py-2 rounded font-bold">
-                            Save Asset
+                        <button
+                            type="submit"
+                            className="bg-primary text-white py-2 rounded font-bold disabled:opacity-50"
+                            disabled={addAssetMutation.isPending}
+                        >
+                            {addAssetMutation.isPending ? 'Saving...' : 'Save Asset'}
                         </button>
                     </div>
                 </form>
             )}
 
-            {loading ? (
+            {isLoading ? (
                 <div className="text-center py-4">Loading...</div>
             ) : assets.length === 0 ? (
                 <p className="text-center text-gray-400 text-sm py-2">No assets added yet.</p>
@@ -125,7 +115,11 @@ const UserAssetsCard = () => {
                                     <p className="text-xs text-gray-500">{asset.brand} {asset.model}</p>
                                 </div>
                             </div>
-                            <button onClick={() => handleDelete(asset.id)} className="text-gray-400 hover:text-red-500">
+                            <button
+                                onClick={() => handleDelete(asset.id)}
+                                className="text-gray-400 hover:text-red-500 disabled:opacity-50"
+                                disabled={deleteAssetMutation.isPending}
+                            >
                                 <span className="material-symbols-outlined text-lg">delete</span>
                             </button>
                         </div>

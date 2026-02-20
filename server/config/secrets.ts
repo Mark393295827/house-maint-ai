@@ -43,6 +43,13 @@ export const DEEPSEEK_API_KEY = readSecret(
     '' // No default in production/dev, must be provided for feature to work
 );
 
+// Mixpanel Token - for analytics
+export const MIXPANEL_TOKEN = readSecret(
+    'mixpanel_token',
+    'MIXPANEL_TOKEN',
+    '' // No default
+);
+
 // Validate required secrets in production
 if (process.env.NODE_ENV === 'production') {
     if (JWT_SECRET === 'house-maint-ai-dev-secret-change-in-production') {

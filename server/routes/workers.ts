@@ -109,13 +109,24 @@ router.get('/:id', optionalAuth, cacheMiddleware(3600), async (req, res, next) =
         } catch (e) { worker.skills = []; }
 
         const { rows: reviews } = await db.query(`
-            SELECT r.*, u.name as reviewer_name
+            SELECT r.*, u.name as reviewer_name, u.avatar as reviewer_avatar
             FROM reviews r
             JOIN users u ON r.user_id = u.id
             WHERE r.worker_id = $1
             ORDER BY r.created_at DESC
-            LIMIT 5
+            LIMIT 10
         `, [req.params.id]);
+
+        // Parse JSON fields
+        reviews.forEach(r => {
+            if (r.photos) {
+                try {
+                    r.photos = JSON.parse(r.photos);
+                } catch (e) { r.photos = []; }
+            } else {
+                r.photos = [];
+            }
+        });
 
         res.json({ worker, reviews });
     } catch (error) {

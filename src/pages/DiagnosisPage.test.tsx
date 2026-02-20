@@ -4,6 +4,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { LanguageProvider } from '../i18n/LanguageContext';
 import DiagnosisPage from './DiagnosisPage';
 
+vi.mock('../i18n/LanguageContext', () => ({
+    useLanguage: () => ({ t: (k: string) => k, locale: 'en', setLocale: vi.fn() }),
+    LanguageProvider: ({ children }: any) => children
+}));
+
 // Mock the AI service
 vi.mock('../services/ai', () => ({
     analyzeImageFromUrl: vi.fn(),

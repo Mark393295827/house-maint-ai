@@ -16,13 +16,14 @@ async function patchTalentEngine() {
             try {
                 await pool.query(`ALTER TABLE patterns ADD COLUMN ${colDef}`);
                 console.log(`✅ Added ${name} to patterns`);
-            } catch (e) {
-                if (e.message.includes('duplicate column')) {
+            } catch (e: any) {
+                if (e.message.includes('duplicate column') || e.message.includes('already exists')) {
                     console.log(`ℹ️  Column ${name} already exists`);
                 } else {
                     console.log(`⚠️  Error adding ${name}: ${e.message}`);
                 }
             }
+
         }
     } else {
         await pool.query(`

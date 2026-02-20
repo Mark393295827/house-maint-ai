@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS reports (
     status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'matching', 'broadcasted', 'matched', 'in_progress', 'completed', 'cancelled', 'failed_analysis')),
     matched_worker_id INTEGER,
     latitude REAL,
-    latitude REAL,
+
     longitude REAL,
     urgency_score INTEGER DEFAULT 0, -- 0-10 Scale
     matched_at TEXT,
@@ -71,16 +71,27 @@ CREATE TABLE IF NOT EXISTS matches (
 -- 评价表
 CREATE TABLE IF NOT EXISTS reviews (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    report_id INTEGER NOT NULL,
+    report_id INTEGER NOT NULL UNIQUE,
     user_id INTEGER NOT NULL,
     worker_id INTEGER NOT NULL,
     rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
     comment TEXT,
+    photos TEXT, -- JSON array of URLs
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (worker_id) REFERENCES workers(id) ON DELETE CASCADE
 );
+
+-- 工人平均评分视图
+DROP VIEW IF EXISTS worker_ratings;
+CREATE VIEW worker_ratings AS
+SELECT 
+  worker_id,
+  AVG(rating) as avg_rating,
+  COUNT(*) as total_reviews
+FROM reviews
+GROUP BY worker_id;
 
 -- 社区帖子表
 CREATE TABLE IF NOT EXISTS posts (
@@ -141,13 +152,32 @@ CREATE TABLE IF NOT EXISTS patterns (
     UNIQUE(problem_type, context_signature)
 );
 
--- Refresh Tokens
-CREATE TABLE IF NOT EXISTS refresh_tokens (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    token TEXT NOT NULL UNIQUE,
-    expires_at TEXT NOT NULL,
-    revoked INTEGER DEFAULT 0,
-    created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- AI Usage Logs
+CREATE TABLE IF NOT EXISTS ai_usage_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    model_name TEXT NOT NULL,
+    input_tokens INTEGER DEFAULT 0,
+    output_tokens INTEGER DEFAULT 0,
+    total_tokens INTEGER DEFAULT 0,
+    cost_usd REAL DEFAULT 0.0,
+    endpoint TEXT,
+    duration_ms INTEGER,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- AI Settings
+CREATE TABLE IF NOT EXISTS ai_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- AI Usage Indexes
+CREATE INDEX IF NOT EXISTS idx_ai_usage_user ON ai_usage_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_usage_created ON ai_usage_logs(created_at);
+

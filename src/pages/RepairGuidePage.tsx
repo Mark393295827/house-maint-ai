@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { createReport } from '../services/api';
+import { useCreateReport } from '../hooks/useReports';
 import DiagnosisSummary from '../components/repair/DiagnosisSummary';
 import { useRepairTimer } from '../hooks/useRepairTimer';
 
@@ -56,7 +56,6 @@ const RepairGuidePage = () => {
     // Step tracking
     const [completedSteps, setCompletedSteps] = useState<boolean[]>([]);
     const [executionMode, setExecutionMode] = useState(false);
-    const [isCreatingReport, setIsCreatingReport] = useState(false);
     const [reportCreated, setReportCreated] = useState(false);
 
     // Load diagnosis and progress from storage
@@ -145,6 +144,9 @@ const RepairGuidePage = () => {
     const progress = steps.length > 0 ? (completedCount / steps.length) * 100 : 0;
     const allDone = steps.length > 0 && completedCount === steps.length;
 
+    const createReportMutation = useCreateReport();
+    const isCreatingReport = createReportMutation.isPending;
+
     // Derived info
     const title = diagnosis ? diagnosis.issue_name : t('repair.title');
     const titleEn = diagnosis ? diagnosis.issue_name_en : '';
@@ -157,14 +159,14 @@ const RepairGuidePage = () => {
         setExecutionMode(true);
 
         if (!reportCreated && diagnosis && user) {
-            setIsCreatingReport(true);
             try {
                 const category = diagnosis.raw_response?.diagnosis?.category || 'other';
                 const categoryMap: Record<string, string> = {
                     plumbing: 'plumbing', electrical: 'electrical', appliance: 'appliance',
                     carpentry: 'carpentry', painting: 'painting',
                 };
-                await createReport({
+
+                await createReportMutation.mutateAsync({
                     title: diagnosis.issue_name.substring(0, 50),
                     description: `${diagnosis.description}\n\nAI Confidence: ${diagnosis.confidence}%\nSeverity: ${diagnosis.severity}\nUrgency: ${diagnosis.urgency}`,
                     category: categoryMap[category.toLowerCase()] || 'other',
@@ -172,8 +174,6 @@ const RepairGuidePage = () => {
                 setReportCreated(true);
             } catch (err) {
                 console.warn('Report creation failed (non-blocking):', err);
-            } finally {
-                setIsCreatingReport(false);
             }
         }
     };

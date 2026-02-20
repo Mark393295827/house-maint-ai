@@ -1,6 +1,8 @@
 
 import db from '../config/database';
-import { aiService, RepairPattern } from './ai';
+import { aiService } from './ai';
+import { RepairPattern } from '../agents/common.js';
+import { aiUsageService } from './aiUsage.js';
 
 export const learningService = {
     /**
@@ -54,11 +56,22 @@ export const learningService = {
                 }
 
                 // 2. Extract Pattern via AI
-                const pattern: RepairPattern = await aiService.extractRepairPattern(
+                const startTime = Date.now();
+                const response = await aiService.extractRepairPattern(
                     report.title,
                     report.description,
                     resolution
                 );
+                const durationMs = Date.now() - startTime;
+                const pattern: RepairPattern = response.result;
+
+                // Log Training AI Usage
+                await aiUsageService.logUsage({
+                    usage: response.usage,
+                    endpoint: 'training:pattern_extraction',
+                    durationMs
+                });
+
 
                 // 3. Update Knowledge Base (Patterns Table)
                 const patternId = await this.upsertPattern(pattern);

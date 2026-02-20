@@ -30,7 +30,7 @@ export class VendorSourcingClawService {
             // Find reports in 'matching' status
             const { rows: matchingReports } = await db.query(`
                 SELECT * FROM reports 
-                WHERE status = 'planned' 
+                WHERE status = 'matching' 
                 ORDER BY created_at ASC 
                 LIMIT 5
             `);

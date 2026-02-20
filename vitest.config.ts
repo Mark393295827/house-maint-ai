@@ -2,6 +2,10 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
     test: {
+        env: {
+            DB_USE_SQLITE: 'true',
+            REDIS_MOCK: 'true'
+        },
         include: ['**/*.test.ts'],
         setupFiles: ['./tests/setup.ts'],
         environment: 'node',

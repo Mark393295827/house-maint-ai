@@ -8,6 +8,7 @@ console.log('SETUP: REDIS_MOCK set to', process.env.REDIS_MOCK);
 process.env.NODE_ENV = 'test';
 process.env.DB_USE_SQLITE = 'true';
 process.env.SQLITE_DB_PATH = ':memory:';
+process.env.JWT_SECRET = 'test_secret';
 delete process.env.DB_HOST; // Ensure fallback
 
 // Global mock for ioredis

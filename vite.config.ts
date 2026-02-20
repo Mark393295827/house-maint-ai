@@ -10,6 +10,10 @@ export default defineConfig({
     host: true,
   },
   test: {
+    env: {
+      DB_USE_SQLITE: 'true',
+      REDIS_MOCK: 'true'
+    },
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',

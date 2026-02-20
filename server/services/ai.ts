@@ -1,6 +1,6 @@
 import { diagnosisAgent } from '../agents/diagnosis/agent.js';
 import { planningAgent } from '../agents/planning/agent.js';
-import { DiagnosisResult, RepairPattern, ChatMessage, withRetry } from '../agents/common.js';
+import { DiagnosisResult, RepairPattern, ChatMessage, withRetry, AiResponse } from '../agents/common.js';
 import * as Sentry from '@sentry/node';
 
 // Unified AI Service (Facade)
@@ -10,7 +10,7 @@ class AiService {
     /**
      * Diagnose a maintenance issue using Multimodal AI (Gemini)
      */
-    async diagnoseIssue(image?: string, mimeType?: string, text?: string): Promise<DiagnosisResult> {
+    async diagnoseIssue(image?: string, mimeType?: string, text?: string): Promise<AiResponse<DiagnosisResult>> {
         try {
             return await diagnosisAgent.diagnose(image, mimeType, text);
         } catch (error) {
@@ -22,43 +22,55 @@ class AiService {
     /**
      * Generate a detailed repair plan using Reasoning AI (DeepSeek R1)
      */
-    async generateRepairPlan(title: string, description: string, diagnosis: any): Promise<any> {
+    async generateRepairPlan(params: { title: string, description: string, diagnosis: any }): Promise<AiResponse<any>> {
         try {
-            const result = await withRetry(() => planningAgent.generatePlan({ title, description, diagnosis }));
+            const { title, description, diagnosis } = params;
+            const response = await withRetry(() => planningAgent.generatePlan({ title, description, diagnosis }));
+            const { result, usage } = response;
+
             // Parse the result if it's a JSON string, or wrap it if it's raw text
             try {
                 // If DeepSeek returns markdown with JSON, clean it
                 const cleaned = result.replace(/```json/g, '').replace(/```/g, '').trim();
-                return JSON.parse(cleaned);
+                return { result: JSON.parse(cleaned), usage };
             } catch {
                 // Fallback: structured object from text
                 return {
-                    steps: [], // We might want to parse steps from text by newline if needed
-                    raw_text: result
+                    result: {
+                        steps: [], // We might want to parse steps from text by newline if needed
+                        raw_text: result
+                    },
+                    usage
                 };
             }
         } catch (error) {
             Sentry.captureException(error);
-            return { error: "Unable to generate plan" };
+            return {
+                result: { error: "Unable to generate plan" },
+                usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0 }
+            };
         }
     }
 
     /**
      * Chat with an expert AI
      */
-    async chatWithExpert(messages: ChatMessage[]): Promise<string> {
+    async chatWithExpert(messages: ChatMessage[]): Promise<AiResponse<string>> {
         try {
             return await withRetry(() => planningAgent.chat(messages), 2);
         } catch (error) {
             Sentry.captureException(error);
-            return "I'm having trouble connecting to my knowledge base right now. Please try again later.";
+            return {
+                result: "I'm having trouble connecting to my knowledge base right now. Please try again later.",
+                usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0 }
+            };
         }
     }
 
     /**
      * Extract generalized repair pattern from a completed report
      */
-    async extractRepairPattern(reportTitle: string, reportDescription: string, resolutionDetails: any): Promise<RepairPattern> {
+    async extractRepairPattern(reportTitle: string, reportDescription: string, resolutionDetails: any): Promise<AiResponse<RepairPattern>> {
         const prompt = `
             Analyze this completed repair job and abstract it into a generalizable repair pattern.
             
@@ -91,3 +103,4 @@ class AiService {
 }
 
 export const aiService = new AiService();
+

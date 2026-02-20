@@ -64,7 +64,7 @@ describe('Analytics API', () => {
     it('should be inaccessible to regular users', async () => {
         const res = await request(app)
             .get('/api/analytics/dashboard')
-            .set('Authorization', `Bearer ${userToken}`);
+            .set('Cookie', [`accessToken=${userToken}`]);
 
         expect(res.status).toBe(403);
     });
@@ -72,7 +72,7 @@ describe('Analytics API', () => {
     it('should return dashboard stats for admin', async () => {
         const res = await request(app)
             .get('/api/analytics/dashboard')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('activeTickets');
@@ -82,7 +82,7 @@ describe('Analytics API', () => {
     it('should return ticket trends', async () => {
         const res = await request(app)
             .get('/api/analytics/tickets')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);

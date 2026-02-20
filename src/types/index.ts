@@ -34,6 +34,7 @@ export interface Worker {
     // Computed match scores
     distanceScore?: number;
     technicalScore?: number;
+    skillScore?: number;
     score?: number;
 }
 
@@ -185,6 +186,11 @@ export interface PostsResponse {
 
 export interface WorkersResponse {
     workers: Worker[];
+}
+
+export interface MatchesResponse {
+    matches: Worker[];
+    total: number;
 }
 
 export interface HealthResponse {

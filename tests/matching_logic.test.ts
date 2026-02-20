@@ -86,7 +86,7 @@ describe('Enhanced Matching Logic', () => {
 
         const matchRes = await request(app)
             .get('/api/workers/match')
-            .set('Authorization', `Bearer ${userToken}`)
+            .set('Cookie', [`accessToken=${userToken}`])
             .query({ report_id: reportId, limit: 10 });
 
         expect(matchRes.status).toBe(200);

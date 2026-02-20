@@ -21,15 +21,19 @@ vi.mock('../config/database.js', () => ({
 
 // Mock @google/generative-ai — but since no GEMINI_API_KEY is set,
 // the service will use its demo fallback instead of calling the mock
-vi.mock('@google/generative-ai', () => ({
-    GoogleGenerativeAI: vi.fn().mockImplementation(function () {
-        return {
-            getGenerativeModel: vi.fn().mockReturnValue({
-                generateContent: vi.fn()
-            })
-        };
-    })
-}));
+vi.mock('@google/generative-ai', () => {
+    return {
+        GoogleGenerativeAI: class {
+            getGenerativeModel() {
+                return {
+                    generateContent: async () => ({
+                        response: { text: () => 'mock' }
+                    })
+                };
+            }
+        }
+    };
+});
 
 import { aiService } from '../services/ai.js';
 
@@ -39,7 +43,7 @@ describe('AI Service', () => {
     });
 
     it('should diagnose issue using Gemini (demo mode without API key)', async () => {
-        const result = await aiService.diagnoseIssue('base64image', 'image/jpeg', 'Help');
+        const result = (await aiService.diagnoseIssue('base64image', 'image/jpeg', 'Help')) as any;
         // Without GEMINI_API_KEY, the service returns demo diagnosis
         expect(result.diagnosis.issue_identified).toContain('Ceiling Fan');
         expect(result.diagnosis.severity_score).toBe(2);

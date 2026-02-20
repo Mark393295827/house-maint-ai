@@ -23,6 +23,8 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DevicePreview = lazy(() => import('./pages/DevicePreview'));
 const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
 const MetricsDashboard = lazy(() => import('./pages/MetricsDashboard'));
+const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
+const PaymentCancelPage = lazy(() => import('./pages/PaymentCancelPage'));
 
 function App() {
   return (
@@ -46,6 +48,8 @@ function App() {
                     <Route path="/diagnosis" element={<DiagnosisPage />} />
                     <Route path="/repair/:id" element={<RepairGuidePage />} />
                     <Route path="/community" element={<CommunityPage />} />
+                    <Route path="/payment/success" element={<PaymentSuccessPage />} />
+                    <Route path="/payment/cancel" element={<PaymentCancelPage />} />
 
                     {/* Protected routes - require authentication */}
                     <Route path="/calendar" element={

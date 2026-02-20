@@ -24,7 +24,7 @@ interface DatabaseAdapter {
 }
 
 // SQLite fallback class that mimics pg.Pool interface
-class SQLiteFallback {
+export class SQLiteFallback {
     private db: Database.Database;
     private initialized: boolean = false;
 
@@ -49,21 +49,28 @@ class SQLiteFallback {
     async initSchema(): Promise<void> {
         if (this.initialized) return;
 
-        const schemaPath = path.join(__dirname, '..', 'models', 'schema.sql');
-        if (fs.existsSync(schemaPath)) {
-            const schema = fs.readFileSync(schemaPath, 'utf-8');
-            this.db.exec(schema);
-            console.log('✅ SQLite schema initialized');
-        }
+        try {
+            const schemaPath = path.join(__dirname, '..', 'models', 'schema.sql');
+            if (fs.existsSync(schemaPath)) {
+                const schema = fs.readFileSync(schemaPath, 'utf-8');
+                this.db.exec(schema);
+                console.log('✅ SQLite schema initialized');
+            } else {
+                console.error('❌ Schema file not found at:', schemaPath);
+            }
 
-        const blackboardPath = path.join(__dirname, '..', 'models', 'blackboard.sql');
-        if (fs.existsSync(blackboardPath)) {
-            const blackboardSchema = fs.readFileSync(blackboardPath, 'utf-8');
-            this.db.exec(blackboardSchema);
-            console.log('✅ Blackboard schema initialized');
-        }
+            const blackboardPath = path.join(__dirname, '..', 'models', 'blackboard.sql');
+            if (fs.existsSync(blackboardPath)) {
+                const blackboardSchema = fs.readFileSync(blackboardPath, 'utf-8');
+                this.db.exec(blackboardSchema);
+                console.log('✅ Blackboard schema initialized');
+            }
 
-        this.initialized = true;
+            this.initialized = true;
+        } catch (err) {
+            console.error('❌ SQLiteFallback initSchema FAILED:', err);
+            throw err;
+        }
     }
 
     /**
@@ -84,6 +91,8 @@ class SQLiteFallback {
         convertedSql = convertedSql
             .replace(/RETURNING\s+[\w,\s]+/gi, '') // Remove RETURNING clause (handled separately)
             .replace(/SERIAL PRIMARY KEY/gi, 'INTEGER PRIMARY KEY AUTOINCREMENT')
+            .replace(/\bTIMESTAMP(TZ)?\b/gi, 'TEXT') // Convert types with word boundaries
+            .replace(/NOW\(\)/gi, "datetime('now')")
             .replace(/CURRENT_TIMESTAMP/gi, "datetime('now')")
             .replace(/::[\w]+/g, ''); // Remove type casts like ::text
 

@@ -69,7 +69,7 @@ describe('AI Repair Planning API', () => {
     it('should allow report owner to generate a plan', async () => {
         const res = await request(app)
             .post(`/api/reports/${reportId}/plan`)
-            .set('Authorization', `Bearer ${userToken}`);
+            .set('Cookie', [`accessToken=${userToken}`]);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('plan');
@@ -85,7 +85,7 @@ describe('AI Repair Planning API', () => {
 
         const res = await request(app)
             .post(`/api/reports/${reportId}/plan`)
-            .set('Authorization', `Bearer ${workerToken}`);
+            .set('Cookie', [`accessToken=${workerToken}`]);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('plan');
@@ -94,7 +94,7 @@ describe('AI Repair Planning API', () => {
     it('should deny unassigned worker', async () => {
         const res = await request(app)
             .post(`/api/reports/${reportId}/plan`)
-            .set('Authorization', `Bearer ${workerToken}`);
+            .set('Cookie', [`accessToken=${workerToken}`]);
 
         // Should be 403 Forbidden
         expect(res.status).toBe(403);

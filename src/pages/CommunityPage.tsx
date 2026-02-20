@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import BottomNav from '../components/BottomNav';
-import api from '../services/api';
+import { usePosts, useCreatePost, useLikePost } from '../hooks/useCommunity';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../i18n/LanguageContext';
+import BottomNav from '../components/BottomNav';
 import type { Post } from '../types';
 
 /**
@@ -15,45 +14,37 @@ import type { Post } from '../types';
 const CommunityPage = () => {
     const { t } = useLanguage();
     const { isAuthenticated } = useAuth();
-    const qc = useQueryClient();
     const [isCreating, setIsCreating] = useState(false);
     const [newPost, setNewPost] = useState({ title: '', content: '' });
     const [activeTab, setActiveTab] = useState('recommend');
 
-    // Fetch posts with React Query
-    const { data: postsData, isLoading: loading, error: fetchError } = useQuery({
-        queryKey: ['posts'],
-        queryFn: () => api.getPosts(),
-    });
-    const posts: Post[] = postsData?.posts ?? [];
+    // Custom hooks
+    const { data: postsData, isLoading: loading } = usePosts();
+    const createMutation = useCreatePost();
+    const likeMutation = useLikePost();
 
-    // Create post mutation
-    const createMutation = useMutation({
-        mutationFn: (data: { title: string; content: string; tags?: string[] }) => api.createPost(data),
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['posts'] });
-            setNewPost({ title: '', content: '' });
-            setIsCreating(false);
-        },
-        onError: () => {
-            alert(t('community.create.fail'));
-        },
-    });
+    const posts: Post[] = postsData?.posts ?? [];
 
     const handleCreatePost = () => {
         if (!newPost.title.trim() || !newPost.content.trim()) return;
-        createMutation.mutate({ title: newPost.title, content: newPost.content, tags: ['DIY'] });
+        createMutation.mutate(
+            { title: newPost.title, content: newPost.content, tags: ['DIY'] },
+            {
+                onSuccess: () => {
+                    setNewPost({ title: '', content: '' });
+                    setIsCreating(false);
+                },
+                onError: () => {
+                    alert(t('community.create.fail'));
+                }
+            }
+        );
     };
 
     // Handle like post
-    const handleLike = async (id: number) => {
+    const handleLike = (id: number) => {
         if (!isAuthenticated) return;
-        try {
-            await api.likePost(id);
-            qc.invalidateQueries({ queryKey: ['posts'] });
-        } catch (err) {
-            console.error('Failed to like post:', err);
-        }
+        likeMutation.mutate(id);
     };
 
     // Format relative time

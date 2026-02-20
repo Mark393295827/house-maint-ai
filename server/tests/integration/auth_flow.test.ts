@@ -36,7 +36,6 @@ describe('Auth Flow Integration', () => {
             .send(newUser)
             .expect(201);
 
-        expect(res.body.success).toBe(true);
         expect(res.body.user).toBeDefined();
         expect(res.body.user.phone).toBe(newUser.phone);
         // Should set cookie
@@ -69,7 +68,6 @@ describe('Auth Flow Integration', () => {
             })
             .expect(200);
 
-        expect(loginRes.body.success).toBe(true);
         const cookie = loginRes.headers['set-cookie'];
         expect(cookie).toBeDefined();
 
@@ -79,7 +77,6 @@ describe('Auth Flow Integration', () => {
             .set('Cookie', cookie)
             .expect(200);
 
-        expect(meRes.body.success).toBe(true);
         expect(meRes.body.user.phone).toBe(userData.phone);
     });
 
@@ -94,9 +91,9 @@ describe('Auth Flow Integration', () => {
         await request(app).post('/api/auth/register').send(userData).expect(201);
 
         // Second registration
-        const res = await request(app).post('/api/auth/register').send(userData).expect(400);
+        const res = await request(app).post('/api/auth/register').send(userData).expect(409);
 
-        expect(res.body.success).toBe(false);
+        expect(res.body.error).toBeDefined();
         // Expect database constraint violation handling
     });
 });

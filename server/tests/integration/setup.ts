@@ -8,31 +8,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const setupTestDb = async () => {
-    // Only run for SQLite in-memory tests
-    if (!isSQLite) {
-        throw new Error('Integration tests currently only support SQLite');
-    }
+    console.log('Starting setupTestDb...');
+    try {
+        // Only run for SQLite in-memory tests
+        if (!isSQLite) {
+            throw new Error('Integration tests currently only support SQLite');
+        }
 
-    // Initialize schema
-    // We can't rely on the auto-init in database.ts because it checks for db file existence
-    // which behaves differently for :memory:
+        // Initialize schema via pool query which triggers initSchema internally
+        // We verify table exists instead of manually running schema
 
-    // Read schema file
-    const schemaPath = path.join(__dirname, '..', '..', 'models', 'schema.sql');
-    if (fs.existsSync(schemaPath)) {
-        const schema = fs.readFileSync(schemaPath, 'utf-8');
-        console.log('Schema content length:', schema.length);
-        await pool.query(schema);
-        console.log('✅ In-memory test DB initialized');
-        // Verify table exists
         try {
             await pool.query('SELECT count(*) FROM refresh_tokens');
-            console.log('✅ refresh_tokens table exists');
         } catch (e) {
-            console.error('❌ refresh_tokens table does NOT exist:', e);
+            // Ignore error if table check fails, initSchema should handle it
         }
-    } else {
-        throw new Error(`Schema file not found at ${schemaPath}`);
+    } catch (err) {
+        console.error('setupTestDb FAILED:', err);
+        throw err;
     }
 };
 

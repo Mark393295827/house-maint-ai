@@ -159,7 +159,7 @@ describe('Urgency Protocol API', () => {
     it('should create a report with default urgency 0', async () => {
         const res = await request(app)
             .post('/api/reports')
-            .set('Authorization', `Bearer ${userToken}`)
+            .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 title: 'Normal Leak',
                 description: 'Just a small drip',
@@ -174,7 +174,7 @@ describe('Urgency Protocol API', () => {
     it('should update urgency score to 10 (Hair on Fire)', async () => {
         const res = await request(app)
             .put(`/api/reports/${reportId}`)
-            .set('Authorization', `Bearer ${userToken}`)
+            .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 urgency_score: 10
             });
@@ -186,7 +186,7 @@ describe('Urgency Protocol API', () => {
     it('should create a report with explicit urgency', async () => {
         const res = await request(app)
             .post('/api/reports')
-            .set('Authorization', `Bearer ${userToken}`)
+            .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 title: 'FIRE HAZARD',
                 description: 'Sparks flying everywhere!',
@@ -201,7 +201,7 @@ describe('Urgency Protocol API', () => {
     it('should validate urgency score range (0-10)', async () => {
         const res = await request(app)
             .post('/api/reports')
-            .set('Authorization', `Bearer ${userToken}`)
+            .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 title: 'Invalid Urgency',
                 description: 'Test description',

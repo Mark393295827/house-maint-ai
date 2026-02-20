@@ -12,6 +12,7 @@ import type {
     ReportsResponse,
     PostsResponse,
     WorkersResponse,
+    MatchesResponse,
     HealthResponse,
 } from '../types';
 
@@ -214,7 +215,7 @@ export async function getWorkers(skill?: string): Promise<WorkersResponse> {
 export async function getMatchedWorkers(
     reportId?: number | string,
     options: { latitude?: number; longitude?: number; category?: string; limit?: number } = {}
-): Promise<WorkersResponse> {
+): Promise<MatchesResponse> {
     const { latitude, longitude, category, limit = 5 } = options;
     let url = '/workers/match?';
     if (reportId) url += `report_id=${reportId}&`;
@@ -222,7 +223,7 @@ export async function getMatchedWorkers(
     if (longitude) url += `longitude=${longitude}&`;
     if (category) url += `category=${category}&`;
     url += `limit=${limit}`;
-    return fetchAPI<WorkersResponse>(url);
+    return fetchAPI<MatchesResponse>(url);
 }
 
 /**
@@ -389,6 +390,23 @@ export async function generateRepairPlan(id: number | string): Promise<{ plan: s
     });
 }
 
+/**
+ * Generic POST request
+ */
+export async function post<T = any>(endpoint: string, body: any): Promise<T> {
+    return fetchAPI<T>(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+}
+
+/**
+ * Payments API
+ */
+export async function createCheckoutSession(amount: number, reportId: string | number): Promise<{ id: string; url: string }> {
+    return post<{ id: string; url: string }>('/payments/checkout', { amount, reportId });
+}
+
 export default {
     register,
     login,
@@ -417,4 +435,6 @@ export default {
     deleteAsset,
     completeReport,
     generateRepairPlan,
+    post,
+    createCheckoutSession,
 };
