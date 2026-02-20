@@ -37,10 +37,16 @@ CREATE TABLE IF NOT EXISTS reports (
     voice_url TEXT,
     video_url TEXT,
     image_urls TEXT, -- JSON array
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'matching', 'matched', 'in_progress', 'completed', 'cancelled')),
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'matching', 'broadcasted', 'matched', 'in_progress', 'completed', 'cancelled', 'failed_analysis')),
     matched_worker_id INTEGER,
     latitude REAL,
+    latitude REAL,
     longitude REAL,
+    urgency_score INTEGER DEFAULT 0, -- 0-10 Scale
+    matched_at TEXT,
+    completed_at TEXT,
+    resolution_details TEXT, -- JSON: { steps, parts, cost, photos }
+    pattern_extracted INTEGER DEFAULT 0, -- Boolean: Has this report been processed by AI learning?
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -86,6 +92,34 @@ CREATE TABLE IF NOT EXISTS posts (
     likes INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 用户资产表 (User Assets)
+CREATE TABLE IF NOT EXISTS user_assets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    type TEXT NOT NULL, -- appliance, system, structure
+    name TEXT NOT NULL, -- Samsung Refrigerator
+    brand TEXT,
+    model TEXT,
+    serial_number TEXT,
+    purchase_date TEXT,
+    warranty_expiry TEXT,
+    specs TEXT, -- JSON string for technical details
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 价格指南表 (Price Guide)
+CREATE TABLE IF NOT EXISTS price_guide (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category TEXT NOT NULL, -- plumbing
+    task_name TEXT NOT NULL, -- Faucet Replacement
+    description TEXT,
+    base_price_low REAL NOT NULL,
+    base_price_high REAL NOT NULL,
+    unit TEXT NOT NULL, -- per_item, per_hour, fixed
+    created_at TEXT DEFAULT (datetime('now'))
 );
 
 -- 索引

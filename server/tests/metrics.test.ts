@@ -25,7 +25,7 @@ describe('Metrics API', () => {
     it('should reject regular users (403)', async () => {
         const res = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${userToken}`);
+            .set('Cookie', [`accessToken=${userToken}`]);
 
         expect(res.status).toBe(403);
     });
@@ -38,7 +38,7 @@ describe('Metrics API', () => {
     it('should return metrics shape for admin', async () => {
         const res = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('system');
@@ -53,7 +53,7 @@ describe('Metrics API', () => {
     it('should return health stats for admin', async () => {
         const res = await request(app)
             .get('/api/metrics/health')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('memory');
@@ -73,7 +73,7 @@ describe('Metrics API', () => {
         // may not appear in its own response body)
         const res = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(res.status).toBe(200);
         // At least the /api/health request should be tracked
@@ -84,7 +84,8 @@ describe('Metrics API', () => {
     it('should record SDA metrics', async () => {
         const res = await request(app)
             .post('/api/metrics/record')
-            .set('Authorization', `Bearer ${adminToken}`)
+            .set('Cookie', [`accessToken=${adminToken}`])
+            .set('X-CSRF-Token', 'test')
             .send({ type: 'sda', data: { phase: 'simulate', pass: true } });
 
         expect(res.status).toBe(200);
@@ -92,7 +93,7 @@ describe('Metrics API', () => {
 
         const metrics = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(metrics.body.sda_cycles.total).toBe(1);
         expect(metrics.body.sda_cycles.simulate_passes).toBe(1);
@@ -101,12 +102,13 @@ describe('Metrics API', () => {
     it('should record agent metrics', async () => {
         await request(app)
             .post('/api/metrics/record')
-            .set('Authorization', `Bearer ${adminToken}`)
+            .set('Cookie', [`accessToken=${adminToken}`])
+            .set('X-CSRF-Token', 'test')
             .send({ type: 'agent', data: { agent: 'planner' } });
 
         const metrics = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(metrics.body.agents.total_invocations).toBe(1);
         expect(metrics.body.agents.by_agent).toHaveProperty('planner');
@@ -116,20 +118,22 @@ describe('Metrics API', () => {
         // Record something first
         await request(app)
             .post('/api/metrics/record')
-            .set('Authorization', `Bearer ${adminToken}`)
+            .set('Cookie', [`accessToken=${adminToken}`])
+            .set('X-CSRF-Token', 'test')
             .send({ type: 'agent', data: { agent: 'coder' } });
 
         // Reset
         const resetRes = await request(app)
             .post('/api/metrics/reset')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`])
+            .set('X-CSRF-Token', 'test');
 
         expect(resetRes.status).toBe(200);
 
         // Verify reset
         const metrics = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${adminToken}`);
+            .set('Cookie', [`accessToken=${adminToken}`]);
 
         expect(metrics.body.agents.total_invocations).toBe(0);
         expect(metrics.body.sda_cycles.total).toBe(0);

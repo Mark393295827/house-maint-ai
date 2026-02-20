@@ -84,26 +84,30 @@ test.describe('Diagnosis and Repair Flow', () => {
 
         // 4. Start Repair (Execution Mode)
         // Mock create report API
+        // Mock create report API
         await page.route('**/api/reports', async route => {
-            // Mock user profile to ensure AuthContext has user
-            await page.route('**/api/auth/me', async route => {
-                await route.fulfill({ json: { user: { id: 1, name: 'Test User', phone: '13900000001' } } });
-            });
-
-            await page.locator('footer').getByRole('button', { name: /Start/i }).click(); // "Start Repair" button at footer
-
-            // Verify mode switch (Toast might be skipped if report creation fails/mocks are tricky, but mode switch is key)
-            await expect(page.getByRole('button', { name: /In Progress/i })).toBeVisible({ timeout: 10000 });
-
-            // 5. Complete Steps
-            const steps = await page.locator('button.rounded-full.border-2');
-            const count = await steps.count();
-            for (let i = 0; i < count; i++) {
-                await steps.nth(i).click();
-            }
-
-            // 6. Verify Completion
-            await expect(page.getByText('Repair Complete!')).toBeVisible();
-            await expect(page.getByText('Home')).toBeVisible();
+            await route.fulfill({ json: { success: true, reportId: 123 } });
         });
+
+        // Mock user profile to ensure AuthContext has user
+        await page.route('**/api/auth/me', async route => {
+            await route.fulfill({ json: { user: { id: 1, name: 'Test User', phone: '13900000001' } } });
+        });
+
+        await page.locator('footer').getByRole('button', { name: /Start/i }).click(); // "Start Repair" button at footer
+
+        // Verify mode switch (Toast might be skipped if report creation fails/mocks are tricky, but mode switch is key)
+        await expect(page.getByRole('button', { name: /In Progress/i })).toBeVisible({ timeout: 10000 });
+
+        // 5. Complete Steps
+        const steps = await page.locator('button.rounded-full.border-2');
+        const count = await steps.count();
+        for (let i = 0; i < count; i++) {
+            await steps.nth(i).click();
+        }
+
+        // 6. Verify Completion
+        await expect(page.getByText('Repair Complete!')).toBeVisible();
+        await expect(page.getByText('Home')).toBeVisible();
     });
+});

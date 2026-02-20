@@ -61,6 +61,8 @@ let redis: Redis | InMemoryRedis;
 const useMock = process.env.REDIS_MOCK === 'true' ||
     (process.env.NODE_ENV !== 'production' && !process.env.REDIS_HOST && !process.env.DOCKER_ENV);
 
+console.log('REDIS CONFIG: useMock=', useMock, 'REDIS_MOCK=', process.env.REDIS_MOCK);
+
 if (useMock) {
     redis = new InMemoryRedis() as any;
 } else {

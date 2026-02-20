@@ -15,6 +15,13 @@
       "when": 1771377314933,
       "tag": "0001_shiny_the_santerians",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771468646036,
+      "tag": "0002_dry_freak",
+      "breakpoints": true
     }
   ]
 }

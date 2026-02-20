@@ -154,6 +154,20 @@ export interface ApiResponse<T = unknown> {
     message?: string;
 }
 
+export interface UserAsset {
+    id: number;
+    user_id: number;
+    type: string;
+    name: string;
+    brand?: string;
+    model?: string;
+    serial_number?: string;
+    purchase_date?: string;
+    warranty_expiry?: string;
+    specs?: string; // JSON string
+    created_at: string;
+}
+
 export interface LoginResponse {
     message: string;
     user: User;

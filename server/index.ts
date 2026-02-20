@@ -18,6 +18,10 @@ import communityRoutes from './routes/community.js';
 import aiRoutes from './routes/ai.js';
 import metricsRoutes from './routes/metrics.js';
 import analyticsRoutes from './routes/analytics.js';
+import assetsRoutes from './routes/assets.js';
+import { diagnosticsClaw } from './services/diagnostics_claw.js';
+import { vendorClaw } from './services/vendor_claw.js';
+import { csrfGuard } from './middleware/auth.js';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -39,9 +43,13 @@ const getAllowedOrigins = (): (string | RegExp)[] => {
         origins.push(...process.env.CORS_ORIGINS.split(',').map(o => o.trim()));
     }
 
-    // Default development origins - allow all for easier mobile testing
+    // Default development origins - allow localhost and common local IP patterns
     if (process.env.NODE_ENV !== 'production') {
-        return ['*'];
+        origins.push(/http:\/\/localhost:\d+/);
+        origins.push(/http:\/\/127\.0\.0\.1:\d+/);
+        origins.push(/http:\/\/192\.168\.\d+\.\d+:\d+/);
+        origins.push(/http:\/\/10\.\d+\.\d+\.\d+:\d+/);
+        origins.push(/http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+:\d+/);
     }
 
     // Production origins pattern (if set)
@@ -79,7 +87,7 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
 }));
 
 // Security Headers
@@ -98,6 +106,14 @@ app.use(hpp());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+app.use(csrfGuard);
+app.use(express.static('public'));
+
+// Debug request logger
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
 
 // Apply standard rate limiting to all requests
 app.use(standardLimiter);
@@ -124,6 +140,7 @@ app.use('/api/community', communityRoutes);
 app.use('/api/ai', strictLimiter, aiRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/assets', assetsRoutes);
 
 // Sentry Error Handler (must be before custom error handler)
 Sentry.setupExpressErrorHandler(app);
@@ -145,11 +162,17 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Not Found', path: req.path });
 });
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    app.listen(PORT, () => {
-        console.log(`🚀 House Maint API running at http://localhost:${PORT}`);
-        console.log(`📚 API Docs: http://localhost:${PORT}/api/health`);
-    });
-}
 
+const server = process.argv[1] === fileURLToPath(import.meta.url)
+    ? app.listen(Number(PORT), '0.0.0.0', () => {
+        console.log(`🚀 House Maint API running at http://0.0.0.0:${PORT}`);
+        console.log(`📚 Health Check: http://localhost:${PORT}/api/health`);
+
+        // Start autonomous background agents
+        diagnosticsClaw.start();
+        vendorClaw.start();
+    })
+    : null;
+
+export { server };
 export default app;

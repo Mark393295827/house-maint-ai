@@ -40,6 +40,7 @@ class SQLiteFallback {
         this.db = new Database(dbPath);
         this.db.pragma('journal_mode = WAL');
         console.warn('⚠️  Using SQLite fallback (Data stored in ' + dbPath + ')');
+        console.log('DEBUG: DB Initialized ' + Math.random());
     }
 
     /**
@@ -54,6 +55,14 @@ class SQLiteFallback {
             this.db.exec(schema);
             console.log('✅ SQLite schema initialized');
         }
+
+        const blackboardPath = path.join(__dirname, '..', 'models', 'blackboard.sql');
+        if (fs.existsSync(blackboardPath)) {
+            const blackboardSchema = fs.readFileSync(blackboardPath, 'utf-8');
+            this.db.exec(blackboardSchema);
+            console.log('✅ Blackboard schema initialized');
+        }
+
         this.initialized = true;
     }
 

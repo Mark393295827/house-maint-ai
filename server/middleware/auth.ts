@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/secrets.js';
 
 /** JWT payload shape */
@@ -17,11 +17,11 @@ export interface AuthRequest extends Request {
 
 /**
  * JWT Authentication Middleware
- * Reads token from httpOnly cookie first, falls back to Authorization header
+ * Strictly reads token from httpOnly cookie for security.
+ * Bearer token fallback is removed to prevent XSS-driven usage.
  */
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction): void {
-    // Try cookie first (accessToken or legacy token), then Authorization header
-    const token = req.cookies?.accessToken || req.cookies?.token || extractBearerToken(req);
+    const token = req.cookies?.accessToken || req.cookies?.token;
 
     if (!token) {
         res.status(401).json({ error: 'No token provided' });
@@ -41,7 +41,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
  * Optional Authentication - doesn't fail if no token
  */
 export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction): void {
-    const token = req.cookies?.token || extractBearerToken(req);
+    const token = req.cookies?.accessToken || req.cookies?.token;
 
     if (!token) {
         next();
@@ -78,8 +78,29 @@ export function authorize(...roles: string[]) {
 }
 
 /**
- * Generate JWT Token
+ * CSRF Guard Middleware
+ * Protects mutation routes from Cross-Site Request Forgery.
+ * Requires X-CSRF-Token header for non-safe methods.
  */
+export function csrfGuard(req: Request, res: Response, next: NextFunction): void {
+    const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+    if (safeMethods.includes(req.method)) {
+        return next();
+    }
+
+    // Check custom header
+    // The presence of the header itself is a strong defense as browsers don't allow
+    // cross-site requests to set custom headers without CORS preflight approval.
+    const csrfToken = req.headers['x-csrf-token'];
+
+    if (!csrfToken) {
+        res.status(403).json({ error: 'CSRF token missing' });
+        return;
+    }
+
+    next();
+}
+
 /**
  * Generate Access Token (Short-lived: 15m)
  */
@@ -116,20 +137,14 @@ export function generateRefreshToken(user: { id: number }): string {
 /**
  * Verify Refresh Token
  */
-export function verifyRefreshToken(token: string): JwtPayload {
-    return jwt.verify(token, JWT_SECRET) as JwtPayload;
+export function verifyRefreshToken(token: string): any {
+    return jwt.verify(token, JWT_SECRET);
 }
 
 /**
  * Cookie configuration for Access Token
  */
-export function getAuthCookieOptions(): {
-    httpOnly: boolean;
-    secure: boolean;
-    sameSite: 'lax' | 'strict' | 'none';
-    maxAge: number;
-    path: string;
-} {
+export function getAuthCookieOptions(): any {
     return {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -142,13 +157,7 @@ export function getAuthCookieOptions(): {
 /**
  * Cookie configuration for Refresh Token
  */
-export function getRefreshCookieOptions(): {
-    httpOnly: boolean;
-    secure: boolean;
-    sameSite: 'lax' | 'strict' | 'none';
-    maxAge: number;
-    path: string;
-} {
+export function getRefreshCookieOptions(): any {
     return {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -156,17 +165,6 @@ export function getRefreshCookieOptions(): {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/api/auth', // Restricted path
     };
-}
-
-/**
- * Extract Bearer token from Authorization header (backward compatibility)
- */
-function extractBearerToken(req: Request): string | null {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        return authHeader.split(' ')[1];
-    }
-    return null;
 }
 
 export { JWT_SECRET };
