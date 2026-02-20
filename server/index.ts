@@ -131,6 +131,8 @@ app.use('/uploads', express.static(join(__dirname, 'uploads')));
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+import paymentRoutes from './routes/payments.js';
+
 // API Routes
 app.use('/api/auth', strictLimiter, authRoutes);
 app.use('/api/reports', reportRoutes);
@@ -141,6 +143,7 @@ app.use('/api/ai', strictLimiter, aiRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/assets', assetsRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Sentry Error Handler (must be before custom error handler)
 Sentry.setupExpressErrorHandler(app);
@@ -163,10 +166,17 @@ app.use((req, res) => {
 });
 
 
+import { createServer } from 'http';
+import { initSocket } from './socket.js';
+
+const httpServer = createServer(app);
+initSocket(httpServer);
+
 const server = process.argv[1] === fileURLToPath(import.meta.url)
-    ? app.listen(Number(PORT), '0.0.0.0', () => {
+    ? httpServer.listen(Number(PORT), '0.0.0.0', () => {
         console.log(`🚀 House Maint API running at http://0.0.0.0:${PORT}`);
         console.log(`📚 Health Check: http://localhost:${PORT}/api/health`);
+        console.log(`🔌 Socket.io ready`);
 
         // Start autonomous background agents
         diagnosticsClaw.start();

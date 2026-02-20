@@ -1,6 +1,7 @@
 import db from '../config/database.js';
 import { matchingService } from './matching.js';
 import * as Sentry from '@sentry/node';
+import { emitToUser, emitToWorkers } from '../socket.js';
 
 export class VendorSourcingClawService {
     private interval: NodeJS.Timeout | null = null;
@@ -79,6 +80,13 @@ export class VendorSourcingClawService {
                         match.ratingScore,
                         match.skillScore
                     ]);
+
+                    // Real-time Notify Worker
+                    emitToUser(match.user_id, 'job:available', {
+                        reportId: report.id,
+                        title: report.title,
+                        urgency: report.urgency_score
+                    });
                 }
 
                 await db.query(`
@@ -89,6 +97,14 @@ export class VendorSourcingClawService {
                 `, [report.id]);
 
                 console.log(`✅ Report #${report.id} broadcasted.`);
+
+                // Notify Owner
+                emitToUser(report.user_id, 'report:update', {
+                    reportId: report.id,
+                    status: 'broadcasted',
+                    message: `High urgency! Broadcasted to ${topMatches.length} nearby workers.`
+                });
+
             } else {
                 const bestWorker = topMatches[0];
                 const matchScore = bestWorker.score;
@@ -117,6 +133,20 @@ export class VendorSourcingClawService {
                     `, [bestWorker.id, matchScore, report.id]);
 
                     console.log(`✅ Report #${report.id} matched.`);
+
+                    // Real-time Notify Worker
+                    emitToUser(bestWorker.user_id, 'job:assigned', {
+                        reportId: report.id,
+                        title: report.title,
+                        address: '123 Main St (Placeholder)' // In real app, fetch address
+                    });
+
+                    // Real-time Notify Owner
+                    emitToUser(report.user_id, 'report:matched', {
+                        reportId: report.id,
+                        workerName: bestWorker.name,
+                        matchScore: Math.round(matchScore)
+                    });
                 }
             }
         } catch (error) {

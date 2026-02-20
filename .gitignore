@@ -27,14 +27,33 @@ dist-ssr
 .env
 .env.local
 .env.docker
+.env.development
 .env.production
 .env.*.local
 secrets/*.txt
 !secrets/*.txt.example
+*.pem
+*.key
 
-# Coverage reports
+# Logs and Artifacts
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+test-results/
 coverage/
-test_output*.txt
-test_failures*.txt
-test_frontend_results*.txt
-git_status_output.txt
+*.txt
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.*.json
+!vercel.json
+!playwright.config.js
+!src/**/*.json
+!server/**/*.json
+!*.config.js
+!*.config.ts

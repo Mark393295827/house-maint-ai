@@ -135,6 +135,17 @@ export function generateRefreshToken(user: { id: number }): string {
 }
 
 /**
+ * Verify Access Token (for Socket.io)
+ */
+export function verifyToken(token: string): any {
+    try {
+        return jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+        return null;
+    }
+}
+
+/**
  * Verify Refresh Token
  */
 export function verifyRefreshToken(token: string): any {

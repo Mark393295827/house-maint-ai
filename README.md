@@ -7,6 +7,7 @@ Connects users with expert workers for home repairs, featuring AI diagnosis, rea
 ![React](https://img.shields.io/badge/frontend-React_18-61DAFB.svg)
 ![Node](https://img.shields.io/badge/backend-Node.js_20-339933.svg)
 ![Docker](https://img.shields.io/badge/deploy-Docker-2496ED.svg)
+![Tests](https://github.com/Mark393295827/house-maint-ai/actions/workflows/test.yml/badge.svg)
 
 ## ✨ Features
 
