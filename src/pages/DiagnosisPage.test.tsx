@@ -53,6 +53,15 @@ describe('DiagnosisPage', () => {
     beforeEach(() => {
         vi.clearAllMocks();
 
+        // Mock canvas methods
+        HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+            drawImage: vi.fn(),
+        }) as any;
+        HTMLCanvasElement.prototype.toBlob = vi.fn((callback) => {
+            // @ts-ignore
+            callback(new Blob(['test'], { type: 'image/jpeg' }));
+        });
+
         // Setup navigator.mediaDevices mock
         Object.defineProperty(navigator, 'mediaDevices', {
             value: {
@@ -205,6 +214,108 @@ describe('DiagnosisPage', () => {
 
         await waitFor(() => {
             expect(mockGetUserMedia).toHaveBeenCalled();
+        });
+    });
+
+    it('should show diagnosis results after successful analysis', async () => {
+        const ai = await import('../services/ai');
+        (ai.analyzeImageFromUrl as any).mockResolvedValue({
+            detected: true,
+            issue_name: 'Leaky Pipe',
+            issue_name_en: 'Leaky Pipe',
+            confidence: 90,
+            severity: 'medium',
+            description: 'Water is dripping from the joint.',
+            steps: ['Step 1', 'Step 2'],
+            raw_response: { solution: { steps: ['Step 1', 'Step 2'] } }
+        });
+
+        renderDiagnosisPage();
+
+        // Wait for camera and trigger loadedmetadata
+        await waitFor(() => expect(mockGetUserMedia).toHaveBeenCalled());
+        const video = document.querySelector('video');
+        if (video) {
+            fireEvent(video, new Event('loadedmetadata'));
+        }
+
+        // Ensure button is enabled
+        await waitFor(() => expect(screen.getByTestId('capture-button')).not.toBeDisabled());
+
+        // Capture
+        const captureButton = screen.getByTestId('capture-button');
+        fireEvent.click(captureButton);
+
+        // Wait for results
+        await waitFor(() => {
+            expect(screen.getAllByText(/Leaky Pipe/i).length).toBeGreaterThan(0);
+            expect(screen.getByText(/Water is dripping/i)).toBeInTheDocument();
+        });
+    });
+
+    it('should show error message when analysis fails', async () => {
+        const ai = await import('../services/ai');
+        (ai.analyzeImageFromUrl as any).mockRejectedValue(new Error('API Error'));
+
+        renderDiagnosisPage();
+
+        // Wait for camera and trigger loadedmetadata
+        await waitFor(() => expect(mockGetUserMedia).toHaveBeenCalled());
+        const video = document.querySelector('video');
+        if (video) {
+            fireEvent(video, new Event('loadedmetadata'));
+        }
+
+        await waitFor(() => expect(screen.getByTestId('capture-button')).not.toBeDisabled());
+
+        // Capture
+        const captureButton = screen.getByTestId('capture-button');
+        fireEvent.click(captureButton);
+
+        // Wait for error (using translation or fallback)
+        await waitFor(() => {
+            // Check for common error text or partial match
+            expect(screen.getByText(/Analysis failed/i)).toBeInTheDocument();
+        });
+    });
+
+    it('should reset diagnosis and return to camera when reset button is clicked', async () => {
+        const ai = await import('../services/ai');
+        (ai.analyzeImageFromUrl as any).mockResolvedValue({
+            detected: true,
+            issue_name: 'Leaky Pipe',
+            issue_name_en: 'Leaky Pipe',
+            severity: 'medium',
+            description: 'Water is dripping from the joint.',
+            steps: [],
+            raw_response: {}
+        });
+
+        renderDiagnosisPage();
+
+        // Wait for camera and trigger loadedmetadata
+        await waitFor(() => expect(mockGetUserMedia).toHaveBeenCalled());
+        const video = document.querySelector('video');
+        if (video) {
+            fireEvent(video, new Event('loadedmetadata'));
+        }
+
+        await waitFor(() => expect(screen.getByTestId('capture-button')).not.toBeDisabled());
+
+        const captureButton = screen.getByTestId('capture-button');
+        fireEvent.click(captureButton);
+
+        // Wait for results to appear
+        await waitFor(() => expect(screen.getAllByText(/Leaky Pipe/i).length).toBeGreaterThan(0));
+
+        // Click reset/retake button
+        const resetButton = screen.getByTestId('reset-button');
+        fireEvent.click(resetButton);
+
+        // Should be back to camera state (results gone, capture button back)
+        await waitFor(() => {
+            expect(screen.queryByText(/Leaky Pipe/i)).not.toBeInTheDocument();
+            expect(screen.getByTestId('capture-button')).toBeInTheDocument();
         });
     });
 });

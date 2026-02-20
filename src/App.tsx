@@ -17,6 +17,7 @@ const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const QuickReportPage = lazy(() => import('./pages/QuickReportPage'));
 const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
+const WorkerJobPage = lazy(() => import('./pages/WorkerJobPage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DevicePreview = lazy(() => import('./pages/DevicePreview'));
@@ -65,6 +66,11 @@ function App() {
                     <Route path="/match" element={
                       <ProtectedRoute>
                         <WorkerMatchPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/worker/job/:id" element={
+                      <ProtectedRoute>
+                        <WorkerJobPage />
                       </ProtectedRoute>
                     } />
 

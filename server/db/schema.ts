@@ -40,6 +40,9 @@ export const reports = sqliteTable('reports', {
     matchedWorkerId: integer('matched_worker_id').references(() => workers.id, { onDelete: 'set null' }),
     latitude: real('latitude'),
     longitude: real('longitude'),
+    matchedAt: text('matched_at'),
+    completedAt: text('completed_at'),
+    resolutionDetails: text('resolution_details'), // JSON: { steps, parts, cost, photos }
     createdAt: text('created_at').default(sql`(datetime('now'))`),
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),
 });
@@ -98,5 +101,32 @@ export const refreshTokens = sqliteTable('refresh_tokens', {
     token: text('token').notNull().unique(),
     expiresAt: text('expires_at').notNull(),
     revoked: integer('revoked', { mode: 'boolean' }).default(false),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+// User Assets Table (Phase 1.1)
+export const userAssets = sqliteTable('user_assets', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(), // 'appliance', 'system', 'structure'
+    name: text('name').notNull(), // 'Samsung Refrigerator'
+    brand: text('brand'),
+    model: text('model'),
+    serialNumber: text('serial_number'),
+    purchaseDate: text('purchase_date'),
+    warrantyExpiry: text('warranty_expiry'),
+    specs: text('specs'), // JSON string for technical details
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+// Price Guide Table (Phase 1.2)
+export const priceGuide = sqliteTable('price_guide', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    category: text('category').notNull(), // 'plumbing'
+    taskName: text('task_name').notNull(), // 'Faucet Replacement'
+    description: text('description'),
+    basePriceLow: real('base_price_low').notNull(),
+    basePriceHigh: real('base_price_high').notNull(),
+    unit: text('unit').notNull(), // 'per_item', 'per_hour', 'fixed'
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });

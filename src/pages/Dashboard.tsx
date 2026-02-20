@@ -7,6 +7,7 @@ import BottomNav from '../components/BottomNav';
 import QuickReportButton from '../components/QuickReportButton';
 import HomeHealthScore from '../components/HomeHealthScore';
 import SeasonalNudge from '../components/SeasonalNudge';
+import UserAssetsCard from '../components/dashboard/UserAssetsCard';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -18,6 +19,7 @@ const Dashboard = () => {
             <main className="flex-1 flex flex-col gap-5 pt-2 page-enter">
                 {/* Health Score — motivational anchor at top */}
                 <HomeHealthScore />
+                <UserAssetsCard />
                 {/* Seasonal nudge — contextual triggers */}
                 <SeasonalNudge />
                 {/* Quick Actions — primary CTA grid */}

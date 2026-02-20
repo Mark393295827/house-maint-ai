@@ -27,7 +27,7 @@ describe('RBAC - Role Based Access Control', () => {
 
         const res = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${token}`);
+            .set('Cookie', [`accessToken=${token}`]);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('system');
@@ -38,7 +38,7 @@ describe('RBAC - Role Based Access Control', () => {
 
         const res = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${token}`);
+            .set('Cookie', [`accessToken=${token}`]);
 
         expect(res.status).toBe(403);
     });
@@ -48,7 +48,7 @@ describe('RBAC - Role Based Access Control', () => {
 
         const res = await request(app)
             .get('/api/metrics')
-            .set('Authorization', `Bearer ${token}`);
+            .set('Cookie', [`accessToken=${token}`]);
 
         expect(res.status).toBe(403);
     });

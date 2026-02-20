@@ -4,6 +4,7 @@
  */
 import type {
     User,
+    UserAsset,
     Report,
     Worker,
     Post,
@@ -17,9 +18,10 @@ import type {
 // API Base URL from environment variable with fallback to localhost
 let API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-// Force localhost for local development/testing to ensure stability
-if (import.meta.env.DEV && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    API_BASE = 'http://localhost:3001/api';
+// Force same hostname for local development/testing to ensure stability
+if (import.meta.env.DEV) {
+    const hostname = window.location.hostname;
+    API_BASE = `http://${hostname}:3001/api`;
 }
 
 // Refresh token state
@@ -39,6 +41,7 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
 
     const headers: Record<string, string> = {
         ...(options.headers as Record<string, string>),
+        'X-CSRF-Token': '1', // Simple header-presence CSRF protection
     };
 
     // Only set JSON Content-Type if body is not FormData
@@ -245,7 +248,9 @@ async function uploadFile(type: string, file: File | Blob): Promise<UploadRespon
 
     const url = `${API_BASE}/uploads/${type}`;
 
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = {
+        'X-CSRF-Token': '1',
+    };
 
     const response = await fetch(url, {
         method: 'POST',
@@ -337,6 +342,53 @@ export async function healthCheck(): Promise<HealthResponse> {
     return fetchAPI<HealthResponse>('/health');
 }
 
+// ============ Assets API ============
+
+/**
+ * Get user assets
+ */
+export async function getAssets(): Promise<{ assets: UserAsset[] }> {
+    return fetchAPI<{ assets: UserAsset[] }>('/assets');
+}
+
+/**
+ * Add a new asset
+ */
+export async function addAsset(assetData: Partial<UserAsset>): Promise<{ asset: UserAsset }> {
+    return fetchAPI<{ asset: UserAsset }>('/assets', {
+        method: 'POST',
+        body: JSON.stringify(assetData),
+    });
+}
+
+/**
+ * Delete an asset
+ */
+export async function deleteAsset(id: number | string): Promise<{ message: string }> {
+    return fetchAPI<{ message: string }>(`/assets/${id}`, {
+        method: 'DELETE',
+    });
+}
+
+/**
+ * Complete a report (Worker)
+ */
+export async function completeReport(id: number | string, resolutionDetails: any): Promise<{ report: Report }> {
+    return fetchAPI<{ report: Report }>(`/reports/${id}/complete`, {
+        method: 'PUT',
+        body: JSON.stringify({ resolution_details: resolutionDetails }),
+    });
+}
+
+/**
+ * Generate AI Repair Plan (DeepSeek)
+ */
+export async function generateRepairPlan(id: number | string): Promise<{ plan: string; provider: string }> {
+    return fetchAPI<{ plan: string; provider: string }>(`/reports/${id}/plan`, {
+        method: 'POST',
+    });
+}
+
 export default {
     register,
     login,
@@ -360,4 +412,9 @@ export default {
     healthCheck,
     getMetrics,
     getMetricsHealth,
+    getAssets,
+    addAsset,
+    deleteAsset,
+    completeReport,
+    generateRepairPlan,
 };

@@ -131,8 +131,7 @@ router.post('/register', async (req, res, next) => {
 
         res.status(201).json({
             message: 'Registration successful',
-            user,
-            accessToken // Optional: return access token for immediate use if client prefers not to rely solely on cookies for initial state
+            user
         });
     } catch (error) {
         next(error);
@@ -217,8 +216,7 @@ router.post('/login', async (req, res, next) => {
 
         res.json({
             message: 'Login successful',
-            user,
-            accessToken
+            user
         });
     } catch (error) {
         next(error);
@@ -301,7 +299,7 @@ router.post('/refresh', async (req, res, next) => {
         res.cookie('accessToken', newAccessToken, getAuthCookieOptions());
         res.cookie('refreshToken', newRefreshToken, getRefreshCookieOptions());
 
-        res.json({ message: 'Token refreshed', accessToken: newAccessToken });
+        res.json({ message: 'Token refreshed' });
 
     } catch (error) {
         next(error);

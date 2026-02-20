@@ -1,0 +1,80 @@
+﻿
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/Users/高杰/house-maint-ai[39m
+
+[90mstdout[2m | tests/learning_loop.test.ts
+[22m[39mSETUP: REDIS_MOCK set to true
+
+node.exe : 
+[90mstderr[2m | tests/l
+earning_loop.test.ts
+At C:\Program 
+Files\nodejs\npx.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo       
+       : NotS    
+pecified: ([90    
+mstderr[2m...n    
+g_loop.test.ts:    
+String) [], Rem    
+oteException
+    + FullyQualifie    
+dErrorId : Nati    
+veCommandError
+ 
+[22m[39m⚠️  Using 
+SQLite fallback (Data 
+stored in :memory:)
+
+[90mstdout[2m | tests/learning_loop.test.ts
+[22m[39m[dotenv@17.2.3] injecting env (10) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+[90mstdout[2m | tests/learning_loop.test.ts[2m > [22m[2mAI Learning Loop[2m > [22m[2mshould process a completed report and create a pattern
+[22m[39m✅ SQLite schema initialized
+
+[90mstdout[2m | tests/learning_loop.test.ts[2m > [22m[2mAI Learning Loop[2m > [22m[2mshould process a completed report and create a pattern
+[22m[39mStarting learning loop...
+
+[90mstderr[2m | tests/l
+earning_loop.test.ts[2m 
+> [22m[2mAI Learning 
+Loop[2m > 
+[22m[2mshould process 
+a completed report and 
+create a pattern
+[22m[39m[AI] No 
+GEMINI_API_KEY set — 
+returning demo diagnosis
+
+[90mstdout[2m | tests/learning_loop.test.ts[2m > [22m[2mAI Learning Loop[2m > [22m[2mshould process a completed report and create a pattern
+[22m[39mFound 1 reports to process.
+
+[90mstdout[2m | tests/learning_loop.test.ts[2m > [22m[2mAI Learning Loop[2m > [22m[2mshould deduplicate existing patterns
+[22m[39mStarting learning loop...
+
+[90mstdout[2m | tests/learning_loop.test.ts[2m > [22m[2mAI Learning Loop[2m > [22m[2mshould deduplicate existing patterns
+[22m[39mFound 1 reports to process.
+
+[90mstderr[2m | tests/l
+earning_loop.test.ts[2m 
+> [22m[2mAI Learning 
+Loop[2m > 
+[22m[2mshould 
+deduplicate existing 
+patterns
+[22m[39m[AI] No 
+GEMINI_API_KEY set — 
+returning demo diagnosis
+
+ [32m✓[39m tests/learning_loop.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 2038[2mms[22m[39m
+     [33m[2m✓[22m[39m should process a completed report and create a pattern [33m 1021[2mms[22m[39m
+     [33m[2m✓[22m[39m should deduplicate existing patterns [33m 1014[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 11:55:40
+[2m   Duration [22m 3.49s[2m (transform 142ms, setup 43ms, import 1.20s, tests 2.04s, environment 0ms)[22m
+

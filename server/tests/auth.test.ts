@@ -4,18 +4,19 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 
 // Mock dependencies
-vi.mock('../config/redis', () => ({
+vi.mock('../config/redis.js', () => ({
     default: {
         get: vi.fn().mockResolvedValue(null),
         setex: vi.fn().mockResolvedValue('OK'),
         del: vi.fn().mockResolvedValue(1),
         on: vi.fn()
-    }
+    },
+    on: vi.fn()
 }));
 
 // Mock database
 const mockUsers: any[] = [];
-vi.mock('../config/database', () => {
+vi.mock('../config/database.js', () => {
     const queryFn = vi.fn(async (text: string, params?: any[]) => {
         const sql = text.trim().toUpperCase();
 
@@ -30,6 +31,10 @@ vi.mock('../config/database', () => {
             const phone = params?.[0];
             const user = mockUsers.find((u: any) => u.phone === phone);
             return { rows: user ? [{ id: user.id }] : [], rowCount: user ? 1 : 0 };
+        }
+
+        if (sql.startsWith('INSERT INTO REFRESH_TOKENS')) {
+            return { rows: [], rowCount: 1 };
         }
 
         if (sql.startsWith('INSERT')) {
@@ -53,11 +58,6 @@ vi.mock('../config/database', () => {
             return { rows: user ? [{ ...user }] : [], rowCount: user ? 1 : 0 };
         }
 
-        // Profile update
-        if (sql.startsWith('UPDATE')) {
-            return { rows: [{ ...mockUsers[0], name: params?.[0] }], rowCount: 1 };
-        }
-
         return { rows: [], rowCount: 0 };
     });
 
@@ -69,14 +69,16 @@ vi.mock('../config/database', () => {
 
 // Import routes after mocking
 import authRoutes from '../routes/auth.js';
+import { csrfGuard } from '../middleware/auth.js';
 
 // Setup isolated app
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(csrfGuard); // Apply CSRF globally to test its impact
 app.use('/api/auth', authRoutes);
 
-describe('Auth API (Isolated)', () => {
+describe('Auth API (Cookie Only & CSRF)', () => {
     const testUser = {
         phone: '13800138000',
         password: 'password123',
@@ -91,27 +93,43 @@ describe('Auth API (Isolated)', () => {
         mockUsers.length = 0;
     });
 
-    it('should register a new user and set httpOnly cookie', async () => {
+    it('should fail registration without CSRF header', async () => {
         const res = await request(app)
             .post('/api/auth/register')
             .send(testUser);
 
+        expect(res.status).toBe(403);
+        expect(res.body.error).toBe('CSRF token missing');
+    });
+
+    it('should register a new user and set httpOnly cookies with CSRF header', async () => {
+        const res = await request(app)
+            .post('/api/auth/register')
+            .set('X-CSRF-Token', '1')
+            .send(testUser);
+
         expect(res.status).toBe(201);
 
-        // Verify Cookie
-        const cookies = res.headers['set-cookie'];
+        // Verify Cookies
+        const cookies = res.headers['set-cookie'] as unknown as string[];
         expect(cookies).toBeDefined();
-        expect(cookies[0]).toMatch(/token=.+; Path=\//);
+
+        const hasAccessToken = cookies.some((c: string) => c.startsWith('accessToken='));
+        const hasRefreshToken = cookies.some((c: string) => c.startsWith('refreshToken='));
+
+        expect(hasAccessToken).toBe(true);
+        expect(hasRefreshToken).toBe(true);
         expect(cookies[0]).toMatch(/HttpOnly/);
 
-        // Verify Body
-        expect(res.body).not.toHaveProperty('token');
+        // Verify Body - NO access token in body
+        expect(res.body).not.toHaveProperty('accessToken');
         expect(res.body.user).toHaveProperty('phone', testUser.phone);
     });
 
-    it('should login the user and set httpOnly cookie', async () => {
+    it('should login the user and set httpOnly cookies', async () => {
         const res = await request(app)
             .post('/api/auth/login')
+            .set('X-CSRF-Token', '1')
             .send({
                 phone: testUser.phone,
                 password: testUser.password
@@ -119,19 +137,19 @@ describe('Auth API (Isolated)', () => {
 
         expect(res.status).toBe(200);
 
-        // Verify Cookie
-        const cookies = res.headers['set-cookie'];
+        // Verify Cookies
+        const cookies = res.headers['set-cookie'] as unknown as string[];
         expect(cookies).toBeDefined();
-        expect(cookies[0]).toMatch(/token=.+; Path=\//);
-        expect(cookies[0]).toMatch(/HttpOnly/);
+        expect(cookies.some((c: string) => c.startsWith('accessToken='))).toBe(true);
 
         // Verify Body
-        expect(res.body).not.toHaveProperty('token');
+        expect(res.body).not.toHaveProperty('accessToken');
     });
 
     it('should fail login with wrong password', async () => {
         const res = await request(app)
             .post('/api/auth/login')
+            .set('X-CSRF-Token', '1')
             .send({
                 phone: testUser.phone,
                 password: 'wrongpassword'
