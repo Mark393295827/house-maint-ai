@@ -94,6 +94,13 @@
         },
         "guide": {
             "point": "Point at the issue"
+        },
+        "feedback": {
+            "wasHelpful": "Was this diagnosis helpful?",
+            "helpful": "Yes",
+            "notHelpful": "No",
+            "thanks": "Thanks for your feedback!",
+            "talkToExpert": "Ask Expert"
         }
     },
     "profile": {
@@ -266,7 +273,10 @@
         "payNow": "Pay Now",
         "success": {
             "title": "Payment Successful!",
-            "message": "Your payment has been processed. The worker has been notified."
+            "message": "Your payment has been processed. The worker has been notified.",
+            "orderId": "Order ID",
+            "amount": "Amount",
+            "viewOrders": "View All Orders"
         },
         "cancel": {
             "title": "Payment Cancelled",
@@ -274,5 +284,145 @@
         },
         "backToHome": "Back to Home",
         "tryAgain": "Try Again"
+    },
+    "orders": {
+        "title": "My Orders",
+        "empty": "No orders yet",
+        "emptyDesc": "Your payment history will appear here",
+        "status": {
+            "pending": "Pending",
+            "paid": "Paid",
+            "refunded": "Refunded",
+            "failed": "Failed"
+        },
+        "details": "View Details",
+        "receipt": "View Receipt",
+        "orderDate": "Order Date"
+    },
+    "messages": {
+        "title": "Messages",
+        "empty": "No conversations yet",
+        "emptyDesc": "Start a conversation with a worker to get help",
+        "chat": "Chat",
+        "placeholder": "Type a message...",
+        "startConversation": "Send a message to start the conversation"
+    },
+    "workerPortal": {
+        "title": "Worker Dashboard",
+        "earnings": "Earnings",
+        "completed": "Completed",
+        "rating": "Rating",
+        "activeJobs": "Active",
+        "available": "Available",
+        "unavailable": "Unavailable",
+        "jobsList": "Your Jobs",
+        "noJobs": "No jobs assigned yet",
+        "editProfile": "Edit Profile",
+        "register": {
+            "title": "Become a Worker",
+            "step": "Step",
+            "skillsTitle": "Select your skills",
+            "skillsDesc": "Choose all the areas you can work in",
+            "rate": "Hourly Rate",
+            "area": "Service Area",
+            "areaPlaceholder": "e.g. San Francisco, CA",
+            "experience": "Years of Experience",
+            "experiencePlaceholder": "e.g. 5 years",
+            "bioTitle": "About You",
+            "bioDesc": "Tell potential clients about your experience",
+            "bioPlaceholder": "I specialize in...",
+            "next": "Continue",
+            "submit": "Complete Registration"
+        }
+    },
+    "workerDirectory": {
+        "title": "Find Workers",
+        "search": "Search by name or skill...",
+        "all": "All",
+        "noResults": "No workers found matching your search",
+        "availableNow": "Available now",
+        "busy": "Currently busy"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "empty": "All caught up!",
+        "emptyDesc": "You'll be notified about jobs, messages, and payments"
+    },
+    "login": {
+        "title": "Welcome Back",
+        "titleRegister": "Create Account",
+        "subtitle": "Sign in to continue",
+        "subtitleRegister": "Join the smart home revolution",
+        "phonePlaceholder": "Phone number",
+        "passwordPlaceholder": "Password",
+        "namePlaceholder": "Your name",
+        "phonePrefix": "+1",
+        "submit": "Sign In",
+        "submitRegister": "Sign Up",
+        "processing": "Processing...",
+        "switchToRegister": "Don't have an account?",
+        "switchToRegisterCta": "Sign up",
+        "switchToLogin": "Already have an account?",
+        "switchToLoginCta": "Sign in",
+        "or": "or",
+        "socialGoogle": "Google",
+        "socialApple": "Apple",
+        "skip": "Skip login, explore first →",
+        "error": {
+            "invalidPhone": "Please enter a valid phone number",
+            "passwordShort": "Password must be at least 6 characters",
+            "nameRequired": "Please enter your name",
+            "loginSuccess": "Signed in successfully",
+            "registerSuccess": "Account created successfully",
+            "genericFail": "Operation failed",
+            "networkError": "Network error, please try again"
+        }
+    },
+    "showcase": {
+        "badge": "Production-Ready • 9.5/10 Rating",
+        "heroTitle": "Your Home, Intelligently Maintained.",
+        "heroSubtitle": "A full-stack AI-powered home maintenance platform built with React 19, Node.js, Google Gemini, and Stripe. Enterprise-grade security, 200+ tests, and stunning mobile-first design.",
+        "ctaTryDemo": "Try the Demo",
+        "ctaGithub": "View on GitHub",
+        "scrollHint": "Scroll to explore",
+        "featuresLabel": "Features",
+        "featuresTitle": "Everything you need,",
+        "featuresTitleHighlight": "nothing you don't.",
+        "feature1Title": "AI Vision Diagnosis",
+        "feature1Desc": "Point your camera at any home issue — AI identifies the problem, severity, and repair strategy in seconds.",
+        "feature2Title": "Smart Worker Matching",
+        "feature2Desc": "Our algorithm matches you with the best-rated, closest worker based on skill, availability, and reviews.",
+        "feature3Title": "Real-time Chat & Booking",
+        "feature3Desc": "Chat directly with workers via WebSocket, schedule appointments, and track everything in real-time.",
+        "feature4Title": "Enterprise Security",
+        "feature4Desc": "httpOnly JWT cookies, CSRF protection, refresh token rotation, and strict rate limiting across all endpoints.",
+        "feature5Title": "Full Observability",
+        "feature5Desc": "Sentry error tracking, Mixpanel analytics, AI cost budgeting — every metric tracked and alerted.",
+        "feature6Title": "Stripe Payments",
+        "feature6Desc": "End-to-end payment funnel with Stripe Checkout, subscription support, and revenue analytics.",
+        "demoLabel": "Live Demo",
+        "demoTitle": "See it",
+        "demoTitleHighlight": "in action.",
+        "demoRoutes": {
+            "dashboard": "Dashboard",
+            "welcome": "Welcome",
+            "login": "Login",
+            "diagnosis": "Diagnosis",
+            "community": "Community",
+            "calendar": "Calendar"
+        },
+        "techLabel": "Tech Stack",
+        "techTitle": "Built with",
+        "techTitleHighlight": "modern tools.",
+        "stat1Label": "Passing Tests",
+        "stat2Label": "Project Rating",
+        "stat3Label": "AI Agents",
+        "stat4Label": "Pages Built",
+        "ctaTitle": "Ready to",
+        "ctaTitleHighlight": "explore?",
+        "ctaSubtitle": "Dive into the full experience — AI diagnosis, worker matching, real-time chat, and more.",
+        "ctaLaunch": "Launch App",
+        "ctaPreview": "Device Preview",
+        "footer": "Built with ❤️"
     }
 }

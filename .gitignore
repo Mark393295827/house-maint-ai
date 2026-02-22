@@ -45,13 +45,17 @@ pnpm-debug.log*
 lerna-debug.log*
 test-results/
 coverage/
+
+# Debug and test output files at root level
 *.txt
+!commit.cmd
 *.json
 !package.json
 !package-lock.json
 !tsconfig.json
 !tsconfig.*.json
 !vercel.json
+!marketplace.json
 !playwright.config.js
 !src/**/*.json
 !server/**/*.json
@@ -63,9 +67,21 @@ coverage/
 *.db
 house.db
 sqlite.db
-*.txt
 test-output*.json
 test_results.json
-test_learning*.txt
-test_planning*.txt
-init_db_log.txt
+
+# Debug/test logs (explicit)
+*_output*.txt
+*_test*.log
+*debug*.log
+build_output*.txt
+*_utf8.txt
+*_utf8.log
+full_output.log
+verify_*.ts
+verify_*.log
+debug_*.ts
+debug_*.txt
+lint-output.json
+lint_*.txt
+git_status_output.txt

@@ -1,35 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2bb673;
-  --color-primary-dark: #23945d;
-  --color-background-light: #f6f8f7;
-  --color-background-dark: #131f19;
+  /* ─── Primary: Indigo → Cyan (trust + intelligence) ─── */
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
+  --color-primary-dark: #4f46e5;
+  --color-accent: #06b6d4;
+  --color-accent-warm: #f59e0b;
+
+  /* ─── Surfaces: warm cream (light) / deep navy (dark) ─── */
+  --color-background-light: #fafaf9;
+  --color-background-dark: #0c0f1a;
   --color-surface-light: #ffffff;
-  --color-surface-dark: #1c2e25;
-  --color-text-main-light: #0f1a15;
-  --color-text-main-dark: #e0e7e3;
-  --color-text-sub-light: #568f74;
-  --color-text-sub-dark: #8abfab;
-  /* UI/UX 报修端标准色 */
-  --color-action-primary: #007AFF;
-  --color-action-primary-dark: #0056B3;
-  --color-action-warning: #FF9500;
-  --color-action-warning-dark: #CC7700;
-  --color-success: #34C759;
-  --color-danger: #FF3B30;
-  /* Expert Typography System */
+  --color-surface-dark: #161b2e;
+
+  /* ─── Text: high-contrast, legible ─── */
+  --color-text-main-light: #1e1b4b;
+  --color-text-main-dark: #e8e6f0;
+  --color-text-sub-light: #6b7280;
+  --color-text-sub-dark: #9ca3af;
+
+  /* ─── Semantic ─── */
+  --color-action-primary: #6366f1;
+  --color-action-primary-dark: #4f46e5;
+  --color-action-warning: #f59e0b;
+  --color-action-warning-dark: #d97706;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+
+  /* ─── Typography ─── */
   --font-family-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
-  --font-family-display: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-family-display: "Outfit", "Noto Sans SC", system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-sans min-h-screen transition-colors duration-200 antialiased;
+    @apply bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-sans min-h-screen transition-colors duration-300 antialiased;
     font-feature-settings: "cv11", "ss01";
+  }
+
+  /* Ambient gradient mesh in dark mode */
+  body.dark,
+  .dark body {
+    background-image:
+      radial-gradient(ellipse 600px 600px at 10% 20%, rgba(99, 102, 241, 0.08), transparent),
+      radial-gradient(ellipse 500px 500px at 80% 60%, rgba(6, 182, 212, 0.06), transparent),
+      radial-gradient(ellipse 400px 400px at 50% 80%, rgba(139, 92, 246, 0.05), transparent);
   }
 
   h1,
@@ -39,9 +58,9 @@
   h5,
   h6 {
     @apply tracking-tight;
+    font-family: var(--font-family-display);
   }
 
-  /* Typography refinement for Chinese */
   html[lang="zh"] body {
     line-height: 1.6;
     letter-spacing: 0.02em;
@@ -58,6 +77,15 @@
     scrollbar-width: none;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .pt-safe-top {
     padding-top: env(safe-area-inset-top);
   }
@@ -66,61 +94,80 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* UI/UX 报修端标准 - 录音动画 */
+  /* Glassmorphism card */
+  .glass {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .dark .glass,
+  .glass-dark {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   .recording-pulse {
     animation: recording-pulse 1.5s ease-in-out infinite;
   }
 }
 
-/* 核心操作按钮标准样式 */
+/* ─── Core Button Styles ─── */
 .btn-action {
   min-height: 48px;
   height: 3rem;
-  border-radius: 20px;
+  border-radius: 16px;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  font-family: var(--font-family-display);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-action-primary {
-  background-color: #007AFF;
+.btn-gradient {
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
   color: white;
+  border: none;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-action-primary:hover {
-  background-color: #0056B3;
+.btn-gradient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.15) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
 }
 
-.btn-action-warning {
-  background-color: #FF9500;
-  color: white;
+.btn-gradient:hover::after {
+  transform: translateX(100%);
 }
 
-.btn-action-warning:hover {
-  background-color: #CC7700;
-}
-
-/* 录音呼吸灯动画 */
+/* ─── Recording Animation ─── */
 @keyframes recording-pulse {
 
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
   }
 
   50% {
     transform: scale(1.1);
-    box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
   }
 }
 
-/* Page enter animation */
+/* ─── Page Enter (spring-like) ─── */
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(16px);
   }
 
   to {
@@ -130,14 +177,14 @@
 }
 
 .page-enter {
-  animation: fadeSlideIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Stagger animation for grid items */
+/* ─── Stagger animation ─── */
 @keyframes staggerFadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.95);
+    transform: translateY(12px) scale(0.96);
   }
 
   to {
@@ -147,7 +194,7 @@
 }
 
 .stagger-item {
-  animation: staggerFadeIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: staggerFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .stagger-item:nth-child(1) {
@@ -155,34 +202,98 @@
 }
 
 .stagger-item:nth-child(2) {
-  animation-delay: 60ms;
+  animation-delay: 80ms;
 }
 
 .stagger-item:nth-child(3) {
-  animation-delay: 120ms;
+  animation-delay: 160ms;
 }
 
 .stagger-item:nth-child(4) {
-  animation-delay: 180ms;
+  animation-delay: 240ms;
 }
 
-/* Press scale micro-interaction */
+.stagger-item:nth-child(5) {
+  animation-delay: 320ms;
+}
+
+/* ─── Press micro-interaction ─── */
 .press-scale {
-  transition: transform 0.15s ease;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .press-scale:active {
   transform: scale(0.95);
 }
 
-/* Score ring animation */
+/* ─── Score Ring Fill ─── */
 @keyframes scoreRingFill {
   from {
     stroke-dashoffset: 283;
   }
 }
 
-/* Confetti celebration */
+/* ─── Glow pulse (for health score, CTAs) ─── */
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
+  }
+}
+
+.glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* ─── Shimmer effect (for loading states, CTAs) ─── */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.15) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ─── Float animation (decorative orbs) ─── */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  33% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+
+  66% {
+    transform: translateY(4px) rotate(-1deg);
+  }
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-delayed {
+  animation: float 8s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+/* ─── Confetti celebration ─── */
 @keyframes confettiFall {
   0% {
     opacity: 1;
@@ -203,7 +314,7 @@
   animation: confettiFall 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Nudge banner slide-in */
+/* ─── Nudge banner ─── */
 @keyframes slideInFromTop {
   from {
     opacity: 0;
@@ -222,7 +333,7 @@
   animation: slideInFromTop 0.4s ease both;
 }
 
-/* Streak flame pulse */
+/* ─── Streak flame pulse ─── */
 @keyframes flamePulse {
 
   0%,
@@ -231,10 +342,234 @@
   }
 
   50% {
-    transform: scale(1.15);
+    transform: scale(1.2) rotate(3deg);
   }
 }
 
 .flame-pulse {
   animation: flamePulse 2s ease-in-out infinite;
+}
+
+/* ─── Count-up number animation ─── */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.count-up {
+  animation: countUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.3s;
+}
+
+/* ─── Gradient text utility ─── */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Active nav pill glow ─── */
+@keyframes navPillGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.5);
+  }
+}
+
+.nav-pill-active {
+  animation: navPillGlow 3s ease-in-out infinite;
+}
+
+/* ─── Typewriter cursor ─── */
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.typewriter-cursor::after {
+  content: '|';
+  animation: blink 0.8s step-end infinite;
+  color: #6366f1;
+  font-weight: 100;
+  margin-left: 2px;
+}
+
+/* ─── Morphing Blob (organic background) ─── */
+@keyframes morphBlob {
+  0% {
+    border-radius: 42% 56% 72% 28% / 42% 42% 56% 58%;
+    transform: rotate(0deg) scale(1);
+  }
+
+  33% {
+    border-radius: 72% 28% 48% 48% / 28% 56% 42% 72%;
+    transform: rotate(120deg) scale(1.05);
+  }
+
+  66% {
+    border-radius: 48% 52% 28% 72% / 58% 42% 56% 42%;
+    transform: rotate(240deg) scale(0.95);
+  }
+
+  100% {
+    border-radius: 42% 56% 72% 28% / 42% 42% 56% 58%;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.morph-blob {
+  animation: morphBlob 12s ease-in-out infinite;
+}
+
+.morph-blob-fast {
+  animation: morphBlob 8s ease-in-out infinite reverse;
+}
+
+/* ─── Text Shimmer (animated gradient sweep) ─── */
+@keyframes textShimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.text-shimmer {
+  background: linear-gradient(90deg, #6366f1 0%, #06b6d4 25%, #a78bfa 50%, #06b6d4 75%, #6366f1 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShimmer 4s linear infinite;
+}
+
+/* ─── 3D Card Tilt ─── */
+.card-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+}
+
+.card-3d:hover {
+  transform: rotateY(-3deg) rotateX(2deg) translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15), 0 0 80px rgba(99, 102, 241, 0.08);
+}
+
+/* ─── Fade-up on scroll (IntersectionObserver driven) ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Horizontal scroll snap ─── */
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-x>* {
+  scroll-snap-align: start;
+}
+
+/* ─── Gradient border card ─── */
+.gradient-border {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 1.25rem;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(6, 182, 212, 0.4));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─── Pulse ring (for CTA buttons) ─── */
+@keyframes pulseRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  animation: pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ─── Wizard Step Slide Transitions ─── */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.step-slide-fwd {
+  animation: slideInFromRight 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.step-slide-back {
+  animation: slideInFromLeft 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }

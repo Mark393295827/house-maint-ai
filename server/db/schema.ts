@@ -153,3 +153,49 @@ export const aiSettings = sqliteTable('ai_settings', {
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),
 });
 
+// AI Feedback Table (Product Improvement: Trust Loop)
+export const aiFeedback = sqliteTable('ai_feedback', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+    diagnosisData: text('diagnosis_data'), // JSON string of the diagnosis result
+    isHelpful: integer('is_helpful', { mode: 'boolean' }).notNull(),
+    comment: text('comment'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+// Orders Table (Product Improvement: Payment Lifecycle)
+export const orders = sqliteTable('orders', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    reportId: integer('report_id').references(() => reports.id, { onDelete: 'set null' }),
+    stripeSessionId: text('stripe_session_id').unique(),
+    amount: real('amount').notNull(),
+    currency: text('currency').default('usd'),
+    status: text('status', { enum: ['pending', 'paid', 'refunded', 'failed'] }).default('pending'),
+    receiptUrl: text('receipt_url'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+});
+
+// Messages Table (P1: User-Worker Messaging)
+export const messages = sqliteTable('messages', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    senderId: integer('sender_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    receiverId: integer('receiver_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    reportId: integer('report_id').references(() => reports.id, { onDelete: 'set null' }),
+    content: text('content').notNull(),
+    readAt: text('read_at'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+// Notifications Table (P1: In-App Notifications)
+export const notifications = sqliteTable('notifications', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    type: text('type', { enum: ['job_update', 'message', 'payment', 'system'] }).notNull(),
+    title: text('title').notNull(),
+    body: text('body'),
+    data: text('data'), // JSON
+    readAt: text('read_at'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});

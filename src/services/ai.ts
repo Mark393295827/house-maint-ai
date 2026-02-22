@@ -144,17 +144,104 @@ export async function generateRepairSteps(diagnosis: any) {
         };
     }
 
-    // Fallback? Or just call backend again? 
-    // Since we changed analyzeImage to return full steps, this function is mostly a mapper now.
+    // Fallback
     return {
         title: 'Repair Guide',
         steps: []
     };
 }
 
+/**
+ * Continue a diagnostic conversation with follow-up Q&A
+ * Sends the image context + chat history to get either follow-up questions or a solution.
+ */
+export async function chatWithDiagnosis(
+    imageBase64: string | null,
+    mimeType: string,
+    history: Array<{ role: 'user' | 'assistant'; content: string }>
+) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/diagnose/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image: imageBase64 || undefined,
+                mimeType: imageBase64 ? mimeType : undefined,
+                history
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.details || error.error || 'Diagnosis chat failed');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Diagnosis chat error:', error);
+        throw error;
+    }
+}
+
+// ──── 8-Step Diagnostic Flow API ────
+
+async function callStepAPI(endpoint: string, body: Record<string, any>) {
+    const response = await fetch(`${API_BASE_URL}/diagnose/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.details || err.error || `Step ${endpoint} failed`);
+    }
+    return response.json();
+}
+
+/** Step 2: MECE Category Analysis */
+export async function callMECE(image: string | null, mimeType: string, text: string, locale: string) {
+    return callStepAPI('mece', { image: image || undefined, mimeType: image ? mimeType : undefined, text, locale });
+}
+
+/** Step 3: Hypothesis Generation */
+export async function callHypothesis(category: string, image: string | null, mimeType: string, locale: string) {
+    return callStepAPI('hypothesis', { category, image: image || undefined, mimeType: image ? mimeType : undefined, locale });
+}
+
+/** Step 4: Data Collection Checklist */
+export async function callChecklist(hypothesis: string, image: string | null, mimeType: string, locale: string) {
+    return callStepAPI('checklist', { hypothesis, image: image || undefined, mimeType: image ? mimeType : undefined, locale });
+}
+
+/** Step 5: 5-Why Dialog */
+export async function callFiveWhy(
+    history: Array<{ role: 'user' | 'assistant'; content: string }>,
+    context: Record<string, any>,
+    image: string | null,
+    mimeType: string,
+    locale: string
+) {
+    return callStepAPI('five-why', { history, context, image: image || undefined, mimeType: image ? mimeType : undefined, locale });
+}
+
+/** Step 6: Solution Generation */
+export async function callSolution(rootCause: string, context: Record<string, any>, locale: string) {
+    return callStepAPI('solution', { rootCause, context, locale });
+}
+
+export { blobUrlToBase64, imageToBase64 };
+
 export default {
     analyzeImage,
     analyzeImageFile,
     analyzeImageFromUrl,
     generateRepairSteps,
+    chatWithDiagnosis,
+    callMECE,
+    callHypothesis,
+    callChecklist,
+    callFiveWhy,
+    callSolution,
 };

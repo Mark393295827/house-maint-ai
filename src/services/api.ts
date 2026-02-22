@@ -407,6 +407,74 @@ export async function createCheckoutSession(amount: number, reportId: string | n
     return post<{ id: string; url: string }>('/payments/checkout', { amount, reportId });
 }
 
+/**
+ * Submit AI diagnosis feedback
+ */
+export async function submitAiFeedback(data: { diagnosisData?: any; isHelpful: boolean; comment?: string }): Promise<{ message: string }> {
+    return fetchAPI<{ message: string }>('/ai/feedback', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+}
+
+// ============ Orders API ============
+
+interface Order {
+    id: number;
+    user_id: number;
+    report_id?: number;
+    stripe_session_id?: string;
+    amount: number;
+    currency: string;
+    status: 'pending' | 'paid' | 'refunded' | 'failed';
+    receipt_url?: string;
+    report_title?: string;
+    created_at: string;
+    updated_at?: string;
+}
+
+/**
+ * Get user's payment orders
+ */
+export async function getOrders(): Promise<{ orders: Order[] }> {
+    return fetchAPI<{ orders: Order[] }>('/payments/orders');
+}
+
+/**
+ * Get a specific order
+ */
+export async function getOrder(id: number | string): Promise<{ order: Order }> {
+    return fetchAPI<{ order: Order }>(`/payments/orders/${id}`);
+}
+
+// ============ Messages API ============
+
+export async function getConversations(): Promise<{ conversations: any[] }> {
+    return fetchAPI<{ conversations: any[] }>('/messages/conversations');
+}
+
+export async function getMessages(partnerId: number | string, before?: string): Promise<{ messages: any[] }> {
+    const query = before ? `?before=${before}` : '';
+    return fetchAPI<{ messages: any[] }>(`/messages/${partnerId}${query}`);
+}
+
+export async function sendMessage(data: { receiverId: number; content: string; reportId?: number }): Promise<{ message: any }> {
+    return fetchAPI<{ message: any }>('/messages', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+}
+
+// ============ Notifications API ============
+
+export async function getNotifications(): Promise<{ notifications: any[]; unreadCount: number }> {
+    return fetchAPI<{ notifications: any[]; unreadCount: number }>('/notifications');
+}
+
+export async function markNotificationRead(id: number): Promise<{ message: string }> {
+    return fetchAPI<{ message: string }>(`/notifications/${id}/read`, { method: 'PUT' });
+}
+
 export default {
     register,
     login,
@@ -437,4 +505,12 @@ export default {
     generateRepairPlan,
     post,
     createCheckoutSession,
+    submitAiFeedback,
+    getOrders,
+    getOrder,
+    getConversations,
+    getMessages,
+    sendMessage,
+    getNotifications,
+    markNotificationRead,
 };

@@ -53,6 +53,121 @@ router.post('/diagnose', async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/ai/diagnose/chat
+ * Multi-turn diagnosis conversation with follow-up Q&A
+ */
+const diagnoseChatSchema = z.object({
+    image: z.string().optional(),
+    mimeType: z.string().optional(),
+    history: z.array(z.object({
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.string()
+    }))
+});
+
+router.post('/diagnose/chat', async (req: Request, res: Response) => {
+    try {
+        const { image, mimeType, history } = diagnoseChatSchema.parse(req.body);
+        const { result, usage } = await aiService.continueDiagnosis(
+            history as ChatMessage[], image, mimeType
+        );
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error: any) {
+        console.error('AI Diagnosis Chat Error:', error);
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Diagnosis conversation failed', details: error.message });
+    }
+});
+
+// ──────── 8-Step Diagnostic Flow Endpoints ────────
+
+const stepSchema = z.object({
+    image: z.string().optional(),
+    mimeType: z.string().optional(),
+    text: z.string().optional(),
+    locale: z.string().optional(),
+    category: z.string().optional(),
+    hypothesis: z.string().optional(),
+    rootCause: z.string().optional(),
+    context: z.record(z.any()).optional(),
+    history: z.array(z.object({
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.string()
+    })).optional()
+});
+
+/** Step 2: MECE Category Analysis */
+router.post('/diagnose/mece', async (req: Request, res: Response) => {
+    try {
+        const { image, mimeType, text, locale } = stepSchema.parse(req.body);
+        const { result, usage } = await aiService.meceAnalysis(image, mimeType, text, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error: any) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'MECE analysis failed', details: error.message });
+    }
+});
+
+/** Step 3: Hypothesis Generation */
+router.post('/diagnose/hypothesis', async (req: Request, res: Response) => {
+    try {
+        const { category, image, mimeType, text, locale } = stepSchema.parse(req.body);
+        if (!category) return res.status(400).json({ error: 'category is required' });
+        const { result, usage } = await aiService.hypothesisGeneration(category, image, mimeType, text, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error: any) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Hypothesis generation failed', details: error.message });
+    }
+});
+
+/** Step 4: Data Collection Checklist */
+router.post('/diagnose/checklist', async (req: Request, res: Response) => {
+    try {
+        const { hypothesis, image, mimeType, text, locale } = stepSchema.parse(req.body);
+        if (!hypothesis) return res.status(400).json({ error: 'hypothesis is required' });
+        const { result, usage } = await aiService.checklistGeneration(hypothesis, image, mimeType, text, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error: any) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Checklist generation failed', details: error.message });
+    }
+});
+
+/** Step 5: 5-Why Dialog Analysis */
+router.post('/diagnose/five-why', async (req: Request, res: Response) => {
+    try {
+        const { history, context, image, mimeType, locale } = stepSchema.parse(req.body);
+        const { result, usage } = await aiService.fiveWhyAnalysis(
+            (history || []) as ChatMessage[], context || {}, image, mimeType, locale
+        );
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error: any) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: '5-Why analysis failed', details: error.message });
+    }
+});
+
+/** Step 6: Solution Generation */
+router.post('/diagnose/solution', async (req: Request, res: Response) => {
+    try {
+        const { rootCause, context, locale } = stepSchema.parse(req.body);
+        if (!rootCause) return res.status(400).json({ error: 'rootCause is required' });
+        const { result, usage } = await aiService.solutionGeneration(rootCause, context || {}, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error: any) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Solution generation failed', details: error.message });
+    }
+});
+
+/**
  * POST /api/ai/chat
  * Chat with Expert AI (DeepSeek R1)
  */

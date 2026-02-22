@@ -65,6 +65,26 @@ export const initSocket = (httpServer: HttpServer) => {
         socket.on('disconnect', () => {
             console.log(`🔌 Socket disconnected: ${socket.id}`);
         });
+
+        // Real-time messaging events
+        socket.on('typing', (data: { to: number }) => {
+            io.to(`user:${data.to}`).emit('user_typing', {
+                userId: socket.data.user.id,
+                name: socket.data.user.name,
+            });
+        });
+
+        socket.on('stop_typing', (data: { to: number }) => {
+            io.to(`user:${data.to}`).emit('user_stop_typing', {
+                userId: socket.data.user.id,
+            });
+        });
+
+        socket.on('mark_read', (data: { partnerId: number }) => {
+            io.to(`user:${data.partnerId}`).emit('messages_read', {
+                by: socket.data.user.id,
+            });
+        });
     });
 
     return io;

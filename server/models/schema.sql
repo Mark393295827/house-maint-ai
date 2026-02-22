@@ -152,9 +152,6 @@ CREATE TABLE IF NOT EXISTS patterns (
     UNIQUE(problem_type, context_signature)
 );
 
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
 -- AI Usage Logs
 CREATE TABLE IF NOT EXISTS ai_usage_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -177,7 +174,67 @@ CREATE TABLE IF NOT EXISTS ai_settings (
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
--- AI Usage Indexes
+-- Orders Table (P0: Payment Lifecycle)
+CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    report_id INTEGER,
+    worker_id INTEGER,
+    stripe_session_id TEXT,
+    amount INTEGER NOT NULL,
+    currency TEXT DEFAULT 'usd',
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'paid', 'failed', 'refunded', 'cancelled')),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE SET NULL
+);
+
+-- AI Feedback Table (P0: Trust Loop)
+CREATE TABLE IF NOT EXISTS ai_feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    report_id INTEGER,
+    rating INTEGER CHECK(rating >= 1 AND rating <= 5),
+    type TEXT NOT NULL CHECK(type IN ('thumbs_up', 'thumbs_down', 'correction')),
+    comment TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE SET NULL
+);
+
+-- Messages Table (P1: User-Worker Messaging)
+CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender_id INTEGER NOT NULL,
+    receiver_id INTEGER NOT NULL,
+    report_id INTEGER,
+    content TEXT NOT NULL,
+    read_at TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE SET NULL
+);
+
+-- Notifications Table (P1: In-App Notifications)
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    type TEXT NOT NULL CHECK(type IN ('job_update', 'message', 'payment', 'system')),
+    title TEXT NOT NULL,
+    body TEXT,
+    data TEXT,
+    read_at TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- P1 Indexes
+CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
+CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_usage_user ON ai_usage_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_usage_created ON ai_usage_logs(created_at);
 

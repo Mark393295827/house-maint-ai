@@ -53,6 +53,53 @@ class AiService {
     }
 
     /**
+     * Continue a multi-turn diagnostic conversation (legacy compat)
+     */
+    async continueDiagnosis(history: ChatMessage[], image?: string, mimeType?: string): Promise<AiResponse<any>> {
+        try {
+            return await diagnosisAgent.continueConversation(history, image, mimeType);
+        } catch (error) {
+            Sentry.captureException(error);
+            throw new Error('AI Diagnosis conversation service unavailable');
+        }
+    }
+
+    /** Step 2: MECE category analysis */
+    async meceAnalysis(image?: string, mimeType?: string, text?: string, locale?: string): Promise<AiResponse<any>> {
+        try {
+            return await diagnosisAgent.analyzeMECE(image, mimeType, text, locale);
+        } catch (error) { Sentry.captureException(error); throw new Error('MECE analysis failed'); }
+    }
+
+    /** Step 3: Hypothesis generation */
+    async hypothesisGeneration(category: string, image?: string, mimeType?: string, text?: string, locale?: string): Promise<AiResponse<any>> {
+        try {
+            return await diagnosisAgent.generateHypotheses(category, image, mimeType, text, locale);
+        } catch (error) { Sentry.captureException(error); throw new Error('Hypothesis generation failed'); }
+    }
+
+    /** Step 4: Data collection checklist */
+    async checklistGeneration(hypothesis: string, image?: string, mimeType?: string, text?: string, locale?: string): Promise<AiResponse<any>> {
+        try {
+            return await diagnosisAgent.generateChecklist(hypothesis, image, mimeType, text, locale);
+        } catch (error) { Sentry.captureException(error); throw new Error('Checklist generation failed'); }
+    }
+
+    /** Step 5: 5-Why dialog analysis */
+    async fiveWhyAnalysis(history: ChatMessage[], context: any, image?: string, mimeType?: string, locale?: string): Promise<AiResponse<any>> {
+        try {
+            return await diagnosisAgent.driveFiveWhy(history, context, image, mimeType, locale);
+        } catch (error) { Sentry.captureException(error); throw new Error('5-Why analysis failed'); }
+    }
+
+    /** Step 6: Solution generation */
+    async solutionGeneration(rootCause: string, context: any, locale?: string): Promise<AiResponse<any>> {
+        try {
+            return await diagnosisAgent.generateSolution(rootCause, context, locale);
+        } catch (error) { Sentry.captureException(error); throw new Error('Solution generation failed'); }
+    }
+
+    /**
      * Chat with an expert AI
      */
     async chatWithExpert(messages: ChatMessage[]): Promise<AiResponse<string>> {

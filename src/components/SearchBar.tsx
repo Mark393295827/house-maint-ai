@@ -25,7 +25,6 @@ const SearchBar = () => {
 
     const showDropdown = isFocused && query.length > 0;
 
-    // Close dropdown on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {
             if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
@@ -38,13 +37,15 @@ const SearchBar = () => {
 
     return (
         <div className="px-5 py-3 relative" ref={wrapperRef}>
-            <div className={`flex w-full items-center rounded-xl bg-white dark:bg-surface-dark shadow-sm border h-12 transition-all ${isFocused ? 'ring-2 ring-primary/30 border-primary/30' : 'border-gray-100 dark:border-gray-800'
+            <div className={`flex w-full items-center rounded-2xl glass dark:glass-dark h-12 transition-all duration-300 ${isFocused
+                    ? 'ring-2 ring-primary/40 shadow-lg shadow-primary/10'
+                    : 'shadow-sm'
                 }`}>
-                <div className="pl-4 pr-2 text-primary">
-                    <span className="material-symbols-outlined text-[24px]">search</span>
+                <div className="pl-4 pr-2">
+                    <span className="material-symbols-outlined gradient-text text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
                 </div>
                 <input
-                    className="flex-1 bg-transparent border-none text-base text-text-main-light dark:text-text-main-dark placeholder:text-text-sub-light/70 dark:placeholder:text-text-sub-dark/70 focus:ring-0 focus:outline-none h-full"
+                    className="flex-1 bg-transparent border-none text-sm font-medium text-text-main-light dark:text-text-main-dark placeholder:text-text-sub-light/60 dark:placeholder:text-text-sub-dark/60 focus:ring-0 focus:outline-none h-full"
                     placeholder={t('search.placeholder')}
                     type="text"
                     value={query}
@@ -53,28 +54,29 @@ const SearchBar = () => {
                 />
                 {query && (
                     <button onClick={() => setQuery('')} className="px-2 text-text-sub-light hover:text-text-main-light transition-colors">
-                        <span className="material-symbols-outlined text-[20px]">close</span>
+                        <span className="material-symbols-outlined text-[18px]">close</span>
                     </button>
                 )}
                 <button className="pr-4 pl-2 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-[24px]">mic</span>
+                    <span className="material-symbols-outlined text-[22px]">mic</span>
                 </button>
             </div>
 
-            {/* Dropdown results */}
             {showDropdown && (
-                <div className="absolute left-5 right-5 top-full mt-1 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 z-50 overflow-hidden page-enter">
+                <div className="absolute left-5 right-5 top-full mt-2 glass dark:glass-dark rounded-2xl shadow-2xl shadow-primary/10 z-50 overflow-hidden page-enter">
                     {filtered.length > 0 ? filtered.map((item, i) => (
                         <button
                             key={i}
-                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-left"
+                            className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors text-left"
                             onClick={() => {
                                 navigate(item.path);
                                 setQuery('');
                                 setIsFocused(false);
                             }}
                         >
-                            <span className="material-symbols-outlined text-primary text-[20px]">{item.icon}</span>
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-primary text-[18px]">{item.icon}</span>
+                            </div>
                             <span className="text-sm font-medium">{locale === 'zh' ? item.labelZh : item.label}</span>
                         </button>
                     )) : (

@@ -109,6 +109,13 @@
         },
         "guide": {
             "point": "对准问题区域拍照"
+        },
+        "feedback": {
+            "wasHelpful": "此诊断是否有帮助？",
+            "helpful": "有帮助",
+            "notHelpful": "没帮助",
+            "thanks": "感谢您的反馈！",
+            "talkToExpert": "咨询专家"
         }
     },
     "profile": {
@@ -268,7 +275,10 @@
         "payNow": "立即支付",
         "success": {
             "title": "支付成功！",
-            "message": "您的支付已处理。工人已收到通知。"
+            "message": "您的支付已处理。工人已收到通知。",
+            "orderId": "订单编号",
+            "amount": "金额",
+            "viewOrders": "查看全部订单"
         },
         "cancel": {
             "title": "支付已取消",
@@ -276,5 +286,145 @@
         },
         "backToHome": "回到首页",
         "tryAgain": "重试"
+    },
+    "orders": {
+        "title": "我的订单",
+        "empty": "暂无订单",
+        "emptyDesc": "您的支付记录将在此显示",
+        "status": {
+            "pending": "待支付",
+            "paid": "已支付",
+            "refunded": "已退款",
+            "failed": "支付失败"
+        },
+        "details": "查看详情",
+        "receipt": "查看收据",
+        "orderDate": "下单时间"
+    },
+    "messages": {
+        "title": "消息",
+        "empty": "暂无对话",
+        "emptyDesc": "与工人开始对话获取帮助",
+        "chat": "聊天",
+        "placeholder": "输入消息...",
+        "startConversation": "发送消息开始对话"
+    },
+    "workerPortal": {
+        "title": "工人工作台",
+        "earnings": "收入",
+        "completed": "已完成",
+        "rating": "评分",
+        "activeJobs": "进行中",
+        "available": "在线",
+        "unavailable": "离线",
+        "jobsList": "您的工单",
+        "noJobs": "暂无分配的工单",
+        "editProfile": "编辑资料",
+        "register": {
+            "title": "成为工人",
+            "step": "步骤",
+            "skillsTitle": "选择您的技能",
+            "skillsDesc": "选择您擅长的所有领域",
+            "rate": "时薪",
+            "area": "服务区域",
+            "areaPlaceholder": "例如：上海市浦东新区",
+            "experience": "工作经验",
+            "experiencePlaceholder": "例如：5年",
+            "bioTitle": "关于您",
+            "bioDesc": "向潜在客户介绍您的经验",
+            "bioPlaceholder": "我擅长...",
+            "next": "继续",
+            "submit": "完成注册"
+        }
+    },
+    "workerDirectory": {
+        "title": "找工人",
+        "search": "按姓名或技能搜索...",
+        "all": "全部",
+        "noResults": "未找到匹配的工人",
+        "availableNow": "当前可用",
+        "busy": "当前忙碌"
+    },
+    "notifications": {
+        "title": "通知",
+        "empty": "暂无新通知",
+        "emptyDesc": "工单、消息和支付通知将在此显示"
+    },
+    "login": {
+        "title": "欢迎回来",
+        "titleRegister": "创建账号",
+        "subtitle": "登录以继续",
+        "subtitleRegister": "加入智能家居维护",
+        "phonePlaceholder": "手机号码",
+        "passwordPlaceholder": "密码",
+        "namePlaceholder": "您的姓名",
+        "phonePrefix": "+86",
+        "submit": "登 录",
+        "submitRegister": "注 册",
+        "processing": "处理中...",
+        "switchToRegister": "没有账号？",
+        "switchToRegisterCta": "立即注册",
+        "switchToLogin": "已有账号？",
+        "switchToLoginCta": "立即登录",
+        "or": "或",
+        "socialWechat": "微信",
+        "socialAlipay": "支付宝",
+        "skip": "跳过登录，先体验一下 →",
+        "error": {
+            "invalidPhone": "请输入有效的手机号码",
+            "passwordShort": "密码至少需要6位",
+            "nameRequired": "请输入您的姓名",
+            "loginSuccess": "登录成功",
+            "registerSuccess": "注册成功",
+            "genericFail": "操作失败",
+            "networkError": "网络错误，请稍后重试"
+        }
+    },
+    "showcase": {
+        "badge": "生产就绪 • 9.5/10 评分",
+        "heroTitle": "让你的家，智能维护。",
+        "heroSubtitle": "基于 React 19、Node.js、Google Gemini 和 Stripe 构建的全栈 AI 家居维护平台。企业级安全、200+ 测试、精美移动优先设计。",
+        "ctaTryDemo": "立即体验",
+        "ctaGithub": "查看源码",
+        "scrollHint": "向下滚动探索",
+        "featuresLabel": "核心功能",
+        "featuresTitle": "你需要的一切，",
+        "featuresTitleHighlight": "不多不少。",
+        "feature1Title": "AI 视觉诊断",
+        "feature1Desc": "将摄像头对准任何家居问题 — AI 在数秒内识别问题、严重性和维修策略。",
+        "feature2Title": "智能工人匹配",
+        "feature2Desc": "算法根据技能、距离、可用性和评分，为您匹配最佳工人。",
+        "feature3Title": "实时聊天预约",
+        "feature3Desc": "通过 WebSocket 直接与工人聊天，安排预约，实时追踪一切。",
+        "feature4Title": "企业级安全",
+        "feature4Desc": "httpOnly JWT、CSRF 防护、刷新令牌轮换、严格速率限制。",
+        "feature5Title": "全面可观测性",
+        "feature5Desc": "Sentry 错误追踪、Mixpanel 分析、AI 成本预算 — 全方位指标监控。",
+        "feature6Title": "Stripe 支付",
+        "feature6Desc": "端到端支付流程：Stripe Checkout、订阅支持、收入分析。",
+        "demoLabel": "在线演示",
+        "demoTitle": "实际",
+        "demoTitleHighlight": "效果展示",
+        "demoRoutes": {
+            "dashboard": "仪表盘",
+            "welcome": "欢迎页",
+            "login": "登录",
+            "diagnosis": "诊断",
+            "community": "社区",
+            "calendar": "日历"
+        },
+        "techLabel": "技术栈",
+        "techTitle": "使用",
+        "techTitleHighlight": "现代工具构建。",
+        "stat1Label": "通过测试",
+        "stat2Label": "项目评分",
+        "stat3Label": "AI 代理",
+        "stat4Label": "页面数量",
+        "ctaTitle": "准备好",
+        "ctaTitleHighlight": "探索了吗？",
+        "ctaSubtitle": "沉浸式体验 — AI 诊断、工人匹配、实时聊天等功能。",
+        "ctaLaunch": "启动应用",
+        "ctaPreview": "设备预览",
+        "footer": "用 ❤️ 构建"
     }
 }

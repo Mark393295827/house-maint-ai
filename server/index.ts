@@ -21,6 +21,10 @@ import analyticsRoutes from './routes/analytics.js';
 import assetsRoutes from './routes/assets.js';
 import paymentRoutes from './routes/payments.js';
 import reviewRoutes from './routes/reviews.js';
+import feedbackRoutes from './routes/feedback.js';
+import messagesRoutes from './routes/messages.js';
+import notificationsRoutes from './routes/notifications.js';
+import workerPortalRoutes from './routes/worker-portal.js';
 import { diagnosticsClaw } from './services/diagnostics_claw.js';
 import { vendorClaw } from './services/vendor_claw.js';
 import { csrfGuard } from './middleware/auth.js';
@@ -145,6 +149,10 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/ai/feedback', feedbackRoutes);
+app.use('/api/messages', messagesRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/worker-portal', workerPortalRoutes);
 
 // Sentry Error Handler (must be before custom error handler)
 Sentry.setupExpressErrorHandler(app);

@@ -9,6 +9,8 @@ Connects users with expert workers for home repairs, featuring AI diagnosis, rea
 ![Docker](https://img.shields.io/badge/deploy-Docker-2496ED.svg)
 ![Tests](https://github.com/Mark393295827/house-maint-ai/actions/workflows/test.yml/badge.svg)
 
+> **🎯 [View the Showcase →](/showcase)** — A stunning interactive demo of every feature.
+
 ## ✨ Features
 
 - **📱 Mobile-First Design**: Smooth, app-like experience with TailwindCSS.
@@ -30,7 +32,7 @@ Connects users with expert workers for home repairs, featuring AI diagnosis, rea
 | AI | Google Gemini Vision API |
 | Monitoring | Sentry (errors), Mixpanel (analytics) |
 | DevOps | Docker, Nginx, GitHub Actions CI/CD |
-| Testing | Vitest + Supertest (147 tests) |
+| Testing | Vitest + Supertest (200+ tests) |
 
 ## 🚀 Getting Started
 

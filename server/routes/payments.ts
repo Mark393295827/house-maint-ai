@@ -5,7 +5,6 @@ import db from '../config/database.js';
 import { emitToWorkers } from '../socket.js';
 
 const router = express.Router();
-// ... (rest of imports remains)
 
 // Initialize Stripe (API Key should be in .env)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
@@ -14,7 +13,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
 
 /**
  * POST /api/payments/checkout
- * Create a Stripe Checkout Session
+ * Create a Stripe Checkout Session and a pending order
  */
 router.post('/checkout', authenticate, async (req, res) => {
     try {
@@ -47,6 +46,13 @@ router.post('/checkout', authenticate, async (req, res) => {
             },
         });
 
+        // Create a pending order in the database
+        await db.query(
+            `INSERT INTO orders (user_id, report_id, stripe_session_id, amount, currency, status)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [req.user.id, reportId || null, session.id, amount, currency, 'pending']
+        );
+
         res.json({ id: session.id, url: session.url });
     } catch (error: any) {
         console.error('Stripe Checkout Error:', error);
@@ -56,7 +62,7 @@ router.post('/checkout', authenticate, async (req, res) => {
 
 /**
  * POST /api/payments/webhook
- * Handle Stripe Webhooks
+ * Handle Stripe Webhooks — update order status
  */
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
@@ -81,9 +87,19 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
         console.log(`💰 Payment succeeded for Session: ${session.id} (Report: ${reportId})`);
 
+        // Update order status to 'paid'
+        try {
+            await db.query(
+                `UPDATE orders SET status = 'paid', updated_at = CURRENT_TIMESTAMP
+                 WHERE stripe_session_id = $1`,
+                [session.id]
+            );
+        } catch (err) {
+            console.error('Failed to update order status:', err);
+        }
+
         if (reportId) {
             try {
-                // 1. Update report status to 'matching'
                 const { rows } = await db.query(`
                     UPDATE reports 
                     SET status = 'matching', 
@@ -94,7 +110,6 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
                 const report = rows[0];
 
-                // 2. Notify all workers about the new available job
                 if (report) {
                     emitToWorkers('new_job_available', {
                         reportId: report.id,
@@ -105,8 +120,20 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
                 }
             } catch (dbError) {
                 console.error('Database update failed after payment:', dbError);
-                // Even if DB update fails, we should respond 200 to Stripe to avoid retries
             }
+        }
+    }
+
+    if (event.type === 'checkout.session.expired' || event.type === 'payment_intent.payment_failed') {
+        const session = event.data.object as any;
+        try {
+            await db.query(
+                `UPDATE orders SET status = 'failed', updated_at = CURRENT_TIMESTAMP
+                 WHERE stripe_session_id = $1`,
+                [session.id]
+            );
+        } catch (err) {
+            console.error('Failed to update order failure status:', err);
         }
     }
 
@@ -114,25 +141,47 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 });
 
 /**
- * GET /api/payments/history/:userId
- * Get payment history for a user
+ * GET /api/payments/orders
+ * Get the current user's payment orders
  */
-router.get('/history/:userId', authenticate, async (req, res) => {
+router.get('/orders', authenticate, async (req, res) => {
     try {
-        const { userId } = req.params;
-        // Verify user is requesting their own history or is admin
-        if (req.user.id.toString() !== userId && req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Unauthorized' });
+        const { rows: orders } = await db.query(`
+            SELECT o.*, r.title as report_title
+            FROM orders o
+            LEFT JOIN reports r ON o.report_id = r.id
+            WHERE o.user_id = $1
+            ORDER BY o.created_at DESC
+        `, [req.user.id]);
+
+        res.json({ orders });
+    } catch (error: any) {
+        console.error('Get orders error:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+/**
+ * GET /api/payments/orders/:id
+ * Get a specific order by ID
+ */
+router.get('/orders/:id', authenticate, async (req, res) => {
+    try {
+        const { rows } = await db.query(`
+            SELECT o.*, r.title as report_title, r.description as report_description, r.category
+            FROM orders o
+            LEFT JOIN reports r ON o.report_id = r.id
+            WHERE o.id = $1 AND o.user_id = $2
+        `, [req.params.id, req.user.id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Order not found' });
         }
 
-        // Mock history for now, implementation would query DB
-        const mockHistory = [
-            { id: '1', amount: 50.00, status: 'succeeded', date: new Date().toISOString() }
-        ];
-
-        res.json({ history: mockHistory });
+        res.json({ order: rows[0] });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        console.error('Get order error:', error);
+        res.status(500).json({ error: 'Failed to fetch order' });
     }
 });
 
