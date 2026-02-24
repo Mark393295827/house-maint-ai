@@ -199,3 +199,45 @@ export const notifications = sqliteTable('notifications', {
     readAt: text('read_at'),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
+
+// Cases Table (Phase 5: Persistent Diagnostic Cases)
+export const cases = sqliteTable('cases', {
+    id: text('id').primaryKey(), // Using text for UUID/NanoID from frontend
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    titleEn: text('title_en').notNull(),
+    status: text('status', { enum: ['active', 'archived'] }).default('active'),
+    step: integer('step').default(1),
+    severity: text('severity', { enum: ['low', 'moderate', 'critical'] }).default('moderate'),
+    date: text('date').notNull(), // ISO date
+    category: text('category'),
+    rootCause: text('root_cause'),
+    solution: text('solution'),
+    fullData: text('full_data'), // JSON blob for entire WizardState if needed
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+});
+
+// Agent Sessions Table (Phase 6: Omnichannel Agent Context)
+export const agentSessions = sqliteTable('agent_sessions', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    channel: text('channel', { enum: ['telegram', 'whatsapp', 'web', 'sms'] }).notNull(),
+    externalId: text('external_id').notNull(), // e.g. Telegram chat_id
+    context: text('context'), // JSON blob of memory/state
+    lastActive: text('last_active').default(sql`(datetime('now'))`),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+// Device Nodes Table (Phase 6: Edge Vision Nodes)
+export const deviceNodes = sqliteTable('device_nodes', {
+    id: text('id').primaryKey(), // Hardware ID or NanoID
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    type: text('type').notNull(), // 'camera', 'sensor', 'gateway'
+    status: text('status', { enum: ['online', 'offline', 'error'] }).default('offline'),
+    metadata: text('metadata'), // JSON blob (IP, firmware, etc)
+    lastSeen: text('last_seen').default(sql`(datetime('now'))`),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+

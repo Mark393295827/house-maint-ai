@@ -426,5 +426,29 @@
         "ctaLaunch": "启动应用",
         "ctaPreview": "设备预览",
         "footer": "用 ❤️ 构建"
+    },
+    "omnichannel": {
+        "title": "全渠道模拟",
+        "subtitle": "体验 OpenClaw 模拟报告",
+        "mockPhone": "模拟设备",
+        "sendPlaceholder": "输入维护条目 (如: '厨房漏水')",
+        "sending": "模拟发送中...",
+        "processing": "OpenClaw 正在路由...",
+        "received": "AI 接收成功",
+        "diagnosis": "AI 诊断结果",
+        "createTicket": "生成工单",
+        "back": "返回仪表盘"
+    },
+    "proactive": {
+        "title": "✨ AI 智能洞察",
+        "insight1": {
+            "title": "建议清理空调",
+            "body": "检测到近期无空调保养记录，建议进行深度滤网清洁，以维持空气质量。"
+        },
+        "insight2": {
+            "title": "水管健康提醒",
+            "body": "距离上次水管检查已超过6个月。建议运行快速排水诊断。"
+        },
+        "action": "立即查看"
     }
 }

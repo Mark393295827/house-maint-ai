@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
  * 100 requests per 15 minutes per IP
  */
 // Helper to determine limit based on environment
-const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+const isDev = process.env.NODE_ENV !== 'production';
 
 /**
  * Standard Rate Limiter
@@ -14,7 +14,7 @@ const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV ===
  */
 export const standardLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: isDev ? 1000 : 100,
+    max: isDev ? 2000 : 100,
     message: {
         error: 'Too many requests, please try again later.'
     },
@@ -28,7 +28,7 @@ export const standardLimiter = rateLimit({
  */
 export const strictLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: isDev ? 200 : 20,
+    max: isDev ? 500 : 20,
     message: {
         error: 'Too many requests for this strict endpoint, please try again later.'
     },

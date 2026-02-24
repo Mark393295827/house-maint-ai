@@ -8,6 +8,10 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import PageTracker from './components/PageTracker';
 import SkipLink from './components/ui/SkipLink';
+import { initAgenticStack } from './agenticInit';
+import { useEffect } from 'react';
+
+
 
 /* ─── Lazy-loaded Pages (core consumer flow only) ─── */
 const OnboardingGate = lazy(() => import('./components/OnboardingGate'));
@@ -22,9 +26,16 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
 const PaymentCancelPage = lazy(() => import('./pages/PaymentCancelPage'));
+const OmnichannelSim = lazy(() => import('./pages/OmnichannelSim'));
 
 function App() {
+  useEffect(() => {
+    initAgenticStack();
+  }, []);
+
+
   return (
+
     <GlobalErrorBoundary>
       <ToastProvider>
         <ErrorBoundary>
@@ -45,6 +56,7 @@ function App() {
                     <Route path="/showcase" element={<ShowcasePage />} />
                     <Route path="/payment/success" element={<PaymentSuccessPage />} />
                     <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+                    <Route path="/omnichannel-sim" element={<OmnichannelSim />} />
 
                     {/* Protected routes */}
                     <Route path="/calendar" element={

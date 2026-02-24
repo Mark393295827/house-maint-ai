@@ -126,7 +126,7 @@ const WelcomePage = () => {
                     <div className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-700" />
                 </div>
                 <Link
-                    to="/"
+                    to="/diagnosis"
                     className="relative w-full h-14 rounded-2xl shadow-xl shadow-primary/30 transition-all active:scale-[0.97] flex items-center justify-center gap-2 btn-gradient font-bold text-lg overflow-hidden"
                 >
                     <span className="relative z-10 flex items-center gap-2">

@@ -4,7 +4,7 @@
  * Integrates with Backend /api/ai/diagnose for analysis
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE = '/api';
 const API_BASE_URL = `${API_BASE}/ai`;
 
 /**
@@ -39,7 +39,7 @@ async function blobUrlToBase64(blobUrl: string): Promise<string> {
  * @param {string} mimeType - Image MIME type (e.g., 'image/jpeg')
  * @returns {Promise<object>} Analysis result
  */
-export async function analyzeImage(imageBase64: string, mimeType = 'image/jpeg') {
+export async function analyzeImage(imageBase64?: string, mimeType = 'image/jpeg', text?: string) {
     try {
         const response = await fetch(`${API_BASE_URL}/diagnose`, {
             method: 'POST',
@@ -48,7 +48,8 @@ export async function analyzeImage(imageBase64: string, mimeType = 'image/jpeg')
             },
             body: JSON.stringify({
                 image: imageBase64,
-                mimeType: mimeType
+                mimeType: mimeType,
+                text: text
             })
         });
 

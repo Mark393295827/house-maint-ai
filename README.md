@@ -1,130 +1,93 @@
-# 🏠 House Maint AI
+# 🏠 House Maint AI — Ambient Agentic Property Manager
 
-A modern, full-stack home maintenance application powered by AI.
-Connects users with expert workers for home repairs, featuring AI diagnosis, real-time matching, and community sharing.
+> **Fused with OpenClaw Framework** 🦞
+> Transforming home maintenance from a reactive ledger into an omnichannel, visually intelligent, agentic assistant.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![React](https://img.shields.io/badge/frontend-React_18-61DAFB.svg)
-![Node](https://img.shields.io/badge/backend-Node.js_20-339933.svg)
-![Docker](https://img.shields.io/badge/deploy-Docker-2496ED.svg)
-![Tests](https://github.com/Mark393295827/house-maint-ai/actions/workflows/test.yml/badge.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![AI](https://img.shields.io/badge/AI-Gemini_Vision-orange.svg)](https://ai.google.dev/)
+[![Gateway](https://img.shields.io/badge/Gateway-OpenClaw_Omnichannel-emerald.svg)](https://github.com/openclaw/openclaw)
 
-> **🎯 [View the Showcase →](/showcase)** — A stunning interactive demo of every feature.
+## 🌌 The Vision
+House Maint AI is no longer just a full-stack web app. By synthesizing the core strengths of **House Maint AI** (Expert Maintenance Logic + Gemini Vision) and **OpenClaw** (Omnichannel Gateway + Agentic Skills), we have created an ambient assistant that manages your home across the digital spectrum.
 
-## ✨ Features
+---
 
-- **📱 Mobile-First Design**: Smooth, app-like experience with TailwindCSS.
-- **🤖 AI Diagnosis**: Identify home issues using Google Gemini Vision API with instant repair guides.
-- **⚡ Quick Report**: Voice & Video reporting with smart categorization.
-- **🤝 Intelligent Matching**: Workers matched by skill, location, and rating.
-- **📅 Booking System**: Schedule appointments and track order status.
-- **💬 Community**: Share maintenance tips and Q&A with experts.
+## ✨ Key Agentic Capabilities
+
+### 📱 Omnichannel Maintenance Reporting
+Step beyond the browser. Report issues via **WhatsApp, Telegram, iMessage, Discord, or Slack**.
+*   *Interaction:* "The HVAC is making a rattling noise" via text.
+*   *Result:* Automatically categorized, priority-assigned, and tracked in your maintenance dashboard.
+
+### 👁️ Edge Vision & Contextual Analysis
+Direct hardware integration via device nodes (iOS, Android, macOS).
+*   *Workflow:* Snap a photo of a leak via iMessage.
+*   *Intelligence:* Gemini Vision diagnoses the leak, calculates severity, and logs a detailed ticket with a "5-Why" root cause analysis instantly.
+
+### 🤖 Proactive Skills & Automation
+A proactive property manager that never sleeps.
+*   *Automation:* Cron-based background agents audit your house health.
+*   *Intervention:* "I noticed it's been 6 months since your last water filter change. I've drafted a replacement ticket for your approval."
+
+### 🔗 Hybrid Control Plane
+The best of both worlds: Enterprise-grade security with the responsiveness of a local daemon.
+*   *Backend:* PostgreSQL, Redis, and JWT authentication on a robust Dockerized stack.
+*   *Gateway:* A local daemon for high-performance screen recording, camera access, and device-level skill execution.
+
+---
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19 + Vite, Tailwind CSS 4, React Router 7 |
-| Backend | Node.js 20 + Express, TypeScript |
-| Database | PostgreSQL 15 (prod), SQLite (dev fallback) |
-| Cache | Redis 7 (with in-memory fallback) |
-| Auth | JWT + bcrypt |
-| AI | Google Gemini Vision API |
-| Monitoring | Sentry (errors), Mixpanel (analytics) |
-| DevOps | Docker, Nginx, GitHub Actions CI/CD |
-| Testing | Vitest + Supertest (200+ tests) |
+| **Core AI** | Google Gemini Vision 1.5 Pro / Flash |
+| **Agentic Framework** | OpenClaw Gateway + Skills Registry |
+| **Messaging** | Telegram, WhatsApp, Discord, BlueBubbles (iMessage) |
+| **Backend** | Node.js 20, Express, TypeScript, Prisma |
+| **Frontend** | React 19, Tailwind CSS 4, Framer Motion |
+| **Infrastructure** | Docker, Nginx, PostgreSQL, Redis |
+
+---
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### 1. Requirements
 - Node.js 20+
-- Docker (optional, for full-stack deployment)
+- Docker & Docker Compose
+- Google AI (Gemini) API Key
 
-### 🔧 Local Development
-
+### 2. Local Setup
 ```bash
-# 1. Clone
+# Clone the repository
 git clone https://github.com/Mark393295827/house-maint-ai.git
 cd house-maint-ai
 
-# 2. Install dependencies
+# Install dependencies (Frontend & Backend)
 npm install
-cd server && npm install && cd ..
+cd server && npm install
 
-# 3. Start dev servers (two terminals)
-npm run dev          # Frontend → http://localhost:5173
-cd server && npm run dev  # Backend  → http://localhost:3001
+# Start the ambient environment
+npm run dev
 ```
 
-> The backend auto-falls back to SQLite + in-memory Redis, so no DB setup needed for local dev.
-
-### 🐳 Docker (Full Stack)
-
+### 3. Messaging Gateway (OpenClaw)
+To enable omnichannel reporting, initialize the OpenClaw gateway:
 ```bash
-# Generate secrets (first time only)
-node -e "require('crypto').randomBytes(48).toString('hex')" > secrets/jwt_secret.txt
-node -e "require('crypto').randomBytes(24).toString('hex')" > secrets/db_password.txt
-
-# Launch all services
-docker compose up --build
+npx openclaw connect --channel telegram
 ```
 
-Services: Frontend (:80), Backend (:3001), PostgreSQL (:5432), Redis (:6379)
+---
 
-## 🧪 Testing
+## 📂 Architecture
+The project follows a **Multi-Agent Hybrid Architecture**:
+- `src/gateway`: Omnichannel messaging adapters.
+- `src/store`: Unified case management (Local/Remote).
+- `src/skills`: Proactive maintenance background tasks.
+- `.agent/workflows`: Structured AI task definitions.
 
-```bash
-npm test              # All tests (Frontend + Backend)
-npm run build         # Production build verification
-```
+*Refer to [ARCHITECTURE.md](./ARCHITECTURE.md) for a deep dive into the fusion model.*
 
-## 🚢 Production Deployment
+---
 
-### Frontend → Vercel / GitHub Pages
-
-The frontend auto-deploys via `.github/workflows/deploy.yml` on push to `main`.
-
-**Vercel**: Import the repo on [vercel.com](https://vercel.com). Set env var:
-- `VITE_API_URL` = your backend URL (e.g., `https://house-maint-api.onrender.com/api`)
-
-### Backend → Render
-
-1. Create a **Web Service** on [render.com](https://render.com) pointing to this repo.
-2. Set **Root Directory** to `server`, **Build Command** to `npm install && npm run build`, **Start Command** to `npm start`.
-3. Add environment variables: `NODE_ENV=production`, `PORT=3001`, `CORS_ORIGINS=https://your-frontend-domain.com`, `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `REDIS_HOST` (or omit for in-memory fallback).
-4. Add **RENDER_SERVICE_ID** and **RENDER_API_KEY** as GitHub repo secrets for auto-deploy via `.github/workflows/deploy-backend.yml`.
-
-### Environment Files
-
-| File | Purpose | Gitignored? |
-|------|---------|-------------|
-| `.env.example` | Template with all variables | ❌ (committed) |
-| `.env.production.example` | Production template | ❌ (committed) |
-| `.env.production` | Actual production values | ✅ |
-| `secrets/jwt_secret.txt` | JWT signing key | ✅ |
-| `secrets/db_password.txt` | Database password | ✅ |
-
-## 📂 Project Structure
-
-```
-house-maint-ai/
-├── src/                # Frontend (React + Vite)
-│   ├── components/     # Reusable UI components
-│   ├── pages/          # Application pages
-│   ├── contexts/       # Global state (Auth)
-│   └── services/       # API clients (AI, Backend)
-├── server/             # Backend (Express + TypeScript)
-│   ├── routes/         # API endpoints
-│   ├── models/         # Database schema (PG + SQLite)
-│   ├── config/         # DB, Redis, Swagger, Secrets
-│   └── tests/          # Backend API tests
-├── .github/workflows/  # CI/CD pipelines
-├── agents/             # AI agent definitions
-├── Dockerfile          # Frontend container (Nginx)
-├── server/Dockerfile   # Backend container (Node)
-└── docker-compose.yml  # Full-stack orchestration
-```
-
-## 📄 License
-
-This project is licensed under the MIT License.
+## 🚢 License
+MIT License. Created by [Mark393295827](https://github.com/Mark393295827) and powered by the [OpenClaw](https://github.com/openclaw/openclaw) community.

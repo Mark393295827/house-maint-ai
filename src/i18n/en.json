@@ -424,5 +424,29 @@
         "ctaLaunch": "Launch App",
         "ctaPreview": "Device Preview",
         "footer": "Built with ❤️"
+    },
+    "omnichannel": {
+        "title": "Omnichannel Simulation",
+        "subtitle": "Experience OpenClaw Mock Reporting",
+        "mockPhone": "Mock Device",
+        "sendPlaceholder": "Type maintenance entry (e.g. 'Kitchen leak')",
+        "sending": "Mock sending...",
+        "processing": "OpenClaw Routing...",
+        "received": "AI Received",
+        "diagnosis": "AI Diagnosis",
+        "createTicket": "Generate Ticket",
+        "back": "Back to Dashboard"
+    },
+    "proactive": {
+        "title": "✨ AI Proactive Insight",
+        "insight1": {
+            "title": "Clean AC Filter",
+            "body": "No recent AC maintenance detected. Suggest deep cleaning filter to maintain air quality."
+        },
+        "insight2": {
+            "title": "Plumbing Health",
+            "body": "Over 6 months since last plumbing check. Suggest running quick drainage diagnostic."
+        },
+        "action": "View Now"
     }
 }

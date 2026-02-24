@@ -17,13 +17,8 @@ import type {
 } from '../types';
 
 // API Base URL from environment variable with fallback to localhost
-let API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
-// Force same hostname for local development/testing to ensure stability
-if (import.meta.env.DEV) {
-    const hostname = window.location.hostname;
-    API_BASE = `http://${hostname}:3001/api`;
-}
+// API Base URL - using relative path to work with Vite proxy
+const API_BASE = '/api';
 
 // Refresh token state
 let isRefreshing = false;

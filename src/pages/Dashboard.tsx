@@ -3,6 +3,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import BottomNav from '../components/BottomNav';
 import { useState, useEffect, useRef } from 'react';
 import { getCases, getActiveCases, getArchivedCases } from '../store/cases';
+import { getInsights, ProactiveInsight } from '../store/proactive';
 
 function useCountUp(target: number, duration = 650) {
     const [count, setCount] = useState(0);
@@ -22,7 +23,7 @@ function useCountUp(target: number, duration = 650) {
 }
 
 const Dashboard = () => {
-    const { locale } = useLanguage();
+    const { t, locale } = useLanguage();
     const navigate = useNavigate();
 
     /* ─── Shared store ─── */
@@ -35,11 +36,27 @@ const Dashboard = () => {
     const liveDone = useCountUp(archivedCount);
     const liveMth = useCountUp(monthCount);
 
+    const [insights, setInsights] = useState<ProactiveInsight[]>(getInsights());
+
+    useEffect(() => {
+        const handleUpdate = () => {
+            setInsights(getInsights());
+        };
+        window.addEventListener('proactive-update', handleUpdate);
+        return () => window.removeEventListener('proactive-update', handleUpdate);
+    }, []);
+
+    const activeInsight = insights[0];
+
     /* ─── Re-map to display format ─── */
     const activeCases = activeCaseData.map(c => ({
-        id: c.id, title: locale === 'zh' ? c.title : c.titleEn,
+        id: c.id,
+        title: locale === 'zh' ? c.title : c.titleEn,
         status: `Step ${c.step}/8`,
-        step: c.step, severity: c.severity, date: c.date,
+        percentage: Math.round((c.step / 8) * 100),
+        step: c.step,
+        severity: c.severity,
+        date: c.date,
     }));
     const completedCases = getArchivedCases().map(c => ({
         id: c.id, title: locale === 'zh' ? c.title : c.titleEn,
@@ -56,10 +73,12 @@ const Dashboard = () => {
             <div className="px-5 pt-6 pb-3">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-extrabold text-text-main-light dark:text-text-main-dark font-display">
-                            {locale === 'zh' ? '🏠 家维助手' : '🏠 HomeMaint'}
+                        <h1 className="text-2xl font-black text-text-main-light dark:text-text-main-dark font-display tracking-tight">
+                            {locale === 'zh' ? '🛡️ 运维指挥中心' : '🛡️ Ops Center'}
                         </h1>
-                        <p className="text-sm text-gray-500 mt-0.5">{locale === 'zh' ? '智能家居维护管理' : 'Smart Home Maintenance'}</p>
+                        <p className="text-[11px] font-bold text-primary uppercase tracking-widest mt-0.5 opacity-80">
+                            {locale === 'zh' ? 'House Maint AI 系统监视器' : 'House Maint AI System Monitor'}
+                        </p>
                     </div>
                     <button onClick={() => navigate('/notifications')} className="relative w-10 h-10 rounded-xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 flex items-center justify-center">
                         <span className="material-symbols-outlined text-gray-600 dark:text-gray-400">notifications</span>
@@ -67,6 +86,36 @@ const Dashboard = () => {
                     </button>
                 </div>
             </div>
+
+            {/* ✨ AI Proactive Insight Card */}
+            {activeInsight && (
+                <section className="px-5 mb-5">
+                    <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl shadow-indigo-500/20">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8 blur-2xl" />
+                        <div className="relative">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 backdrop-blur-md">
+                                    <span className="material-symbols-outlined text-white text-[14px]">auto_awesome</span>
+                                </div>
+                                <span className="text-[10px] font-black text-white/80 uppercase tracking-[0.2em]">{t('proactive.title')}</span>
+                            </div>
+                            <h3 className="text-white font-black text-lg mb-1 leading-tight font-display">
+                                {t(activeInsight.titleKey)}
+                            </h3>
+                            <p className="text-white/70 text-xs leading-relaxed mb-4">
+                                {t(activeInsight.bodyKey)}
+                            </p>
+                            <button
+                                onClick={() => navigate(activeInsight.actionPath)}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-indigo-700 text-xs font-black shadow-lg shadow-black/10 active:scale-95 transition-all"
+                            >
+                                {t(activeInsight.actionLabelKey)}
+                                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* ─── Live Stats Strip ─── */}
             <section className="px-5 mb-4">
@@ -107,7 +156,7 @@ const Dashboard = () => {
                 <div className="grid grid-cols-2 gap-2">
                     {[
                         { icon: 'add_a_photo', metric: '30s', label: locale === 'zh' ? '极速诊断' : 'Photo Diagnosis', color: 'from-indigo-500 to-violet-500', path: '/diagnosis' },
-                        { icon: 'timeline', metric: '全程', label: locale === 'zh' ? '可追溯' : 'Full Trace', color: 'from-cyan-500 to-teal-500', path: '/cases' },
+                        { icon: 'hub', metric: 'Claw', label: locale === 'zh' ? '全渠道模拟' : 'Omnichannel', color: 'from-cyan-500 to-teal-500', path: '/omnichannel-sim' },
                         { icon: 'verified_user', metric: '防', label: locale === 'zh' ? '复发机制' : 'Anti-Relapse', color: 'from-emerald-500 to-green-500', path: '/library' },
                         { icon: 'videocam', metric: 'Live', label: locale === 'zh' ? '远程巡检' : 'Remote Inspect', color: 'from-rose-500 to-pink-500', path: '/remote' },
                     ].map((h, i) => (
@@ -178,20 +227,44 @@ const Dashboard = () => {
                     <button onClick={() => navigate('/cases')} className="text-xs text-primary font-medium">{locale === 'zh' ? '查看全部' : 'View All'}</button>
                 </div>
                 {/* Active cases */}
-                <div className="space-y-2 mb-3">
+                <div className="space-y-3 mb-3">
                     {activeCases.map(c => (
-                        <div key={c.id} className="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 active:scale-[0.98] transition-transform">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${c.severity === 'critical' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-amber-100 dark:bg-amber-900/30'}`}>
-                                <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1", color: c.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>warning</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="font-bold text-sm text-text-main-light dark:text-text-main-dark truncate">{c.title}</p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Step {c.step}/8</span>
-                                    <span className="text-[10px] text-gray-400">{c.status}</span>
+                        <div key={c.id} className="group flex flex-col gap-3 p-4 rounded-3xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98]">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${c.severity === 'critical' ? 'bg-red-50 dark:bg-red-900/20 text-red-500' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-500'}`}>
+                                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                        {c.severity === 'critical' ? 'report' : 'engineering'}
+                                    </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-0.5">
+                                        <p className="font-black text-[15px] text-text-main-light dark:text-text-main-dark truncate font-display">
+                                            {c.title}
+                                        </p>
+                                        <span className="text-[10px] font-bold text-gray-400 tabular-nums">{c.date}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${c.severity === 'critical' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                                            {c.severity?.toUpperCase()}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-gray-400">Step {c.step}/8</span>
+                                    </div>
                                 </div>
                             </div>
-                            <span className="text-[10px] text-gray-400">{c.date}</span>
+
+                            {/* Visual Progress Bar */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">维修进度 REPAIR PROGRESS</span>
+                                    <span className="text-xs font-black text-primary tabular-nums">{c.percentage}%</span>
+                                </div>
+                                <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 ease-out rounded-full"
+                                        style={{ width: `${c.percentage}%` }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>

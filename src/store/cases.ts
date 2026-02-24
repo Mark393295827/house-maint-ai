@@ -21,10 +21,10 @@ export interface CaseRecord {
 const STORAGE_KEY = 'cases';
 
 const SEED: CaseRecord[] = [
-    { id: 'c001', title: '厨房水管漏水', titleEn: 'Kitchen Pipe Leak', status: 'active', step: 5, severity: 'moderate', date: '2026-02-22' },
-    { id: 'c002', title: '卧室空调不制冷', titleEn: 'Bedroom AC Not Cooling', status: 'active', step: 4, severity: 'moderate', date: '2026-02-21' },
-    { id: 'c003', title: '浴室瓷砖裂缝', titleEn: 'Bathroom Tile Crack', status: 'archived', step: 8, severity: 'low', date: '2026-02-18' },
-    { id: 'c004', title: '客厅灯泡频繁烧断', titleEn: 'Living Room Bulb Burnout', status: 'active', step: 6, severity: 'critical', date: '2026-02-20' },
+    { id: 'c001', title: '厨房水管漏水', titleEn: 'Kitchen Pipe Leak', status: 'active', step: 5, severity: 'moderate', date: '2026-02-22', category: 'plumbing' },
+    { id: 'c002', title: '卧室空调不制冷', titleEn: 'Bedroom AC Not Cooling', status: 'active', step: 4, severity: 'moderate', date: '2026-02-21', category: 'hvac' },
+    { id: 'c003', title: '浴室瓷砖裂缝', titleEn: 'Bathroom Tile Crack', status: 'archived', step: 8, severity: 'low', date: '2026-02-18', category: 'structural' },
+    { id: 'c004', title: '客厅灯泡频繁烧断', titleEn: 'Living Room Bulb Burnout', status: 'active', step: 6, severity: 'critical', date: '2026-02-20', category: 'electrical' },
 ];
 
 /** Read all cases from localStorage (seeds if empty) */

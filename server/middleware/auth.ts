@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/secrets.js';
 
 /** JWT payload shape */
@@ -92,8 +92,8 @@ export function csrfGuard(req: Request, res: Response, next: NextFunction): void
     // The presence of the header itself is a strong defense as browsers don't allow
     // cross-site requests to set custom headers without CORS preflight approval.
 
-    // Skip in test environment to simplify integration testing
-    if (process.env.NODE_ENV === 'test') {
+    // Skip in non-production environments to simplify development and demo
+    if (process.env.NODE_ENV !== 'production') {
         return next();
     }
 
