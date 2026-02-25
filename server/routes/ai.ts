@@ -4,6 +4,7 @@ import { aiService } from '../services/ai.js';
 import { ChatMessage } from '../agents/common.js';
 import * as Sentry from '@sentry/node';
 import { trackAiCost } from '../middleware/aiCostTracker.js';
+import { anonymizeImagePayload } from '../middleware/piplBlur.js';
 
 const router = express.Router();
 
@@ -31,9 +32,10 @@ const planSchema = z.object({
 
 /**
  * POST /api/ai/diagnose
- * Diagnose issue using Multimodal AI (Gemini)
+ * Diagnose issue using Multimodal AI (Gemini/DeepSeek)
+ * [PIPL]: Image payload anonymized before hitting LLM
  */
-router.post('/diagnose', async (req: Request, res: Response) => {
+router.post('/diagnose', anonymizeImagePayload, async (req: Request, res: Response) => {
     try {
         const { image, mimeType, text } = diagnoseSchema.parse(req.body);
         const { result, usage } = await aiService.diagnoseIssue(image, mimeType, text);
@@ -42,12 +44,12 @@ router.post('/diagnose', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
 
         res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         console.error('AI Diagnosis Error:', error);
         Sentry.captureException(error);
         res.status(500).json({
             error: 'Diagnosis failed',
-            details: error.message
+            details: error instanceof Error ? error.message : String(error)
         });
     }
 });
@@ -65,7 +67,7 @@ const diagnoseChatSchema = z.object({
     }))
 });
 
-router.post('/diagnose/chat', async (req: Request, res: Response) => {
+router.post('/diagnose/chat', anonymizeImagePayload, async (req: Request, res: Response) => {
     try {
         const { image, mimeType, history } = diagnoseChatSchema.parse(req.body);
         const { result, usage } = await aiService.continueDiagnosis(
@@ -73,10 +75,10 @@ router.post('/diagnose/chat', async (req: Request, res: Response) => {
         );
         (req as any).aiUsage = usage;
         res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         console.error('AI Diagnosis Chat Error:', error);
         Sentry.captureException(error);
-        res.status(500).json({ error: 'Diagnosis conversation failed', details: error.message });
+        res.status(500).json({ error: 'Diagnosis conversation failed', details: error instanceof Error ? error.message : String(error) });
     }
 });
 
@@ -98,48 +100,48 @@ const stepSchema = z.object({
 });
 
 /** Step 2: MECE Category Analysis */
-router.post('/diagnose/mece', async (req: Request, res: Response) => {
+router.post('/diagnose/mece', anonymizeImagePayload, async (req: Request, res: Response) => {
     try {
         const { image, mimeType, text, locale } = stepSchema.parse(req.body);
         const { result, usage } = await aiService.meceAnalysis(image, mimeType, text, locale);
         (req as any).aiUsage = usage;
         res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         Sentry.captureException(error);
-        res.status(500).json({ error: 'MECE analysis failed', details: error.message });
+        res.status(500).json({ error: 'MECE analysis failed', details: error instanceof Error ? error.message : String(error) });
     }
 });
 
 /** Step 3: Hypothesis Generation */
-router.post('/diagnose/hypothesis', async (req: Request, res: Response) => {
+router.post('/diagnose/hypothesis', anonymizeImagePayload, async (req: Request, res: Response) => {
     try {
         const { category, image, mimeType, text, locale } = stepSchema.parse(req.body);
         if (!category) return res.status(400).json({ error: 'category is required' });
         const { result, usage } = await aiService.hypothesisGeneration(category, image, mimeType, text, locale);
         (req as any).aiUsage = usage;
         res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         Sentry.captureException(error);
-        res.status(500).json({ error: 'Hypothesis generation failed', details: error.message });
+        res.status(500).json({ error: 'Hypothesis generation failed', details: error instanceof Error ? error.message : String(error) });
     }
 });
 
 /** Step 4: Data Collection Checklist */
-router.post('/diagnose/checklist', async (req: Request, res: Response) => {
+router.post('/diagnose/checklist', anonymizeImagePayload, async (req: Request, res: Response) => {
     try {
         const { hypothesis, image, mimeType, text, locale } = stepSchema.parse(req.body);
         if (!hypothesis) return res.status(400).json({ error: 'hypothesis is required' });
         const { result, usage } = await aiService.checklistGeneration(hypothesis, image, mimeType, text, locale);
         (req as any).aiUsage = usage;
         res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         Sentry.captureException(error);
-        res.status(500).json({ error: 'Checklist generation failed', details: error.message });
+        res.status(500).json({ error: 'Checklist generation failed', details: error instanceof Error ? error.message : String(error) });
     }
 });
 
 /** Step 5: 5-Why Dialog Analysis */
-router.post('/diagnose/five-why', async (req: Request, res: Response) => {
+router.post('/diagnose/five-why', anonymizeImagePayload, async (req: Request, res: Response) => {
     try {
         const { history, context, image, mimeType, locale } = stepSchema.parse(req.body);
         const { result, usage } = await aiService.fiveWhyAnalysis(
@@ -147,9 +149,9 @@ router.post('/diagnose/five-why', async (req: Request, res: Response) => {
         );
         (req as any).aiUsage = usage;
         res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         Sentry.captureException(error);
-        res.status(500).json({ error: '5-Why analysis failed', details: error.message });
+        res.status(500).json({ error: '5-Why analysis failed', details: error instanceof Error ? error.message : String(error) });
     }
 });
 
@@ -161,9 +163,9 @@ router.post('/diagnose/solution', async (req: Request, res: Response) => {
         const { result, usage } = await aiService.solutionGeneration(rootCause, context || {}, locale);
         (req as any).aiUsage = usage;
         res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         Sentry.captureException(error);
-        res.status(500).json({ error: 'Solution generation failed', details: error.message });
+        res.status(500).json({ error: 'Solution generation failed', details: error instanceof Error ? error.message : String(error) });
     }
 });
 
@@ -180,12 +182,12 @@ router.post('/chat', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
 
         res.json({ role: 'assistant', content: reply });
-    } catch (error: any) {
+    } catch (error) {
         console.error('AI Chat Error:', error);
         Sentry.captureException(error);
         res.status(500).json({
             error: 'Chat failed',
-            details: error.message
+            details: error instanceof Error ? error.message : String(error)
         });
     }
 });
@@ -203,12 +205,12 @@ router.post('/plan', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
 
         res.json({ plan });
-    } catch (error: any) {
+    } catch (error) {
         console.error('AI Plan Error:', error);
         Sentry.captureException(error);
         res.status(500).json({
             error: 'Plan generation failed',
-            details: error.message
+            details: error instanceof Error ? error.message : String(error)
         });
     }
 });

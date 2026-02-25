@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import redis from '../config/redis.js';
 
+const activeProcessing = new Set<string>();
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 /**
  * Cache middleware
  * @param duration Duration in seconds
@@ -15,11 +19,21 @@ export const cacheMiddleware = (duration = 60) => {
         const key = `cache:${req.originalUrl || req.url}`;
 
         try {
+            // Anti-stampede protection
+            let attempts = 0;
+            while (activeProcessing.has(key) && attempts < 20) {
+                await sleep(50); // wait 50ms (max 1s)
+                attempts++;
+            }
+
             const cachedResponse = await (redis as any).get(key);
 
             if (cachedResponse) {
                 return res.json(JSON.parse(cachedResponse));
             }
+
+            // Lock this key so other concurrent requests wait
+            activeProcessing.add(key);
 
             // Monkey patch res.json to capture body
             const originalJson = res.json;
@@ -30,7 +44,12 @@ export const cacheMiddleware = (duration = 60) => {
                 // Cache the response asynchronously
                 if (res.statusCode === 200) {
                     (redis as any).setex(key, duration, JSON.stringify(body))
-                        .catch((err: any) => console.error('Redis save error:', err));
+                        .catch((err: any) => console.error('Redis save error:', err))
+                        .finally(() => {
+                            activeProcessing.delete(key);
+                        });
+                } else {
+                    activeProcessing.delete(key);
                 }
 
                 return originalJson.call(res, body);

@@ -41,7 +41,7 @@ const storage = multerS3({
 });
 
 // File filter
-const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedMimes: Record<string, string[]> = {
         voice: ['audio/mpeg', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/mp4'],
         video: ['video/mp4', 'video/webm', 'video/quicktime'],

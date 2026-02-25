@@ -10,6 +10,7 @@ import {
     getRefreshCookieOptions,
     verifyRefreshToken
 } from '../middleware/auth.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
 
@@ -129,10 +130,7 @@ router.post('/register', async (req, res, next) => {
         res.cookie('accessToken', accessToken, getAuthCookieOptions());
         res.cookie('refreshToken', refreshToken, getRefreshCookieOptions());
 
-        res.status(201).json({
-            message: 'Registration successful',
-            user
-        });
+        res.status(201).json(ApiResponse.success({ user }, 'Registration successful'));
     } catch (error) {
         next(error);
     }
@@ -214,10 +212,7 @@ router.post('/login', async (req, res, next) => {
         // Remove sensitive data before sending
         delete user.password_hash;
 
-        res.json({
-            message: 'Login successful',
-            user
-        });
+        res.json(ApiResponse.success({ user }, 'Login successful'));
     } catch (error) {
         next(error);
     }
@@ -299,7 +294,7 @@ router.post('/refresh', async (req, res, next) => {
         res.cookie('accessToken', newAccessToken, getAuthCookieOptions());
         res.cookie('refreshToken', newRefreshToken, getRefreshCookieOptions());
 
-        res.json({ message: 'Token refreshed' });
+        res.json(ApiResponse.success(null, 'Token refreshed'));
 
     } catch (error) {
         next(error);
@@ -328,7 +323,7 @@ router.post('/logout', async (req, res, next) => {
         res.clearCookie('refreshToken', { path: '/api/auth' });
         res.clearCookie('token', { path: '/' }); // Clear legacy cookie just in case
 
-        res.json({ message: 'Logged out successfully' });
+        res.json(ApiResponse.success(null, 'Logged out successfully'));
     } catch (error) {
         next(error);
     }
@@ -369,7 +364,7 @@ router.get('/me', authenticate, async (req, res) => {
         return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ user });
+    res.json(ApiResponse.success({ user }));
 });
 
 /**
@@ -415,7 +410,7 @@ router.put('/profile', authenticate, async (req, res, next) => {
 
         const user = rows[0];
 
-        res.json({ message: 'Profile updated', user });
+        res.json(ApiResponse.success({ user }, 'Profile updated'));
     } catch (error) {
         next(error);
     }

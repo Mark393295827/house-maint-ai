@@ -23,7 +23,7 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
             JOIN users u ON w.user_id = u.id
             WHERE w.available = $1
         `;
-        const params: any[] = [isAvailable];
+        const params: unknown[] = [isAvailable];
 
         if (skill) {
             query += ` AND w.skills LIKE $2`;
@@ -56,7 +56,7 @@ router.get('/match', authenticate, async (req, res, next) => {
         const { report_id, latitude, longitude, category, limit = 5 } = req.query as any;
 
         // Get report if report_id provided
-        let report: any = null;
+        let report: Record<string, unknown> | null = null;
         if (report_id) {
             const { rows } = await db.query('SELECT * FROM reports WHERE id = $1', [report_id]);
             report = rows[0];

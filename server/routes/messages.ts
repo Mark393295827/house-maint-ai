@@ -33,7 +33,7 @@ router.get('/conversations', authenticate, async (req, res, next) => {
 
         // Deduplicate to keep only the latest message per partner
         const seen = new Set<number>();
-        const conversations = rows.filter((row: any) => {
+        const conversations = rows.filter((row: { partner_id: number;[key: string]: unknown }) => {
             if (seen.has(row.partner_id)) return false;
             seen.add(row.partner_id);
             return true;
@@ -47,9 +47,9 @@ router.get('/conversations', authenticate, async (req, res, next) => {
             GROUP BY sender_id
         `, [userId]);
 
-        const unreadMap = new Map(unreadCounts.map((r: any) => [r.sender_id, r.unread]));
+        const unreadMap = new Map(unreadCounts.map((r: { sender_id: number; unread: number;[key: string]: unknown }) => [r.sender_id, r.unread]));
 
-        const enriched = conversations.map((c: any) => ({
+        const enriched = conversations.map((c: { partner_id: number;[key: string]: unknown }) => ({
             ...c,
             unread: unreadMap.get(c.partner_id) || 0,
         }));
@@ -81,7 +81,7 @@ router.get('/:partnerId', authenticate, async (req, res, next) => {
             WHERE (m.sender_id = $1 AND m.receiver_id = $2)
                OR (m.sender_id = $2 AND m.receiver_id = $1)
         `;
-        const params: any[] = [userId, partnerId];
+        const params: unknown[] = [userId, partnerId];
 
         if (before) {
             query += ` AND m.created_at < $3`;

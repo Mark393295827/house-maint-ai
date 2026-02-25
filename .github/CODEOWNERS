@@ -1,0 +1,10 @@
+# House Maint AI Code Owners
+
+# Default owner for everything
+*       @antigravity
+
+# Domain specific owners
+/server/routes/payments.ts  @antigravity-finance
+/server/middleware/auth.ts  @antigravity-security
+/src/components/            @antigravity-frontend
+/server/services/ai.ts      @antigravity-ai

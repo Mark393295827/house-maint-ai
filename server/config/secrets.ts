@@ -53,7 +53,11 @@ export const MIXPANEL_TOKEN = readSecret(
 // Validate required secrets in production
 if (process.env.NODE_ENV === 'production') {
     if (JWT_SECRET === 'house-maint-ai-dev-secret-change-in-production') {
-        console.warn('WARNING: Using default JWT secret in production! Please set a secure secret.');
+        throw new Error(
+            'FATAL: Default JWT secret detected in production! ' +
+            'Set JWT_SECRET environment variable or provide a Docker secret. ' +
+            'The server will NOT start with the default secret in production.'
+        );
     }
 }
 

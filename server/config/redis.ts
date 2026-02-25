@@ -26,6 +26,13 @@ class InMemoryRedis extends EventEmitter {
         return 'OK';
     }
 
+    async incr(key: string): Promise<number> {
+        const val = this.store.get(key);
+        const nextVal = val ? parseInt(val) + 1 : 1;
+        this.store.set(key, nextVal.toString());
+        return nextVal;
+    }
+
     async del(key: string): Promise<number> {
         const deleted = this.store.delete(key);
         return deleted ? 1 : 0;

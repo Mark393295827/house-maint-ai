@@ -1,14 +1,23 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, CookieOptions } from 'express';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/secrets.js';
 
-/** JWT payload shape */
-interface JwtPayload {
-    id: number;
-    phone: string;
-    name: string;
-    role: string;
-}
+import { z } from 'zod';
+
+/** JWT payload schema for strict runtime validation */
+export const jwtPayloadSchema = z.object({
+    id: z.number(),
+    phone: z.string().nullish().transform(val => val ?? ''),
+    name: z.string().nullish().transform(val => val ?? ''),
+    role: z.string().nullish().transform(val => val ?? 'user'),
+    type: z.enum(['access', 'refresh']).optional(),
+    jti: z.string().optional(),
+    nonce: z.string().optional(),
+    iat: z.number().optional(),
+    exp: z.number().optional()
+});
+
+export type JwtPayload = z.infer<typeof jwtPayloadSchema>;
 
 /** Extended Request with typed user */
 export interface AuthRequest extends Request {
@@ -29,8 +38,8 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-        req.user = decoded;
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = jwtPayloadSchema.parse(decoded);
         next();
     } catch (error) {
         res.status(401).json({ error: 'Invalid token' });
@@ -49,8 +58,8 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-        req.user = decoded;
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = jwtPayloadSchema.parse(decoded);
     } catch (error) {
         // Ignore invalid token in optional auth
     }
@@ -143,9 +152,10 @@ export function generateRefreshToken(user: { id: number }): string {
 /**
  * Verify Access Token (for Socket.io)
  */
-export function verifyToken(token: string): any {
+export function verifyToken(token: string): JwtPayload | null {
     try {
-        return jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
+        return jwtPayloadSchema.parse(decoded);
     } catch (err) {
         return null;
     }
@@ -154,14 +164,15 @@ export function verifyToken(token: string): any {
 /**
  * Verify Refresh Token
  */
-export function verifyRefreshToken(token: string): any {
-    return jwt.verify(token, JWT_SECRET);
+export function verifyRefreshToken(token: string): JwtPayload {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return jwtPayloadSchema.parse(decoded);
 }
 
 /**
  * Cookie configuration for Access Token
  */
-export function getAuthCookieOptions(): any {
+export function getAuthCookieOptions(): CookieOptions {
     return {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -174,7 +185,7 @@ export function getAuthCookieOptions(): any {
 /**
  * Cookie configuration for Refresh Token
  */
-export function getRefreshCookieOptions(): any {
+export function getRefreshCookieOptions(): CookieOptions {
     return {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

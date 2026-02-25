@@ -1,10 +1,10 @@
 
 /**
  * AI Service for House Maint AI
- * Integrates with Backend /api/ai/diagnose for analysis
+ * Integrates with Backend /api/v1/ai/diagnose for analysis
  */
 
-const API_BASE = '/api';
+const API_BASE = '/api/v1';
 const API_BASE_URL = `${API_BASE}/ai`;
 
 /**

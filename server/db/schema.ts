@@ -4,7 +4,10 @@ import { sql } from 'drizzle-orm';
 // Users Table
 export const users = sqliteTable('users', {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    phone: text('phone').notNull().unique(),
+    phone: text('phone').unique(), // Nullable since WeChat login might not have phone initally
+    wechatOpenId: text('wechat_openid').unique(),
+    wechatUnionId: text('wechat_unionid').unique(),
+    wechatSessionKey: text('wechat_session_key'),
     passwordHash: text('password_hash').notNull(),
     name: text('name').notNull(),
     avatar: text('avatar'),
@@ -43,6 +46,9 @@ export const reports = sqliteTable('reports', {
     matchedAt: text('matched_at'),
     completedAt: text('completed_at'),
     resolutionDetails: text('resolution_details'), // JSON: { steps, parts, cost, photos }
+    severityTag: text('severity_tag', { enum: ['diy', '48h', 'emergency'] }).default('48h'),
+    diagnosisCorrect: integer('diagnosis_correct', { mode: 'boolean' }),
+    firstTimeFix: integer('first_time_fix', { mode: 'boolean' }),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),
 });
@@ -169,8 +175,9 @@ export const orders = sqliteTable('orders', {
     userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     reportId: integer('report_id').references(() => reports.id, { onDelete: 'set null' }),
     stripeSessionId: text('stripe_session_id').unique(),
+    wechatOutTradeNo: text('wechat_out_trade_no').unique(), // For WeChat Pay
     amount: real('amount').notNull(),
-    currency: text('currency').default('usd'),
+    currency: text('currency').default('cny'), // Changed from usd to cny
     status: text('status', { enum: ['pending', 'paid', 'refunded', 'failed'] }).default('pending'),
     receiptUrl: text('receipt_url'),
     createdAt: text('created_at').default(sql`(datetime('now'))`),

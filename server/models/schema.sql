@@ -4,7 +4,10 @@
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    phone TEXT UNIQUE NOT NULL,
+    phone TEXT UNIQUE, -- Nullable because WeChat users might not bind phone immediately
+    wechat_openid TEXT UNIQUE,
+    wechat_unionid TEXT UNIQUE,
+    wechat_session_key TEXT,
     password_hash TEXT NOT NULL,
     name TEXT NOT NULL,
     avatar TEXT,
@@ -46,6 +49,9 @@ CREATE TABLE IF NOT EXISTS reports (
     matched_at TEXT,
     completed_at TEXT,
     resolution_details TEXT, -- JSON: { steps, parts, cost, photos }
+    severity_tag TEXT DEFAULT '48h' CHECK(severity_tag IN ('diy', '48h', 'emergency')),
+    diagnosis_correct INTEGER, -- Boolean 0/1 to close the learning loop
+    first_time_fix INTEGER, -- Boolean 0/1
     pattern_extracted INTEGER DEFAULT 0, -- Boolean: Has this report been processed by AI learning?
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
@@ -181,8 +187,9 @@ CREATE TABLE IF NOT EXISTS orders (
     report_id INTEGER,
     worker_id INTEGER,
     stripe_session_id TEXT,
+    wechat_out_trade_no TEXT UNIQUE,
     amount INTEGER NOT NULL,
-    currency TEXT DEFAULT 'usd',
+    currency TEXT DEFAULT 'cny',
     status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'paid', 'failed', 'refunded', 'cancelled')),
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
@@ -237,4 +244,12 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_usage_user ON ai_usage_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_usage_created ON ai_usage_logs(created_at);
+
+-- P0 Indexes (Audit Remediation)
+CREATE INDEX IF NOT EXISTS idx_orders_stripe_session ON orders(stripe_session_id);
+CREATE INDEX IF NOT EXISTS idx_orders_user_report_status ON orders(user_id, report_id, status);
+CREATE INDEX IF NOT EXISTS idx_reports_matched_worker ON reports(matched_worker_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON notifications(user_id, read_at);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(sender_id, receiver_id, created_at);
 

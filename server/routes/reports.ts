@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import db from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
 
@@ -55,10 +56,7 @@ router.post('/', authenticate, async (req, res, next) => {
             JSON.stringify({ report_id: report.id })
         ]);
 
-        res.status(201).json({
-            message: 'Report created successfully',
-            report
-        });
+        res.status(201).json(ApiResponse.success({ report }, 'Report created successfully'));
     } catch (error) {
         next(error);
     }
@@ -98,7 +96,7 @@ router.get('/', authenticate, async (req, res, next) => {
 
         const { rows: reports } = await db.query(query, params);
 
-        res.json({ reports });
+        res.json(ApiResponse.success({ reports }));
     } catch (error) {
         next(error);
     }
@@ -135,7 +133,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
             }
         }
 
-        res.json({ report });
+        res.json(ApiResponse.success({ report }));
     } catch (error) {
         next(error);
     }
@@ -160,6 +158,22 @@ router.put('/:id', authenticate, async (req, res, next) => {
             return res.status(403).json({ error: 'Not authorized' });
         }
 
+        // State Machine Guard
+        if (status && status !== reportData.status) {
+            const current = reportData.status;
+            let valid = false;
+            if (current === 'pending' && ['matching', 'cancelled'].includes(status)) valid = true;
+            else if (current === 'matching' && ['matched', 'cancelled', 'broadcasted', 'failed_analysis'].includes(status)) valid = true;
+            else if (current === 'broadcasted' && ['matched', 'cancelled'].includes(status)) valid = true;
+            else if (current === 'matched' && ['in_progress', 'cancelled'].includes(status)) valid = true;
+            else if (current === 'in_progress' && ['completed', 'cancelled'].includes(status)) valid = true;
+            else if (['completed', 'cancelled', 'failed_analysis'].includes(current)) valid = false; // Terminal states
+
+            if (!valid && req.user.role !== 'admin') {
+                return res.status(400).json({ error: `Illegal state transition from ${current} to ${status}` });
+            }
+        }
+
         const { rows: updated } = await db.query(`
             UPDATE reports 
             SET status = COALESCE($1, status),
@@ -170,7 +184,7 @@ router.put('/:id', authenticate, async (req, res, next) => {
             RETURNING *
         `, [status, matched_worker_id, urgency_score, req.params.id]);
 
-        res.json({ message: 'Report updated', report: updated[0] });
+        res.json(ApiResponse.success({ report: updated[0] }, 'Report updated'));
     } catch (error) {
         next(error);
     }
@@ -220,7 +234,7 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
         // 4. Update worker stats (increment total_jobs)
         await db.query('UPDATE workers SET total_jobs = total_jobs + 1 WHERE id = $1', [report.matched_worker_id]);
 
-        res.json({ message: 'Report completed', report: updated[0] });
+        res.json(ApiResponse.success({ report: updated[0] }, 'Report completed'));
     } catch (error) {
         next(error);
     }
@@ -245,7 +259,7 @@ router.delete('/:id', authenticate, async (req, res, next) => {
 
         await db.query('DELETE FROM reports WHERE id = $1', [req.params.id]);
 
-        res.json({ message: 'Report deleted' });
+        res.json(ApiResponse.success(null, 'Report deleted'));
     } catch (error) {
         next(error);
     }
@@ -312,11 +326,11 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
 
         // 5. Return plan (and optionally save it to a notes field or separate plans table)
         // For MVP, we return it directly. Client can choose to save it as a "Resolution Draft".
-        res.json({
+        res.json(ApiResponse.success({
             report_id: reportId,
             plan: plan,
             provider: 'DeepSeek R1'
-        });
+        }));
 
     } catch (error) {
         next(error);

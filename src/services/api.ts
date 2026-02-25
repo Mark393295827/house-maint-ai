@@ -18,7 +18,7 @@ import type {
 
 // API Base URL from environment variable with fallback to localhost
 // API Base URL - using relative path to work with Vite proxy
-const API_BASE = '/api';
+const API_BASE = '/api/v1';
 
 // Refresh token state
 let isRefreshing = false;
@@ -87,13 +87,24 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
         }
     }
 
-    const data = await response.json();
+    const result = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.error || 'API Error');
+        throw new Error(result.error || 'API Error');
     }
 
-    return data as T;
+    // Auto-unwrap standardised ApiResponse.success wrapper
+    if (result.status === 'success' && result.data !== undefined) {
+        // If there's a message, we might want to attach it or just return the data
+        // For backwards compatibility with functions expecting { message, user }, 
+        // we merge message into data if data is an object.
+        if (result.message && typeof result.data === 'object' && result.data !== null) {
+            return { ...result.data, message: result.message } as T;
+        }
+        return result.data as T;
+    }
+
+    return result as T;
 }
 
 // ============ Auth API ============

@@ -25,13 +25,13 @@ import feedbackRoutes from './routes/feedback.js';
 import messagesRoutes from './routes/messages.js';
 import notificationsRoutes from './routes/notifications.js';
 import workerPortalRoutes from './routes/worker-portal.js';
-import { diagnosticsClaw } from './services/diagnostics_claw.js';
-import { vendorClaw } from './services/vendor_claw.js';
+import wechatRoutes from './routes/wechat.js';
 import { csrfGuard } from './middleware/auth.js';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler.js';
 import { standardLimiter, strictLimiter } from './middleware/rateLimiter.js';
+import { userRateLimiter } from './middleware/userRateLimiter.js';
 import { metricsCollector } from './middleware/metricsCollector.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -137,27 +137,41 @@ app.use('/uploads', express.static(join(__dirname, 'uploads')));
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+// API v1 Router setup
+const apiV1Router = express.Router();
+
+// Health check (v1)
+apiV1Router.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        version: '1.0.0'
+    });
+});
+
 // API Routes
-app.use('/api/auth', strictLimiter, authRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/workers', workerRoutes);
-app.use('/api/uploads', uploadRoutes);
-app.use('/api/community', communityRoutes);
-app.use('/api/ai', strictLimiter, aiRoutes);
-app.use('/api/metrics', metricsRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/assets', assetsRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/ai/feedback', feedbackRoutes);
-app.use('/api/messages', messagesRoutes);
-app.use('/api/notifications', notificationsRoutes);
-app.use('/api/worker-portal', workerPortalRoutes);
+apiV1Router.use(userRateLimiter);
+apiV1Router.use('/auth', strictLimiter, authRoutes);
+apiV1Router.use('/reports', reportRoutes);
+apiV1Router.use('/workers', workerRoutes);
+apiV1Router.use('/uploads', uploadRoutes);
+apiV1Router.use('/community', communityRoutes);
+apiV1Router.use('/ai', strictLimiter, aiRoutes);
+apiV1Router.use('/metrics', metricsRoutes);
+apiV1Router.use('/analytics', analyticsRoutes);
+apiV1Router.use('/assets', assetsRoutes);
+apiV1Router.use('/payments', paymentRoutes);
+apiV1Router.use('/reviews', reviewRoutes);
+apiV1Router.use('/ai/feedback', feedbackRoutes);
+apiV1Router.use('/messages', messagesRoutes);
+apiV1Router.use('/notifications', notificationsRoutes);
+apiV1Router.use('/worker-portal', workerPortalRoutes);
+apiV1Router.use('/wechat', wechatRoutes);
 
-// Sentry Error Handler (must be before custom error handler)
-Sentry.setupExpressErrorHandler(app);
+// Mount v1 router
+app.use('/api/v1', apiV1Router);
 
-// Health check
+// Maintain legacy health check for load balancers
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
@@ -165,6 +179,9 @@ app.get('/api/health', (req, res) => {
         version: '1.0.0'
     });
 });
+
+// Sentry Error Handler (must be before custom error handler)
+Sentry.setupExpressErrorHandler(app);
 
 // Error handling
 app.use(errorHandler);
@@ -186,10 +203,6 @@ const server = process.argv[1] === fileURLToPath(import.meta.url)
         console.log(`🚀 House Maint API running at http://0.0.0.0:${PORT}`);
         console.log(`📚 Health Check: http://localhost:${PORT}/api/health`);
         console.log(`🔌 Socket.io ready`);
-
-        // Start autonomous background agents
-        diagnosticsClaw.start();
-        vendorClaw.start();
     })
     : null;
 
