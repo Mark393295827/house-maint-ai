@@ -16,7 +16,7 @@
     "dependencies": {
         "@aws-sdk/client-s3": "^3.975.0",
         "@google/generative-ai": "^0.24.1",
-        "@sentry/node": "^10.36.0",
+        "@sentry/node": "^10.40.0",
         "@sentry/profiling-node": "^10.36.0",
         "@types/ioredis": "^4.28.10",
         "@types/multer-s3": "^3.0.3",
