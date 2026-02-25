@@ -22,7 +22,7 @@
         "@types/multer-s3": "^3.0.3",
         "@types/swagger-jsdoc": "^6.0.4",
         "@types/swagger-ui-express": "^4.1.8",
-        "bcryptjs": "^2.4.3",
+        "bcryptjs": "^3.0.3",
         "better-sqlite3": "^12.6.2",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
@@ -42,7 +42,7 @@
         "zod": "^3.23.0"
     },
     "devDependencies": {
-        "@types/bcryptjs": "^2.4.6",
+        "@types/bcryptjs": "^3.0.0",
         "@types/better-sqlite3": "^7.6.13",
         "@types/cookie-parser": "^1.4.10",
         "@types/cors": "^2.8.17",
