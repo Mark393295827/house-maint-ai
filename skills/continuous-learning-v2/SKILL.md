@@ -1,6 +1,8 @@
 ---
-name: Continuous Learning v2
-description: Instinct-based architecture for atomic behavior learning
+name: continuous-learning-v2
+description: Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents.
+origin: ECC
+version: 2.0.0
 ---
 
 # Continuous Learning v2 - Instinct-Based Architecture
@@ -8,6 +10,7 @@ description: Instinct-based architecture for atomic behavior learning
 An advanced learning system that turns your Claude Code sessions into reusable knowledge through atomic "instincts" - small learned behaviors with confidence scoring.
 
 ## When to Activate
+
 - Setting up automatic learning from Claude Code sessions
 - Configuring instinct-based behavior extraction via hooks
 - Tuning confidence thresholds for learned behaviors
@@ -15,6 +18,7 @@ An advanced learning system that turns your Claude Code sessions into reusable k
 - Evolving instincts into full skills, commands, or agents
 
 ## What's New in v2
+
 | Feature | v1 | v2 |
 |---------|----|----|
 | Observation | Stop hook (session end) | PreToolUse/PostToolUse (100% reliable) |
@@ -25,6 +29,7 @@ An advanced learning system that turns your Claude Code sessions into reusable k
 | Sharing | None | Export/import instincts |
 
 ## The Instinct Model
+
 An instinct is a small learned behavior:
 
 ```yaml
@@ -53,6 +58,7 @@ Use functional patterns over classes when appropriate.
 - **Evidence-backed** — tracks what observations created it
 
 ## How It Works
+
 ```
 Session Activity
       │
@@ -92,7 +98,9 @@ Session Activity
 ```
 
 ## Quick Start
+
 ### 1. Enable Observation Hooks
+
 Add to your `~/.claude/settings.json`.
 
 **If installed as a plugin** (recommended):
@@ -142,6 +150,7 @@ Add to your `~/.claude/settings.json`.
 ```
 
 ### 2. Initialize Directory Structure
+
 The Python CLI will create these automatically, but you can also create them manually:
 
 ```bash
@@ -150,6 +159,7 @@ touch ~/.claude/homunculus/observations.jsonl
 ```
 
 ### 3. Use the Instinct Commands
+
 ```bash
 /instinct-status     # Show learned instincts with confidence scores
 /evolve              # Cluster related instincts into skills/commands
@@ -158,6 +168,7 @@ touch ~/.claude/homunculus/observations.jsonl
 ```
 
 ## Commands
+
 | Command | Description |
 |---------|-------------|
 | `/instinct-status` | Show all learned instincts with confidence |
@@ -166,6 +177,7 @@ touch ~/.claude/homunculus/observations.jsonl
 | `/instinct-import <file>` | Import instincts from others |
 
 ## Configuration
+
 Edit `config.json`:
 
 ```json
@@ -203,6 +215,7 @@ Edit `config.json`:
 ```
 
 ## File Structure
+
 ```
 ~/.claude/homunculus/
 ├── identity.json           # Your profile, technical level
@@ -218,6 +231,7 @@ Edit `config.json`:
 ```
 
 ## Integration with Skill Creator
+
 When you use the [Skill Creator GitHub App](https://skill-creator.app), it now generates **both**:
 - Traditional SKILL.md files (for backward compatibility)
 - Instinct collections (for v2 learning system)
@@ -225,6 +239,7 @@ When you use the [Skill Creator GitHub App](https://skill-creator.app), it now g
 Instincts from repo analysis have `source: "repo-analysis"` and include the source repository URL.
 
 ## Confidence Scoring
+
 Confidence evolves over time:
 
 | Score | Meaning | Behavior |
@@ -245,6 +260,7 @@ Confidence evolves over time:
 - Contradicting evidence appears
 
 ## Why Hooks vs Skills for Observation?
+
 > "v1 relied on skills to observe. Skills are probabilistic—they fire ~50-80% of the time based on Claude's judgment."
 
 Hooks fire **100% of the time**, deterministically. This means:
@@ -253,20 +269,23 @@ Hooks fire **100% of the time**, deterministically. This means:
 - Learning is comprehensive
 
 ## Backward Compatibility
+
 v2 is fully compatible with v1:
 - Existing `~/.claude/skills/learned/` skills still work
 - Stop hook still runs (but now also feeds into v2)
 - Gradual migration path: run both in parallel
 
 ## Privacy
+
 - Observations stay **local** on your machine
 - Only **instincts** (patterns) can be exported
 - No actual code or conversation content is shared
 - You control what gets exported
 
 ## Related
+
 - [Skill Creator](https://skill-creator.app) - Generate instincts from repo history
-- [Homunculus](https://github.com/humanplane/homunculus) - Inspiration for v2 architecture
+- Homunculus - Community project that inspired the v2 instinct-based architecture (atomic observations, confidence scoring, instinct evolution pipeline)
 - [The Longform Guide](https://x.com/affaanmustafa/status/2014040193557471352) - Continuous learning section
 
 ---

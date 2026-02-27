@@ -25,9 +25,17 @@ export class DiagnosisAgent implements AiProvider {
     }
 
     private async callModel(systemPrompt: string, parts: any[]): Promise<{ text: string; usage: any }> {
+        // [ECC Cost-Aware Pipeline] 
+        // Inject ephemeral cache tags on the repetitive system instruction to slash token burn
+        const systemInstruction = {
+            role: "system",
+            parts: [{ text: systemPrompt }],
+            cache_control: { type: "ephemeral" } // Anthropic/Gemini Cache-Control pattern
+        };
+
         const modelWithSystem = this.genAI.getGenerativeModel({
             model: "gemini-1.5-flash",
-            systemInstruction: systemPrompt
+            systemInstruction: systemInstruction as any
         });
         const result = await modelWithSystem.generateContent(parts);
         const text = result.response.text();

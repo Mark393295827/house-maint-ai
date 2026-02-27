@@ -1,69 +1,103 @@
 ---
-name: Strategic Compact
-description: Manual compaction suggestions for context management
+name: strategic-compact
+description: Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction.
+origin: ECC
 ---
 
 # Strategic Compact Skill
 
-Optimize context window usage through strategic compaction.
+Suggests manual `/compact` at strategic points in your workflow rather than relying on arbitrary auto-compaction.
 
-## Purpose
+## When to Activate
 
-When context is filling up:
-- Suggest what to compact/summarize
-- Prioritize retention of critical info
-- Maintain coherent conversation flow
+- Running long sessions that approach context limits (200K+ tokens)
+- Working on multi-phase tasks (research → plan → implement → test)
+- Switching between unrelated tasks within the same session
+- After completing a major milestone and starting new work
+- When responses slow down or become less coherent (context pressure)
 
-## Compaction Triggers
+## Why Strategic Compaction?
 
-| Condition | Action |
-|-----------|--------|
-| Context > 70% | Suggest optional compaction |
-| Context > 85% | Recommend compaction |
-| Context > 95% | Force compaction |
+Auto-compaction triggers at arbitrary points:
+- Often mid-task, losing important context
+- No awareness of logical task boundaries
+- Can interrupt complex multi-step operations
 
-## What to Keep
+Strategic compaction at logical boundaries:
+- **After exploration, before execution** — Compact research context, keep implementation plan
+- **After completing a milestone** — Fresh start for next phase
+- **Before major context shifts** — Clear exploration context before different task
 
-### High Priority (Never Compact)
-- Current task details
-- Active file changes
-- User requirements
-- Critical decisions made
+## How It Works
 
-### Medium Priority (Summarize)
-- Previous subtasks
-- Resolved issues
-- Earlier exploration
+The `suggest-compact.js` script runs on PreToolUse (Edit/Write) and:
 
-### Low Priority (Can Remove)
-- Verbose tool outputs
-- Failed attempts (keep summary)
-- Redundant information
+1. **Tracks tool calls** — Counts tool invocations in session
+2. **Threshold detection** — Suggests at configurable threshold (default: 50 calls)
+3. **Periodic reminders** — Reminds every 25 calls after threshold
 
-## Compaction Suggestions Format
+## Hook Setup
 
-```markdown
-## Context Compaction Suggestion
+Add to your `~/.claude/settings.json`:
 
-**Current Usage**: 85% (34K / 40K tokens)
-
-### Suggested Compactions
-
-1. **Tool Outputs** (saves ~5K tokens)
-   - Verbose directory listings
-   - Full file contents already processed
-
-2. **Resolved Tasks** (saves ~3K tokens)
-   - Component creation (keep: created Header.jsx)
-   - Bug fix attempts (keep: solution in lines 45-50)
-
-### Recommended Summary
-[Condensed version of compactable content]
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [{ "type": "command", "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js" }]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [{ "type": "command", "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js" }]
+      }
+    ]
+  }
+}
 ```
 
-## Integration
+## Configuration
 
-Used by:
-- `/checkpoint` command
-- Session end hooks
-- Manual `/compact` requests
+Environment variables:
+- `COMPACT_THRESHOLD` — Tool calls before first suggestion (default: 50)
+
+## Compaction Decision Guide
+
+Use this table to decide when to compact:
+
+| Phase Transition | Compact? | Why |
+|-----------------|----------|-----|
+| Research → Planning | Yes | Research context is bulky; plan is the distilled output |
+| Planning → Implementation | Yes | Plan is in TodoWrite or a file; free up context for code |
+| Implementation → Testing | Maybe | Keep if tests reference recent code; compact if switching focus |
+| Debugging → Next feature | Yes | Debug traces pollute context for unrelated work |
+| Mid-implementation | No | Losing variable names, file paths, and partial state is costly |
+| After a failed approach | Yes | Clear the dead-end reasoning before trying a new approach |
+
+## What Survives Compaction
+
+Understanding what persists helps you compact with confidence:
+
+| Persists | Lost |
+|----------|------|
+| CLAUDE.md instructions | Intermediate reasoning and analysis |
+| TodoWrite task list | File contents you previously read |
+| Memory files (`~/.claude/memory/`) | Multi-step conversation context |
+| Git state (commits, branches) | Tool call history and counts |
+| Files on disk | Nuanced user preferences stated verbally |
+
+## Best Practices
+
+1. **Compact after planning** — Once plan is finalized in TodoWrite, compact to start fresh
+2. **Compact after debugging** — Clear error-resolution context before continuing
+3. **Don't compact mid-implementation** — Preserve context for related changes
+4. **Read the suggestion** — The hook tells you *when*, you decide *if*
+5. **Write before compacting** — Save important context to files or memory before compacting
+6. **Use `/compact` with a summary** — Add a custom message: `/compact Focus on implementing auth middleware next`
+
+## Related
+
+- [The Longform Guide](https://x.com/affaanmustafa/status/2014040193557471352) — Token optimization section
+- Memory persistence hooks — For state that survives compaction
+- `continuous-learning` skill — Extracts patterns before session ends

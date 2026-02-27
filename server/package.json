@@ -11,6 +11,8 @@
         "init-db": "tsx scripts/init-db.ts",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
+        "db:cleanup": "tsx scripts/db-cleanup.ts",
+        "verify-swarm": "tsx scripts/verify-swarm.ts",
         "test": "vitest"
     },
     "dependencies": {

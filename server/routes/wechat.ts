@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/secrets.js';
 import type { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import { withRetry } from '../agents/common.js';
 
 interface WeChatAuthResponse {
     openid?: string;
@@ -54,8 +55,10 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             session_key = `mock_session_key_${Date.now()}`;
         } else {
             // Actual API Call (mocked for demo safety)
-            const wechatRes = await fetch(
-                `https://api.weixin.qq.com/sns/jscode2session?appid=${WECHAT_APP_ID}&secret=${WECHAT_APP_SECRET}&js_code=${code}&grant_type=authorization_code`
+            const wechatRes = await withRetry(
+                () => fetch(`https://api.weixin.qq.com/sns/jscode2session?appid=${WECHAT_APP_ID}&secret=${WECHAT_APP_SECRET}&js_code=${code}&grant_type=authorization_code`),
+                3,
+                1000
             );
             const wechatData = (await wechatRes.json()) as WeChatAuthResponse;
 

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import BottomNav from '../components/BottomNav';
@@ -31,6 +32,14 @@ const MyCasesPage = () => {
     );
 
     const zh = locale === 'zh';
+
+    const parentRef = useRef<HTMLDivElement>(null);
+    const virtualizer = useVirtualizer({
+        count: filtered.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 120, // Estimated card height
+        overscan: 5
+    });
 
     return (
         <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] shadow-2xl">
@@ -79,7 +88,7 @@ const MyCasesPage = () => {
             </div>
 
             {/* Case list */}
-            <div className="px-5 space-y-3">
+            <div className="px-5" ref={parentRef} style={{ height: 'calc(100vh - 200px)', overflowY: 'auto' }}>
                 {filtered.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 py-16 text-gray-400">
                         <span className="material-symbols-outlined text-5xl">folder_open</span>
@@ -88,63 +97,81 @@ const MyCasesPage = () => {
                             {zh ? '新建诊断' : 'Start Diagnosis'}
                         </button>
                     </div>
-                ) : filtered.map(c => {
-                    const sev = SEVERITY_CONFIG[c.severity] || SEVERITY_CONFIG.moderate;
-                    const totalSteps = 8;
-                    const pct = Math.round((c.step / totalSteps) * 100);
-                    return (
-                        <div key={c.id} className="p-4 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 shadow-sm active:scale-[0.98] transition-transform cursor-pointer">
-                            <div className="flex items-start gap-3">
-                                {/* Icon */}
-                                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${sev.bg}`}>
-                                    <span className={`material-symbols-outlined ${sev.text}`} style={{ fontVariationSettings: "'FILL' 1", fontSize: '22px' }}>{catIcon(c)}</span>
-                                </div>
-
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <p className="font-bold text-sm text-text-main-light dark:text-text-main-dark truncate">
-                                            {zh ? c.title : c.titleEn}
-                                        </p>
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${sev.bg} ${sev.text}`}>
-                                            {zh ? sev.labelZh : sev.label}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-[10px] text-gray-400">{c.category || ''}</span>
-                                        <span className="text-gray-300 dark:text-gray-600">·</span>
-                                        <span className="text-[10px] text-gray-400">{c.date}</span>
-                                    </div>
-
-                                    {/* Progress bar */}
-                                    {c.status === 'active' && (
-                                        <div className="mt-2">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="text-[10px] font-medium text-primary">
-                                                    Step {c.step}/{totalSteps}
-                                                </span>
-                                                <span className="text-[10px] text-gray-400">{pct}%</span>
+                ) : (
+                    <div style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
+                        {virtualizer.getVirtualItems().map((virtualRow: any) => {
+                            const c = filtered[virtualRow.index];
+                            const sev = SEVERITY_CONFIG[c.severity] || SEVERITY_CONFIG.moderate;
+                            const totalSteps = 8;
+                            const pct = Math.round((c.step / totalSteps) * 100);
+                            return (
+                                <div
+                                    key={c.id}
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: `${virtualRow.size}px`,
+                                        transform: `translateY(${virtualRow.start}px)`,
+                                        paddingBottom: '12px'
+                                    }}
+                                >
+                                    <div className="p-4 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 shadow-sm active:scale-[0.98] transition-transform cursor-pointer h-full">
+                                        <div className="flex items-start gap-3">
+                                            {/* Icon */}
+                                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${sev.bg}`}>
+                                                <span className={`material-symbols-outlined ${sev.text}`} style={{ fontVariationSettings: "'FILL' 1", fontSize: '22px' }}>{catIcon(c)}</span>
                                             </div>
-                                            <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
-                                                <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all" style={{ width: `${pct}%` }} />
+
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="font-bold text-sm text-text-main-light dark:text-text-main-dark truncate">
+                                                        {zh ? c.title : c.titleEn}
+                                                    </p>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${sev.bg} ${sev.text}`}>
+                                                        {zh ? sev.labelZh : sev.label}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-[10px] text-gray-400">{c.category || ''}</span>
+                                                    <span className="text-gray-300 dark:text-gray-600">·</span>
+                                                    <span className="text-[10px] text-gray-400">{c.date}</span>
+                                                </div>
+
+                                                {/* Progress bar */}
+                                                {c.status === 'active' && (
+                                                    <div className="mt-2">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-[10px] font-medium text-primary">
+                                                                Step {c.step}/{totalSteps}
+                                                            </span>
+                                                            <span className="text-[10px] text-gray-400">{pct}%</span>
+                                                        </div>
+                                                        <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
+                                                            <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all" style={{ width: `${pct}%` }} />
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Root cause (archived) */}
+                                                {c.status === 'archived' && c.rootCause && (
+                                                    <div className="mt-2 flex items-center gap-1.5">
+                                                        <span className="material-symbols-outlined text-emerald-500 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>pin_drop</span>
+                                                        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                                                            {zh ? `根因: ${c.rootCause}` : `Root cause: ${c.rootCause}`}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    )}
-
-                                    {/* Root cause (archived) */}
-                                    {c.status === 'archived' && c.rootCause && (
-                                        <div className="mt-2 flex items-center gap-1.5">
-                                            <span className="material-symbols-outlined text-emerald-500 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>pin_drop</span>
-                                            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                                                {zh ? `根因: ${c.rootCause}` : `Root cause: ${c.rootCause}`}
-                                            </span>
-                                        </div>
-                                    )}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    );
-                })}
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             <BottomNav />

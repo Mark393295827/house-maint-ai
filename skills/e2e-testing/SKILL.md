@@ -1,11 +1,15 @@
 ---
-name: E2E Testing Patterns
-description: Comprehensive Playwright patterns for building stable, fast, and maintainable E2E test suites.
+name: e2e-testing
+description: Playwright E2E testing patterns, Page Object Model, configuration, CI/CD integration, artifact management, and flaky test strategies.
+origin: ECC
 ---
 
 # E2E Testing Patterns
 
+Comprehensive Playwright patterns for building stable, fast, and maintainable E2E test suites.
+
 ## Test File Organization
+
 ```
 tests/
 ├── e2e/
@@ -26,6 +30,7 @@ tests/
 ```
 
 ## Page Object Model (POM)
+
 ```typescript
 import { Page, Locator } from '@playwright/test'
 
@@ -60,6 +65,7 @@ export class ItemsPage {
 ```
 
 ## Test Structure
+
 ```typescript
 import { test, expect } from '@playwright/test'
 import { ItemsPage } from '../../pages/ItemsPage'
@@ -92,6 +98,7 @@ test.describe('Item Search', () => {
 ```
 
 ## Playwright Configuration
+
 ```typescript
 import { defineConfig, devices } from '@playwright/test'
 
@@ -130,7 +137,9 @@ export default defineConfig({
 ```
 
 ## Flaky Test Patterns
+
 ### Quarantine
+
 ```typescript
 test('flaky: complex search', async ({ page }) => {
   test.fixme(true, 'Flaky - Issue #123')
@@ -144,12 +153,14 @@ test('conditional skip', async ({ page }) => {
 ```
 
 ### Identify Flakiness
+
 ```bash
 npx playwright test tests/search.spec.ts --repeat-each=10
 npx playwright test tests/search.spec.ts --retries=3
 ```
 
 ### Common Causes & Fixes
+
 **Race conditions:**
 ```typescript
 // Bad: assumes element is ready
@@ -180,7 +191,9 @@ await page.locator('[data-testid="menu-item"]').click()
 ```
 
 ## Artifact Management
+
 ### Screenshots
+
 ```typescript
 await page.screenshot({ path: 'artifacts/after-login.png' })
 await page.screenshot({ path: 'artifacts/full-page.png', fullPage: true })
@@ -188,6 +201,7 @@ await page.locator('[data-testid="chart"]').screenshot({ path: 'artifacts/chart.
 ```
 
 ### Traces
+
 ```typescript
 await browser.startTracing(page, {
   path: 'artifacts/trace.json',
@@ -199,6 +213,7 @@ await browser.stopTracing()
 ```
 
 ### Video
+
 ```typescript
 // In playwright.config.ts
 use: {
@@ -208,6 +223,7 @@ use: {
 ```
 
 ## CI/CD Integration
+
 ```yaml
 # .github/workflows/e2e.yml
 name: E2E Tests
@@ -235,6 +251,7 @@ jobs:
 ```
 
 ## Test Report Template
+
 ```markdown
 # E2E Test Report
 
@@ -261,6 +278,7 @@ jobs:
 ```
 
 ## Wallet / Web3 Testing
+
 ```typescript
 test('wallet connection', async ({ page, context }) => {
   // Mock wallet provider
@@ -282,6 +300,7 @@ test('wallet connection', async ({ page, context }) => {
 ```
 
 ## Financial / Critical Flow Testing
+
 ```typescript
 test('trade execution', async ({ page }) => {
   // Skip on production — real money
@@ -302,6 +321,6 @@ test('trade execution', async ({ page }) => {
     { timeout: 30000 }
   )
 
-  await expect(page.locator('[data-testid="trade-success"]').toBeVisible()
+  await expect(page.locator('[data-testid="trade-success"]')).toBeVisible()
 })
 ```

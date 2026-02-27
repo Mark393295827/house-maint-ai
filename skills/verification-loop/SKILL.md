@@ -1,85 +1,126 @@
 ---
-name: Verification Loop
-description: Continuous verification and quality assurance
+name: verification-loop
+description: "A comprehensive verification system for Claude Code sessions."
+origin: ECC
 ---
 
 # Verification Loop Skill
 
-Implement continuous verification throughout development.
+A comprehensive verification system for Claude Code sessions.
 
-## Verification Cycle
+## When to Use
 
-```
-┌───────────────────────────────────────────┐
-│                                           │
-│   IMPLEMENT ──► VERIFY ──► ITERATE       │
-│       ▲                       │           │
-│       └───────────────────────┘           │
-│                                           │
-└───────────────────────────────────────────┘
-```
+Invoke this skill:
+- After completing a feature or significant code change
+- Before creating a PR
+- When you want to ensure quality gates pass
+- After refactoring
 
-## Verification Steps
+## Verification Phases
 
-### 1. Code Quality
+### Phase 1: Build Verification
 ```bash
-npm run lint           # ESLint check
-npm run typecheck      # TypeScript (if applicable)
+# Check if project builds
+npm run build 2>&1 | tail -20
+# OR
+pnpm build 2>&1 | tail -20
 ```
 
-### 2. Unit Tests
+If build fails, STOP and fix before continuing.
+
+### Phase 2: Type Check
 ```bash
-npm run test           # Run test suite
-npm run test:coverage  # Check coverage
+# TypeScript projects
+npx tsc --noEmit 2>&1 | head -30
+
+# Python projects
+pyright . 2>&1 | head -30
 ```
 
-### 3. Build Verification
+Report all type errors. Fix critical ones before continuing.
+
+### Phase 3: Lint Check
 ```bash
-npm run build          # Ensure it builds
+# JavaScript/TypeScript
+npm run lint 2>&1 | head -30
+
+# Python
+ruff check . 2>&1 | head -30
 ```
 
-### 4. Visual Verification
-- Check component renders correctly
-- Verify responsive design
-- Test user interactions
+### Phase 4: Test Suite
+```bash
+# Run tests with coverage
+npm run test -- --coverage 2>&1 | tail -50
 
-## Checkpoint System
+# Check coverage threshold
+# Target: 80% minimum
+```
 
-Use `/checkpoint` to save verification state:
+Report:
+- Total tests: X
+- Passed: X
+- Failed: X
+- Coverage: X%
+
+### Phase 5: Security Scan
+```bash
+# Check for secrets
+grep -rn "sk-" --include="*.ts" --include="*.js" . 2>/dev/null | head -10
+grep -rn "api_key" --include="*.ts" --include="*.js" . 2>/dev/null | head -10
+
+# Check for console.log
+grep -rn "console.log" --include="*.ts" --include="*.tsx" src/ 2>/dev/null | head -10
+```
+
+### Phase 6: Diff Review
+```bash
+# Show what changed
+git diff --stat
+git diff HEAD~1 --name-only
+```
+
+Review each changed file for:
+- Unintended changes
+- Missing error handling
+- Potential edge cases
+
+## Output Format
+
+After running all phases, produce a verification report:
+
+```
+VERIFICATION REPORT
+==================
+
+Build:     [PASS/FAIL]
+Types:     [PASS/FAIL] (X errors)
+Lint:      [PASS/FAIL] (X warnings)
+Tests:     [PASS/FAIL] (X/Y passed, Z% coverage)
+Security:  [PASS/FAIL] (X issues)
+Diff:      [X files changed]
+
+Overall:   [READY/NOT READY] for PR
+
+Issues to Fix:
+1. ...
+2. ...
+```
+
+## Continuous Mode
+
+For long sessions, run verification every 15 minutes or after major changes:
 
 ```markdown
-## Checkpoint: Feature Implementation
+Set a mental checkpoint:
+- After completing each function
+- After finishing a component
+- Before moving to next task
 
-**Timestamp**: 2026-01-24T08:52:00Z
-**Status**: ✅ All checks passed
-
-### Verification Results
-- [x] Lint: 0 errors
-- [x] Tests: 15 passed, 0 failed
-- [x] Build: Success
-- [x] Coverage: 82%
-
-### Files Changed
-- src/components/NewFeature.jsx
-- src/components/NewFeature.test.jsx
-
-### Next Steps
-- Add E2E tests
-- Update documentation
+Run: /verify
 ```
 
-## Integration with Eval Harness
+## Integration with Hooks
 
-The verification loop uses the eval-harness skill to:
-1. Run automated evaluations
-2. Track quality metrics
-3. Generate reports
-
-## Commands
-
-```bash
-/verify              # Run full verification
-/checkpoint          # Save current state
-/verify quick        # Quick lint + test
-/verify full         # Full verification suite
-```
+This skill complements PostToolUse hooks but provides deeper verification.
+Hooks catch issues immediately; this skill provides comprehensive review.
