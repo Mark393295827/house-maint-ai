@@ -1,22 +1,14 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { callMECE, callHypothesis, callChecklist, callFiveWhy, callSolution } from '../../services/ai';
 import { addCase, generateCaseId, type CaseRecord } from '../../store/cases';
 
 // Shared UI
 import { SkeletonCard as _SkeletonCard } from './WizardUI';
 
-
 // Wizard Steps
 import StepInput from './steps/StepInput';
-import StepMECE from './steps/StepMECE';
-import StepHypothesis from './steps/StepHypothesis';
-import StepChecklist from './steps/StepChecklist';
-import StepFiveWhy from './steps/StepFiveWhy';
-import StepSolution from './steps/StepSolution';
-import StepPDCA from './steps/StepPDCA';
-import StepFollowUp from './steps/StepFollowUp';
+import StepDispatch from './steps/StepDispatch';
 
 /* ─── Types ─── */
 interface WizardState {
@@ -41,7 +33,6 @@ interface WizardState {
 
 const STEP_LABELS_ZH = ['录入', 'MECE', '假设', '收集', '5-Why', '方案', 'PDCA', '验收'];
 const STEP_LABELS_EN = ['Input', 'MECE', 'Hypo.', 'Check', '5-Why', 'Solution', 'PDCA', 'Done'];
-const TOTAL_STEPS = 8;
 const DRAFT_KEY = 'wizard_draft';
 
 const DEFAULT_STATE: WizardState = {
@@ -67,7 +58,6 @@ const DiagnosisWizard: React.FC = () => {
         return DEFAULT_STATE;
     });
 
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [_hasDraft] = useState(() => {
         try {
@@ -106,26 +96,6 @@ const DiagnosisWizard: React.FC = () => {
             localStorage.removeItem(DRAFT_KEY);
             navigate(-1);
         }
-    };
-
-    const clearDraftAndFinish = () => {
-        const newCase: CaseRecord = {
-            id: generateCaseId(),
-            title: state.selectedCategory
-                ? (locale === 'zh' ? `${state.selectedCategory} 问题` : `${state.selectedCategory} Issue`)
-                : (locale === 'zh' ? '新诊断' : 'New Diagnosis'),
-            titleEn: state.selectedCategory ? `${state.selectedCategory} Issue` : 'New Diagnosis',
-            status: 'archived',
-            step: 8,
-            severity: 'moderate',
-            date: new Date().toISOString().split('T')[0],
-            category: state.selectedCategory || '',
-            rootCause: state.rootCause || '',
-            solution: state.solution?.issue_name || '',
-        };
-        addCase(newCase);
-        localStorage.removeItem(DRAFT_KEY);
-        navigate('/');
     };
 
     // --- References & Logic (Camera, Network Calls) ---
@@ -167,7 +137,7 @@ const DiagnosisWizard: React.FC = () => {
             if (!blob) return;
             const url = URL.createObjectURL(blob);
             update({ imageUrl: url, imageBase64: base64 });
-            proceedToMECE(base64);
+            proceedToAnalysis(base64);
         }, 'image/jpeg', 0.85);
     }, []);
 
@@ -180,119 +150,66 @@ const DiagnosisWizard: React.FC = () => {
         reader.onload = () => {
             const b64 = (reader.result as string).split(',')[1];
             update({ imageBase64: b64 });
-            proceedToMECE(b64);
+            proceedToAnalysis(b64);
         };
         reader.readAsDataURL(file);
     };
 
-    const proceedToMECE = async (base64: string) => {
-        advanceStep(2); setLoading(true); setError(null);
-        const doCall = async () => {
-            setLoading(true); setError(null);
-            try {
-                const result = await callMECE(base64, 'image/jpeg', '', locale);
-                update({ meceResult: result });
-            } catch (e: any) { setError(e.message); retryRef.current = doCall; }
-            finally { setLoading(false); }
-        };
-        await doCall();
-    };
+    const proceedToAnalysis = async (base64: string) => {
+        // Step 2 is now Dispatch. The AI analysis happens during the "searching" state.
+        advanceStep(2); setError(null);
 
-    const selectCategory = async (categoryId: string) => {
-        advanceStep(3, { selectedCategory: categoryId }); setLoading(true); setError(null);
-        const doCall = async () => {
-            setLoading(true); setError(null);
+        // Use the combined analyzeImage API from ai.ts which provides severity/cost/issue
+        import('../../services/ai').then(async ({ analyzeImage }) => {
             try {
-                const result = await callHypothesis(categoryId, state.imageBase64, 'image/jpeg', locale);
-                update({ hypotheses: result });
-            } catch (e: any) { setError(e.message); retryRef.current = doCall; }
-            finally { setLoading(false); }
-        };
-        await doCall();
-    };
-
-    const selectHypothesis = async (hypothesisTitle: string) => {
-        advanceStep(4, { selectedHypothesis: hypothesisTitle }); setLoading(true); setError(null);
-        const doCall = async () => {
-            setLoading(true); setError(null);
-            try {
-                const result = await callChecklist(hypothesisTitle, state.imageBase64, 'image/jpeg', locale);
-                update({ checklist: result });
-            } catch (e: any) { setError(e.message); retryRef.current = doCall; }
-            finally { setLoading(false); }
-        };
-        await doCall();
-    };
-
-    const submitChecklist = async (answers: Record<string, any>) => {
-        const context = { category: state.selectedCategory, hypothesis: state.selectedHypothesis, checklist_answers: answers };
-        const summaryText = Object.entries(answers).map(([k, v]) => `${k}: ${v}`).join('; ');
-        const initHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [
-            { role: 'user', content: locale === 'zh' ? `问题类别：${state.selectedCategory}\n假设：${state.selectedHypothesis}\n观察结果：${summaryText}` : `Category: ${state.selectedCategory}\nHypothesis: ${state.selectedHypothesis}\nObservations: ${summaryText}` }
-        ];
-        advanceStep(5, { checklistAnswers: answers, fiveWhyHistory: initHistory }); setLoading(true); setError(null);
-        const doCall = async () => {
-            setLoading(true); setError(null);
-            try {
-                const result = await callFiveWhy(initHistory, context, state.imageBase64, 'image/jpeg', locale);
-                update({ fiveWhyResult: result, fiveWhyHistory: [...initHistory, { role: 'assistant', content: result.question || result.message || '' }] });
-            } catch (e: any) { setError(e.message); retryRef.current = doCall; }
-            finally { setLoading(false); }
-        };
-        await doCall();
-    };
-
-    const sendFiveWhyAnswer = async (answer: string) => {
-        const newHistory = [...state.fiveWhyHistory, { role: 'user' as const, content: answer }];
-        update({ fiveWhyHistory: newHistory }); setLoading(true); setError(null);
-        try {
-            const context = { category: state.selectedCategory, hypothesis: state.selectedHypothesis };
-            const result = await callFiveWhy(newHistory, context, state.imageBase64, 'image/jpeg', locale);
-            if (result.type === 'root_cause') {
-                advanceStep(6, { rootCause: result.root_cause, fiveWhyResult: result, fiveWhyHistory: [...newHistory, { role: 'assistant', content: result.message }] });
-                setLoading(true);
-                const sol = await callSolution(result.root_cause, context, locale);
-                update({ solution: sol });
-            } else {
-                update({ fiveWhyResult: result, fiveWhyHistory: [...newHistory, { role: 'assistant', content: result.question || result.message }] });
+                const diagnosis = await analyzeImage(base64, 'image/jpeg');
+                update({ initialDiagnosis: diagnosis });
+            } catch (e: any) {
+                setError(e.message);
             }
-        } catch (e: any) { setError(e.message); }
-        finally { setLoading(false); }
+        });
     };
 
-    const generatePDCA = () => {
-        if (!state.solution) return;
-        const sol = state.solution;
-        const tasks = [
-            { phase: 'Plan', icon: 'edit_note', color: 'bg-blue-500', items: [{ text: locale === 'zh' ? `确认诊断：${sol.issue_name}` : `Confirm diagnosis: ${sol.issue_name}`, done: true }, { text: locale === 'zh' ? '采购所需材料和工具' : 'Procure required parts and tools', done: false }, { text: locale === 'zh' ? '安排维修时间' : 'Schedule repair time', done: false }] },
-            { phase: 'Do', icon: 'construction', color: 'bg-emerald-500', items: sol.steps?.map((s: any) => ({ text: `${s.action}: ${s.detail}`, done: false })) || [] },
-            { phase: 'Check', icon: 'fact_check', color: 'bg-amber-500', items: [{ text: locale === 'zh' ? '修复后观察30分钟确认无异常' : 'Observe 30min after repair to confirm no issues', done: false }, { text: locale === 'zh' ? '拍照记录修复结果' : 'Photo-document the repair result', done: false }] },
-            { phase: 'Act', icon: 'trending_up', color: 'bg-violet-500', items: (sol.prevention_tips || []).map((tip: string) => ({ text: tip, done: false })) }
-        ];
-        advanceStep(7, { pdcaTasks: tasks });
+    const handleDispatch = (worker: any) => {
+        sessionStorage.setItem('selectedWorker', JSON.stringify(worker));
+
+        // Save case 
+        const newCase: CaseRecord = {
+            id: generateCaseId(),
+            title: state.initialDiagnosis?.issue_name || (locale === 'zh' ? '新诊断' : 'New Diagnosis'),
+            titleEn: state.initialDiagnosis?.issue_name_en || 'New Diagnosis',
+            status: 'active',
+            step: 2,
+            severity: state.initialDiagnosis?.severity || 'moderate',
+            date: new Date().toISOString().split('T')[0],
+            category: state.initialDiagnosis?.raw_response?.diagnosis?.category || 'other',
+            rootCause: state.initialDiagnosis?.description || '',
+            solution: '',
+        };
+        addCase(newCase);
+        localStorage.removeItem(DRAFT_KEY);
+
+        // Transition to match/calendar
+        navigate('/calendar');
     };
 
     return (
-        <div className="flex flex-col h-screen bg-background-light dark:bg-background-dark">
-            {/* Header */}
-            <div className="px-4 pt-4 pb-2 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 mb-3">
-                    <button onClick={handleBack} className="text-gray-500 dark:text-gray-400 active:scale-90 transition-transform">
-                        <span className="material-symbols-outlined text-xl">arrow_back</span>
-                    </button>
-                    <h1 className="text-lg font-bold text-text-main-light dark:text-text-main-dark flex-1">
-                        {locale === 'zh' ? '智能诊断' : 'Smart Diagnosis'}
-                    </h1>
-                    <span className="text-xs font-bold text-primary">{state.step}/{TOTAL_STEPS}</span>
-                </div>
-                <div className="flex gap-1">
-                    {labels.map((label, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                            <div className={`h-1.5 w-full rounded-full transition-all ${i + 1 <= state.step ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`} />
-                            <span className={`text-[9px] font-medium ${i + 1 === state.step ? 'text-primary font-bold' : 'text-gray-400'}`}>{label}</span>
+        <div className="flex flex-col h-screen bg-[#1a1c29] text-white overflow-hidden">
+            {/* Minimal Header */}
+            <div className="absolute top-0 left-0 right-0 z-50 px-4 pt-4 pb-2 flex items-center justify-between pointer-events-none">
+                <button onClick={handleBack} className="pointer-events-auto p-2 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full active:scale-90 transition-transform text-white/80">
+                    <span className="material-symbols-outlined text-xl block">close</span>
+                </button>
+                <div className="flex gap-1.5 w-1/3 max-w-[120px]">
+                    {labels.map((_, i) => (
+                        <div key={i} className="flex-1 h-1 rounded-full overflow-hidden bg-white/20">
+                            {i <= state.step - 1 && (
+                                <div className="h-full w-full bg-white opacity-80" />
+                            )}
                         </div>
                     ))}
                 </div>
+                <div className="w-10"></div> {/* Spacer for centering */}
             </div>
 
             {/* Error banner */}
@@ -317,13 +234,7 @@ const DiagnosisWizard: React.FC = () => {
             <div className="flex-1 overflow-y-auto">
                 <div key={animKey} className={directionRef.current === 'fwd' ? 'step-slide-fwd' : 'step-slide-back'}>
                     {state.step === 1 && <StepInput videoRef={videoRef} cameraReady={cameraReady} cameraError={cameraError} imageUrl={state.imageUrl} onCapture={capturePhoto} onUpload={() => fileRef.current?.click()} locale={locale} />}
-                    {state.step === 2 && <StepMECE result={state.meceResult} loading={loading} onSelect={selectCategory} locale={locale} imageUrl={state.imageUrl} />}
-                    {state.step === 3 && <StepHypothesis result={state.hypotheses} loading={loading} onSelect={selectHypothesis} locale={locale} />}
-                    {state.step === 4 && <StepChecklist checklist={state.checklist} loading={loading} onSubmit={submitChecklist} locale={locale} />}
-                    {state.step === 5 && <StepFiveWhy history={state.fiveWhyHistory} result={state.fiveWhyResult} loading={loading} onAnswer={sendFiveWhyAnswer} locale={locale} />}
-                    {state.step === 6 && <StepSolution solution={state.solution} loading={loading} locale={locale} navigate={navigate} onNext={generatePDCA} />}
-                    {state.step === 7 && <StepPDCA tasks={state.pdcaTasks} locale={locale} onNext={() => advanceStep(8)} />}
-                    {state.step === 8 && <StepFollowUp locale={locale} followUpDate={state.followUpDate} archived={state.archived} onDateChange={(d: string) => update({ followUpDate: d })} onArchive={() => update({ archived: true })} onHome={clearDraftAndFinish} />}
+                    {state.step === 2 && <StepDispatch diagnosis={state.initialDiagnosis} locale={locale} imageUrl={state.imageUrl || ''} onDispatch={handleDispatch} />}
                 </div>
             </div>
 
