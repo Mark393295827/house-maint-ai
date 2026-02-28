@@ -39,7 +39,7 @@ router.get('/', authenticate, async (req, res, next) => {
 router.put('/:id/read', authenticate, async (req, res, next) => {
     try {
         await db.query(
-            `UPDATE notifications SET read_at = datetime('now') WHERE id = $1 AND user_id = $2`,
+            `UPDATE notifications SET read_at = CURRENT_TIMESTAMP WHERE id = $1 AND user_id = $2`,
             [req.params.id, req.user.id]
         );
         res.json({ message: 'Notification marked as read' });
@@ -55,7 +55,7 @@ router.put('/:id/read', authenticate, async (req, res, next) => {
 router.put('/read-all', authenticate, async (req, res, next) => {
     try {
         await db.query(
-            `UPDATE notifications SET read_at = datetime('now') WHERE user_id = $1 AND read_at IS NULL`,
+            `UPDATE notifications SET read_at = CURRENT_TIMESTAMP WHERE user_id = $1 AND read_at IS NULL`,
             [req.user.id]
         );
         res.json({ message: 'All notifications marked as read' });
