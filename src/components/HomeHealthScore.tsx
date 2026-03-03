@@ -9,9 +9,9 @@ const HomeHealthScore = () => {
 
     const score = 82;
     const breakdown = [
-        { label: locale === 'zh' ? '定期检查' : 'Regular checks', value: 90, icon: 'checklist', gradient: 'from-indigo-500 to-violet-500' },
-        { label: locale === 'zh' ? '维修完成' : 'Repairs done', value: 85, icon: 'build', gradient: 'from-cyan-500 to-teal-500' },
-        { label: locale === 'zh' ? '季节保养' : 'Seasonal care', value: 70, icon: 'eco', gradient: 'from-amber-500 to-orange-500' },
+        { label: locale === 'zh' ? '定期检查' : 'Regular checks', value: 90, icon: 'checklist', gradient: 'from-data-green/80 to-data-green' },
+        { label: locale === 'zh' ? '维修完成' : 'Repairs done', value: 85, icon: 'build', gradient: 'from-neon-cyan/80 to-neon-cyan' },
+        { label: locale === 'zh' ? '季节保养' : 'Seasonal care', value: 70, icon: 'eco', gradient: 'from-pit-amber to-pit-amber' },
     ];
 
     const circumference = 283;
@@ -49,27 +49,47 @@ const HomeHealthScore = () => {
                     <div className="relative shrink-0">
                         <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl scale-125 glow-pulse" />
                         <svg width="80" height="80" viewBox="0 0 100 100" className="-rotate-90 relative z-10">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="7"
+                            {/* Tick marks around the gauge */}
+                            {Array.from({ length: 24 }).map((_, i) => {
+                                const angle = (i / 24) * 360;
+                                const rad = (angle * Math.PI) / 180;
+                                const x1 = 50 + 38 * Math.cos(rad);
+                                const y1 = 50 + 38 * Math.sin(rad);
+                                const x2 = 50 + 42 * Math.cos(rad);
+                                const y2 = 50 + 42 * Math.sin(rad);
+                                return (
+                                    <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+                                        stroke={i % 6 === 0 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)'}
+                                        strokeWidth={i % 6 === 0 ? 1.5 : 0.5}
+                                    />
+                                );
+                            })}
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="5"
                                 className="text-gray-100 dark:text-white/5" />
-                            <circle cx="50" cy="50" r="45" fill="none" strokeWidth="7"
+                            <circle cx="50" cy="50" r="45" fill="none" strokeWidth="5"
                                 strokeLinecap="round"
                                 strokeDasharray={circumference}
                                 strokeDashoffset={offset}
                                 className="transition-all duration-1000"
                                 style={{
-                                    stroke: 'url(#scoreGradient)',
-                                    animation: 'scoreRingFill 1.5s cubic-bezier(0.16, 1, 0.3, 1) both'
+                                    stroke: 'url(#scoreGradientF1)',
+                                    animation: 'scoreRingFill 1.5s cubic-bezier(0.16, 1, 0.3, 1) both',
+                                    filter: 'drop-shadow(0 0 6px rgba(0, 255, 135, 0.4))'
                                 }}
                             />
                             <defs>
-                                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#6366f1" />
-                                    <stop offset="100%" stopColor="#06b6d4" />
+                                <linearGradient id="scoreGradientF1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#00FF87" />
+                                    <stop offset="100%" stopColor="#00F0FF" />
                                 </linearGradient>
                             </defs>
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center z-10">
-                            <span className="text-2xl font-extrabold gradient-text">{displayScore}</span>
+                            <span className="text-2xl font-extrabold font-telemetry" style={{
+                                background: 'linear-gradient(135deg, #00FF87, #00F0FF)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}>{displayScore}</span>
                         </div>
                     </div>
 
@@ -101,7 +121,9 @@ const HomeHealthScore = () => {
                     <div className="relative mt-4 pt-4 border-t border-white/10 dark:border-white/5 flex flex-col gap-3 page-enter">
                         {breakdown.map((item, i) => (
                             <div key={i} className="flex items-center gap-3">
-                                <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${item.gradient} flex items-center justify-center`}>
+                                <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${item.gradient} flex items-center justify-center`}
+                                    style={{ boxShadow: `0 0 8px ${item.gradient.includes('green') ? 'rgba(0,255,135,0.3)' : item.gradient.includes('cyan') ? 'rgba(0,240,255,0.3)' : 'rgba(255,184,0,0.3)'}` }}
+                                >
                                     <span className="material-symbols-outlined text-white text-[14px]">{item.icon}</span>
                                 </div>
                                 <span className="flex-1 text-sm font-medium">{item.label}</span>
@@ -111,7 +133,9 @@ const HomeHealthScore = () => {
                                         style={{ width: `${item.value}%` }}
                                     />
                                 </div>
-                                <span className="text-xs font-bold w-8 text-right gradient-text">{item.value}</span>
+                                <span className="text-xs font-bold w-8 text-right font-telemetry" style={{
+                                    color: item.gradient.includes('green') ? '#00FF87' : item.gradient.includes('cyan') ? '#00F0FF' : '#FFB800'
+                                }}>{item.value}</span>
                             </div>
                         ))}
                     </div>

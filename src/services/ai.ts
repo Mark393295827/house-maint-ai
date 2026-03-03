@@ -232,6 +232,38 @@ export async function callSolution(rootCause: string, context: Record<string, an
     return callStepAPI('solution', { rootCause, context, locale });
 }
 
+/**
+ * Progressive inquiry conversation — AI asks targeted questions to gather project info.
+ * Returns { type: 'question' | 'summary', message, questions?, quickReplies?, progress, demandSummary? }
+ */
+export async function inquiryChat(
+    history: Array<{ role: 'user' | 'assistant'; content: string }>,
+    imageBase64?: string,
+    mimeType?: string,
+    locale?: string
+) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/diagnose/inquiry`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                history,
+                image: imageBase64 || undefined,
+                mimeType: imageBase64 ? (mimeType || 'image/jpeg') : undefined,
+                locale: locale || 'zh'
+            })
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.details || err.error || 'Inquiry failed');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Inquiry chat error:', error);
+        throw error;
+    }
+}
+
 export { blobUrlToBase64, imageToBase64 };
 
 export default {
@@ -240,6 +272,7 @@ export default {
     analyzeImageFromUrl,
     generateRepairSteps,
     chatWithDiagnosis,
+    inquiryChat,
     callMECE,
     callHypothesis,
     callChecklist,

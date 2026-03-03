@@ -27,6 +27,7 @@ const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
 const PaymentCancelPage = lazy(() => import('./pages/PaymentCancelPage'));
 const OmnichannelSim = lazy(() => import('./pages/OmnichannelSim'));
+const MetricsDashboard = lazy(() => import('./pages/MetricsDashboard'));
 
 function App() {
   useEffect(() => {
@@ -57,6 +58,7 @@ function App() {
                     <Route path="/payment/success" element={<PaymentSuccessPage />} />
                     <Route path="/payment/cancel" element={<PaymentCancelPage />} />
                     <Route path="/omnichannel-sim" element={<OmnichannelSim />} />
+                    <Route path="/metrics" element={<MetricsDashboard />} />
 
                     {/* Protected routes */}
                     <Route path="/calendar" element={

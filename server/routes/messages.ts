@@ -94,7 +94,7 @@ router.get('/:partnerId', authenticate, async (req, res, next) => {
 
         // Mark unread messages from partner as read
         await db.query(
-            `UPDATE messages SET read_at = datetime('now')
+            `UPDATE messages SET read_at = CURRENT_TIMESTAMP
              WHERE sender_id = $1 AND receiver_id = $2 AND read_at IS NULL`,
             [partnerId, userId]
         );
