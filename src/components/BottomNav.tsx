@@ -19,8 +19,14 @@ const BottomNav = () => {
 
     return (
         <nav
-            className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 glass dark:glass-dark pb-safe-bottom"
+            className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 pb-safe-bottom"
             aria-label="Main Navigation"
+            style={{
+                background: 'rgba(8, 10, 18, 0.85)',
+                backdropFilter: 'blur(28px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
+                borderTop: '1px solid rgba(99, 102, 241, 0.1)',
+            }}
         >
             <div className="flex items-center justify-around h-[72px] px-1" role="menubar">
                 {navItems.map((item) => {
@@ -39,7 +45,11 @@ const BottomNav = () => {
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-200 active:scale-90 ${isActive
                                     ? 'bg-gradient-to-br from-primary to-accent shadow-primary/40 scale-105'
                                     : 'bg-gradient-to-br from-primary to-accent shadow-primary/20'
-                                    }`}>
+                                    }`}
+                                    style={isActive ? {
+                                        boxShadow: '0 0 20px rgba(99, 102, 241, 0.4), 0 0 40px rgba(6, 182, 212, 0.2), 0 8px 25px rgba(99, 102, 241, 0.3)'
+                                    } : undefined}
+                                >
                                     <span
                                         className="material-symbols-outlined text-white text-[26px]"
                                         style={{ fontVariationSettings: "'FILL' 1" }}
@@ -61,9 +71,11 @@ const BottomNav = () => {
                             aria-current={isActive ? 'page' : undefined}
                             aria-label={item.label}
                         >
-                            {/* Active pill background */}
+                            {/* LED strip active indicator */}
                             {isActive && (
-                                <div className="absolute inset-x-2 top-2 bottom-2 rounded-2xl bg-primary/8 dark:bg-primary/10 nav-pill-active" style={{
+                                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full" style={{
+                                    background: 'linear-gradient(90deg, #6366f1, #06b6d4)',
+                                    boxShadow: '0 0 8px rgba(99, 102, 241, 0.6), 0 0 16px rgba(6, 182, 212, 0.3)',
                                     animation: 'fadeSlideIn 0.25s ease both'
                                 }} />
                             )}

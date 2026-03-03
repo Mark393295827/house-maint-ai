@@ -69,20 +69,23 @@ const Dashboard = () => {
 
     return (
         <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden shadow-2xl">
-            {/* ─── Header ─── */}
-            <div className="px-5 pt-6 pb-3">
+            {/* ─── Header with Carbon Fiber ─── */}
+            <div className="px-5 pt-6 pb-3 carbon-fiber">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-black text-text-main-light dark:text-text-main-dark font-display tracking-tight">
                             {locale === 'zh' ? '🛡️ 运维指挥中心' : '🛡️ Ops Center'}
                         </h1>
-                        <p className="text-[11px] font-bold text-primary uppercase tracking-widest mt-0.5 opacity-80">
-                            {locale === 'zh' ? 'House Maint AI 系统监视器' : 'House Maint AI System Monitor'}
-                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                            <div className="live-dot" />
+                            <span className="text-[10px] font-bold text-data-green uppercase tracking-[0.2em] font-telemetry">
+                                {locale === 'zh' ? 'SYSTEM ONLINE' : 'SYSTEM ONLINE'}
+                            </span>
+                        </div>
                     </div>
-                    <button onClick={() => navigate('/notifications')} className="relative w-10 h-10 rounded-xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 flex items-center justify-center">
+                    <button onClick={() => navigate('/notifications')} className="relative w-10 h-10 rounded-xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700/50 flex items-center justify-center hover:border-primary/30 transition-colors">
                         <span className="material-symbols-outlined text-gray-600 dark:text-gray-400">notifications</span>
-                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">2</div>
+                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-racing-red text-white text-[9px] font-bold flex items-center justify-center shadow-lg shadow-racing-red/40">2</div>
                     </button>
                 </div>
             </div>
@@ -90,7 +93,7 @@ const Dashboard = () => {
             {/* ✨ AI Proactive Insight Card */}
             {activeInsight && (
                 <section className="px-5 mb-5">
-                    <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl shadow-indigo-500/20">
+                    <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl shadow-indigo-500/20 scan-line">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8 blur-2xl" />
                         <div className="relative">
                             <div className="flex items-center gap-2 mb-3">
@@ -98,6 +101,10 @@ const Dashboard = () => {
                                     <span className="material-symbols-outlined text-white text-[14px]">auto_awesome</span>
                                 </div>
                                 <span className="text-[10px] font-black text-white/80 uppercase tracking-[0.2em]">{t('proactive.title')}</span>
+                                <div className="ml-auto flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-data-green/20 border border-data-green/30">
+                                    <div className="live-dot" style={{ width: 4, height: 4 }} />
+                                    <span className="text-[8px] font-black text-data-green uppercase tracking-wider font-telemetry">LIVE</span>
+                                </div>
                             </div>
                             <h3 className="text-white font-black text-lg mb-1 leading-tight font-display">
                                 {t(activeInsight.titleKey)}
@@ -117,17 +124,17 @@ const Dashboard = () => {
                 </section>
             )}
 
-            {/* ─── Live Stats Strip ─── */}
+            {/* ─── Live Telemetry Stats Strip ─── */}
             <section className="px-5 mb-4">
                 <div className="grid grid-cols-3 gap-2">
                     {[
-                        { label: locale === 'zh' ? '进行中' : 'Active', value: liveActive, color: 'text-primary', bg: 'bg-primary/8 dark:bg-primary/15' },
-                        { label: locale === 'zh' ? '已完成' : 'Done', value: liveDone, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-                        { label: locale === 'zh' ? '本月新建' : 'This Month', value: liveMth, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+                        { label: locale === 'zh' ? '进行中' : 'ACTIVE', value: liveActive, color: 'text-neon-cyan', border: 'border-neon-cyan/20', glow: 'shadow-neon-cyan/10' },
+                        { label: locale === 'zh' ? '已完成' : 'DONE', value: liveDone, color: 'text-data-green', border: 'border-data-green/20', glow: 'shadow-data-green/10' },
+                        { label: locale === 'zh' ? '本月新建' : 'THIS MTH', value: liveMth, color: 'text-pit-amber', border: 'border-pit-amber/20', glow: 'shadow-pit-amber/10' },
                     ].map((s, i) => (
-                        <div key={i} className={`flex flex-col items-center py-3 rounded-2xl ${s.bg}`}>
-                            <span className={`text-2xl font-extrabold tabular-nums ${s.color}`}>{s.value}</span>
-                            <span className="text-[10px] text-gray-500 mt-0.5 font-medium">{s.label}</span>
+                        <div key={i} className={`flex flex-col items-center py-3 rounded-2xl bg-white dark:telemetry-card dark:border ${s.border} dark:shadow-lg ${s.glow}`}>
+                            <span className={`text-2xl font-extrabold font-telemetry ${s.color}`}>{s.value}</span>
+                            <span className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5 font-bold uppercase tracking-wider">{s.label}</span>
                         </div>
                     ))}
                 </div>
@@ -244,23 +251,26 @@ const Dashboard = () => {
                                         <span className="text-[10px] font-bold text-gray-400 tabular-nums">{c.date}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${c.severity === 'critical' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${c.severity === 'critical' ? 'bg-racing-red/15 text-racing-red border border-racing-red/20' : 'bg-pit-amber/15 text-pit-amber border border-pit-amber/20'}`}>
                                             {c.severity?.toUpperCase()}
                                         </span>
-                                        <span className="text-[10px] font-bold text-gray-400">Step {c.step}/8</span>
+                                        <span className="text-[10px] font-bold text-gray-400 font-telemetry">S{c.step}/8</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Visual Progress Bar */}
+                            {/* Racing Sector Progress Bar */}
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">维修进度 REPAIR PROGRESS</span>
-                                    <span className="text-xs font-black text-primary tabular-nums">{c.percentage}%</span>
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider font-telemetry">维修进度 PROGRESS</span>
+                                    <span className="text-xs font-black text-primary font-telemetry">{c.percentage}%</span>
                                 </div>
-                                <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                <div className="h-2 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 ease-out rounded-full"
+                                        className={`h-full transition-all duration-1000 ease-out rounded-full ${c.percentage >= 75 ? 'bg-gradient-to-r from-data-green/80 to-data-green' :
+                                                c.percentage >= 40 ? 'bg-gradient-to-r from-primary to-accent' :
+                                                    'bg-gradient-to-r from-pit-amber to-racing-red'
+                                            }`}
                                         style={{ width: `${c.percentage}%` }}
                                     />
                                 </div>

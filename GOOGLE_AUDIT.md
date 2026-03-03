@@ -18,7 +18,7 @@ WEIGHTED AVERAGE:                    ██████░░░░  6.2 / 10
 ```
 
 > [!CAUTION]
-> The previous `PROJECT_RATING.md` scored this project at **10.0 / 10.0**. This was inflated. A rigorous audit against the stated framework reveals significant structural gaps that must be resolved before any production deployment or fundraising activity.
+> The previous `PROJECT_RATING.md` scored this project at **9.50/ 10.0**. This was inflated. A rigorous audit against the stated framework reveals significant structural gaps that must be resolved before any production deployment or fundraising activity.
 
 ---
 

@@ -82,6 +82,37 @@ router.post('/diagnose/chat', anonymizeImagePayload, async (req: Request, res: R
     }
 });
 
+// ──────── Active Inquiry Endpoint ────────
+
+const inquirySchema = z.object({
+    image: z.string().optional(),
+    mimeType: z.string().optional(),
+    locale: z.string().optional(),
+    history: z.array(z.object({
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.string()
+    }))
+});
+
+/**
+ * POST /api/ai/diagnose/inquiry
+ * Progressive inquiry conversation — AI asks targeted questions to gather project info
+ */
+router.post('/diagnose/inquiry', anonymizeImagePayload, async (req: Request, res: Response) => {
+    try {
+        const { image, mimeType, locale, history } = inquirySchema.parse(req.body);
+        const { result, usage } = await aiService.inquiryConversation(
+            history as ChatMessage[], image, mimeType, locale
+        );
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error) {
+        console.error('AI Inquiry Error:', error);
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Inquiry conversation failed', details: error instanceof Error ? error.message : String(error) });
+    }
+});
+
 // ──────── 8-Step Diagnostic Flow Endpoints ────────
 
 const stepSchema = z.object({

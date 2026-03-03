@@ -99,6 +99,13 @@ class AiService {
         } catch (error) { Sentry.captureException(error); throw new Error('Solution generation failed'); }
     }
 
+    /** Active Inquiry: progressive question gathering */
+    async inquiryConversation(history: ChatMessage[], image?: string, mimeType?: string, locale?: string): Promise<AiResponse<any>> {
+        try {
+            return await diagnosisAgent.inquiryConversation(history, image, mimeType, locale);
+        } catch (error) { Sentry.captureException(error); throw new Error('Inquiry conversation failed'); }
+    }
+
     /**
      * Chat with an expert AI
      */
