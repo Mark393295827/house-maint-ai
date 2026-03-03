@@ -315,6 +315,166 @@ Return JSON only:
         });
     }
 
+    // ──────── Active Inquiry Conversation ────────
+
+    async inquiryConversation(history: ChatMessage[], image?: string, mimeType?: string, locale: string = 'zh'): Promise<AiResponse<any>> {
+        if (!this.hasApiKey) {
+            // Mock: simulate progressive question gathering
+            const userMsgCount = history.filter(m => m.role === 'user').length;
+            if (userMsgCount === 0) {
+                return {
+                    result: {
+                        type: 'question',
+                        message: locale === 'zh'
+                            ? '您好！我是您的智能家居维修顾问。请告诉我您需要什么类型的服务？'
+                            : 'Hello! I\'m your smart home maintenance advisor. What type of service do you need?',
+                        questions: locale === 'zh'
+                            ? ['请选择或描述您的问题类型']
+                            : ['Please select or describe your issue type'],
+                        quickReplies: locale === 'zh'
+                            ? ['水管/管道', '电气/线路', '暖通空调', '墙面/结构', '粉刷/装饰', '其他']
+                            : ['Plumbing', 'Electrical', 'HVAC', 'Structural', 'Painting', 'Other'],
+                        progress: 10,
+                        collectedFields: {}
+                    },
+                    usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'mock' }
+                };
+            } else if (userMsgCount === 1) {
+                return {
+                    result: {
+                        type: 'question',
+                        message: locale === 'zh'
+                            ? '好的，已记录问题类型。请问具体是哪个区域/房间发生了问题？'
+                            : 'Got it. Which area or room is the issue in?',
+                        questions: locale === 'zh'
+                            ? ['请选择或描述问题所在区域']
+                            : ['Please select or describe the area'],
+                        quickReplies: locale === 'zh'
+                            ? ['厨房', '卫生间', '卧室', '客厅', '阳台', '外墙']
+                            : ['Kitchen', 'Bathroom', 'Bedroom', 'Living Room', 'Balcony', 'Exterior'],
+                        progress: 30,
+                        collectedFields: { projectType: history[history.length - 1]?.content || '' }
+                    },
+                    usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'mock' }
+                };
+            } else if (userMsgCount === 2) {
+                return {
+                    result: {
+                        type: 'question',
+                        message: locale === 'zh'
+                            ? '明白了。能否详细描述一下具体的问题症状？比如什么时候开始的、严重程度如何？'
+                            : 'Understood. Can you describe the specific symptoms? When did it start and how severe is it?',
+                        questions: locale === 'zh'
+                            ? ['请详细描述问题现象和症状']
+                            : ['Please describe the issue details and symptoms'],
+                        quickReplies: locale === 'zh'
+                            ? ['刚发现的', '已经持续几天', '越来越严重', '时好时坏']
+                            : ['Just noticed', 'A few days now', 'Getting worse', 'Intermittent'],
+                        progress: 50,
+                        collectedFields: { projectType: history[1]?.content || '', area: history[history.length - 1]?.content || '' }
+                    },
+                    usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'mock' }
+                };
+            } else if (userMsgCount === 3) {
+                return {
+                    result: {
+                        type: 'question',
+                        message: locale === 'zh'
+                            ? '感谢您的描述！请问您的预算范围大概是多少？以及您希望什么时间完成？'
+                            : 'Thanks for the details! What\'s your approximate budget range? And when do you need this done?',
+                        questions: locale === 'zh'
+                            ? ['预算范围', '时间要求']
+                            : ['Budget range', 'Timeline'],
+                        quickReplies: locale === 'zh'
+                            ? ['500元以内', '500-2000元', '2000-5000元', '5000元以上', '紧急处理', '本周内', '不急，灵活']
+                            : ['Under ¥500', '¥500-2000', '¥2000-5000', 'Over ¥5000', 'Emergency', 'This week', 'Flexible'],
+                        progress: 70,
+                        collectedFields: {
+                            projectType: history[1]?.content || '',
+                            area: history[3]?.content || '',
+                            scope: history[history.length - 1]?.content || ''
+                        }
+                    },
+                    usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'mock' }
+                };
+            } else {
+                // After 4+ user messages, return summary
+                return {
+                    result: {
+                        type: 'summary',
+                        message: locale === 'zh'
+                            ? '✅ 信息收集完毕！以下是您的需求清单：'
+                            : '✅ Information collected! Here\'s your demand summary:',
+                        progress: 100,
+                        demandSummary: {
+                            projectType: locale === 'zh' ? '水管/管道' : 'Plumbing',
+                            area: locale === 'zh' ? '厨房' : 'Kitchen',
+                            scope: locale === 'zh' ? '水管接头漏水，已持续数天，逐渐加重' : 'Pipe joint leak, ongoing for days, getting worse',
+                            budget: locale === 'zh' ? '500-2000元' : '¥500-2000',
+                            timeline: locale === 'zh' ? '本周内' : 'This week',
+                            severity: 'moderate',
+                            specialRequirements: locale === 'zh' ? '无特殊要求' : 'No special requirements',
+                            hasPhoto: !!image,
+                        }
+                    },
+                    usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'mock' }
+                };
+            }
+        }
+
+        const lang = locale === 'zh' ? 'Chinese' : 'English';
+        const systemPrompt = `You are an expert home maintenance inquiry assistant. Your job is to PROGRESSIVELY GATHER key information from the homeowner through targeted questions. Ask ONE category of question at a time.
+
+INFORMATION TO COLLECT:
+1. Project Type (plumbing, electrical, HVAC, structural, painting, other)
+2. Area/Room (kitchen, bathroom, bedroom, living room, balcony, exterior, etc.)
+3. Scope/Description (specific symptoms, when it started, how severe)
+4. Budget Range (optional)
+5. Timeline/Urgency (emergency, this week, flexible)
+6. Special Requirements (optional, free text)
+
+RULES:
+- Ask ONE question category at a time
+- Analyze the conversation history to determine which fields are already collected
+- Provide 4-7 quick reply suggestions for each question
+- Calculate a progress percentage (0-100) based on info collected
+- Respond in ${lang}
+
+When still collecting info, return JSON:
+{
+  "type": "question",
+  "message": "Analysis + next question in ${lang}",
+  "questions": ["The specific question"],
+  "quickReplies": ["Reply option 1", "Reply option 2"],
+  "progress": 0-100,
+  "collectedFields": { "projectType": "...", "area": "...", etc (only fields already collected) }
+}
+
+When ALL key information (at least projectType, area, scope) is collected, return JSON:
+{
+  "type": "summary",
+  "message": "Completion message in ${lang}",
+  "progress": 100,
+  "demandSummary": {
+    "projectType": "Classified category",
+    "area": "Room/area",
+    "scope": "Consolidated problem description",
+    "budget": "Budget range or 'Not specified'",
+    "timeline": "Timeline or 'Flexible'",
+    "severity": "critical|moderate|low",
+    "specialRequirements": "Any special notes or 'None'",
+    "hasPhoto": boolean
+  }
+}`;
+
+        const conversationText = history.map(m => `${m.role === 'user' ? 'Homeowner' : 'Advisor'}: ${m.content}`).join('\n');
+        const parts = [...this.buildParts(image, mimeType), `Conversation so far:\n${conversationText}\n\nProvide the next step in the inquiry. Return JSON only.`];
+        return withRetry(async () => {
+            const { text: responseText, usage } = await this.callModel(systemPrompt, parts);
+            return { result: JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim()), usage: this.mapUsage(usage) };
+        });
+    }
+
     // ──────── Legacy: continueConversation (for backward compat) ────────
 
     async continueConversation(history: ChatMessage[], image?: string, mimeType?: string): Promise<AiResponse<any>> {

@@ -1,279 +1,279 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { getMetrics, getMetricsHealth } from '../services/api';
-
-// Sub-components
-import { LiveBadge, GlassCard } from '../components/metrics/MetricCard';
-import { CircularGauge, StatBar } from '../components/metrics/MetricGauges';
-import { PipelineStage, MiniStat, HealthRow, AgentBar } from '../components/metrics/MetricDetails';
 
 /* ─── Types ─── */
-interface Metrics {
-    system: { uptime_ms: number; uptime_human: string };
-    requests: { total: number; success: number; error: number; success_rate: string };
-    response_time: { avg_ms: string; min_ms: number; max_ms: number };
-    sda_cycles: { total: number; simulate_passes: number; deploys: number; augments: number };
-    agents: { total_invocations: number; by_agent: Record<string, number> };
+interface InquiryMetric {
+    caseId: string;
+    projectType: string;
+    area: string;
+    severity: string;
+    hasPhoto: boolean;
+    timestamp: string;
 }
 
-interface HealthStats {
-    memory: { rss_mb: number; heap_used_mb: number; heap_total_mb: number; external_mb: number };
-    cpu: { user_ms: number; system_ms: number };
-    node_version: string;
-    platform: string;
-    pid: number;
+interface FeedbackEntry {
+    caseId: string;
+    rating: number;
+    demandAccuracy: number | null;
+    tags: string[];
+    comment?: string;
+    timestamp: string;
 }
 
-/* ─── Main Component ─── */
-export default function MetricsDashboard() {
-    const { t } = useLanguage();
-    const [metrics, setMetrics] = useState<Metrics | null>(null);
-    const [health, setHealth] = useState<HealthStats | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+/* ─── Helpers ─── */
+const getMetrics = (): InquiryMetric[] => JSON.parse(localStorage.getItem('inquiry_metrics') || '[]');
+const getFeedback = (): FeedbackEntry[] => JSON.parse(localStorage.getItem('inquiry_feedback') || '[]');
 
-    const fetchAll = useCallback(async () => {
-        try {
-            const [m, h] = await Promise.all([getMetrics(), getMetricsHealth()]);
-            setMetrics(m as Metrics);
-            setHealth(h as HealthStats);
-            setError(null);
-            setLastUpdated(new Date());
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+const avg = (arr: number[]) => arr.length ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : 0;
 
-    useEffect(() => {
-        fetchAll();
-        const interval = setInterval(fetchAll, 5000);
-        return () => clearInterval(interval);
-    }, [fetchAll]);
+const countBy = <T,>(arr: T[], fn: (item: T) => string): Record<string, number> => {
+    const counts: Record<string, number> = {};
+    arr.forEach(item => { const k = fn(item); counts[k] = (counts[k] || 0) + 1; });
+    return counts;
+};
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center" style={styles.bg}>
-                <div style={styles.spinner} />
+/* ─── Stat Card Component ─── */
+const StatCard: React.FC<{ icon: string; label: string; value: string | number; sub?: string; color: string }> = ({ icon, label, value, sub, color }) => (
+    <div className="bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] rounded-2xl p-4 hover:border-white/10 transition-colors">
+        <div className="flex items-center gap-2 mb-3">
+            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}>
+                <span className="material-symbols-outlined text-white text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
             </div>
-        );
-    }
+            <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider">{label}</span>
+        </div>
+        <div className="text-2xl font-black text-white tabular-nums">{value}</div>
+        {sub && <p className="text-[11px] text-white/30 mt-0.5">{sub}</p>}
+    </div>
+);
 
-    if (error) {
-        return (
-            <div className="min-h-screen flex items-center justify-center" style={styles.bg}>
-                <div style={styles.glassCard} className="p-8 text-center max-w-md">
-                    <div className="text-4xl mb-4">⚠️</div>
-                    <h2 className="text-xl font-bold text-white mb-2">{t('metrics.error', { defaultValue: 'Connection Error' })}</h2>
-                    <p className="text-gray-400 mb-4">{error}</p>
-                    <button onClick={fetchAll} style={styles.retryBtn}>
-                        {t('metrics.retry', { defaultValue: 'Retry' })}
-                    </button>
+/* ─── Bar Chart Component ─── */
+const BarChart: React.FC<{ data: Record<string, number>; color: string }> = ({ data, color }) => {
+    const maxVal = Math.max(...Object.values(data), 1);
+    return (
+        <div className="space-y-2">
+            {Object.entries(data).sort((a, b) => b[1] - a[1]).map(([key, val]) => (
+                <div key={key} className="flex items-center gap-3">
+                    <span className="text-xs text-white/60 w-20 truncate text-right">{key}</span>
+                    <div className="flex-1 h-6 bg-white/5 rounded-lg overflow-hidden relative">
+                        <div className={`h-full bg-gradient-to-r ${color} rounded-lg transition-all duration-700`} style={{ width: `${(val / maxVal) * 100}%` }} />
+                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/50">{val}</span>
+                    </div>
                 </div>
-            </div>
-        );
-    }
+            ))}
+        </div>
+    );
+};
 
-    if (!metrics || !health) return null;
+/* ─── Ring Gauge ─── */
+const RingGauge: React.FC<{ value: number; max: number; label: string; color: string }> = ({ value, max, label, color }) => {
+    const pct = max > 0 ? (value / max) * 100 : 0;
+    const r = 40, circ = 2 * Math.PI * r, offset = circ - (pct / 100) * circ;
+    return (
+        <div className="flex flex-col items-center">
+            <svg width="100" height="100" className="-rotate-90">
+                <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                <circle cx="50" cy="50" r={r} fill="none" stroke={`url(#grad-${label})`} strokeWidth="8"
+                    strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
+                    className="transition-all duration-1000" />
+                <defs>
+                    <linearGradient id={`grad-${label}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor={color.split(' ')[0]} />
+                        <stop offset="100%" stopColor={color.split(' ')[1] || color.split(' ')[0]} />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <span className="text-xl font-black text-white -mt-[62px] mb-8">{value.toFixed(1)}</span>
+            <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">{label}</p>
+        </div>
+    );
+};
 
-    const memPercent = health.memory.heap_total_mb > 0
-        ? Math.round((health.memory.heap_used_mb / health.memory.heap_total_mb) * 100)
-        : 0;
+/* ─── Main Dashboard ─── */
+const MetricsDashboard: React.FC = () => {
+    const { locale } = useLanguage();
+    const navigate = useNavigate();
+    const isZh = locale === 'zh';
 
-    const agentEntries = Object.entries(metrics.agents.by_agent).sort((a, b) => b[1] - a[1]);
-    const maxAgentCount = agentEntries.length > 0 ? agentEntries[0][1] : 1;
+    const metrics = useMemo(getMetrics, []);
+    const feedback = useMemo(getFeedback, []);
+
+    const totalInquiries = metrics.length;
+    const totalFeedbacks = feedback.length;
+    const avgRating = avg(feedback.map(f => f.rating));
+    const avgAccuracy = avg(feedback.filter(f => f.demandAccuracy !== null).map(f => f.demandAccuracy!));
+    const photoRate = totalInquiries > 0 ? Math.round((metrics.filter(m => m.hasPhoto).length / totalInquiries) * 100) : 0;
+    const conversionRate = totalInquiries > 0 ? Math.round((totalFeedbacks / totalInquiries) * 100) : 0;
+
+    const typeCounts = countBy(metrics, m => m.projectType || 'Unknown');
+    const areaCounts = countBy(metrics, m => m.area || 'Unknown');
+    const severityCounts = countBy(metrics, m => m.severity || 'moderate');
+    const tagCounts = countBy(feedback.flatMap(f => f.tags.map(t => ({ tag: t }))), x => x.tag);
+
+    // Time series (last 7 days)
+    const last7Days = useMemo(() => {
+        const days: { label: string; count: number }[] = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(); d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            const label = `${d.getMonth() + 1}/${d.getDate()}`;
+            const count = metrics.filter(m => m.timestamp.startsWith(key)).length;
+            days.push({ label, count });
+        }
+        return days;
+    }, [metrics]);
+    const maxDaily = Math.max(...last7Days.map(d => d.count), 1);
 
     return (
-        <div className="min-h-screen" style={styles.bg}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* ─── Header ─── */}
-                <div className="flex flex-wrap items-center justify-between mb-8 gap-4">
+        <div className="min-h-screen bg-[#0b0d1a] text-white">
+            {/* Header */}
+            <div className="sticky top-0 z-20 bg-[#0b0d1a]/95 backdrop-blur-xl border-b border-white/5 px-5 pt-14 pb-4">
+                <div className="flex items-center gap-3">
+                    <button onClick={() => navigate(-1)} className="p-2 bg-white/10 hover:bg-white/15 rounded-xl transition-colors">
+                        <span className="material-symbols-outlined text-xl text-white/60">arrow_back</span>
+                    </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                            <span style={styles.headerIcon}>📊</span>
-                            {t('metrics.title', { defaultValue: 'System Metrics' })}
-                        </h1>
-                        <p className="text-gray-400 mt-1">
-                            {t('metrics.subtitle', { defaultValue: 'Real-time system monitoring' })}
-                        </p>
+                        <h1 className="text-lg font-bold">{isZh ? '运营数据看板' : 'Metrics Dashboard'}</h1>
+                        <p className="text-xs text-white/40">{isZh ? '基于实际使用数据的智能洞察' : 'Insights from real usage data'}</p>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <LiveBadge styles={styles} />
-                        <button onClick={fetchAll} style={styles.refreshBtn}>
-                            🔄 {t('metrics.refresh', { defaultValue: 'Refresh' })}
+                </div>
+            </div>
+
+            <div className="px-5 py-5 space-y-6 pb-24">
+                {/* KPI Cards */}
+                <div className="grid grid-cols-2 gap-3">
+                    <StatCard icon="query_stats" label={isZh ? '总咨询' : 'Inquiries'} value={totalInquiries}
+                        sub={isZh ? '全部对话数' : 'Total conversations'} color="from-violet-500 to-indigo-600" />
+                    <StatCard icon="check_circle" label={isZh ? '转化率' : 'Conversion'} value={`${conversionRate}%`}
+                        sub={isZh ? '完成派单比' : 'Dispatch rate'} color="from-emerald-500 to-green-600" />
+                    <StatCard icon="photo_camera" label={isZh ? '拍照率' : 'Photo Rate'} value={`${photoRate}%`}
+                        sub={isZh ? '使用拍照功能' : 'Used camera'} color="from-blue-500 to-cyan-600" />
+                    <StatCard icon="feedback" label={isZh ? '反馈数' : 'Feedbacks'} value={totalFeedbacks}
+                        sub={isZh ? '已提交评价' : 'Reviews submitted'} color="from-amber-400 to-orange-500" />
+                </div>
+
+                {/* Rating Gauges */}
+                {totalFeedbacks > 0 && (
+                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
+                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '用户满意度' : 'User Satisfaction'}</h3>
+                        <div className="flex justify-around">
+                            <RingGauge value={avgRating} max={5} label={isZh ? '满意度' : 'Rating'} color="#a78bfa #818cf8" />
+                            <RingGauge value={avgAccuracy} max={5} label={isZh ? '准确度' : 'Accuracy'} color="#34d399 #10b981" />
+                        </div>
+                    </div>
+                )}
+
+                {/* Weekly Trend */}
+                <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
+                    <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '近7天趋势' : '7-Day Trend'}</h3>
+                    <div className="flex items-end gap-1 h-32">
+                        {last7Days.map((day, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                                <span className="text-[9px] font-bold text-white/40">{day.count || ''}</span>
+                                <div className="w-full bg-white/5 rounded-t-lg relative overflow-hidden" style={{ height: `${Math.max((day.count / maxDaily) * 100, 4)}%` }}>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-violet-600 to-violet-400 rounded-t-lg" />
+                                </div>
+                                <span className="text-[9px] text-white/30">{day.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Category Distribution */}
+                {Object.keys(typeCounts).length > 0 && (
+                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
+                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '项目类型分布' : 'Project Type Distribution'}</h3>
+                        <BarChart data={typeCounts} color="from-violet-500 to-indigo-500" />
+                    </div>
+                )}
+
+                {/* Area Distribution */}
+                {Object.keys(areaCounts).length > 0 && (
+                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
+                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '区域分布' : 'Area Distribution'}</h3>
+                        <BarChart data={areaCounts} color="from-blue-500 to-cyan-500" />
+                    </div>
+                )}
+
+                {/* Severity Distribution */}
+                {Object.keys(severityCounts).length > 0 && (
+                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
+                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '严重程度分布' : 'Severity Distribution'}</h3>
+                        <div className="flex gap-3">
+                            {Object.entries(severityCounts).map(([sev, count]) => {
+                                const colors: Record<string, string> = { critical: 'from-red-500 to-rose-600', moderate: 'from-amber-400 to-orange-500', low: 'from-emerald-400 to-green-500' };
+                                const labels: Record<string, string> = isZh ? { critical: '紧急', moderate: '中等', low: '轻微' } : { critical: 'Critical', moderate: 'Moderate', low: 'Low' };
+                                return (
+                                    <div key={sev} className="flex-1 text-center">
+                                        <div className={`bg-gradient-to-br ${colors[sev] || colors.moderate} rounded-xl py-3 px-2 mb-1`}>
+                                            <span className="text-xl font-black">{count}</span>
+                                        </div>
+                                        <span className="text-[10px] text-white/50 font-bold uppercase">{labels[sev] || sev}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Feedback Tags */}
+                {Object.keys(tagCounts).length > 0 && (
+                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
+                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '用户反馈标签' : 'Feedback Tags'}</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).map(([tag, count]) => (
+                                <div key={tag} className="bg-violet-500/10 border border-violet-500/20 rounded-full px-3.5 py-1.5 flex items-center gap-2">
+                                    <span className="text-sm text-violet-300">{tag}</span>
+                                    <span className="text-[10px] font-bold text-violet-400/60 bg-violet-500/20 rounded-full px-1.5 py-0.5">{count}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Recent Feedback List */}
+                {feedback.length > 0 && (
+                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
+                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '最近评价' : 'Recent Feedback'}</h3>
+                        <div className="space-y-3">
+                            {feedback.slice(-5).reverse().map((f, i) => (
+                                <div key={i} className="bg-white/[0.03] rounded-xl px-4 py-3 border border-white/5">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <div className="flex gap-0.5">
+                                            {[1, 2, 3, 4, 5].map(s => (
+                                                <span key={s} className={`material-symbols-outlined text-sm ${s <= f.rating ? 'text-amber-400' : 'text-white/10'}`}
+                                                    style={{ fontVariationSettings: `'FILL' ${s <= f.rating ? 1 : 0}` }}>star</span>
+                                            ))}
+                                        </div>
+                                        <span className="text-[10px] text-white/20">{new Date(f.timestamp).toLocaleDateString()}</span>
+                                    </div>
+                                    {f.tags.length > 0 && (
+                                        <div className="flex gap-1 flex-wrap mb-1">
+                                            {f.tags.map(t => <span key={t} className="text-[10px] text-white/40 bg-white/5 rounded-full px-2 py-0.5">{t}</span>)}
+                                        </div>
+                                    )}
+                                    {f.comment && <p className="text-xs text-white/50">{f.comment}</p>}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Empty state */}
+                {totalInquiries === 0 && (
+                    <div className="text-center py-20">
+                        <span className="material-symbols-outlined text-6xl text-white/10 mb-4 block">monitoring</span>
+                        <h3 className="text-white/40 font-bold mb-2">{isZh ? '暂无数据' : 'No Data Yet'}</h3>
+                        <p className="text-white/20 text-sm max-w-xs mx-auto">{isZh ? '完成一些诊断咨询后，数据将显示在此处' : 'Complete some diagnosis inquiries and data will appear here'}</p>
+                        <button onClick={() => navigate('/diagnosis')}
+                            className="mt-6 px-6 py-3 bg-violet-600 rounded-2xl font-bold text-sm hover:bg-violet-700 transition-colors">
+                            {isZh ? '开始诊断' : 'Start Diagnosis'}
                         </button>
                     </div>
-                </div>
-
-                {/* ─── System Overview Cards ─── */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-                    <GlassCard accent="#6366f1" icon="⏱️" label={t('metrics.uptime', { defaultValue: 'Uptime' })} value={metrics.system.uptime_human} styles={styles} />
-                    <GlassCard accent="#22c55e" icon="📨" label={t('metrics.totalRequests', { defaultValue: 'Total Requests' })} value={metrics.requests.total.toLocaleString()} styles={styles} />
-                    <GlassCard accent="#10b981" icon="✅" label={t('metrics.successRate', { defaultValue: 'Success Rate' })} value={metrics.requests.success_rate} styles={styles} />
-                    <GlassCard accent="#f59e0b" icon="⚡" label={t('metrics.avgResponse', { defaultValue: 'Avg Response' })} value={`${metrics.response_time.avg_ms}ms`} styles={styles} />
-                </div>
-
-                {/* ─── Two-Column Layout ─── */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    {/* ─── SDA Pipeline ─── */}
-                    <div className="lg:col-span-2" style={styles.glassCard}>
-                        <div className="p-6">
-                            <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                                🔄 {t('metrics.sdaCycles', { defaultValue: 'SDA Cycles' })}
-                                <span style={styles.badge}>{metrics.sda_cycles.total}</span>
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <PipelineStage icon="🧪" phase={t('metrics.simulate', { defaultValue: 'Simulate' })} count={metrics.sda_cycles.simulate_passes} color="#818cf8" />
-                                <PipelineStage icon="🚀" phase={t('metrics.deploy', { defaultValue: 'Deploy' })} count={metrics.sda_cycles.deploys} color="#a78bfa" />
-                                <PipelineStage icon="📈" phase={t('metrics.augment', { defaultValue: 'Augment' })} count={metrics.sda_cycles.augments} color="#c084fc" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ─── Memory Gauge ─── */}
-                    <div style={styles.glassCard}>
-                        <div className="p-6 flex flex-col items-center">
-                            <h2 className="text-lg font-bold text-white mb-4">
-                                💾 {t('metrics.memory', { defaultValue: 'Memory' })}
-                            </h2>
-                            <CircularGauge percent={memPercent} label={`${health.memory.heap_used_mb}MB`} />
-                            <p className="text-gray-400 text-sm mt-3">
-                                {health.memory.heap_used_mb} / {health.memory.heap_total_mb} MB
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ─── Health + Request Detail ─── */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    {/* Request Breakdown */}
-                    <div style={styles.glassCard}>
-                        <div className="p-6">
-                            <h2 className="text-lg font-bold text-white mb-5">
-                                📊 {t('metrics.requestBreakdown', { defaultValue: 'Request Breakdown' })}
-                            </h2>
-                            <div className="space-y-4">
-                                <StatBar label={t('metrics.success', { defaultValue: 'Success' })} value={metrics.requests.success} max={metrics.requests.total || 1} color="#22c55e" />
-                                <StatBar label={t('metrics.errors', { defaultValue: 'Errors' })} value={metrics.requests.error} max={metrics.requests.total || 1} color="#ef4444" />
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10">
-                                <MiniStat label="Min" value={`${metrics.response_time.min_ms.toFixed(1)}ms`} />
-                                <MiniStat label="Avg" value={`${metrics.response_time.avg_ms}ms`} />
-                                <MiniStat label="Max" value={`${metrics.response_time.max_ms.toFixed(1)}ms`} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* System Health */}
-                    <div style={styles.glassCard}>
-                        <div className="p-6">
-                            <h2 className="text-lg font-bold text-white mb-5">
-                                🖥️ {t('metrics.systemHealth', { defaultValue: 'System Health' })}
-                            </h2>
-                            <div className="space-y-3">
-                                <HealthRow label="Node.js" value={health.node_version} />
-                                <HealthRow label={t('metrics.platform', { defaultValue: 'Platform' })} value={health.platform} />
-                                <HealthRow label="PID" value={health.pid.toString()} />
-                                <HealthRow label="RSS" value={`${health.memory.rss_mb} MB`} />
-                                <HealthRow label="CPU (user)" value={`${health.cpu.user_ms}ms`} />
-                                <HealthRow label="CPU (system)" value={`${health.cpu.system_ms}ms`} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ─── Agent Activity ─── */}
-                <div style={styles.glassCard}>
-                    <div className="p-6">
-                        <div className="flex items-center justify-between mb-5">
-                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                🤖 {t('metrics.agentActivity', { defaultValue: 'Agent Activity' })}
-                            </h2>
-                            <span className="text-2xl font-bold text-indigo-400">{metrics.agents.total_invocations}</span>
-                        </div>
-                        {agentEntries.length === 0 ? (
-                            <p className="text-gray-500 text-center py-8">{t('metrics.noAgents', { defaultValue: 'No agent activity yet' })}</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {agentEntries.map(([agent, count]) => (
-                                    <AgentBar key={agent} name={agent} count={count} max={maxAgentCount} />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* ─── Footer ─── */}
-                {lastUpdated && (
-                    <p className="text-center text-gray-500 text-xs mt-6">
-                        {t('metrics.lastUpdated', { defaultValue: 'Last updated' })}: {lastUpdated.toLocaleTimeString()}
-                    </p>
                 )}
             </div>
         </div>
     );
-}
-
-/* ─── Styles ─── */
-const styles: Record<string, React.CSSProperties> = {
-    bg: {
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
-        minHeight: '100vh',
-    },
-    glassCard: {
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderRadius: '16px',
-        border: '1px solid rgba(255,255,255,0.08)',
-    },
-    headerIcon: {
-        fontSize: '2rem',
-        filter: 'drop-shadow(0 0 8px rgba(99,102,241,0.5))',
-    },
-    badge: {
-        background: 'rgba(99,102,241,0.2)',
-        color: '#818cf8',
-        padding: '2px 10px',
-        borderRadius: '99px',
-        fontSize: '0.85rem',
-        fontWeight: 600,
-    },
-    refreshBtn: {
-        background: 'rgba(255,255,255,0.08)',
-        color: '#e5e7eb',
-        padding: '8px 16px',
-        borderRadius: '10px',
-        border: '1px solid rgba(255,255,255,0.1)',
-        cursor: 'pointer',
-        fontSize: '0.875rem',
-        transition: 'background 0.2s',
-    },
-    retryBtn: {
-        background: '#6366f1',
-        color: 'white',
-        padding: '10px 24px',
-        borderRadius: '10px',
-        border: 'none',
-        cursor: 'pointer',
-        fontWeight: 600,
-    },
-    liveDot: {
-        width: '8px',
-        height: '8px',
-        borderRadius: '50%',
-        background: '#22c55e',
-        boxShadow: '0 0 6px #22c55e',
-        animation: 'pulse 2s infinite',
-    },
-    spinner: {
-        width: '40px',
-        height: '40px',
-        border: '3px solid rgba(255,255,255,0.1)',
-        borderTop: '3px solid #6366f1',
-        borderRadius: '50%',
-        animation: 'spin 0.8s linear infinite',
-    },
 };
+
+export default MetricsDashboard;

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 @import "tailwindcss";
@@ -11,17 +11,23 @@
   --color-accent: #06b6d4;
   --color-accent-warm: #f59e0b;
 
-  /* ─── Surfaces: warm cream (light) / deep navy (dark) ─── */
+  /* ─── F1-Inspired Racing Accents ─── */
+  --color-racing-red: #E10600;
+  --color-data-green: #00FF87;
+  --color-neon-cyan: #00F0FF;
+  --color-pit-amber: #FFB800;
+
+  /* ─── Surfaces: warm cream (light) / cockpit black (dark) ─── */
   --color-background-light: #fafaf9;
-  --color-background-dark: #0c0f1a;
+  --color-background-dark: #080a12;
   --color-surface-light: #ffffff;
-  --color-surface-dark: #161b2e;
+  --color-surface-dark: #0f1221;
 
   /* ─── Text: high-contrast, legible ─── */
   --color-text-main-light: #1e1b4b;
-  --color-text-main-dark: #e8e6f0;
+  --color-text-main-dark: #eef0ff;
   --color-text-sub-light: #6b7280;
-  --color-text-sub-dark: #9ca3af;
+  --color-text-sub-dark: #7c85a6;
 
   /* ─── Semantic ─── */
   --color-action-primary: #6366f1;
@@ -34,6 +40,7 @@
   /* ─── Typography ─── */
   --font-family-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
   --font-family-display: "Outfit", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-family-mono: "JetBrains Mono", "Menlo", "Consolas", monospace;
 }
 
 @layer base {
@@ -46,9 +53,9 @@
   body.dark,
   .dark body {
     background-image:
-      radial-gradient(ellipse 600px 600px at 10% 20%, rgba(99, 102, 241, 0.08), transparent),
-      radial-gradient(ellipse 500px 500px at 80% 60%, rgba(6, 182, 212, 0.06), transparent),
-      radial-gradient(ellipse 400px 400px at 50% 80%, rgba(139, 92, 246, 0.05), transparent);
+      radial-gradient(ellipse 600px 600px at 10% 20%, rgba(99, 102, 241, 0.06), transparent),
+      radial-gradient(ellipse 500px 500px at 80% 60%, rgba(0, 240, 255, 0.04), transparent),
+      radial-gradient(ellipse 400px 400px at 50% 80%, rgba(0, 255, 135, 0.03), transparent);
   }
 
   h1,
@@ -104,14 +111,67 @@
 
   .dark .glass,
   .glass-dark {
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .recording-pulse {
     animation: recording-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* ─── F1 Telemetry Card ─── */
+  .telemetry-card {
+    background: rgba(15, 18, 33, 0.85);
+    backdrop-filter: blur(24px) saturate(120%);
+    -webkit-backdrop-filter: blur(24px) saturate(120%);
+    border: 1px solid rgba(99, 102, 241, 0.12);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .telemetry-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+  }
+
+  /* ─── F1 Monospaced Numerics ─── */
+  .font-telemetry {
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─── Carbon Fiber Texture ─── */
+  .carbon-fiber {
+    background-image:
+      linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%);
+    background-size: 4px 4px;
+    background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+  }
+
+  /* ─── Live Indicator Dot ─── */
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00FF87;
+    box-shadow: 0 0 6px #00FF87, 0 0 12px rgba(0, 255, 135, 0.4);
+    animation: livePulse 2s ease-in-out infinite;
+  }
+
+  .live-dot-red {
+    background: #E10600;
+    box-shadow: 0 0 6px #E10600, 0 0 12px rgba(225, 6, 0, 0.4);
   }
 }
 
@@ -178,6 +238,61 @@
 
 .page-enter {
   animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── F1 Live Pulse (for status indicators) ─── */
+@keyframes livePulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.3);
+  }
+}
+
+/* ─── F1 Neon Glow (for accent borders) ─── */
+@keyframes neonGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+  }
+
+  50% {
+    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+}
+
+.neon-glow {
+  animation: neonGlow 3s ease-in-out infinite;
+}
+
+/* ─── F1 Scan Line Sweep (for telemetry cards) ─── */
+@keyframes scanLine {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.scan-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.06), transparent);
+  animation: scanLine 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* ─── Stagger animation ─── */

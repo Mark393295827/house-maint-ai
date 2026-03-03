@@ -22,46 +22,68 @@ const WorkerDashboardPage: React.FC = () => {
 
     return (
         <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden shadow-2xl">
-            {/* Header */}
-            <div className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 pt-6 pb-4">
+            {/* Header with Carbon Fiber */}
+            <div className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 pt-6 pb-4 carbon-fiber">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <button onClick={() => navigate(-1)} className="text-text-main-light dark:text-text-main-dark">
                             <span className="material-symbols-outlined">arrow_back</span>
                         </button>
-                        <h1 className="text-xl font-bold text-text-main-light dark:text-text-main-dark">
-                            {t('workerPortal.title')}
-                        </h1>
+                        <div>
+                            <h1 className="text-xl font-bold text-text-main-light dark:text-text-main-dark">
+                                {t('workerPortal.title')}
+                            </h1>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                                <div className={`live-dot ${!available ? 'live-dot-red' : ''}`} />
+                                <span className={`text-[9px] font-bold uppercase tracking-wider font-telemetry ${available ? 'text-data-green' : 'text-racing-red'}`}>
+                                    {available ? 'ON DUTY' : 'OFF DUTY'}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    {/* Availability Toggle */}
+                    {/* Go Live Toggle */}
                     <button
                         onClick={toggleAvailability}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${available
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 font-telemetry ${available
+                            ? 'text-data-green border border-data-green/30'
+                            : 'text-racing-red border border-racing-red/30'
                             }`}
+                        style={{
+                            background: available
+                                ? 'rgba(0, 255, 135, 0.08)'
+                                : 'rgba(225, 6, 0, 0.08)',
+                            boxShadow: available
+                                ? '0 0 15px rgba(0, 255, 135, 0.15), inset 0 0 15px rgba(0, 255, 135, 0.05)'
+                                : '0 0 15px rgba(225, 6, 0, 0.15), inset 0 0 15px rgba(225, 6, 0, 0.05)',
+                        }}
                     >
-                        <span className={`w-2 h-2 rounded-full ${available ? 'bg-green-500' : 'bg-gray-400'}`} />
+                        <span className={`w-2.5 h-2.5 rounded-full ${available ? 'bg-data-green shadow-lg shadow-data-green/50' : 'bg-racing-red shadow-lg shadow-racing-red/50'}`} />
                         {available ? t('workerPortal.available') : t('workerPortal.unavailable')}
                     </button>
                 </div>
             </div>
 
             <main className="flex-1 px-6 pt-2 flex flex-col gap-4">
-                {/* Stats Cards */}
+                {/* Pit Wall Stats Cards */}
                 <div className="grid grid-cols-2 gap-3">
                     {[
-                        { icon: 'payments', label: t('workerPortal.earnings'), value: `$${stats.earnings.toFixed(2)}`, color: 'text-green-600' },
-                        { icon: 'task_alt', label: t('workerPortal.completed'), value: stats.jobsCompleted, color: 'text-blue-600' },
-                        { icon: 'star', label: t('workerPortal.rating'), value: stats.rating ? `${stats.rating.toFixed(1)} ★` : '—', color: 'text-yellow-600' },
-                        { icon: 'pending_actions', label: t('workerPortal.activeJobs'), value: stats.activeJobs, color: 'text-primary' },
+                        { icon: 'payments', label: t('workerPortal.earnings'), value: `¥${stats.earnings.toFixed(0)}`, color: 'text-data-green', borderColor: 'rgba(0, 255, 135, 0.15)', glowColor: 'rgba(0, 255, 135, 0.08)' },
+                        { icon: 'task_alt', label: t('workerPortal.completed'), value: stats.jobsCompleted, color: 'text-neon-cyan', borderColor: 'rgba(0, 240, 255, 0.15)', glowColor: 'rgba(0, 240, 255, 0.08)' },
+                        { icon: 'star', label: t('workerPortal.rating'), value: stats.rating ? `${stats.rating.toFixed(1)} ★` : '—', color: 'text-pit-amber', borderColor: 'rgba(255, 184, 0, 0.15)', glowColor: 'rgba(255, 184, 0, 0.08)' },
+                        { icon: 'pending_actions', label: t('workerPortal.activeJobs'), value: stats.activeJobs, color: 'text-primary-light', borderColor: 'rgba(99, 102, 241, 0.15)', glowColor: 'rgba(99, 102, 241, 0.08)' },
                     ].map((stat) => (
-                        <div key={stat.label} className="bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-sm">
+                        <div key={stat.label} className="relative overflow-hidden bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-sm"
+                            style={{
+                                borderTop: `2px solid ${stat.borderColor}`,
+                                border: `1px solid ${stat.borderColor}`,
+                                boxShadow: `0 4px 20px ${stat.glowColor}`,
+                            }}
+                        >
                             <div className="flex items-center gap-2 mb-2">
                                 <span className={`material-symbols-outlined text-lg ${stat.color}`}>{stat.icon}</span>
-                                <span className="text-xs text-text-sub-light dark:text-text-sub-dark">{stat.label}</span>
+                                <span className="text-[10px] text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider font-bold">{stat.label}</span>
                             </div>
-                            <span className="text-xl font-bold text-text-main-light dark:text-text-main-dark">{stat.value}</span>
+                            <span className={`text-2xl font-extrabold font-telemetry ${stat.color}`}>{stat.value}</span>
                         </div>
                     ))}
                 </div>

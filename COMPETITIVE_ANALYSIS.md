@@ -77,3 +77,63 @@ Based on the Quaala/Servwizee tear-down, we will adopt a **Hybrid SaaS + Transac
    - Value: Zero-cost lead generation, no "free estimate" wasted trips.
 
 **Strategic Imperative:** Do not reinvent the wheel. Copy the Quaala property management dashboard UX. Copy the Servwizee video-to-quote flow. Wrap both entirely in WeChat and secure the local supply side before the 18-month window closes.
+
+---
+
+## 5. Additional Competitive Teardowns
+
+### 5.1 Thumbtack (US — Consumer Marketplace)
+
+**Core Model:** Two-sided marketplace connecting homeowners with local service professionals. Homeowners post a project, receive quotes from multiple pros.
+
+**Lessons to Replicate:**
+- **Instant Quote Algorithm:** Thumbtack's ML model generates price estimates based on project type, zip code, and historical data. We can replicate this with Sanya-localized pricing for our top 20 repair categories.
+- **Pro Verification Badges:** Background checks and license verification build trust. We must implement a lighter version: real-name authentication (实名认证) + photo of trade certificate.
+
+**Known Failures:**
+- **Lead Quality:** Pros complain about paying for unqualified leads (tire-kickers). Thumbtack's "Instant Match" pivot tries to solve this.
+- *"Lesson for China:"* Our AI pre-diagnosis drastically improves lead quality. Workers receive structured, intent-verified leads, not raw inquiries.
+
+### 5.2 Angi (formerly HomeAdvisor — US B2C + B2B Hybrid)
+
+**Core Model:** Subscription-based (Angi Key) and lead-gen hybrid. Homeowners search for pros, or Angi matches them. Strong brand trust through review aggregation.
+
+**Lessons to Replicate:**
+- **Fixed-Price Packaging:** Angi Key offers fixed, transparent pricing for common jobs. This eliminates quoting friction. We should build a "Standard Price Menu" (标准价目表) for Sanya.
+- **Review Ecosystem:** The review-driven trust loop is the core retention moat. We must build WeChat-native post-job reviews that feed back into worker rankings.
+
+**Known Failures:**
+- **Over-reliance on Google/SEO:** Angi's customer acquisition is heavily dependent on search ads. In China, search ads have much lower ROI. WeChat ecosystem distribution (sharing, Official Account follows) is the equivalent channel.
+- **Contractor Burnout:** Pros pay ¥¥¥ for leads but conversion rates are low. Our AI changes this — workers only receive pre-qualified, diagnosed jobs.
+
+### 5.3 Property Meld (US — B2B Maintenance Coordination SaaS)
+
+**Core Model:** Enterprise SaaS for property managers. Automates maintenance coordination between tenants, managers, vendors, and owners. Not AI-first — workflow-automation-first.
+
+**Lessons to Replicate:**
+- **Owner Visibility Portal:** Property Meld gives building owners a read-only dashboard showing maintenance spend and response times. We need this for absentee Sanya landlords.
+- **SLA Tracking:** Automated escalation if a ticket isn't resolved within configurable SLA windows. Critical for our B2B pitch.
+- **Vendor Compliance Tracking:** Tracks vendor insurance, licenses, and work quality. Maps directly to our 师傅 whitelist concept.
+
+**Known Failures:**
+- **No AI Triage:** Property Meld doesn't diagnose issues — it only coordinates humans. Our AI triage + deflection is a clear differentiator.
+- **Complex Onboarding:** Requires significant setup and training. We must remain "scan QR → start" simple for tenants.
+
+---
+
+## 6. Differentiation Matrix
+
+| Dimension | Thumbtack | Angi | Property Meld | Quaala | Servwizee | **House Maint AI** |
+|---|---|---|---|---|---|---|
+| **AI Diagnosis** | ❌ | ❌ | ❌ | ✅ Text | ✅ Video | ✅ **Photo + Voice + Video** |
+| **Ticket Deflection** | ❌ | ❌ | ❌ | ✅ 40% | ❌ | ✅ **Target 20%+** |
+| **WeChat Native** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ **Mini Program + OA** |
+| **Zero App Download** | ❌ | ❌ | ❌ | ❌ (SMS/Web) | ❌ | ✅ **100%** |
+| **B2B SaaS** | ❌ | ⚠️ Partial | ✅ | ✅ | ❌ | ✅ **¥10/door/month** |
+| **Worker Matching** | ✅ | ✅ | ⚠️ (vendor list) | ⚠️ (dispatch) | ✅ | ✅ **AI + geo-proximity** |
+| **PIPL Compliance** | ❌ N/A | ❌ N/A | ❌ N/A | ❌ N/A | ❌ N/A | ✅ **Data residency moat** |
+| **Fixed Pricing** | ❌ | ✅ | ❌ | ❌ | ✅ Virtual | ✅ **AI + local guidelines** |
+
+> [!TIP]
+> **Our unique position:** We are the only player combining AI-first diagnosis, WeChat-native UX, and PIPL-compliant Chinese data residency. No US competitor can replicate this combination within 18 months.
+
