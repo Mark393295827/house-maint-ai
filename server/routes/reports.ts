@@ -3,6 +3,8 @@ import { z } from 'zod';
 import db from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import type { ReportRow } from '../types/models.js';
+import { parseJsonColumn } from '../utils/parseJson.js';
 
 const router = express.Router();
 
@@ -57,6 +59,86 @@ router.post('/', authenticate, async (req, res, next) => {
         ]);
 
         res.status(201).json(ApiResponse.success({ report }, 'Report created successfully'));
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * GET /api/reports/available
+ * Get available orders for workers (pending/matching status)
+ * Returns distance from worker's current position
+ */
+router.get('/available', authenticate, async (req, res, next) => {
+    try {
+        if (req.user.role !== 'worker' && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Workers only' });
+        }
+
+        const workerLat = parseFloat(req.query.latitude as string) || 39.9042;
+        const workerLng = parseFloat(req.query.longitude as string) || 116.4074;
+
+        const { rows: orders } = await db.query(`
+            SELECT r.*, u.name as user_name, u.phone as user_phone
+            FROM reports r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.status IN ('pending', 'matching')
+            ORDER BY r.urgency_score DESC, r.created_at DESC
+            LIMIT 50
+        `);
+
+        // Haversine distance calculation
+        const enriched = orders.map((order: any) => {
+            let distanceKm: number | null = null;
+            if (order.latitude && order.longitude) {
+                const R = 6371;
+                const dLat = (order.latitude - workerLat) * Math.PI / 180;
+                const dLng = (order.longitude - workerLng) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) ** 2 +
+                    Math.cos(workerLat * Math.PI / 180) * Math.cos(order.latitude * Math.PI / 180) *
+                    Math.sin(dLng / 2) ** 2;
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                distanceKm = Math.round(R * c * 10) / 10;
+            }
+            return { ...order, distance_km: distanceKm };
+        });
+
+        res.json(ApiResponse.success({ orders: enriched }));
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * GET /api/reports/my-jobs
+ * Get jobs assigned to the current worker
+ */
+router.get('/my-jobs', authenticate, async (req, res, next) => {
+    try {
+        if (req.user.role !== 'worker' && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Workers only' });
+        }
+
+        // Get the worker record for this user
+        const { rows: workerRows } = await db.query('SELECT id FROM workers WHERE user_id = $1', [req.user.id]);
+        const workerId = workerRows[0]?.id;
+
+        let jobs: any[] = [];
+        if (workerId) {
+            const { rows } = await db.query(`
+                SELECT r.*, u.name as user_name, u.phone as user_phone
+                FROM reports r
+                JOIN users u ON r.user_id = u.id
+                WHERE r.matched_worker_id = $1
+                ORDER BY
+                    CASE r.status WHEN 'in_progress' THEN 0 WHEN 'matched' THEN 1 ELSE 2 END,
+                    r.updated_at DESC
+                LIMIT 50
+            `, [workerId]);
+            jobs = rows;
+        }
+
+        res.json(ApiResponse.success({ jobs }));
     } catch (error) {
         next(error);
     }
@@ -126,11 +208,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
 
         // Parse JSON fields
         if (report.image_urls) {
-            try {
-                report.image_urls = JSON.parse(report.image_urls);
-            } catch (e) {
-                // ignore parse error
-            }
+            report.image_urls = parseJsonColumn<string[]>(report.image_urls, []) as unknown as string;
         }
 
         res.json(ApiResponse.success({ report }));
@@ -191,6 +269,46 @@ router.put('/:id', authenticate, async (req, res, next) => {
 });
 
 /**
+ * PUT /api/reports/:id/accept
+ * Worker accepts the job (matched → in_progress)
+ */
+router.put('/:id/accept', authenticate, async (req, res, next) => {
+    try {
+        const reportId = req.params.id;
+
+        // 1. Get report
+        const { rows: reports } = await db.query('SELECT * FROM reports WHERE id = $1', [reportId]);
+        if (reports.length === 0) return res.status(404).json({ error: 'Report not found' });
+        const report = reports[0];
+
+        // 2. Validate status
+        if (report.status !== 'matched' && report.status !== 'broadcasted') {
+            return res.status(400).json({ error: `Cannot accept a job in "${report.status}" status` });
+        }
+
+        // 3. Authorize — only the matched worker or admin
+        const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [req.user.id]);
+        const worker = workers[0];
+        if ((!worker || worker.id !== report.matched_worker_id) && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Not authorized to accept this job' });
+        }
+
+        // 4. Transition status
+        const { rows: updated } = await db.query(`
+            UPDATE reports
+            SET status = 'in_progress',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1
+            RETURNING *
+        `, [reportId]);
+
+        res.json(ApiResponse.success({ report: updated[0] }, 'Job accepted'));
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
  * PUT /api/reports/:id/complete
  * Mark report as completed with resolution details (Worker only)
  */
@@ -233,6 +351,13 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
 
         // 4. Update worker stats (increment total_jobs)
         await db.query('UPDATE workers SET total_jobs = total_jobs + 1 WHERE id = $1', [report.matched_worker_id]);
+
+        // 5. Fire-and-forget: trigger learning loop (Stage 6-7)
+        import('../services/learning.js').then(({ learningService }) => {
+            learningService.processCompletedReports().catch((err: unknown) =>
+                console.error('Learning loop error:', err)
+            );
+        });
 
         res.json(ApiResponse.success({ report: updated[0] }, 'Report completed'));
     } catch (error) {
@@ -320,9 +445,11 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
 
         // 4. Generate Plan via DeepSeek
         // This might take 10-30 seconds, so client should handle loading state
-        // Call DeepSeek via AI Service (or fallback)
-        const diagnosis = issueContext.home_context; // home_context serves as diagnosis context here
-        const plan = await aiService.generateRepairPlan(issueContext as any);
+        const plan = await aiService.generateRepairPlan({
+            title: issueContext.title,
+            description: issueContext.description,
+            diagnosis: issueContext.home_context,
+        });
 
         // 5. Return plan (and optionally save it to a notes field or separate plans table)
         // For MVP, we return it directly. Client can choose to save it as a "Resolution Draft".

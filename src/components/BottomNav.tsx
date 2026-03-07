@@ -30,7 +30,7 @@ const BottomNav = () => {
         >
             <div className="flex items-center justify-around h-[72px] px-1" role="menubar">
                 {navItems.map((item) => {
-                    const isActive = currentPath === item.path;
+                    const isActive = currentPath === item.path || (item.path === '/' && currentPath === '/worker/dashboard');
                     const isCenter = item.isCenter;
 
                     if (isCenter) {

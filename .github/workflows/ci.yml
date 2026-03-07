@@ -60,15 +60,22 @@ jobs:
       run: npx tsc -p server/tsconfig.json --noEmit
 
     - name: Run Tests
-      # Using environment variables to match the service container
       env:
         DB_HOST: localhost
         DB_PORT: 5432
         DB_NAME: house_maint
         DB_USER: postgres
         DB_PASSWORD: postgres
-        # Playwright might complain if we don't skip it, assuming npm test runs both
-      run: npm test
+      run: npm test -- --run
+
+    - name: Check Test Coverage
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: house_maint
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+      run: npx vitest run --coverage --coverage.thresholds.lines=60 --coverage.thresholds.functions=60 --coverage.thresholds.branches=50
 
     - name: Build
       run: npm run build

@@ -3,6 +3,7 @@
  * AI Service for House Maint AI
  * Integrates with Backend /api/v1/ai/diagnose for analysis
  */
+import { getCsrfToken } from './api';
 
 const API_BASE = '/api/v1';
 const API_BASE_URL = `${API_BASE}/ai`;
@@ -41,11 +42,14 @@ async function blobUrlToBase64(blobUrl: string): Promise<string> {
  */
 export async function analyzeImage(imageBase64?: string, mimeType = 'image/jpeg', text?: string) {
     try {
+        const csrfToken = await getCsrfToken();
         const response = await fetch(`${API_BASE_URL}/diagnose`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken,
             },
+            credentials: 'include',
             body: JSON.stringify({
                 image: imageBase64,
                 mimeType: mimeType,
@@ -162,11 +166,14 @@ export async function chatWithDiagnosis(
     history: Array<{ role: 'user' | 'assistant'; content: string }>
 ) {
     try {
+        const csrfToken = await getCsrfToken();
         const response = await fetch(`${API_BASE_URL}/diagnose/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken,
             },
+            credentials: 'include',
             body: JSON.stringify({
                 image: imageBase64 || undefined,
                 mimeType: imageBase64 ? mimeType : undefined,
@@ -189,9 +196,14 @@ export async function chatWithDiagnosis(
 // ──── 8-Step Diagnostic Flow API ────
 
 async function callStepAPI(endpoint: string, body: Record<string, any>) {
+    const csrfToken = await getCsrfToken();
     const response = await fetch(`${API_BASE_URL}/diagnose/${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken,
+        },
+        credentials: 'include',
         body: JSON.stringify(body)
     });
     if (!response.ok) {
@@ -243,9 +255,14 @@ export async function inquiryChat(
     locale?: string
 ) {
     try {
+        const csrfToken = await getCsrfToken();
         const response = await fetch(`${API_BASE_URL}/diagnose/inquiry`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken,
+            },
+            credentials: 'include',
             body: JSON.stringify({
                 history,
                 image: imageBase64 || undefined,

@@ -7,7 +7,6 @@ import { AppError } from '../utils/AppError.js';
 import { ZodError } from 'zod';
 import jwt from 'jsonwebtoken';
 const { JsonWebTokenError, TokenExpiredError } = jwt;
-import fs from 'fs';
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
     // console.error('Error:', err); // Removed in production, can keep for dev if needed

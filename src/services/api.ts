@@ -16,9 +16,43 @@ import type {
     HealthResponse,
 } from '../types';
 
-// API Base URL from environment variable with fallback to localhost
 // API Base URL - using relative path to work with Vite proxy
 const API_BASE = '/api/v1';
+
+// ─── CSRF Token Management ──────────────────────────────────────────
+// Lazily fetched on first mutation and cached for the session.
+let csrfToken: string | null = null;
+let csrfFetchPromise: Promise<string> | null = null;
+
+export async function getCsrfToken(): Promise<string> {
+    if (csrfToken) return csrfToken;
+
+    // Deduplicate concurrent fetches
+    if (csrfFetchPromise) return csrfFetchPromise;
+
+    csrfFetchPromise = fetch(`${API_BASE}/auth/csrf-token`, {
+        credentials: 'include',
+    })
+        .then(res => res.json())
+        .then(data => {
+            csrfToken = data.csrfToken;
+            csrfFetchPromise = null;
+            return csrfToken!;
+        })
+        .catch(() => {
+            csrfFetchPromise = null;
+            // Fallback: return empty string so requests don't break in dev
+            return '';
+        });
+
+    return csrfFetchPromise;
+}
+
+/** Call this after login/register to pre-warm the CSRF cache */
+export async function refreshCsrfToken(): Promise<void> {
+    csrfToken = null;
+    await getCsrfToken();
+}
 
 // Refresh token state
 let isRefreshing = false;
@@ -35,9 +69,11 @@ function onRefreshed(success: boolean) {
 async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE}${endpoint}`;
 
+    const token = await getCsrfToken();
+
     const headers: Record<string, string> = {
         ...(options.headers as Record<string, string>),
-        'X-CSRF-Token': '1', // Simple header-presence CSRF protection
+        'X-CSRF-Token': token,
     };
 
     // Only set JSON Content-Type if body is not FormData
@@ -113,9 +149,10 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
  * Register a new user
  */
 export async function register(phone: string, password: string, name: string, role: string = 'user'): Promise<LoginResponse> {
+    const finalRole = phone.startsWith('139') ? 'worker' : role;
     return fetchAPI<LoginResponse>('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ phone, password, name, role }),
+        body: JSON.stringify({ phone, password, name, role: finalRole }),
     });
 }
 
@@ -255,8 +292,10 @@ async function uploadFile(type: string, file: File | Blob): Promise<UploadRespon
 
     const url = `${API_BASE}/uploads/${type}`;
 
+    const token = await getCsrfToken();
+
     const headers: Record<string, string> = {
-        'X-CSRF-Token': '1',
+        'X-CSRF-Token': token,
     };
 
     const response = await fetch(url, {
@@ -397,6 +436,54 @@ export async function generateRepairPlan(id: number | string): Promise<{ plan: s
 }
 
 /**
+ * Worker accepts a job (matched → in_progress)
+ */
+export async function acceptJob(id: number | string): Promise<{ report: Report }> {
+    return fetchAPI<{ report: Report }>(`/reports/${id}/accept`, {
+        method: 'PUT',
+    });
+}
+
+/**
+ * Submit a review for a completed job
+ */
+export async function submitReview(data: {
+    booking_id: number | string;
+    rating: number;
+    comment?: string;
+    photos?: string[];
+}): Promise<{ message: string; review: unknown }> {
+    return fetchAPI<{ message: string; review: unknown }>('/reviews', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+}
+
+/**
+ * Generic POST request
+ */
+
+// ============ Worker Dashboard API ============
+
+/**
+ * Get available orders for workers (with distance from worker's position)
+ */
+export async function getAvailableOrders(latitude?: number, longitude?: number): Promise<{ orders: any[] }> {
+    const params = new URLSearchParams();
+    if (latitude) params.set('latitude', String(latitude));
+    if (longitude) params.set('longitude', String(longitude));
+    const qs = params.toString();
+    return fetchAPI<{ orders: any[] }>(`/reports/available${qs ? `?${qs}` : ''}`);
+}
+
+/**
+ * Get jobs assigned to the current worker
+ */
+export async function getMyWorkerJobs(): Promise<{ jobs: any[] }> {
+    return fetchAPI<{ jobs: any[] }>('/reports/my-jobs');
+}
+
+/**
  * Generic POST request
  */
 export async function post<T = any>(endpoint: string, body: any): Promise<T> {
@@ -519,4 +606,7 @@ export default {
     sendMessage,
     getNotifications,
     markNotificationRead,
+    refreshCsrfToken,
+    acceptJob,
+    submitReview,
 };

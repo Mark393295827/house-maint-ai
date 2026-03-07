@@ -28,6 +28,12 @@ const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
 const PaymentCancelPage = lazy(() => import('./pages/PaymentCancelPage'));
 const OmnichannelSim = lazy(() => import('./pages/OmnichannelSim'));
 const MetricsDashboard = lazy(() => import('./pages/MetricsDashboard'));
+const WorkerDashboardPage = lazy(() => import('./pages/WorkerDashboardPage'));
+const WorkerJobPage = lazy(() => import('./pages/WorkerJobPage'));
+const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
+const WorkerRegistrationPage = lazy(() => import('./pages/WorkerRegistrationPage'));
+const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
+const JobReviewPage = lazy(() => import('./pages/JobReviewPage'));
 
 function App() {
   useEffect(() => {
@@ -51,14 +57,16 @@ function App() {
                     <Route path="/" element={<OnboardingGate />} />
                     <Route path="/welcome" element={<WelcomePage />} />
                     <Route path="/login" element={<LoginPage />} />
-                    <Route path="/diagnosis" element={<DiagnosisPage />} />
-                    <Route path="/cases" element={<MyCasesPage />} />
-                    <Route path="/library" element={<CaseLibraryPage />} />
-                    <Route path="/showcase" element={<ShowcasePage />} />
                     <Route path="/payment/success" element={<PaymentSuccessPage />} />
                     <Route path="/payment/cancel" element={<PaymentCancelPage />} />
-                    <Route path="/omnichannel-sim" element={<OmnichannelSim />} />
-                    <Route path="/metrics" element={<MetricsDashboard />} />
+
+                    {/* Protected routes */}
+                    <Route path="/diagnosis" element={<ProtectedRoute><DiagnosisPage /></ProtectedRoute>} />
+                    <Route path="/cases" element={<ProtectedRoute><MyCasesPage /></ProtectedRoute>} />
+                    <Route path="/library" element={<ProtectedRoute><CaseLibraryPage /></ProtectedRoute>} />
+                    <Route path="/showcase" element={<ProtectedRoute><ShowcasePage /></ProtectedRoute>} />
+                    <Route path="/omnichannel-sim" element={<ProtectedRoute><OmnichannelSim /></ProtectedRoute>} />
+                    <Route path="/metrics" element={<ProtectedRoute><MetricsDashboard /></ProtectedRoute>} />
 
                     {/* Protected routes */}
                     <Route path="/calendar" element={
@@ -74,6 +82,38 @@ function App() {
                     <Route path="/notifications" element={
                       <ProtectedRoute>
                         <NotificationsPage />
+                      </ProtectedRoute>
+                    } />
+
+                    {/* Worker routes */}
+                    <Route path="/worker/dashboard" element={
+                      <ProtectedRoute>
+                        <WorkerDashboardPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/worker/job/:id" element={
+                      <ProtectedRoute>
+                        <WorkerJobPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/worker/match" element={
+                      <ProtectedRoute>
+                        <WorkerMatchPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/worker/register" element={
+                      <ProtectedRoute>
+                        <WorkerRegistrationPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/repair/:id" element={
+                      <ProtectedRoute>
+                        <RepairGuidePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/review/:id" element={
+                      <ProtectedRoute>
+                        <JobReviewPage />
                       </ProtectedRoute>
                     } />
                   </Routes>

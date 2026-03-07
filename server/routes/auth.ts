@@ -6,6 +6,7 @@ import {
     authenticate,
     generateAccessToken,
     generateRefreshToken,
+    generateCsrfToken,
     getAuthCookieOptions,
     getRefreshCookieOptions,
     verifyRefreshToken
@@ -438,5 +439,13 @@ router.put('/profile', authenticate, async (req, res, next) => {
  *           type: string
  *           format: date-time
  */
+
+/**
+ * GET /api/v1/auth/csrf-token
+ * Issue a CSRF token for the double-submit cookie pattern.
+ * Frontend calls this on page load, stores the token, and attaches it
+ * as the X-CSRF-Token header on all mutation requests.
+ */
+router.get('/csrf-token', generateCsrfToken);
 
 export default router;

@@ -1,4 +1,6 @@
 import db from '../config/database.js';
+import type { WorkerWithUser, ReportRow, UserAssetRow } from '../types/models.js';
+import { parseJsonColumn } from '../utils/parseJson.js';
 
 export interface MatchScores {
     score: number;
@@ -8,18 +10,8 @@ export interface MatchScores {
     assetScore: number;
 }
 
-export interface MatchedWorker {
-    id: number;
-    user_id: number;
-    name: string;
-    phone: string;
-    avatar: string | null;
-    skills: string[];
-    rating: number;
-    total_jobs: number;
-    latitude: number;
-    longitude: number;
-    available: number;
+export interface MatchedWorker extends Omit<WorkerWithUser, 'skills'> {
+    skills: string[];       // parsed from JSON text
     score: number;
     distanceScore: number;
     ratingScore: number;
@@ -27,11 +19,25 @@ export interface MatchedWorker {
     assetScore: number;
 }
 
-const DEFAULT_WEIGHTS = {
+/** Weights for the composite match formula */
+interface MatchWeights {
+    w_skill: number;
+    w_rating: number;
+    w_geo: number;
+    w_speed: number;
+}
+
+const DEFAULT_WEIGHTS: MatchWeights = {
     w_skill: 0.4,   // Skill Match (40%)
     w_rating: 0.3,  // Rating History (30%)
     w_geo: 0.2,     // Geo Proximity (20%)
     w_speed: 0.1    // Response Speed (10%)
+};
+
+/** Minimal report context needed for matching (avoids requiring a full ReportRow) */
+export type MatchReportContext = Pick<ReportRow, 'latitude' | 'longitude' | 'description'> & {
+    user_id: number;
+    category: string | null;  // Looser than ReportCategory to accept search query values
 };
 
 export class MatchingService {
@@ -57,24 +63,23 @@ export class MatchingService {
 
     calculateSkillScore(workerSkills: string[], requiredCategory: string | null): number {
         if (!requiredCategory) return 100;
-        // In v1.0, exact match or related match could be more nuanced, but binary for now
         return workerSkills.includes(requiredCategory) ? 100 : 0;
     }
 
-    calculateSpeedScore(worker: any): number {
+    calculateSpeedScore(worker: Pick<WorkerWithUser, 'available'>): number {
         // v1.0 Placeholder: "Response Speed"
         // In full impl, this checks average acceptance time.
         // For MVP, if available=1, give high score.
         return worker.available ? 100 : 50;
     }
 
-    calculateAssetMatchScore(workerSkills: string[], reportDescription: string, userAssets: any[]): number {
+    calculateAssetMatchScore(_workerSkills: string[], _reportDescription: string, _userAssets: UserAssetRow[]): number {
         // Kept for metadata but removed from core weighted score in v1.0 spec
         return 0;
     }
 
-    calculateMatchScore(worker: any, report: any, userAssets: any[] = [], weights = DEFAULT_WEIGHTS): MatchScores {
-        const skills = typeof worker.skills === 'string' ? JSON.parse(worker.skills || '[]') : (worker.skills || []);
+    calculateMatchScore(worker: WorkerWithUser, report: MatchReportContext, userAssets: UserAssetRow[] = [], weights: MatchWeights = DEFAULT_WEIGHTS): MatchScores {
+        const skills = parseJsonColumn<string[]>(worker.skills, []);
 
         const D = this.calculateDistanceScore(
             worker.latitude, worker.longitude,
@@ -104,9 +109,9 @@ export class MatchingService {
         };
     }
 
-    async findTopMatches(report: any, limit: number = 5): Promise<MatchedWorker[]> {
+    async findTopMatches(report: MatchReportContext, limit: number = 5): Promise<MatchedWorker[]> {
         // Get available workers
-        const { rows: workers } = await db.query(`
+        const { rows: workers } = await db.query<WorkerWithUser>(`
             SELECT w.*, u.name, u.phone, u.avatar
             FROM workers w
             JOIN users u ON w.user_id = u.id
@@ -114,16 +119,12 @@ export class MatchingService {
         `);
 
         // Get User Assets
-        const { rows: userAssets } = await db.query('SELECT * FROM user_assets WHERE user_id = $1', [report.user_id]);
+        const { rows: userAssets } = await db.query<UserAssetRow>('SELECT * FROM user_assets WHERE user_id = $1', [report.user_id]);
 
         // Calculate match scores
-        const matchedWorkers = workers.map(worker => {
+        const matchedWorkers: MatchedWorker[] = workers.map(worker => {
             const scores = this.calculateMatchScore(worker, report, userAssets);
-
-            let skills = [];
-            try {
-                skills = typeof worker.skills === 'string' ? JSON.parse(worker.skills || '[]') : (worker.skills || []);
-            } catch (e) { skills = []; }
+            const skills = parseJsonColumn<string[]>(worker.skills, []);
 
             return {
                 ...worker,

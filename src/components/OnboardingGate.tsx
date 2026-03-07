@@ -5,10 +5,10 @@ import LoadingSpinner from './LoadingSpinner';
 
 /**
  * OnboardingGate — Routes unauthenticated users to /welcome
- * instead of showing an empty dashboard.
+ * instead of showing an empty dashboard. Also routes workers to their dashboard.
  */
 const OnboardingGate = () => {
-    const { isAuthenticated, isLoading } = useAuth();
+    const { user, isAuthenticated, isLoading } = useAuth();
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -16,6 +16,10 @@ const OnboardingGate = () => {
 
     if (!isAuthenticated) {
         return <Navigate to="/welcome" replace />;
+    }
+
+    if (user?.role === 'worker' || user?.role === 'admin') {
+        return <Navigate to="/worker/dashboard" replace />;
     }
 
     return <Dashboard />;

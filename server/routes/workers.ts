@@ -1,9 +1,11 @@
 import express from 'express';
+import { z } from 'zod';
 import db from '../config/database.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { cacheMiddleware, clearCache } from '../middleware/cache.js';
-
 import { matchingService } from '../services/matching.js';
+import type { WorkerWithUser, ReviewRow } from '../types/models.js';
+import { parseJsonColumn } from '../utils/parseJson.js';
 
 const router = express.Router();
 
@@ -32,16 +34,15 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
 
         query += ' ORDER BY w.rating DESC';
 
-        const { rows: workers } = await db.query(query, params);
+        const { rows: workers } = await db.query<WorkerWithUser>(query, params);
 
         // Parse skills JSON
-        workers.forEach(w => {
-            try {
-                w.skills = JSON.parse(w.skills || '[]');
-            } catch (e) { w.skills = []; }
-        });
+        const parsed = workers.map(w => ({
+            ...w,
+            skills: parseJsonColumn<string[]>(w.skills, []),
+        }));
 
-        res.json({ workers });
+        res.json({ workers: parsed });
     } catch (error) {
         next(error);
     }
@@ -53,19 +54,20 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
  */
 router.get('/match', authenticate, async (req, res, next) => {
     try {
-        const { report_id, latitude, longitude, category, limit = 5 } = req.query as any;
+        const { report_id, latitude, longitude, category, limit = '5' } = req.query as Record<string, string>;
 
         // Get report if report_id provided
-        let report: Record<string, unknown> | null = null;
+        let report: { latitude: number | null; longitude: number | null; category: string | null; description: string; user_id: number } | null = null;
         if (report_id) {
-            const { rows } = await db.query('SELECT * FROM reports WHERE id = $1', [report_id]);
-            report = rows[0];
+            const { rows } = await db.query<{ latitude: number | null; longitude: number | null; category: string | null; description: string; user_id: number }>('SELECT * FROM reports WHERE id = $1', [report_id]);
+            report = rows[0] ?? null;
         } else {
             report = {
                 latitude: parseFloat(latitude) || null,
                 longitude: parseFloat(longitude) || null,
                 category: category || null,
-                user_id: req.user.id // Needed for matching assets
+                description: '',
+                user_id: req.user.id
             };
         }
 
@@ -91,24 +93,25 @@ router.get('/match', authenticate, async (req, res, next) => {
  */
 router.get('/:id', optionalAuth, cacheMiddleware(3600), async (req, res, next) => {
     try {
-        const { rows: workers } = await db.query(`
+        const { rows: workers } = await db.query<WorkerWithUser>(`
             SELECT w.*, u.name, u.phone, u.avatar
             FROM workers w
             JOIN users u ON w.user_id = u.id
             WHERE w.id = $1
         `, [req.params.id]);
 
-        const worker = workers[0];
+        const rawWorker = workers[0];
 
-        if (!worker) {
+        if (!rawWorker) {
             return res.status(404).json({ error: 'Worker not found' });
         }
 
-        try {
-            worker.skills = JSON.parse(worker.skills || '[]');
-        } catch (e) { worker.skills = []; }
+        const worker = {
+            ...rawWorker,
+            skills: parseJsonColumn<string[]>(rawWorker.skills, []),
+        };
 
-        const { rows: reviews } = await db.query(`
+        const { rows: reviews } = await db.query<ReviewRow & { reviewer_name: string; reviewer_avatar: string | null }>(`
             SELECT r.*, u.name as reviewer_name, u.avatar as reviewer_avatar
             FROM reviews r
             JOIN users u ON r.user_id = u.id
@@ -118,17 +121,12 @@ router.get('/:id', optionalAuth, cacheMiddleware(3600), async (req, res, next) =
         `, [req.params.id]);
 
         // Parse JSON fields
-        reviews.forEach(r => {
-            if (r.photos) {
-                try {
-                    r.photos = JSON.parse(r.photos);
-                } catch (e) { r.photos = []; }
-            } else {
-                r.photos = [];
-            }
-        });
+        const parsedReviews = reviews.map(r => ({
+            ...r,
+            photos: parseJsonColumn<string[]>(r.photos, []),
+        }));
 
-        res.json({ worker, reviews });
+        res.json({ worker, reviews: parsedReviews });
     } catch (error) {
         next(error);
     }

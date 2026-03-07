@@ -2,6 +2,7 @@ import express from 'express';
 import db from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
 import { emitToUser } from '../socket.js';
+import type { NotificationType } from '../types/models.js';
 
 const router = express.Router();
 
@@ -68,7 +69,7 @@ router.put('/read-all', authenticate, async (req, res, next) => {
  * Helper: Create a notification and emit via Socket.IO
  * Used by other routes (payments, messages, jobs)
  */
-export async function createNotification(userId: number, type: string, title: string, body?: string, data?: any) {
+export async function createNotification(userId: number, type: NotificationType, title: string, body?: string, data?: Record<string, unknown>) {
     try {
         await db.query(
             `INSERT INTO notifications (user_id, type, title, body, data) VALUES ($1, $2, $3, $4, $5)`,

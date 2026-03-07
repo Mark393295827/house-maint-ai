@@ -87,9 +87,17 @@ export function authorize(...roles: string[]) {
 }
 
 /**
- * CSRF Guard Middleware
- * Protects mutation routes from Cross-Site Request Forgery.
- * Requires X-CSRF-Token header for non-safe methods.
+ * CSRF Guard Middleware (Double-Submit Cookie Pattern)
+ * 
+ * For mutation requests (POST/PUT/DELETE):
+ *   1. Reads the CSRF token from the `_csrf` httpOnly cookie
+ *   2. Compares against the `X-CSRF-Token` request header
+ *   3. Rejects if missing or mismatched
+ * 
+ * GET /api/v1/auth/csrf-token should be called by the frontend to
+ * obtain a fresh token on page load. The token is set as a cookie
+ * AND returned in the response body so the frontend can attach it
+ * to mutation request headers.
  */
 export function csrfGuard(req: Request, res: Response, next: NextFunction): void {
     const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
@@ -97,23 +105,41 @@ export function csrfGuard(req: Request, res: Response, next: NextFunction): void
         return next();
     }
 
-    // Check custom header
-    // The presence of the header itself is a strong defense as browsers don't allow
-    // cross-site requests to set custom headers without CORS preflight approval.
-
-    // Skip in non-production environments to simplify development and demo
-    if (process.env.NODE_ENV !== 'production') {
+    // Skip in test environments
+    if (process.env.NODE_ENV === 'test') {
         return next();
     }
 
-    const csrfToken = req.headers['x-csrf-token'];
+    const cookieToken = req.cookies?._csrf;
+    const headerToken = req.headers['x-csrf-token'];
 
-    if (!csrfToken) {
+    if (!cookieToken || !headerToken) {
         res.status(403).json({ error: 'CSRF token missing' });
         return;
     }
 
+    if (cookieToken !== headerToken) {
+        res.status(403).json({ error: 'CSRF token mismatch' });
+        return;
+    }
+
     next();
+}
+
+/**
+ * Generate and set a CSRF token cookie.
+ * Called by GET /api/v1/auth/csrf-token
+ */
+export function generateCsrfToken(req: Request, res: Response): void {
+    const token = crypto.randomUUID();
+    res.cookie('_csrf', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 1000, // 1 hour
+        path: '/',
+    });
+    res.json({ csrfToken: token });
 }
 
 /**
