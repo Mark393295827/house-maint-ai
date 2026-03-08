@@ -26,6 +26,7 @@ import messagesRoutes from './routes/messages.js';
 import notificationsRoutes from './routes/notifications.js';
 import workerPortalRoutes from './routes/worker-portal.js';
 import wechatRoutes from './routes/wechat.js';
+import fieldRoutes from './routes/field.js';
 import { csrfGuard } from './middleware/auth.js';
 
 // Middleware
@@ -167,6 +168,7 @@ apiV1Router.use('/messages', messagesRoutes);
 apiV1Router.use('/notifications', notificationsRoutes);
 apiV1Router.use('/worker-portal', workerPortalRoutes);
 apiV1Router.use('/wechat', wechatRoutes);
+apiV1Router.use('/field', fieldRoutes);
 
 // Mount v1 router
 app.use('/api/v1', apiV1Router);

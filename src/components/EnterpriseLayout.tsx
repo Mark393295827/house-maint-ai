@@ -1,90 +1,83 @@
 import React from 'react';
-import { useLanguage } from '../i18n/LanguageContext';
 import { NavLink } from 'react-router-dom';
-import Header from './Header';
 
 interface LayoutProps {
     children: React.ReactNode;
 }
 
 const EnterpriseLayout: React.FC<LayoutProps> = ({ children }) => {
-    const { t } = useLanguage();
+
+    const navItems = [
+        { to: '/enterprise', end: true, icon: '📊', label: 'Mission Control' },
+        { to: '/enterprise/properties', icon: '🏢', label: 'Properties' },
+        { to: '/enterprise/tickets', icon: '🎫', label: 'Tickets' },
+        { to: '/enterprise/workers', icon: '👷', label: 'Workers' },
+        { to: '/enterprise/analytics', icon: '📈', label: 'Analytics' },
+    ];
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* Use a simplified Header or custom Enterprise Header later */}
-            <Header />
+        <div className="min-h-screen bg-background-dark flex flex-col">
+            {/* Top Bar */}
+            <header className="h-14 bg-surface-dark border-b border-gray-800 flex items-center px-6 z-20">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">H</span>
+                    </div>
+                    <div>
+                        <h1 className="text-sm font-bold text-gray-200 font-display">Hasiki Enterprise</h1>
+                        <p className="text-[10px] text-gray-500 font-mono">Property Management AI</p>
+                    </div>
+                </div>
+                <div className="flex-1" />
+                <div className="flex items-center gap-3">
+                    <div className="live-dot" />
+                    <span className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">
+                        System Online
+                    </span>
+                </div>
+            </header>
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
-                <aside className="w-64 bg-white shadow-md hidden md:block z-10">
-                    <div className="p-6">
-                        <h2 className="text-xl font-bold text-gray-800">Hasiki Enterprise</h2>
-                        <p className="text-sm text-gray-500 mt-1">Property Manager</p>
-                    </div>
-
-                    <nav className="mt-6 px-4 space-y-2">
-                        <NavLink
-                            to="/enterprise"
-                            end
-                            className={({ isActive }) =>
-                                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50'
-                                }`
-                            }
-                        >
-                            <span className="text-xl mr-3">📊</span>
-                            {t('nav.dashboard', { defaultValue: 'Overview' })}
-                        </NavLink>
-
-                        <NavLink
-                            to="/enterprise/properties"
-                            className={({ isActive }) =>
-                                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50'
-                                }`
-                            }
-                        >
-                            <span className="text-xl mr-3">🏢</span>
-                            {t('nav.properties', { defaultValue: 'Properties' })}
-                        </NavLink>
-
-                        <NavLink
-                            to="/enterprise/tickets"
-                            className={({ isActive }) =>
-                                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50'
-                                }`
-                            }
-                        >
-                            <span className="text-xl mr-3">🎫</span>
-                            {t('nav.tickets', { defaultValue: 'Tickets' })}
-                        </NavLink>
-
-                        <NavLink
-                            to="/enterprise/workers"
-                            className={({ isActive }) =>
-                                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50'
-                                }`
-                            }
-                        >
-                            <span className="text-xl mr-3">👷</span>
-                            {t('nav.workers', { defaultValue: 'Workers' })}
-                        </NavLink>
-
-                        <NavLink
-                            to="/enterprise/analytics"
-                            className={({ isActive }) =>
-                                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50'
-                                }`
-                            }
-                        >
-                            <span className="text-xl mr-3">📈</span>
-                            {t('nav.analytics', { defaultValue: 'Analytics' })}
-                        </NavLink>
+                <aside className="w-56 bg-surface-dark border-r border-gray-800 hidden md:flex flex-col z-10">
+                    <nav className="flex-1 py-4 px-3 space-y-1">
+                        {navItems.map((item) => (
+                            <NavLink
+                                key={item.to}
+                                to={item.to}
+                                end={item.end}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
+                                        ? 'bg-primary/10 text-primary-light border border-primary/20'
+                                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                                    }`
+                                }
+                            >
+                                <span className="text-lg">{item.icon}</span>
+                                <span>{item.label}</span>
+                            </NavLink>
+                        ))}
                     </nav>
+
+                    {/* Bottom: Agent Status Summary */}
+                    <div className="p-4 border-t border-gray-800">
+                        <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Agents Active</div>
+                        <div className="flex items-center gap-2">
+                            <div className="flex -space-x-1">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <div key={i} className="w-5 h-5 rounded-full bg-gray-700 border border-gray-800 flex items-center justify-center">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-data-green" />
+                                    </div>
+                                ))}
+                            </div>
+                            <span className="text-xs text-gray-400 font-mono">5/7</span>
+                        </div>
+                    </div>
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 overflow-auto p-8">
-                    <div className="max-w-7xl mx-auto">
+                <main className="flex-1 overflow-auto bg-background-dark">
+                    <div className="max-w-7xl mx-auto p-6 lg:p-8">
                         {children}
                     </div>
                 </main>

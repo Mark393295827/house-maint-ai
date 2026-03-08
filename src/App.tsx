@@ -34,6 +34,7 @@ const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
 const WorkerRegistrationPage = lazy(() => import('./pages/WorkerRegistrationPage'));
 const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
 const JobReviewPage = lazy(() => import('./pages/JobReviewPage'));
+const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
 
 function App() {
   useEffect(() => {
@@ -114,6 +115,13 @@ function App() {
                     <Route path="/review/:id" element={
                       <ProtectedRoute>
                         <JobReviewPage />
+                      </ProtectedRoute>
+                    } />
+
+                    {/* Enterprise Management Dashboard */}
+                    <Route path="/enterprise/*" element={
+                      <ProtectedRoute>
+                        <EnterpriseDashboard />
                       </ProtectedRoute>
                     } />
                   </Routes>

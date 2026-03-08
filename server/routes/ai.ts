@@ -4,12 +4,14 @@ import { aiService } from '../services/ai.js';
 import { ChatMessage } from '../agents/common.js';
 import * as Sentry from '@sentry/node';
 import { trackAiCost } from '../middleware/aiCostTracker.js';
+import { trackInferenceValue } from '../middleware/inferenceValue.js';
 import { anonymizeImagePayload } from '../middleware/piplBlur.js';
 
 const router = express.Router();
 
-// Track AI costs for all routes in this router
+// Track AI costs and Inference-to-Value Ratio for all routes
 router.use(trackAiCost);
+router.use(trackInferenceValue);
 
 // Schema for diagnosis
 const diagnoseSchema = z.object({
@@ -246,5 +248,89 @@ router.post('/plan', async (req: Request, res: Response) => {
     }
 });
 
+// ──────── 10X Blue Ocean Agent Endpoints ────────
+
+/** S1: Material BOM Generation (材料清单) */
+const materialSchema = z.object({
+    diagnosisSummary: z.string(),
+    category: z.string(),
+    locale: z.string().optional()
+});
+
+router.post('/material-bom', async (req: Request, res: Response) => {
+    try {
+        const { diagnosisSummary, category, locale } = materialSchema.parse(req.body);
+        const { result, usage } = await aiService.generateMaterialBOM(diagnosisSummary, category, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Material BOM generation failed', details: error instanceof Error ? error.message : String(error) });
+    }
+});
+
+/** S2: Fault Attribution (责任判定) */
+const faultSchema = z.object({
+    image: z.string().optional(),
+    mimeType: z.string().optional(),
+    description: z.string().optional(),
+    propertyAgeYears: z.number().optional(),
+    tenancyMonths: z.number().optional(),
+    locale: z.string().optional()
+});
+
+router.post('/fault-attribution', anonymizeImagePayload, async (req: Request, res: Response) => {
+    try {
+        const { image, mimeType, description, propertyAgeYears, tenancyMonths, locale } = faultSchema.parse(req.body);
+        const { result, usage } = await aiService.assessFault(image, mimeType, description, propertyAgeYears, tenancyMonths, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Fault attribution failed', details: error instanceof Error ? error.message : String(error) });
+    }
+});
+
+/** S3: Vacation Rental Turnover Comparison (度假房交接) */
+const turnoverSchema = z.object({
+    beforeImages: z.array(z.object({ data: z.string(), mimeType: z.string() })),
+    afterImages: z.array(z.object({ data: z.string(), mimeType: z.string() })),
+    propertyName: z.string().optional(),
+    locale: z.string().optional()
+});
+
+router.post('/turnover-compare', anonymizeImagePayload, async (req: Request, res: Response) => {
+    try {
+        const { beforeImages, afterImages, propertyName, locale } = turnoverSchema.parse(req.body);
+        const { result, usage } = await aiService.compareTurnover(beforeImages, afterImages, propertyName, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Turnover comparison failed', details: error instanceof Error ? error.message : String(error) });
+    }
+});
+
+/** Research Swarm: Full market research (调研代理群) */
+const researchSchema = z.object({
+    sector: z.string().min(1),
+    focusArea: z.string().optional(),
+    currentTAM: z.number().optional(),
+    locale: z.string().optional()
+});
+
+router.post('/research-market', async (req: Request, res: Response) => {
+    try {
+        const { sector, focusArea, currentTAM, locale } = researchSchema.parse(req.body);
+        const { result, usage } = await aiService.runResearch(sector, focusArea, currentTAM, locale);
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error) {
+        Sentry.captureException(error);
+        res.status(500).json({ error: 'Research swarm failed', details: error instanceof Error ? error.message : String(error) });
+    }
+});
+
 
 export default router;
+

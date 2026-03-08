@@ -248,3 +248,30 @@ export const deviceNodes = sqliteTable('device_nodes', {
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
 
+// Fault Attributions Table (Blue Ocean S2: 责任判定)
+export const faultAttributions = sqliteTable('fault_attributions', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    reportId: integer('report_id').references(() => reports.id, { onDelete: 'cascade' }),
+    attribution: text('attribution', { enum: ['landlord', 'tenant', 'shared', 'undetermined'] }).notNull(),
+    confidenceScore: real('confidence_score').notNull(),
+    evidence: text('evidence').notNull(),       // JSON array of evidence points
+    reasoning: text('reasoning').notNull(),
+    legalReference: text('legal_reference'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+// Turnover Inspections Table (Blue Ocean S3: 度假房交接)
+export const turnoverInspections = sqliteTable('turnover_inspections', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    propertyId: text('property_id'),            // External property ID (Tujia/Airbnb)
+    propertyName: text('property_name'),
+    inspectionType: text('inspection_type', { enum: ['checkin', 'checkout', 'comparison'] }).notNull(),
+    overallCondition: text('overall_condition', { enum: ['excellent', 'good', 'fair', 'damaged'] }),
+    damageReport: text('damage_report'),         // JSON: TurnoverReport
+    beforeImageUrls: text('before_image_urls'),  // JSON array
+    afterImageUrls: text('after_image_urls'),    // JSON array
+    cleanlinessScore: integer('cleanliness_score'),
+    estimatedDamageCost: real('estimated_damage_cost'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
