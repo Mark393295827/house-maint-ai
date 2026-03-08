@@ -83,11 +83,10 @@ swarm_result:
     mitigations: "[How to address weaknesses]"
   
   confidence: 0.85
-  ready_for_sandbox: true
-```
+  ready_for_audit: true
 
 ## Integration
 
 - **Input**: Receives from planner/task-router
-- **Output**: Sends to sandbox-runner for iteration
+- **Output**: Sends to hitl-auditor for review
 - **Escalation**: HITL auditor for low-confidence decisions

@@ -72,16 +72,7 @@ handoff:
   return: swarm_result
 ```
 
-### 6. Recursive Sandboxing (NEW)
-```yaml
-handoff:
-  to: sandbox-runner
-  task: "Iterate solution up to 100x"
-  input: swarm_result
-  return: validated_solution
-```
-
-### 7. HITL Audit (NEW)
+### 6. HITL Audit (NEW)
 ```yaml
 handoff:
   to: hitl-auditor
