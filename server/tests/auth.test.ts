@@ -106,6 +106,7 @@ describe('Auth API (Cookie Only & CSRF)', () => {
         const res = await request(app)
             .post('/api/auth/register')
             .set('X-CSRF-Token', '1')
+            .set('Cookie', ['_csrf=1'])
             .send(testUser);
 
         expect(res.status).toBe(201);
@@ -130,6 +131,7 @@ describe('Auth API (Cookie Only & CSRF)', () => {
         const res = await request(app)
             .post('/api/auth/login')
             .set('X-CSRF-Token', '1')
+            .set('Cookie', ['_csrf=1'])
             .send({
                 phone: testUser.phone,
                 password: testUser.password
@@ -150,6 +152,7 @@ describe('Auth API (Cookie Only & CSRF)', () => {
         const res = await request(app)
             .post('/api/auth/login')
             .set('X-CSRF-Token', '1')
+            .set('Cookie', ['_csrf=1'])
             .send({
                 phone: testUser.phone,
                 password: 'wrongpassword'

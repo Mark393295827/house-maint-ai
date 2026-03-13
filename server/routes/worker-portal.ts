@@ -58,9 +58,20 @@ router.get('/dashboard', authenticate, async (req, res, next) => {
         const userId = req.user.id;
 
         // Get worker record
-        const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [userId]);
+        let { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [userId]);
+        
         if (workers.length === 0) {
-            return res.status(404).json({ error: 'Worker profile not found', registered: false });
+            if (req.user.role === 'worker') {
+                // Auto-initialize worker profile
+                const { rows: newWorker } = await db.query(`
+                    INSERT INTO workers (user_id, skills, available)
+                    VALUES ($1, $2, 1)
+                    RETURNING *
+                `, [userId, JSON.stringify(['general'])]);
+                workers = newWorker;
+            } else {
+                return res.status(404).json({ error: 'Worker profile not found', registered: false });
+            }
         }
         const worker = workers[0];
 

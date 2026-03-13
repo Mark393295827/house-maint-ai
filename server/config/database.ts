@@ -81,11 +81,22 @@ export class SQLiteFallback {
             return { sql, params: [] };
         }
 
-        // Replace $1, $2, etc. with ?
+        const convertedParams: any[] = [];
         let convertedSql = sql;
-        for (let i = params.length; i >= 1; i--) {
-            convertedSql = convertedSql.replace(new RegExp('\\$' + i, 'g'), '?');
-        }
+        
+        // Find all $N markers
+        const paramMarkers = sql.match(/\$\d+/g) || [];
+        
+        // We need to replace them in a way that respects the index but uses ?
+        // The most robust way is to use a regex callback
+        convertedSql = sql.replace(/\$(\d+)/g, (match, number) => {
+            const index = parseInt(number) - 1;
+            if (index >= 0 && index < params.length) {
+                convertedParams.push(params[index]);
+                return '?';
+            }
+            return match; // Should not happen with valid SQL
+        });
 
         // Handle PostgreSQL-specific syntax
         convertedSql = convertedSql
@@ -94,9 +105,11 @@ export class SQLiteFallback {
             .replace(/\bTIMESTAMP(TZ)?\b/gi, 'TEXT') // Convert types with word boundaries
             .replace(/NOW\(\)/gi, "datetime('now')")
             .replace(/CURRENT_TIMESTAMP/gi, "datetime('now')")
-            .replace(/::[\w]+/g, ''); // Remove type casts like ::text
+            .replace(/::[\w]+/g, '') // Remove type casts
+            .replace(/\bCOUNT\(\*\)\s+FILTER\s*\(\s*WHERE\s+((?:[^()]|\([^()]*\))+)\)/gi, 'COUNT(CASE WHEN $1 THEN 1 END)')
+            .replace(/\bFILTER\s*\(\s*WHERE\s+((?:[^()]|\([^()]*\))+)\)/gi, 'CASE WHEN $1 THEN 1 END'); // Catch-all for other filters
 
-        return { sql: convertedSql, params };
+        return { sql: convertedSql, params: convertedParams };
     }
 
     /**

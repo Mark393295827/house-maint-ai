@@ -282,14 +282,18 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
         const report = reports[0];
 
         // 2. Validate status
-        if (report.status !== 'matched' && report.status !== 'broadcasted') {
+        if (!['pending', 'matching', 'matched', 'broadcasted'].includes(report.status)) {
             return res.status(400).json({ error: `Cannot accept a job in "${report.status}" status` });
         }
 
-        // 3. Authorize — only the matched worker or admin
+        // 3. Authorize — only the matched worker or any worker if it's a pool job
         const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [req.user.id]);
         const worker = workers[0];
-        if ((!worker || worker.id !== report.matched_worker_id) && req.user.role !== 'admin') {
+        
+        const isMatchedWorker = worker && report.matched_worker_id === worker.id;
+        const isPoolJob = !report.matched_worker_id;
+
+        if (!isMatchedWorker && !isPoolJob && req.user.role !== 'admin') {
             return res.status(403).json({ error: 'Not authorized to accept this job' });
         }
 
@@ -297,10 +301,11 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
         const { rows: updated } = await db.query(`
             UPDATE reports
             SET status = 'in_progress',
+                matched_worker_id = COALESCE(matched_worker_id, $2),
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = $1
             RETURNING *
-        `, [reportId]);
+        `, [reportId, worker.id]);
 
         res.json(ApiResponse.success({ report: updated[0] }, 'Job accepted'));
     } catch (error) {

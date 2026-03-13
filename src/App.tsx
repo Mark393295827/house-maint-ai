@@ -17,6 +17,7 @@ import { useEffect } from 'react';
 const OnboardingGate = lazy(() => import('./components/OnboardingGate'));
 const WelcomePage = lazy(() => import('./pages/WelcomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RepairmanLoginPage = lazy(() => import('./pages/RepairmanLoginPage'));
 const DiagnosisPage = lazy(() => import('./pages/DiagnosisPage'));
 const MyCasesPage = lazy(() => import('./pages/MyCasesPage'));
 const CaseLibraryPage = lazy(() => import('./pages/CaseLibraryPage'));
@@ -58,6 +59,7 @@ function App() {
                     <Route path="/" element={<OnboardingGate />} />
                     <Route path="/welcome" element={<WelcomePage />} />
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/repairman/login" element={<RepairmanLoginPage />} />
                     <Route path="/payment/success" element={<PaymentSuccessPage />} />
                     <Route path="/payment/cancel" element={<PaymentCancelPage />} />
 

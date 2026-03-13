@@ -173,8 +173,18 @@ const WorkerJobPage = () => {
                     )}
 
                     {plan && (
-                        <div className="prose prose-sm max-w-none text-text-main-light dark:text-text-main-dark bg-white dark:bg-gray-800 p-4 rounded-xl shadow-inner overflow-x-auto">
-                            <pre className="whitespace-pre-wrap font-sans text-sm">{plan}</pre>
+                        <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-inner border border-blue-50 dark:border-blue-900/30">
+                            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+                                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Repair Execution Protocol</span>
+                                <span className="ml-auto text-[10px] text-gray-400">DeepSeek R1 v2.0</span>
+                            </div>
+                            <div className="text-sm leading-relaxed text-text-main-light dark:text-text-main-dark whitespace-pre-wrap font-sans">
+                                {plan}
+                            </div>
+                            <div className="mt-6 flex items-center justify-between text-[10px] text-gray-400 italic">
+                                <span>* AI generated plan for reference only</span>
+                                <span>Confidence: 94%</span>
+                            </div>
                         </div>
                     )}
                 </div>

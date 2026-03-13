@@ -1,25 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getAvailableOrders, getMyWorkerJobs, acceptJob } from '../services/api';
+import { getAvailableOrders, getMyWorkerJobs, acceptJob, getWorkerDashboard } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 /* ─── Category helpers ─── */
 const categoryIcon: Record<string, string> = {
     plumbing: 'plumbing', electrical: 'bolt', hvac: 'ac_unit',
     structural: 'foundation', appliance: 'kitchen', painting: 'format_paint',
-    default: 'home_repair_service',
+    carpentry: 'carpentry', roofing: 'roofing', cleaning: 'cleaning_services',
+    other: 'more_horiz', default: 'home_repair_service',
 };
 const categoryColor: Record<string, string> = {
-    plumbing: 'from-blue-500 to-cyan-500', electrical: 'from-amber-500 to-orange-500',
-    hvac: 'from-violet-500 to-purple-500', structural: 'from-rose-500 to-red-500',
-    appliance: 'from-emerald-500 to-green-500', painting: 'from-pink-500 to-fuchsia-500',
+    plumbing: 'from-blue-500 to-cyan-500', 
+    electrical: 'from-amber-500 to-orange-500',
+    hvac: 'from-violet-500 to-purple-500', 
+    structural: 'from-rose-500 to-red-500',
+    appliance: 'from-emerald-500 to-green-500', 
+    painting: 'from-pink-500 to-fuchsia-500',
+    carpentry: 'from-orange-600 to-amber-700',
+    roofing: 'from-slate-600 to-slate-800',
+    cleaning: 'from-cyan-400 to-blue-400',
     default: 'from-gray-500 to-gray-600',
 };
 const categoryLabel: Record<string, string> = {
-    plumbing: '管道', electrical: '电气', hvac: '暖通',
-    structural: '结构', appliance: '家电', painting: '油漆',
-    default: '维修',
+    plumbing: '水工/管道', electrical: '电工/电路', hvac: '空调/暖通',
+    structural: '房屋结构', appliance: '家电维修', painting: '墙面/油漆',
+    carpentry: '木工/家具', roofing: '屋顶维修', cleaning: '深度清洁',
+    other: '其他类型', default: '通用维修',
 };
 const urgencyBadge: Record<number, { label: string; color: string }> = {
     0: { label: '普通', color: 'bg-gray-100 text-gray-600 border-gray-200' },
@@ -59,12 +67,17 @@ const WorkerDashboardPage: React.FC = () => {
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const [ordersRes, jobsRes] = await Promise.all([
+            const [ordersRes, jobsRes, dashboardRes] = await Promise.all([
                 getAvailableOrders(),
                 getMyWorkerJobs(),
+                getWorkerDashboard().catch(() => ({ stats: null })) // Fallback if no profile yet
             ]);
             setOrders(ordersRes.orders || []);
             setMyJobs(jobsRes.jobs || []);
+            
+            if (dashboardRes.stats) {
+                setStats(dashboardRes.stats);
+            }
         } catch (err) {
             console.error('Failed to fetch worker data:', err);
         } finally {
@@ -74,27 +87,39 @@ const WorkerDashboardPage: React.FC = () => {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
+    const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
     const handleAccept = async (orderId: string) => {
         setAccepting(orderId);
         try {
             await acceptJob(orderId);
+            setNotification({ type: 'success', text: '订单接取成功！正在转到我的工单...' });
+            setTimeout(() => setNotification(null), 3000);
             await fetchData();
-            setTab('myJobs');
-        } catch (err) {
+            setTimeout(() => setTab('myJobs'), 1000);
+        } catch (err: any) {
             console.error('Failed to accept:', err);
+            setNotification({ type: 'error', text: err.message || '接单失败，请稍后重试' });
+            setTimeout(() => setNotification(null), 5000);
         } finally {
             setAccepting(null);
         }
     };
 
-    const activeJobs = myJobs.filter(j => j.status === 'in_progress' || j.status === 'matched');
-    const completedJobs = myJobs.filter(j => j.status === 'completed');
+    const [stats, setStats] = useState<any>({
+        earnings: 0,
+        jobsCompleted: 0,
+        rating: 5.0,
+        activeJobs: 0
+    });
 
+    const activeJobs = myJobs.filter(j => j.status === 'in_progress' || j.status === 'matched');
+    
     const statsData = [
-        { icon: 'payments', label: '收入', value: `¥${(completedJobs.length * 150).toFixed(0)}`, color: 'text-data-green', border: 'rgba(0,255,135,0.15)', glow: 'rgba(0,255,135,0.08)' },
-        { icon: 'task_alt', label: '已完成', value: completedJobs.length, color: 'text-neon-cyan', border: 'rgba(0,240,255,0.15)', glow: 'rgba(0,240,255,0.08)' },
-        { icon: 'star', label: '评分', value: '4.9 ★', color: 'text-pit-amber', border: 'rgba(255,184,0,0.15)', glow: 'rgba(255,184,0,0.08)' },
-        { icon: 'pending_actions', label: '进行中', value: activeJobs.length, color: 'text-primary-light', border: 'rgba(99,102,241,0.15)', glow: 'rgba(99,102,241,0.08)' },
+        { icon: 'payments', label: '收入', value: `¥${stats.earnings.toFixed(0)}`, color: 'text-data-green', border: 'rgba(0,255,135,0.15)', glow: 'rgba(0,255,135,0.08)' },
+        { icon: 'task_alt', label: '已完成', value: stats.jobsCompleted, color: 'text-neon-cyan', border: 'rgba(0,240,255,0.15)', glow: 'rgba(0,240,255,0.08)' },
+        { icon: 'star', label: '评分', value: `${stats.rating.toFixed(1)} ★`, color: 'text-pit-amber', border: 'rgba(255,184,0,0.15)', glow: 'rgba(255,184,0,0.08)' },
+        { icon: 'pending_actions', label: '进行中', value: activeJobs.length || stats.activeJobs, color: 'text-primary-light', border: 'rgba(99,102,241,0.15)', glow: 'rgba(99,102,241,0.08)' },
     ];
 
     return (
@@ -171,6 +196,18 @@ const WorkerDashboardPage: React.FC = () => {
 
             {/* ── Content ── */}
             <main className="flex-1 px-5 pt-3 pb-4">
+                {notification && (
+                    <div className={`mb-4 p-4 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${
+                        notification.type === 'success' 
+                            ? 'bg-data-green/10 border border-data-green/20 text-data-green' 
+                            : 'bg-racing-red/10 border border-racing-red/20 text-racing-red'
+                    }`}>
+                        <span className="material-symbols-outlined">
+                            {notification.type === 'success' ? 'check_circle' : 'error'}
+                        </span>
+                        <span className="text-sm font-bold">{notification.text}</span>
+                    </div>
+                )}
                 {loading ? (
                     <div className="flex justify-center py-12"><LoadingSpinner /></div>
                 ) : tab === 'available' ? (
@@ -306,10 +343,10 @@ const WorkerDashboardPage: React.FC = () => {
                                 </button>
                             ))}
 
-                            {completedJobs.length > 0 && (
+                            {myJobs.filter(j => j.status === 'completed').length > 0 && (
                                 <>
-                                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mt-2">已完成 ({completedJobs.length})</h3>
-                                    {completedJobs.map(job => (
+                                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mt-2">已完成 ({myJobs.filter(j => j.status === 'completed').length})</h3>
+                                    {myJobs.filter(j => j.status === 'completed').map((job: any) => (
                                         <button key={job.id}
                                             onClick={() => navigate(`/worker/job/${job.id}`)}
                                             className="w-full bg-white dark:bg-surface-dark rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm text-left opacity-70"

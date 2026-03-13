@@ -48,11 +48,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     // Register function
-    const register = useCallback(async (phone: string, password: string, name: string): Promise<AuthResult> => {
+    const register = useCallback(async (phone: string, password: string, name: string, role: string = 'user'): Promise<AuthResult> => {
         setError(null);
         setIsLoading(true);
         try {
-            const data = await api.register(phone, password, name);
+            const data = await api.register(phone, password, name, role);
+            
+            // If registering as a worker, automatically initialize worker profile
+            if (role === 'worker' || data.user.role === 'worker') {
+                try {
+                    await api.registerWorker({ 
+                        skills: ['general'], 
+                        bio: 'Professional maintenance provider' 
+                    });
+                } catch (workerErr) {
+                    console.error('Failed to auto-initialize worker profile:', workerErr);
+                    // We don't fail the whole registration if profile creation fails, 
+                    // as they can fix it later in profile settings.
+                }
+            }
+            
             setUser(data.user);
             return { success: true, user: data.user };
         } catch (err) {

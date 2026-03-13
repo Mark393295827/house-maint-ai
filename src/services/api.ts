@@ -484,6 +484,23 @@ export async function getMyWorkerJobs(): Promise<{ jobs: any[] }> {
 }
 
 /**
+ * Register as a worker (creates worker profile)
+ */
+export async function registerWorker(data: { skills: string[]; bio?: string; hourlyRate?: number }): Promise<any> {
+    return fetchAPI<any>('/worker-portal/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+}
+
+/**
+ * Get worker dashboard stats
+ */
+export async function getWorkerDashboard(): Promise<any> {
+    return fetchAPI<any>('/worker-portal/dashboard');
+}
+
+/**
  * Generic POST request
  */
 export async function post<T = any>(endpoint: string, body: any): Promise<T> {
@@ -609,4 +626,6 @@ export default {
     refreshCsrfToken,
     acceptJob,
     submitReview,
+    registerWorker,
+    getWorkerDashboard,
 };

@@ -188,6 +188,24 @@ const initDb = async () => {
                 }
             }
 
+            const workerColumns = [
+                { name: 'bio', type: 'TEXT' },
+                { name: 'hourly_rate', type: 'REAL' },
+                { name: 'total_jobs', type: 'INTEGER DEFAULT 0' }
+            ];
+            for (const col of workerColumns) {
+                if (isSQLite) {
+                    try {
+                        await pool.query(`ALTER TABLE workers ADD COLUMN ${col.name} ${col.type}`);
+                    } catch (e) { }
+                } else {
+                    await pool.query(`
+                        ALTER TABLE workers 
+                        ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}
+                    `);
+                }
+            }
+
             console.log('✅ Database initialization complete!');
             process.exit(0);
 

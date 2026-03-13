@@ -239,6 +239,19 @@ const LoginPage = () => {
                             {t('login.skip')}
                         </Link>
                     </div>
+
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 text-center">
+                        <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
+                            {locale === 'zh' ? '您是维修师傅吗？' : 'Are you a professional repairman?'}
+                        </p>
+                        <Link
+                            to="/repairman/login"
+                            className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:text-primary-dark transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-lg">engineering</span>
+                            {locale === 'zh' ? '前往师傅端门户' : 'Go to Repairman Portal'}
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, CookieOptions } from 'express';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/secrets.js';
+import crypto from 'crypto';
 
 import { z } from 'zod';
 
@@ -102,11 +103,6 @@ export function authorize(...roles: string[]) {
 export function csrfGuard(req: Request, res: Response, next: NextFunction): void {
     const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
     if (safeMethods.includes(req.method)) {
-        return next();
-    }
-
-    // Skip in test environments
-    if (process.env.NODE_ENV === 'test') {
         return next();
     }
 
