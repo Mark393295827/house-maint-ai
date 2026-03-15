@@ -98,40 +98,48 @@ const DiagnosisWizard: React.FC = () => {
     } : null;
 
     return (
-        <div className="flex flex-col h-screen bg-[#0f1120] text-white overflow-hidden">
-            {phase === 'inquiry' && (
-                <InquiryChat
-                    onComplete={handleInquiryComplete}
-                    onBack={handleBack}
-                />
-            )}
+        <div className="flex flex-col h-[100dvh] bg-[#fbfbfd] text-[#1d1d1f] overflow-hidden selection:bg-[#0071e3]/10">
+            {/* Apple Background Gradients */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] left-[-20%] w-[100vw] h-[100vw] rounded-full bg-gradient-to-br from-[#0071e3]/5 to-transparent blur-[120px] opacity-60" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[80vw] h-[80vw] rounded-full bg-gradient-to-tl from-[#5856d6]/5 to-transparent blur-[120px] opacity-40" />
+            </div>
 
-            {phase === 'summary' && demandData && (
-                <DemandSummary
-                    data={demandData}
-                    locale={locale}
-                    imageUrl={imageUrl}
-                    onDispatch={handleDispatchStart}
-                    onBack={handleBack}
-                />
-            )}
+            <div className="relative z-10 flex flex-col h-full w-full max-w-5xl mx-auto overflow-hidden">
+                {phase === 'inquiry' && (
+                    <InquiryChat
+                        onComplete={handleInquiryComplete}
+                        onBack={handleBack}
+                    />
+                )}
 
-            {phase === 'dispatch' && (
-                <StepDispatch
-                    diagnosis={diagnosisCompat}
-                    locale={locale}
-                    imageUrl={imageUrl || ''}
-                    onDispatch={handleDispatch}
-                />
-            )}
+                {phase === 'summary' && demandData && (
+                    <DemandSummary
+                        data={demandData}
+                        locale={locale}
+                        imageUrl={imageUrl}
+                        onDispatch={handleDispatchStart}
+                        onBack={handleBack}
+                    />
+                )}
 
-            {phase === 'feedback' && (
-                <FeedbackModal
-                    caseId={caseId}
-                    locale={locale}
-                    onClose={handleFeedbackClose}
-                />
-            )}
+                {phase === 'dispatch' && (
+                    <StepDispatch
+                        diagnosis={diagnosisCompat}
+                        locale={locale}
+                        imageUrl={imageUrl || ''}
+                        onDispatch={handleDispatch}
+                    />
+                )}
+
+                {phase === 'feedback' && (
+                    <FeedbackModal
+                        caseId={caseId}
+                        locale={locale}
+                        onClose={handleFeedbackClose}
+                    />
+                )}
+            </div>
         </div>
     );
 };

@@ -7,15 +7,15 @@
   <img src="./assets/screenshots/renter_report_mockup.png" width="22%" alt="WeChat Renter Report" />
   <img src="./assets/screenshots/ai_diagnosis_mockup.png" width="22%" alt="AI Diagnosis Result" />
   <img src="./assets/screenshots/worker_push_mockup.png" width="22%" alt="Master Order Push" />
-  <img src="./assets/screenshots/showcase_demo.png" width="22%" alt="Enterprise Dashboard" />
+  <img src="./assets/screenshots/enterprise_dashboard.png" width="22%" alt="Enterprise Dashboard" />
 </div>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
   <a href="https://github.com/Mark393295827/house-maint-ai/stargazers"><img src="https://img.shields.io/github/stars/Mark393295827/house-maint-ai?style=social" alt="Stars"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-20+-green.svg" alt="Node.js"></a>
-  <a href="https://developers.weixin.qq.com/"><img src="https://img.shields.io/badge/Platform-WeChat_MiniProgram-07C160?logo=wechat&logoColor=white" alt="WeChat Mini Program"></a>
-  <a href="https://deepseek.com/"><img src="https://img.shields.io/badge/AI-DeepSeek_Baidu-blue.svg" alt="AI"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-20+-green.svg?style=flat-square&logo=node.js" alt="Node.js"></a>
+  <a href="https://developers.weixin.qq.com/"><img src="https://img.shields.io/badge/WeChat-MiniProgram-07C160?style=flat-square&logo=wechat&logoColor=white" alt="WeChat Mini Program"></a>
+  <a href="https://deepseek.com/"><img src="https://img.shields.io/badge/AI-Gemini_DeepSeek-blue.svg?style=flat-square" alt="AI"></a>
 </p>
 
 ---

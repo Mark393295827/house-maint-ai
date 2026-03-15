@@ -19,23 +19,33 @@ interface DemandSummaryProps {
     onBack: () => void;
 }
 
-const SEVERITY_COLORS: Record<string, string> = {
-    critical: 'from-red-500 to-rose-600',
-    moderate: 'from-amber-400 to-orange-500',
-    low: 'from-emerald-400 to-green-500',
-};
-
-const SEVERITY_LABELS: Record<string, Record<string, string>> = {
-    zh: { critical: '紧急', moderate: '中等', low: '轻微' },
-    en: { critical: 'Critical', moderate: 'Moderate', low: 'Low' },
+const SEVERITY_INFO: Record<string, { color: string; bg: string; border: string; label: Record<string, string> }> = {
+    critical: { 
+        color: '#ff3b30', 
+        bg: 'rgba(255, 59, 48, 0.05)', 
+        border: 'rgba(255, 59, 48, 0.1)', 
+        label: { zh: '紧急', en: 'Critical' } 
+    },
+    moderate: { 
+        color: '#ff9500', 
+        bg: 'rgba(255, 149, 0, 0.05)', 
+        border: 'rgba(255, 149, 0, 0.1)', 
+        label: { zh: '中等', en: 'Moderate' } 
+    },
+    low: { 
+        color: '#34c759', 
+        bg: 'rgba(52, 199, 89, 0.05)', 
+        border: 'rgba(52, 199, 89, 0.1)', 
+        label: { zh: '轻微', en: 'Low' } 
+    },
 };
 
 const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, onDispatch, onBack }) => {
     const [copied, setCopied] = useState(false);
-
     const isZh = locale === 'zh';
-    const sevColor = SEVERITY_COLORS[data.severity] || SEVERITY_COLORS.moderate;
-    const sevLabel = (SEVERITY_LABELS[locale] || SEVERITY_LABELS.en)[data.severity] || data.severity;
+    
+    const sevInfo = SEVERITY_INFO[data.severity] || SEVERITY_INFO.moderate;
+    const sevLabel = sevInfo.label[locale] || sevInfo.label.en;
 
     const fields = [
         {
@@ -62,6 +72,7 @@ const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, o
             icon: 'schedule',
             label: isZh ? '时间要求' : 'Timeline',
             value: data.timeline || (isZh ? '灵活' : 'Flexible'),
+            highlight: true
         },
         {
             icon: 'note_alt',
@@ -80,71 +91,95 @@ const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, o
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#0f1120] text-white animate-fade-in-up">
-            {/* Header */}
-            <div className="px-5 pt-16 pb-4">
-                <button onClick={onBack} className="mb-4 p-2 bg-white/10 hover:bg-white/20 rounded-full active:scale-90 transition-transform">
-                    <span className="material-symbols-outlined text-xl block text-white/80">arrow_back</span>
-                </button>
-                <div className="flex items-center gap-3 mb-1">
-                    <span className="material-symbols-outlined text-2xl text-emerald-400" style={{ fontVariationSettings: "'FILL' 1" }}>task_alt</span>
-                    <h1 className="text-xl font-bold">{isZh ? '需求清单' : 'Demand Summary'}</h1>
+        <div className="flex flex-col h-full bg-[#fbfbfd] text-[#1d1d1f] page-enter">
+            {/* Header: Apple Setup Style */}
+            <div className="px-8 pt-12 pb-8 flex flex-col items-center text-center stagger-item">
+                <div className="w-16 h-16 bg-[#1d1d1f] rounded-[22px] flex items-center justify-center shadow-2xl shadow-black/10 mb-6">
+                    <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>fact_check</span>
                 </div>
-                <p className="text-white/50 text-sm ml-10">{isZh ? '以下信息可直接发送给服务商' : 'Ready for professional service providers'}</p>
+                <h1 className="text-3xl font-black tracking-tighter mb-2">
+                    {isZh ? '最终确认' : 'Identity Summary'}
+                </h1>
+                <p className="text-[15px] font-bold text-[#86868b] leading-tight max-w-[280px]">
+                    {isZh ? '请核对以下维修需求，确认无误后我们将为您匹配最优服务商' : 'Review your configuration before we match you with the best provider.'}
+                </p>
             </div>
 
-            {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-3">
-                {/* Severity Badge */}
-                <div className={`bg-gradient-to-r ${sevColor} rounded-2xl px-4 py-3 flex items-center justify-between shadow-lg`}>
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-white/90 text-lg">warning</span>
-                        <span className="font-bold text-sm">{isZh ? '严重程度' : 'Severity'}</span>
+            {/* Content Scroller */}
+            <div className="flex-1 overflow-y-auto px-6 pb-20 space-y-4 no-scrollbar">
+                {/* Severity Status Row */}
+                <div className="stagger-item" style={{ animationDelay: '100ms' }}>
+                    <div 
+                        className="p-1 rounded-[22px] apple-glass shadow-sm border"
+                        style={{ borderColor: sevInfo.border, backgroundColor: 'white' }}
+                    >
+                        <div className="flex items-center justify-between px-5 py-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center font-black" style={{ backgroundColor: sevInfo.bg, color: sevInfo.color }}>
+                                    <span className="material-symbols-outlined text-sm">warning</span>
+                                </div>
+                                <span className="text-[11px] font-black text-[#86868b] uppercase tracking-widest">{isZh ? '风险评估' : 'RISK ASSESSMENT'}</span>
+                            </div>
+                            <span className="text-[14px] font-black uppercase tracking-tight" style={{ color: sevInfo.color }}>{sevLabel}</span>
+                        </div>
                     </div>
-                    <span className="font-black text-lg tracking-wide uppercase">{sevLabel}</span>
                 </div>
 
-                {/* Photo thumbnail */}
+                {/* Photo Preview if exists */}
                 {imageUrl && (
-                    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="material-symbols-outlined text-violet-400 text-sm">photo_camera</span>
-                            <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider">{isZh ? '附带照片' : 'Attached Photo'}</span>
-                        </div>
-                        <div className="w-full h-32 rounded-xl overflow-hidden">
-                            <img src={imageUrl} alt="Issue" className="w-full h-full object-cover" />
+                    <div className="stagger-item" style={{ animationDelay: '150ms' }}>
+                        <div className="aegis-card p-2 bg-white ring-1 ring-black/5 shadow-sm">
+                             <img src={imageUrl} alt="Attached Context" className="w-full h-48 object-cover rounded-2xl" />
+                             <div className="px-3 py-2 flex items-center justify-between">
+                                 <span className="text-[10px] font-black text-[#86868b] uppercase tracking-widest">{isZh ? '环境实拍' : 'PHOTO CONTEXT'}</span>
+                                 <span className="material-symbols-outlined text-[16px] text-[#86868b]">image</span>
+                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Field cards */}
-                {fields.map((field, i) => (
-                    <div key={i} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-3">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="material-symbols-outlined text-violet-400 text-sm">{field.icon}</span>
-                            <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider">{field.label}</span>
-                        </div>
-                        <p className="text-white/90 text-sm leading-relaxed">{field.value}</p>
+                {/* Information Grid (Apple List Style) */}
+                <div className="stagger-item space-y-3" style={{ animationDelay: '200ms' }}>
+                    <div className="grid grid-cols-1 gap-3">
+                        {fields.map((f, i) => (
+                            <div key={i} className={`aegis-card p-5 bg-white shadow-sm ring-1 ring-black/5 hover:ring-[#0071e3]/20 transition-all ${f.highlight ? 'ring-[#0071e3]/20' : ''}`}>
+                                <div className="flex items-center gap-3 mb-2">
+                                     <span className="material-symbols-outlined text-[18px] text-[#86868b] font-medium">{f.icon}</span>
+                                     <span className="text-[10px] font-black text-[#86868b] uppercase tracking-widest">{f.label}</span>
+                                </div>
+                                <p className="text-[14px] font-bold leading-relaxed">{f.value}</p>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                </div>
             </div>
 
-            {/* Bottom actions */}
-            <div className="px-5 pb-8 pt-3 bg-gradient-to-t from-[#0f1120] via-[#0f1120] to-transparent space-y-3">
+            {/* Sticky Action Footer */}
+            <div className="relative z-30 p-6 flex flex-col gap-3 apple-glass border-t border-black/5 mt-auto">
                 <button
                     onClick={onDispatch}
-                    className="w-full bg-violet-600 hover:bg-violet-700 active:scale-[0.97] transition-all text-white font-bold text-lg rounded-2xl py-4 shadow-[0_0_30px_rgba(139,92,246,0.3)] flex items-center justify-center gap-2"
+                    className="w-full h-14 bg-[#1d1d1f] hover:bg-black text-white rounded-2xl text-[14px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-2xl shadow-black/20 press-scale transition-all"
                 >
-                    <span className="material-symbols-outlined rotate-[-45deg]">send</span>
-                    {isZh ? '立即派单' : 'Dispatch Now'}
+                    <span className="material-symbols-outlined text-[20px]">flash_on</span>
+                    {isZh ? '立即匹配服务商' : 'Match Provider Now'}
                 </button>
-                <button
-                    onClick={handleCopy}
-                    className="w-full bg-white/10 hover:bg-white/15 active:scale-[0.97] transition-all text-white/80 font-bold text-sm rounded-2xl py-3 flex items-center justify-center gap-2"
-                >
-                    <span className="material-symbols-outlined text-lg">{copied ? 'check' : 'content_copy'}</span>
-                    {copied ? (isZh ? '已复制' : 'Copied!') : (isZh ? '复制需求清单' : 'Copy Demand List')}
-                </button>
+                
+                <div className="grid grid-cols-2 gap-3">
+                    <button
+                        onClick={onBack}
+                        className="h-12 bg-white border border-black/10 rounded-2xl text-[12px] font-bold text-[#1d1d1f] flex items-center justify-center gap-2 press-scale hover:bg-[#f5f5f7] transition-all"
+                    >
+                        <span className="material-symbols-outlined text-lg">edit</span>
+                        {isZh ? '修改内容' : 'Edit Request'}
+                    </button>
+                    <button
+                        onClick={handleCopy}
+                        className="h-12 bg-white border border-black/10 rounded-2xl text-[12px] font-bold text-[#1d1d1f] flex items-center justify-center gap-2 press-scale hover:bg-[#f5f5f7] transition-all"
+                    >
+                        <span className="material-symbols-outlined text-lg">{copied ? 'done' : 'content_copy'}</span>
+                        {copied ? (isZh ? '已复制' : 'Copied!') : (isZh ? '复制详情' : 'Copy Summary')}
+                    </button>
+                </div>
             </div>
         </div>
     );

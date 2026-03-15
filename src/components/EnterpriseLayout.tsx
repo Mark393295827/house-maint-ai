@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import LanguageToggle from './LanguageToggle';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -24,6 +25,9 @@ const Header: React.FC = () => {
                     <span className="material-symbols-outlined font-light">notifications</span>
                     <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full border-2 border-white"></span>
                 </button>
+                <div className="flex items-center gap-1 pl-1 border-l border-slate-200/60">
+                    <LanguageToggle />
+                </div>
                 <div className="flex items-center gap-3 pl-6 border-l border-slate-200/60">
                     <div className="text-right">
                         <p className="text-[12px] font-bold text-slate-900 leading-none mb-1">{user?.name || 'Administrator'}</p>

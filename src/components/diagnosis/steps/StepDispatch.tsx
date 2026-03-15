@@ -6,119 +6,134 @@ import { mockWorkers } from '../../../__mocks__/mockData';
 interface StepDispatchProps {
     diagnosis: any;
     locale: string;
-    imageUrl: string | null;
     onDispatch: (worker: Worker) => void;
 }
 
-const StepDispatch: React.FC<StepDispatchProps> = ({ diagnosis, locale, imageUrl, onDispatch }) => {
+const StepDispatch: React.FC<StepDispatchProps> = ({ diagnosis, locale, onDispatch }) => {
     const [matchingState, setMatchingState] = useState<'searching' | 'found'>('searching');
     const [matchedWorker, setMatchedWorker] = useState<Worker | null>(null);
+    const isZh = locale === 'zh';
 
     useEffect(() => {
-        // Simulate searching for nearby worker
         const timer = setTimeout(() => {
-            // "Find" the top rated mock worker
             setMatchedWorker(mockWorkers[0]);
             setMatchingState('found');
-        }, 3000); // 3 seconds of radar searching
-
+        }, 3500);
         return () => clearTimeout(timer);
     }, []);
 
     return (
-        <div className="relative h-full w-full bg-[#0a0f18] flex flex-col items-center justify-between text-white overflow-hidden">
-
-            {/* The "Map" Background Simulation */}
-            <div className="absolute inset-0 z-0 opacity-40 mix-blend-screen overflow-hidden pointer-events-none">
-                {/* Simulated roads and intersections for a dark map theme */}
-                <svg className="w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
+        <div className="relative h-full w-full bg-[#fbfbfd] flex flex-col items-center justify-between text-[#1d1d1f] overflow-hidden">
+            
+            {/* Apple "Silver/Alumni" Map Style Background */}
+            <div className="absolute inset-0 z-0 opacity-100 overflow-hidden pointer-events-none">
+                <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#2a3b5a" strokeWidth="1" />
+                        <pattern id="light-grid" width="60" height="60" patternUnits="userSpaceOnUse">
+                            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#e1e1e6" strokeWidth="0.5" />
                         </pattern>
                     </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)" />
-                    {/* Add some diagonal "highways" */}
-                    <path d="M 0 150 Q 150 200 400 50" fill="none" stroke="#3a4b6c" strokeWidth="8" />
-                    <path d="M -50 400 Q 200 350 500 600" fill="none" stroke="#3a4b6c" strokeWidth="6" />
+                    <rect width="100%" height="100%" fill="url(#light-grid)" />
+                    {/* Simulated High-Precision Vector Paths */}
+                    <path d="M 0 300 Q 200 320 600 100" fill="none" stroke="#d2d2d7" strokeWidth="6" strokeLinecap="round" />
+                    <path d="M -100 500 Q 300 450 700 800" fill="none" stroke="#d2d2d7" strokeWidth="4" strokeLinecap="round" opacity="0.6" />
+                    <path d="M 400 0 V 1000" fill="none" stroke="#e5e5ea" strokeWidth="2" opacity="0.4" />
                 </svg>
             </div>
 
-            {/* Radar Animation Overlay when searching */}
+            {/* Premium Soft Radar Animation */}
             {matchingState === 'searching' && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0">
-                    <div className="w-96 h-96 rounded-full border border-violet-500/30 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-[ping_3s_infinite]" />
-                    <div className="w-64 h-64 rounded-full border border-violet-500/50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-[ping_2s_infinite]" />
-                    <div className="w-32 h-32 rounded-full border border-violet-500/80 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-violet-500/10 backdrop-blur-sm" />
-                    <div className="w-4 h-4 rounded-full bg-violet-400 shadow-[0_0_20px_rgba(139,92,246,1)] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
+                    <div className="w-[600px] h-[600px] rounded-full border border-[#0071e3]/5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_4s_infinite]" />
+                    <div className="w-[400px] h-[400px] rounded-full border border-[#0071e3]/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_3s_infinite]" />
+                    <div className="w-[200px] h-[200px] rounded-full border border-[#0071e3]/20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0071e3]/5 backdrop-blur-3xl animate-[pulse_2s_infinite]" />
+                    
+                    {/* Pulsing Core */}
+                    <div className="relative">
+                        <div className="w-12 h-12 rounded-[14px] bg-[#1d1d1f] flex items-center justify-center shadow-2xl animate-bounce">
+                             <span className="material-symbols-outlined text-white text-xl">location_searching</span>
+                        </div>
+                    </div>
                 </div>
             )}
 
-            {/* Agent / Diagnosis Callout at top */}
-            <div className="relative z-10 w-full p-6 pt-20 animate-fade-in-down">
-                <AgentBubble
-                    text={matchingState === 'searching'
-                        ? (locale === 'zh'
-                            ? `诊断结果: 发现【${diagnosis?.issue_name || '问题'}】。正在为您匹配附近的维修师傅...`
-                            : `Diagnosis: Detected [${diagnosis?.issue_name || 'Issue'}]. Pinging nearby pros...`)
-                        : (locale === 'zh'
-                            ? `为您找到最近的师傅！`
-                            : `Found a nearby pro!`)}
-                    loading={matchingState === 'searching'}
-                    locale={locale}
-                />
+            {/* Apple "Setup Assistant" Header */}
+            <div className="relative z-10 w-full p-8 pt-24 stagger-item">
+                <div className="max-w-md mx-auto">
+                    <AgentBubble 
+                        text={matchingState === 'searching' 
+                            ? (isZh ? `正在检索 ${diagnosis?.issue_name || '问题'} 专家...` : `Searching for ${diagnosis?.issue_name || 'Issue'} pros...`)
+                            : (isZh ? `已为您精准匹配服务商` : `Precision matching complete`)}
+                        loading={matchingState === 'searching'}
+                        locale={locale}
+                    />
+                </div>
             </div>
 
-            {/* Bottom Sheet for Worker Details */}
-            <div className={`relative z-10 w-full px-4 pb-8 transition-transform duration-700 ease-out ${matchingState === 'found' ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 absolute bottom-0'}`}>
+            {/* Worker Precision Card (Bottom Sheet Style) */}
+            <div className={`relative z-20 w-full px-6 pb-12 transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) ${matchingState === 'found' ? 'translate-y-0 opacity-100' : 'translate-y-[200px] opacity-0 pointer-events-none'}`}>
                 {matchedWorker && (
-                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-[32px] p-6 w-full shadow-2xl">
+                    <div className="group apple-glass bg-white/60 ring-1 ring-black/5 rounded-[32px] p-8 w-full shadow-2xl shadow-black/5 transform hover:-translate-y-1 transition-transform">
+                        
+                        {/* Status Identifier (New!) */}
+                        <div className="flex items-center gap-2 mb-8">
+                             <div className="px-3 py-1 bg-[#28cd41]/10 rounded-full border border-[#28cd41]/20">
+                                <span className="text-[10px] font-black text-[#28cd41] uppercase tracking-widest">{isZh ? '最优匹配' : 'BEST MATCH'}</span>
+                             </div>
+                             <div className="h-px flex-1 bg-black/5" />
+                        </div>
 
-                        {/* Worker Info */}
-                        <div className="flex items-center gap-4 mb-6">
+                        {/* Profile Section */}
+                        <div className="flex items-center gap-6 mb-8">
                             <div className="relative">
-                                <img src={matchedWorker.avatar} alt="Pro Avatar" className="w-16 h-16 rounded-full border-2 border-emerald-400 object-cover" />
-                                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md border border-white/20 shadow-md flex items-center gap-0.5">
-                                    <span className="material-symbols-outlined text-[10px]">bolt</span>
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#0071e3] to-[#5e5ce6] rounded-full blur-xl opacity-20 animate-pulse" />
+                                <img src={matchedWorker.avatar || ''} alt="Pro" className="relative w-24 h-24 rounded-full border-[4px] border-white shadow-2xl object-cover" />
+                                <div className="absolute -bottom-1 -right-1 bg-white ring-1 ring-black/5 text-[#1d1d1f] text-[10px] font-black px-2 py-1 rounded-lg shadow-xl flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[14px] text-[#28cd41]">bolt</span>
                                     1.2km
                                 </div>
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-white font-bold text-xl">{matchedWorker.name}</h3>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <div className="flex items-center text-amber-400 text-sm">
-                                        <span className="material-symbols-outlined text-[14px] fill-current">star</span>
-                                        <span className="font-bold ml-1">{matchedWorker.rating}</span>
+                                <h3 className="text-[#1d1d1f] font-black text-2xl tracking-tighter mb-1 leading-tight">{matchedWorker.name}</h3>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center bg-[#ff9500]/10 px-2 py-0.5 rounded-md">
+                                        <span className="material-symbols-outlined text-[14px] text-[#ff9500] fill-current">star</span>
+                                        <span className="font-black text-[#1d1d1f] text-xs ml-1">{matchedWorker.rating}</span>
                                     </div>
-                                    <span className="text-white/40 text-xs">•</span>
-                                    <span className="text-white/80 text-sm">{matchedWorker.skills[0]} Pro</span>
+                                    <span className="text-[13px] font-bold text-[#86868b] uppercase tracking-tight">
+                                        {(matchedWorker.skills && matchedWorker.skills[0]) ? matchedWorker.skills[0] : 'PRO'} MASTER
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* ETA & Info */}
-                        <div className="grid grid-cols-2 gap-3 mb-6">
-                            <div className="bg-black/30 rounded-2xl p-3 flex flex-col items-center justify-center">
-                                <span className="text-white/50 text-xs mb-1">ETA</span>
-                                <span className="text-white font-bold text-xl">8 min</span>
-                            </div>
-                            <div className="bg-black/30 rounded-2xl p-3 flex flex-col items-center justify-center">
-                                <span className="text-white/50 text-xs mb-1">Est. Cost</span>
-                                <span className="text-white font-bold text-xl text-emerald-400 font-mono">
-                                    {diagnosis?.estimated_cost && diagnosis.estimated_cost !== 'Unknown' ? diagnosis.estimated_cost : '$85'}
-                                </span>
-                            </div>
+                        {/* Precision Metrics Grid */}
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                             <div className="apple-glass bg-white/40 ring-1 ring-black/5 p-5 rounded-2xl flex flex-col items-center">
+                                 <span className="text-[10px] font-black text-[#86868b] uppercase tracking-widest mb-2">ETA</span>
+                                 <div className="flex items-baseline gap-1">
+                                     <span className="text-2xl font-black tracking-tighter">8</span>
+                                     <span className="text-[12px] font-bold text-[#86868b]">{isZh ? '分钟' : 'min'}</span>
+                                 </div>
+                             </div>
+                             <div className="apple-glass bg-white/40 ring-1 ring-black/5 p-5 rounded-2xl flex flex-col items-center">
+                                 <span className="text-[10px] font-black text-[#86868b] uppercase tracking-widest mb-2">Cost</span>
+                                 <div className="flex items-baseline gap-1">
+                                     <span className="text-2xl font-black tracking-tighter text-[#0071e3]">
+                                        {diagnosis?.estimated_cost && diagnosis.estimated_cost !== 'Unknown' ? diagnosis.estimated_cost : '¥120'}
+                                     </span>
+                                 </div>
+                             </div>
                         </div>
 
-                        {/* Dispatch Button */}
+                        {/* Apple-Style Confirmation Button */}
                         <button
                             onClick={() => onDispatch(matchedWorker)}
-                            className="w-full bg-violet-600 hover:bg-violet-700 active:scale-95 transition-all text-white font-bold text-lg rounded-2xl py-4 shadow-[0_0_25px_rgba(139,92,246,0.4)] flex items-center justify-center gap-2"
+                            className="w-full h-16 bg-[#1d1d1f] hover:bg-black text-white rounded-[20px] text-[15px] font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(0,0,0,0.1)] press-scale transition-all"
                         >
-                            {locale === 'zh' ? '立即派单' : 'Dispatch Now'}
-                            <span className="material-symbols-outlined rotate-[-45deg]">send</span>
+                            {isZh ? '确认委派' : 'Confirm Dispatch'}
+                            <span className="material-symbols-outlined text-xl">arrow_forward</span>
                         </button>
-
                     </div>
                 )}
             </div>

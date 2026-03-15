@@ -9,8 +9,8 @@ interface FeedbackModalProps {
 
 const STARS = [1, 2, 3, 4, 5];
 
-const TAGS_ZH = ['准确', '快速', '专业', '价格合理', '沟通好', '需改进'];
-const TAGS_EN = ['Accurate', 'Fast', 'Professional', 'Fair Price', 'Good Comms', 'Needs Work'];
+const TAGS_ZH = ['建议准确', '响应迅速', '流程专业', '价格透明', '系统好用', '界面美观'];
+const TAGS_EN = ['Accurate', 'Fast', 'Professional', 'Transparent', 'Easy Use', 'Beautiful UI'];
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ caseId, locale, onClose }) => {
     const isZh = locale === 'zh';
@@ -35,99 +35,97 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ caseId, locale, onClose }
             comment: comment.trim() || undefined,
         };
 
-        // Track in Mixpanel
         Analytics.track('feedback_submitted', feedback);
 
-        // Save to localStorage for dashboard
         const existing = JSON.parse(localStorage.getItem('inquiry_feedback') || '[]');
         existing.push({ ...feedback, timestamp: new Date().toISOString() });
         localStorage.setItem('inquiry_feedback', JSON.stringify(existing));
 
         setSubmitted(true);
-        setTimeout(onClose, 1500);
+        setTimeout(onClose, 2000);
     };
 
     if (submitted) {
         return (
-            <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
-                <div className="bg-[#1a1d2e] border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center animate-fade-in-up">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-emerald-400 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+            <div className="fixed inset-0 z-[200] bg-[#f5f5f7]/80 backdrop-blur-xl flex items-center justify-center p-6 page-enter">
+                <div className="bg-white apple-glass rounded-[32px] p-10 max-w-sm w-full text-center shadow-2xl shadow-black/5 ring-1 ring-black/5 border border-white/40">
+                    <div className="w-16 h-16 mx-auto mb-6 bg-[#28cd41]/10 rounded-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-[#28cd41] text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                     </div>
-                    <h2 className="text-white font-bold text-lg mb-1">{isZh ? '感谢反馈！' : 'Thanks for your feedback!'}</h2>
-                    <p className="text-white/50 text-sm">{isZh ? '您的意见将帮助我们持续改进' : 'Your input helps us improve'}</p>
+                    <h2 className="text-[#1d1d1f] font-black text-2xl tracking-tighter mb-2">{isZh ? '感谢您的反馈' : 'Feedback Received'}</h2>
+                    <p className="text-[14px] font-bold text-[#86868b] leading-tight">{isZh ? '您的意见对我们非常重要' : 'Your input fuels our innovation.'}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center">
-            <div className="bg-[#1a1d2e] border border-white/10 rounded-t-3xl sm:rounded-3xl p-6 max-w-md w-full animate-fade-in-up max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-end sm:items-center justify-center pt-10">
+            <div className="bg-[#f5f5f7] apple-glass border border-white/40 rounded-t-[32px] sm:rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in slide-in-from-bottom-8 duration-500 max-h-[90vh] overflow-y-auto no-scrollbar selection:bg-[#0071e3]/10">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-5">
-                    <h2 className="text-white font-bold text-lg">{isZh ? '服务评价' : 'Service Feedback'}</h2>
-                    <button onClick={onClose} className="p-1.5 bg-white/10 rounded-full hover:bg-white/20">
-                        <span className="material-symbols-outlined text-white/60 text-lg">close</span>
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 className="text-[#1d1d1f] font-black text-xl tracking-tight">{isZh ? '诊断体验评价' : 'Experience Rating'}</h2>
+                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-widest mt-0.5">{isZh ? '帮助我们改进算法' : 'Help us tune the engine'}</p>
+                    </div>
+                    <button onClick={onClose} className="w-9 h-9 bg-white border border-black/5 rounded-full flex items-center justify-center hover:bg-[#f5f5f7] transition-all press-scale">
+                        <span className="material-symbols-outlined text-[#1d1d1f] text-[18px]">close</span>
                     </button>
                 </div>
 
-                {/* Star Rating */}
-                <div className="mb-5">
-                    <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-2">{isZh ? '整体满意度' : 'Overall Satisfaction'}</p>
+                {/* Star Rating (Apple Precision) */}
+                <div className="mb-8 p-6 bg-white rounded-2xl ring-1 ring-black/5 shadow-sm">
+                    <p className="text-[#86868b] text-[10px] font-black uppercase tracking-widest text-center mb-4">{isZh ? '您的满意度' : 'YOUR SATISFACTION'}</p>
                     <div className="flex gap-2 justify-center">
                         {STARS.map(s => (
                             <button key={s} onClick={() => setRating(s)}
-                                className={`text-4xl transition-all active:scale-110 ${s <= rating ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'text-white/15'}`}>
+                                className={`transition-all active:scale-125 ${s <= rating ? 'text-[#ff9500]' : 'text-[#d2d2d7] hover:text-[#86868b]'}`}>
                                 <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: `'FILL' ${s <= rating ? 1 : 0}` }}>star</span>
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Demand Accuracy */}
-                <div className="mb-5">
-                    <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-2">{isZh ? '需求清单准确度' : 'Demand List Accuracy'}</p>
-                    <div className="flex gap-2">
+                {/* Demand Accuracy (Selector) */}
+                <div className="mb-8">
+                    <p className="text-[#86868b] text-[10px] font-black uppercase tracking-widest mb-3 ml-1">{isZh ? '需求匹配准确度' : 'MATCH ACCURACY'}</p>
+                    <div className="bg-white p-1 rounded-2xl ring-1 ring-black/5 shadow-sm flex gap-1">
                         {[1, 2, 3, 4, 5].map(n => (
                             <button key={n} onClick={() => setDemandAccuracy(n)}
-                                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${n === demandAccuracy ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}>
+                                className={`flex-1 py-3 rounded-xl text-[13px] font-black transition-all ${n === demandAccuracy ? 'bg-[#1d1d1f] text-white shadow-xl' : 'text-[#86868b] hover:bg-[#f5f5f7]'}`}>
                                 {n}
                             </button>
                         ))}
                     </div>
-                    <div className="flex justify-between mt-1 px-1">
-                        <span className="text-[10px] text-white/20">{isZh ? '不准确' : 'Inaccurate'}</span>
-                        <span className="text-[10px] text-white/20">{isZh ? '非常准确' : 'Very Accurate'}</span>
-                    </div>
                 </div>
 
-                {/* Tags */}
-                <div className="mb-5">
-                    <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-2">{isZh ? '标签 (可多选)' : 'Tags (select all that apply)'}</p>
+                {/* Tags (Apple Pill Collection) */}
+                <div className="mb-8">
+                    <p className="text-[#86868b] text-[10px] font-black uppercase tracking-widest mb-3 ml-1">{isZh ? '多选标签' : 'TAGS'}</p>
                     <div className="flex flex-wrap gap-2">
                         {tags.map(tag => (
                             <button key={tag} onClick={() => toggleTag(tag)}
-                                className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all ${selectedTags.includes(tag) ? 'bg-violet-600 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}>
+                                className={`px-4 py-2 rounded-full text-[12px] font-bold transition-all border ${selectedTags.includes(tag) ? 'bg-[#1d1d1f] text-white border-transparent' : 'bg-white text-[#1d1d1f] border-black/5 hover:bg-[#f5f5f7]'}`}>
                                 {tag}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Comment */}
-                <div className="mb-6">
-                    <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-2">{isZh ? '补充说明 (可选)' : 'Additional Comments (optional)'}</p>
+                {/* Comment (Clean Design) */}
+                <div className="mb-8">
+                    <p className="text-[#86868b] text-[10px] font-black uppercase tracking-widest mb-3 ml-1">{isZh ? '更多建议' : 'SUGGESTIONS'}</p>
                     <textarea value={comment} onChange={(e) => setComment(e.target.value)}
-                        placeholder={isZh ? '有什么建议或改进意见...' : 'Any suggestions or improvements...'}
+                        placeholder={isZh ? '输入您的意见或反馈...' : 'Tell us what we can do better...'}
                         rows={3}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-violet-500/40 resize-none" />
+                        className="w-full bg-white border border-black/5 rounded-2xl px-5 py-4 text-[#1d1d1f] text-[14px] font-medium placeholder-[#86868b]/30 focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10 transition-all resize-none shadow-sm" />
                 </div>
 
-                {/* Submit */}
+                {/* Primary Button */}
                 <button onClick={handleSubmit} disabled={rating === 0}
-                    className="w-full bg-violet-600 disabled:bg-white/10 hover:bg-violet-700 text-white disabled:text-white/30 font-bold text-base rounded-2xl py-3.5 transition-all active:scale-[0.98] shadow-lg shadow-violet-600/20 disabled:shadow-none">
-                    {isZh ? '提交评价' : 'Submit Feedback'}
+                    className="w-full h-14 bg-[#0071e3] disabled:opacity-30 text-white rounded-[20px] text-[14px] font-black uppercase tracking-widest shadow-2xl shadow-[#0071e3]/30 transition-all press-scale flex items-center justify-center gap-2">
+                    {isZh ? '提交评价' : 'Publish Feedback'}
+                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                 </button>
             </div>
         </div>
