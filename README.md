@@ -17,6 +17,22 @@ By combining **AI Photo/Voice Triage** with a native **WeChat Ecosystem**, we cr
 
 ---
 
+## 📸 Visual Showcase
+
+### Hasiki Enterprise Platform
+![Showcase Demo](./assets/screenshots/showcase_demo.png)
+
+### Mission Control & Analytics
+![Mission Control](./assets/screenshots/mission_control.png)
+
+### Portfolio & Asset Management
+![Properties](./assets/screenshots/properties.png)
+
+### Worker Portal & Technician Directory
+![Workers](./assets/screenshots/workers.png)
+
+---
+
 ## ✨ Core Workflows (The Dual Pivot)
 
 ### 1. B2B: Property Manager SaaS (The Quaala Model)
