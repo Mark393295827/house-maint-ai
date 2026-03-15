@@ -1,0 +1,94 @@
+/* ─── Aegis Enterprise: Modern SaaS & Apple Aesthetic ─── */
+
+:root {
+  /* Core Palette (Apple Silicon Valley Style) */
+  --enterprise-bg: #F7F8FA;
+  --enterprise-surface: rgba(255, 255, 255, 0.75);
+  --enterprise-accent: #007AFF;
+  --enterprise-accent-gradient: linear-gradient(135deg, #007AFF 0%, #00C6FF 100%);
+  
+  /* Typography (High Contrast) */
+  --enterprise-text-main: #000000;
+  --enterprise-text-sub: #4B4B4B;
+  --enterprise-text-muted: #86868B;
+  
+  /* Borders & Shadows */
+  --enterprise-border: rgba(0, 0, 0, 0.1);
+  --enterprise-border-micro: 1px solid #000000;
+  --enterprise-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --enterprise-shadow-floating: 0 30px 60px rgba(0, 0, 0, 0.12);
+  
+  /* Glassmorphism */
+  --enterprise-glass: blur(30px) saturate(210%);
+}
+
+/* ─── Utility Classes ─── */
+
+.ent-glass {
+  background: var(--enterprise-surface);
+  backdrop-filter: var(--enterprise-glass);
+  -webkit-backdrop-filter: var(--enterprise-glass);
+  border: var(--enterprise-border-micro);
+}
+
+.ent-card {
+  background: white;
+  border: var(--enterprise-border-micro);
+  border-radius: 24px;
+  box-shadow: var(--enterprise-shadow-soft);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ent-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--enterprise-shadow-floating);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.ent-text-high {
+  color: var(--enterprise-text-main);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.ent-text-sub {
+  color: var(--enterprise-text-sub);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ent-font-black {
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.ent-gradient-text {
+  background: var(--enterprise-accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modular Grid Helper */
+.ent-grid {
+  display: grid;
+  gap: 24px;
+}
+
+/* Custom Scrollbar for Enterprise */
+.ent-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ent-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ent-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.ent-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}

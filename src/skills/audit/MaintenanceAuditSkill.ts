@@ -16,7 +16,7 @@ export class MaintenanceAuditSkill implements MaintenanceSkill {
     schedule = '0 0 * * *'; // Every midnight
 
     async execute(): Promise<void> {
-        const cases = getCases();
+        const cases = await getCases();
 
         // Logic: suggesting a plumbing check if no plumbing cases in 6 months
         const hasRecentPlumbing = cases.some(c =>

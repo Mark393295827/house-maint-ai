@@ -38,8 +38,8 @@ const LoginPage = () => {
             setFormError(t('login.error.invalidPhone'));
             return;
         }
-        if (password.length < 8) {
-            setFormError(t('login.error.passwordShort'));
+        if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+            setFormError(isZh ? '密码必须至少8位，包含字母和数字' : 'Password must be at least 8 chars with letters & numbers');
             return;
         }
         if (!isLoginMode && !name.trim()) {

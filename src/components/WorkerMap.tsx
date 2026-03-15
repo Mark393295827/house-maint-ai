@@ -31,24 +31,33 @@ const createCustomIcon = (color: string, shadowColor: string) => {
                 justify-content: center;
                 position: relative;
             ">
-                <!-- Outer Glow -->
+                <!-- Outer Dual Pulse Wave -->
                 <div style="
                     position: absolute;
-                    width: 30px;
-                    height: 30px;
+                    width: 32px;
+                    height: 32px;
                     background: ${shadowColor};
-                    filter: blur(8px);
-                    opacity: 0.4;
                     border-radius: 50%;
+                    animation: v2026-pulse 2s infinite ease-out;
+                    filter: blur(4px);
+                "></div>
+                <div style="
+                    position: absolute;
+                    width: 32px;
+                    height: 32px;
+                    border: 1px solid ${shadowColor};
+                    border-radius: 50%;
+                    animation: v2026-pulse 2s infinite ease-out 0.5s;
+                    opacity: 0;
                 "></div>
                 <!-- Marker Body -->
                 <div style="
-                    width: 16px; 
-                    height: 16px; 
+                    width: 14px; 
+                    height: 14px; 
                     background: ${color}; 
                     border-radius: 50%; 
-                    border: 2.5px solid white; 
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    border: 2px solid white; 
+                    box-shadow: 0 0 15px ${shadowColor};
                     position: relative;
                     z-index: 2;
                 ">
@@ -139,10 +148,10 @@ const WorkerMap: React.FC = () => {
                 style={{ height: '100%', width: '100%', backgroundColor: '#f7f8fa' }}
                 zoomControl={false}
             >
-                {/* Apple-style "Google Maps New" Tiles */}
+                {/* Latest Google Maps v2024 Style Simulation */}
                 <TileLayer
-                    key="apple-modern"
-                    attribution='&copy; Google Maps'
+                    key="gmaps-latest"
+                    attribution='&copy; CARTO'
                     url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                 />
                 
@@ -174,16 +183,35 @@ const WorkerMap: React.FC = () => {
             <style dangerouslySetInnerHTML={{__html: `
                 .leaflet-container {
                     font-family: inherit;
-                    background: #f5f5f7 !important;
+                    background: #f1f3f4 !important;
+                }
+                .leaflet-tile-container {
+                    /* v2026 "Cooler" Palette: Shifting water and greenery to futuristic tones */
+                    filter: saturate(0.85) brightness(1.02) contrast(1.08) hue-rotate(-12deg) sepia(0.05);
                 }
                 .leaflet-popup-content-wrapper {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(20px) saturate(180%);
-                    -webkit-backdrop-filter: blur(20px) saturate(180%);
-                    border: 0.5px solid rgba(255, 255, 255, 0.4);
-                    border-radius: 20px;
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+                    background: rgba(255, 255, 255, 0.98);
+                    backdrop-filter: blur(40px) saturate(220%);
+                    -webkit-backdrop-filter: blur(40px) saturate(220%);
+                    border: 1px solid #000000;
+                    border-radius: 24px;
+                    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
                     padding: 0;
+                }
+                @keyframes v2026-pulse {
+                    0% { transform: scale(0.5); opacity: 0.8; }
+                    100% { transform: scale(2.2); opacity: 0; }
+                }
+                .leaflet-popup-content h4 {
+                    font-weight: 950 !important;
+                    color: #000000 !important;
+                    letter-spacing: -0.04em;
+                    text-transform: uppercase;
+                }
+                .leaflet-popup-content p {
+                    font-weight: 700 !important;
+                    color: #000000 !important;
+                    opacity: 0.8;
                 }
                 .leaflet-popup-content {
                     margin: 0;
@@ -191,23 +219,28 @@ const WorkerMap: React.FC = () => {
                     width: auto !important;
                 }
                 .leaflet-popup-tip {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(20px);
+                    background: #000000;
+                    opacity: 0.1;
                 }
                 .leaflet-control-zoom {
-                    border: none !important;
-                    margin: 20px !important;
+                    border: 1px solid #000000 !important;
+                    margin: 24px !important;
+                    border-radius: 16px !important;
+                    overflow: hidden;
                 }
                 .leaflet-control-zoom-in, .leaflet-control-zoom-out {
-                    background-color: rgba(255, 255, 255, 0.8) !important;
-                    backdrop-filter: blur(10px) !important;
-                    color: #1d1d1f !important;
-                    border: 0.5px solid rgba(0,0,0,0.05) !important;
-                    border-radius: 12px !important;
-                    width: 36px !important;
-                    height: 36px !important;
-                    line-height: 36px !important;
-                    font-weight: 200 !important;
+                    background-color: white !important;
+                    color: #000000 !important;
+                    border: none !important;
+                    width: 44px !important;
+                    height: 44px !important;
+                    line-height: 44px !important;
+                    font-weight: 950 !important;
+                    transition: all 0.3s ease;
+                }
+                .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
+                    background-color: #000000 !important;
+                    color: white !important;
                 }
             `}} />
         </div>

@@ -23,6 +23,7 @@
         "@types/jsonwebtoken": "^9.0.10",
         "@types/multer-s3": "^3.0.3",
         "@types/supertest": "^6.0.3",
+        "@vis.gl/react-google-maps": "^1.7.1",
         "better-sqlite3": "^12.6.2",
         "drizzle-orm": "^0.45.1",
         "jsonwebtoken": "^9.0.3",

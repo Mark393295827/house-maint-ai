@@ -18,20 +18,20 @@ export const TicketsPage: React.FC = () => {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'pending': return 'bg-[#fff9f0] text-[#ff9500] border-[#ff9500]/20';
-            case 'matching': return 'bg-[#f0f7ff] text-[#007aff] border-[#007aff]/20';
-            case 'matched': return 'bg-[#f5f0ff] text-[#5856d6] border-[#5856d6]/20';
-            case 'in_progress': return 'bg-[#f0faff] text-[#32ade6] border-[#32ade6]/20';
-            case 'completed': return 'bg-[#f2fff5] text-[#28cd41] border-[#28cd41]/20';
-            default: return 'bg-slate-50 text-slate-500 border-slate-200';
+            case 'pending': return 'bg-white text-[#ff9500] border-[#ff9500]/20';
+            case 'matching': return 'bg-white text-[#007aff] border-[#007aff]/20';
+            case 'matched': return 'bg-white text-[#5856d6] border-[#5856d6]/20';
+            case 'in_progress': return 'bg-white text-[#32ade6] border-[#32ade6]/20';
+            case 'completed': return 'bg-white text-[#28cd41] border-[#28cd41]/20';
+            default: return 'bg-white text-slate-500 border-slate-200';
         }
     };
 
     return (
         <div className="page-enter">
             <div className="mb-10 lg:mb-14">
-                <h1 className="text-4xl font-black text-[#1d1d1f] tracking-tighter">{t('enterprise.tickets.title')}</h1>
-                <p className="text-[14px] font-medium text-[#86868b] mt-2">{t('enterprise.tickets.subtitle')}</p>
+                <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.tickets.title')}</h1>
+                <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.tickets.subtitle')}</p>
             </div>
             
             {loading ? (
@@ -39,7 +39,7 @@ export const TicketsPage: React.FC = () => {
                     {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-white/40 rounded-2xl border border-white/40" />)}
                 </div>
             ) : (
-                <div className="apple-glass rounded-[32px] border border-white/40 overflow-hidden shadow-apple-soft bg-white/30">
+                <div className="ent-card overflow-hidden bg-white/30 ent-glass">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left min-w-[1000px]">
                             <thead className="text-[10px] font-black uppercase tracking-[0.25em] bg-white/40 border-b border-black/5 text-[#86868b]">
@@ -57,14 +57,14 @@ export const TicketsPage: React.FC = () => {
                                     <tr key={report.id} className="hover:bg-white/60 transition-all duration-300 group">
                                         <td className="px-10 py-6 font-mono text-[12px] text-[#86868b]">#{report.id}</td>
                                         <td className="px-10 py-6">
-                                            <div className="text-[15px] font-black text-[#1d1d1f] group-hover:text-[#007aff] transition-colors">{report.title}</div>
-                                            <div className="text-[11px] text-[#86868b] font-medium mt-1 truncate max-w-sm line-clamp-1">{report.description}</div>
+                                            <div className="text-[15px] font-black text-black group-hover:text-[#007aff] transition-colors tracking-tight">{report.title}</div>
+                                            <div className="text-[11px] text-[#86868b] font-black mt-1 truncate max-w-sm line-clamp-1">{report.description}</div>
                                         </td>
                                         <td className="px-10 py-6">
                                             <span className="text-[13px] font-bold text-[#424245] capitalize">{report.category || 'Other'}</span>
                                         </td>
                                         <td className="px-10 py-6">
-                                            <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full border ${getStatusColor(report.status)} uppercase tracking-widest`}>
+                                            <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full border ${getStatusColor(report.status)} uppercase tracking-widest shadow-sm`}>
                                                 <div className={`w-1.5 h-1.5 rounded-full mr-2 ${
                                                     report.status === 'completed' ? 'bg-[#28cd41]' : 
                                                     report.status === 'in_progress' ? 'bg-[#32ade6]' : 
@@ -79,7 +79,7 @@ export const TicketsPage: React.FC = () => {
                                                     <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-[11px] font-black text-blue-600 border border-blue-500/20 shadow-sm">
                                                         <span className="material-symbols-outlined text-[16px]">engineering</span>
                                                     </div>
-                                                    <span className="text-[13px] font-black text-[#1d1d1f]">{t('enterprise.tickets.workerId').replace('{{id}}', report.matched_worker_id.toString())}</span>
+                                                    <span className="text-[13px] font-black text-black">{t('enterprise.tickets.workerId').replace('{{id}}', report.matched_worker_id.toString())}</span>
                                                 </div>
                                             ) : (
                                                 <span className="text-[13px] font-bold text-[#86868b] italic opacity-60">{t('enterprise.tickets.unassigned')}</span>
@@ -120,8 +120,8 @@ export const EnterpriseWorkersPage: React.FC = () => {
     return (
         <div className="page-enter">
             <div className="mb-10 lg:mb-14">
-                <h1 className="text-4xl font-black text-[#1d1d1f] tracking-tighter">{t('enterprise.workers.title')}</h1>
-                <p className="text-[14px] font-medium text-[#86868b] mt-2">{t('enterprise.workers.subtitle')}</p>
+                <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.workers.title')}</h1>
+                <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.workers.subtitle')}</p>
             </div>
             
             {loading ? (
@@ -129,7 +129,7 @@ export const EnterpriseWorkersPage: React.FC = () => {
                     {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-white/40 rounded-2xl border border-white/40" />)}
                 </div>
             ) : (
-                <div className="apple-glass rounded-[32px] border border-white/40 overflow-hidden shadow-apple-soft bg-white/30">
+                <div className="ent-card overflow-hidden bg-white/30 ent-glass">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left min-w-[1000px]">
                             <thead className="text-[10px] font-black uppercase tracking-[0.25em] bg-white/40 border-b border-black/5 text-[#86868b]">
@@ -144,45 +144,45 @@ export const EnterpriseWorkersPage: React.FC = () => {
                             </thead>
                             <tbody className="divide-y divide-black/5 bg-white/20">
                                 {workers.map((worker) => (
-                                    <tr key={worker.id} className="hover:bg-white/60 transition-all duration-300 group">
+                                    <tr key={worker.id} className="hover:bg-white/60 transition-all duration-400 group">
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-4">
                                                 {worker.avatar ? (
-                                                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white shadow-sm ring-1 ring-black/5">
+                                                    <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white shadow-xl shadow-black/5 ring-1 ring-black/5 transition-transform group-hover:scale-105">
                                                         <img src={worker.avatar} alt={worker.name} className="w-full h-full object-cover" />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f5f5f7] to-white border-2 border-white shadow-sm ring-1 ring-black/5 flex items-center justify-center text-[15px] font-black text-[#86868b]">
+                                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f5f5f7] to-white border-2 border-white shadow-xl shadow-black/5 ring-1 ring-black/5 flex items-center justify-center text-[15px] font-black text-[#86868b] transition-transform group-hover:scale-105">
                                                         {worker.name?.charAt(0) || 'W'}
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <p className="text-[15px] font-black text-[#1d1d1f]">{worker.name}</p>
+                                                    <p className="text-[15px] font-black text-black tracking-tight">{worker.name}</p>
                                                     <p className="text-[10px] text-[#86868b] font-black uppercase tracking-[0.15em] mt-1">{t('enterprise.workers.id').replace('{{id}}', worker.id.toString())}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6 font-sans text-[13px] font-bold text-[#1d1d1f] tabular-nums">{worker.phone || t('enterprise.workers.na')}</td>
+                                        <td className="px-10 py-6 font-sans text-[13px] font-black text-black tabular-nums">{worker.phone || t('enterprise.workers.na')}</td>
                                         <td className="px-10 py-6">
                                             <div className="flex flex-wrap gap-2">
                                                 {worker.skills?.slice(0, 3).map(skill => (
-                                                    <span key={skill} className="px-3 py-1 text-[10px] font-black bg-white/50 text-[#1d1d1f] rounded-lg border border-white/40 uppercase tracking-tighter">{skill}</span>
+                                                    <span key={skill} className="px-3 py-1 text-[9px] font-black bg-white text-black rounded-lg border border-black/5 shadow-sm uppercase tracking-tighter">{skill}</span>
                                                 ))}
-                                                {worker.skills?.length > 3 && <span className="px-3 py-1 text-[10px] font-black bg-white/50 text-[#86868b] rounded-lg border border-white/40">+{worker.skills.length - 3}</span>}
+                                                {worker.skills?.length > 3 && <span className="px-3 py-1 text-[9px] font-black bg-white text-[#86868b] rounded-lg border border-black/5 shadow-sm">+{worker.skills.length - 3}</span>}
                                             </div>
                                         </td>
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-[18px] text-[#ff9500]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="text-[14px] font-black text-[#1d1d1f] tabular-nums">{worker.rating?.toFixed(1) || '5.0'}</span>
+                                                <span className="text-[14px] font-black text-black tabular-nums">{worker.rating?.toFixed(1) || '5.0'}</span>
                                             </div>
                                         </td>
                                         <td className="px-10 py-6 text-right text-[14px] font-black text-[#1d1d1f] tabular-nums">{worker.total_jobs || 0}</td>
                                         <td className="px-10 py-6 text-right">
-                                            <span className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors ${
-                                                worker.available ? 'bg-[#f2fff5] text-[#28cd41] border-[#28cd41]/20' : 'bg-slate-50 text-slate-400 border-slate-200'
+                                            <span className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors shadow-sm ${
+                                                worker.available ? 'bg-white text-[#28cd41] border-[#28cd41]/20' : 'bg-white text-slate-400 border-slate-100'
                                             }`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${worker.available ? 'bg-[#28cd41]' : 'bg-slate-400'}`} />
+                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${worker.available ? 'bg-[#28cd41]' : 'bg-slate-300'}`} />
                                                 {worker.available ? t('enterprise.workers.available') : t('enterprise.workers.offline')}
                                             </span>
                                         </td>
@@ -211,40 +211,40 @@ export const PropertiesPage: React.FC = () => {
         <div className="page-enter">
             <div className="mb-10 lg:mb-14 flex justify-between items-end">
                 <div>
-                    <h1 className="text-4xl font-black text-[#1d1d1f] tracking-tighter">{t('enterprise.properties.title')}</h1>
-                    <p className="text-[14px] font-medium text-[#86868b] mt-2">{t('enterprise.properties.subtitle')}</p>
+                    <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.properties.title')}</h1>
+                    <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.properties.subtitle')}</p>
                 </div>
-                <button className="px-8 py-3.5 bg-blue-600 text-white rounded-2xl text-[13px] font-black uppercase tracking-[0.15em] hover:bg-blue-700 transition-all duration-300 press-scale flex items-center gap-2.5 shadow-lg shadow-blue-500/25">
+                <button className="px-8 py-3.5 bg-[#007aff] text-white rounded-2xl text-[13px] font-black uppercase tracking-[0.15em] hover:bg-blue-600 transition-all duration-400 active:scale-95 flex items-center gap-2.5 shadow-xl shadow-blue-500/25">
                     <span className="material-symbols-outlined text-[20px] font-light">add_circle</span>
                     {t('enterprise.properties.add')}
                 </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div className="aegis-card p-8 bg-white/60">
-                    <p className="text-[10px] text-[#86868b] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.totalProps')}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+                <div className="ent-card p-8 bg-white/60 ent-glass">
+                    <p className="text-[11px] text-[#86868b] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.totalProps')}</p>
                     <div className="flex items-baseline gap-3 mt-4">
-                        <p className="text-5xl font-black text-[#1d1d1f] tracking-tighter">4</p>
-                        <span className="text-[12px] font-bold text-[#86868b] uppercase tracking-wider">Regions</span>
+                        <p className="text-5xl font-black text-black tracking-tighter">4</p>
+                        <span className="text-[12px] font-black text-[#86868b] uppercase tracking-wider">Regions</span>
                     </div>
                 </div>
-                <div className="aegis-card p-8 bg-white/60">
-                    <p className="text-[10px] text-[#86868b] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.totalUnits')}</p>
+                <div className="ent-card p-8 bg-white/60 ent-glass">
+                    <p className="text-[11px] text-[#86868b] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.totalUnits')}</p>
                     <div className="flex items-baseline gap-3 mt-4">
-                        <p className="text-5xl font-black text-[#1d1d1f] tracking-tighter">89</p>
-                        <span className="text-[12px] font-bold text-[#86868b] uppercase tracking-wider">Active Units</span>
+                        <p className="text-5xl font-black text-black tracking-tighter">89</p>
+                        <span className="text-[12px] font-black text-[#86868b] uppercase tracking-wider">Active Units</span>
                     </div>
                 </div>
-                <div className="aegis-card p-8 border-[#ff3b30]/10 bg-white/60">
-                    <p className="text-[10px] text-[#ff3b30] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.activeAlerts')}</p>
+                <div className="ent-card p-8 border-[#ff3b30]/10 bg-white/60 ent-glass">
+                    <p className="text-[11px] text-[#ff3b30] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.activeAlerts')}</p>
                     <div className="flex items-baseline gap-3 mt-4">
                         <p className="text-5xl font-black text-[#ff3b30] tracking-tighter">3</p>
-                        <div className="w-2 h-2 rounded-full bg-[#ff3b30] animate-ping" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#ff3b30] animate-ping" />
                     </div>
                 </div>
             </div>
 
-            <div className="apple-glass rounded-[32px] border border-white/40 overflow-hidden shadow-apple-soft bg-white/30">
+            <div className="ent-card overflow-hidden bg-white/30 ent-glass">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left min-w-[1000px]">
                         <thead className="text-[10px] font-black uppercase tracking-[0.25em] bg-white/40 border-b border-black/5 text-[#86868b]">
@@ -259,13 +259,13 @@ export const PropertiesPage: React.FC = () => {
                         </thead>
                         <tbody className="divide-y divide-black/5 bg-white/20">
                             {properties.map((prop) => (
-                                <tr key={prop.id} className="hover:bg-white/60 transition-all duration-300 group">
-                                    <td className="px-10 py-6 font-mono text-[12px] text-[#86868b]">{prop.id}</td>
-                                    <td className="px-10 py-6 font-black text-[15px] text-[#1d1d1f] group-hover:text-[#007aff] transition-colors">{prop.name}</td>
-                                    <td className="px-10 py-6 font-black text-[14px] text-[#1d1d1f] tabular-nums">{prop.units}</td>
+                                <tr key={prop.id} className="hover:bg-white/60 transition-all duration-400 group">
+                                    <td className="px-10 py-6 font-mono text-[12px] text-[#86868b]">#{prop.id}</td>
+                                    <td className="px-10 py-6 font-black text-[15px] text-black group-hover:text-[#007aff] transition-colors tracking-tight">{prop.name}</td>
+                                    <td className="px-10 py-6 font-black text-[14px] text-black tabular-nums tracking-tight">{prop.units}</td>
                                     <td className="px-10 py-6">
-                                        <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border border-current/20 ${
-                                            prop.status === 'Active' ? 'bg-[#f2fff5] text-[#28cd41]' : 'bg-[#fff9f0] text-[#ff9500]'
+                                        <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border border-current/20 shadow-sm ${
+                                            prop.status === 'Active' ? 'bg-white text-[#28cd41]' : 'bg-white text-[#ff9500]'
                                         }`}>
                                             <div className="w-1.5 h-1.5 rounded-full mr-2 bg-current" />
                                             {prop.status}
@@ -273,18 +273,18 @@ export const PropertiesPage: React.FC = () => {
                                     </td>
                                     <td className="px-10 py-6">
                                         {prop.alerts > 0 ? (
-                                            <div className="inline-flex items-center gap-2 text-[#ff3b30] font-black text-[12px] uppercase tracking-tighter">
-                                                <span className="material-symbols-outlined text-[18px]">warning</span>
+                                            <div className="inline-flex items-center gap-2 text-[#ff3b30] font-black text-[11px] uppercase tracking-widest bg-white px-3 py-1 rounded-full border border-red-100 shadow-sm">
+                                                <span className="material-symbols-outlined text-[16px]">warning</span>
                                                 {t('enterprise.properties.warnings').replace('{{count}}', prop.alerts.toString())}
                                             </div>
                                         ) : (
-                                            <span className="text-[#86868b] font-bold text-[12px] tracking-tight flex items-center gap-1.5">
+                                            <span className="text-[#86868b] font-black text-[11px] uppercase tracking-widest flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-black/5 shadow-sm">
                                                 <span className="material-symbols-outlined text-[16px] text-[#28cd41]">check_circle</span>
                                                 {t('enterprise.properties.clear')}
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-10 py-6 text-right text-[12px] font-bold text-[#86868b]">{prop.lastCheck}</td>
+                                    <td className="px-10 py-6 text-right text-[12px] font-black text-slate-400 uppercase tracking-widest">{prop.lastCheck}</td>
                                 </tr>
                             ))}
                         </tbody>

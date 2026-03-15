@@ -1,9 +1,12 @@
 /**
- * src/store/cases.ts — Single source of truth for case data
+ * src/store/cases.ts — Bridge to backend reports API
  * 
- * All case reads/writes go through these functions.
- * Backed by localStorage today; swap for an API later.
+ * Provides a standardized CaseRecord format for legacy components and skills.
+ * Now fully backed by the backend API.
  */
+
+import api from '../services/api';
+import { Report } from '../types';
 
 export interface CaseRecord {
     id: string;
@@ -18,51 +21,91 @@ export interface CaseRecord {
     solution?: string;
 }
 
-const STORAGE_KEY = 'cases';
+/** Map backend Report to frontend CaseRecord */
+function mapReportToCase(r: Report): CaseRecord {
+    const isArchived = r.status === 'completed' || r.status === 'cancelled';
+    
+    // Mapping backend progress to UI steps (1-8)
+    const step = r.status === 'pending' ? 1 
+               : r.status === 'matching' ? 2 
+               : r.status === 'matched' ? 3 
+               : r.status === 'in_progress' ? 5 
+               : 8;
 
-const SEED: CaseRecord[] = [
-    { id: 'c001', title: '厨房水管漏水', titleEn: 'Kitchen Pipe Leak', status: 'active', step: 5, severity: 'moderate', date: '2026-02-22', category: 'plumbing' },
-    { id: 'c002', title: '卧室空调不制冷', titleEn: 'Bedroom AC Not Cooling', status: 'active', step: 4, severity: 'moderate', date: '2026-02-21', category: 'hvac' },
-    { id: 'c003', title: '浴室瓷砖裂缝', titleEn: 'Bathroom Tile Crack', status: 'archived', step: 8, severity: 'low', date: '2026-02-18', category: 'structural' },
-    { id: 'c004', title: '客厅灯泡频繁烧断', titleEn: 'Living Room Bulb Burnout', status: 'active', step: 6, severity: 'critical', date: '2026-02-20', category: 'electrical' },
-];
+    // Mapping urgency_score (0-10) to severity
+    const severity: 'low' | 'moderate' | 'critical' = 
+        (r.urgency_score || 0) >= 8 ? 'critical' 
+        : (r.urgency_score || 0) >= 4 ? 'moderate' 
+        : 'low';
 
-/** Read all cases from localStorage (seeds if empty) */
-export function getCases(): CaseRecord[] {
+    return {
+        id: String(r.id),
+        title: r.title,
+        titleEn: r.title, // Backend currently only supports one title
+        status: isArchived ? 'archived' : 'active',
+        step,
+        severity,
+        date: new Date(r.created_at).toISOString().split('T')[0],
+        category: r.category,
+        rootCause: (r as any).resolution_details?.root_cause || '',
+        solution: (r as any).resolution_details?.solution || '',
+    };
+}
+
+/** Fetch all cases from the API */
+export async function getCases(): Promise<CaseRecord[]> {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw) as CaseRecord[];
-    } catch { /* ignore */ }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED));
-    return SEED;
+        const { reports } = await api.getReports();
+        return reports.map(mapReportToCase);
+    } catch (err) {
+        console.error('[Store] Failed to fetch cases from backend:', err);
+        return [];
+    }
 }
 
 /** Get only active cases */
-export function getActiveCases(): CaseRecord[] {
-    return getCases().filter(c => c.status === 'active');
+export async function getActiveCases(): Promise<CaseRecord[]> {
+    const all = await getCases();
+    return all.filter(c => c.status === 'active');
 }
 
 /** Get only archived cases */
-export function getArchivedCases(): CaseRecord[] {
-    return getCases().filter(c => c.status === 'archived');
+export async function getArchivedCases(): Promise<CaseRecord[]> {
+    const all = await getCases();
+    return all.filter(c => c.status === 'archived');
 }
 
-/** Count active cases (used by BottomNav badge) */
-export function getActiveCaseCount(): number {
-    return getActiveCases().length;
+/** Count active cases */
+export async function getActiveCaseCount(): Promise<number> {
+    const active = await getActiveCases();
+    return active.length;
 }
 
-/** Add a new case (e.g. from wizard completion) */
-export function addCase(c: CaseRecord): void {
-    const all = getCases();
-    all.unshift(c);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+/** 
+ * Add a new case (now redirects to API createReport) 
+ * @deprecated Use useCreateReport hook instead
+ */
+export async function addCase(c: Partial<CaseRecord>): Promise<void> {
+    const reportData: Partial<Report> = {
+        title: c.title || 'Untitled',
+        description: c.title || 'No description provided',
+        category: c.category,
+        urgency_score: c.severity === 'critical' ? 9 : c.severity === 'moderate' ? 6 : 3
+    };
+    await api.createReport(reportData);
 }
 
-/** Update an existing case by id */
-export function updateCase(id: string, partial: Partial<CaseRecord>): void {
-    const all = getCases().map(c => c.id === id ? { ...c, ...partial } : c);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+/** 
+ * Update an existing case by id 
+ * @deprecated Use useUpdateReport hook instead
+ */
+export async function updateCase(id: string, partial: Partial<CaseRecord>): Promise<void> {
+    const data: Partial<Report> = {};
+    if (partial.category) data.category = partial.category;
+    if (partial.severity) {
+        data.urgency_score = partial.severity === 'critical' ? 9 : partial.severity === 'moderate' ? 6 : 3;
+    }
+    await api.updateReport(id, data);
 }
 
 /** Generate a unique case id */
