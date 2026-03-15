@@ -187,7 +187,8 @@ export const PropertiesPage: React.FC = () => {
                     <h1 className="text-2xl font-bold text-gray-200">{t('enterprise.properties.title')}</h1>
                     <p className="text-sm text-gray-500 mt-1">{t('enterprise.properties.subtitle')}</p>
                 </div>
-                <button className="px-4 py-2 bg-primary/20 text-primary-light border border-primary/30 rounded-lg text-sm font-semibold hover:bg-primary/30 transition-colors">
+                <button className="px-6 h-10 bg-primary/10 text-primary-light border border-primary/20 rounded-2xl text-xs font-black tracking-widest uppercase hover:bg-primary/20 transition-all duration-300 press-scale flex items-center gap-2 shadow-lg shadow-primary/5">
+                    <span className="material-symbols-outlined text-base">add</span>
                     {t('enterprise.properties.add')}
                 </button>
             </div>

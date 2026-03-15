@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getAvailableOrders, getMyWorkerJobs, acceptJob, getWorkerDashboard, updateWorkerAvailability } from '../services/api';
 import type { AvailableOrder, WorkerJob, WorkerDashboardStats } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import OrderPushModal from '../components/repair/OrderPushModal';
 
 /* ─── Category helpers ─── */
 const categoryIcon: Record<string, string> = {
@@ -65,6 +66,7 @@ const WorkerDashboardPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [accepting, setAccepting] = useState<string | null>(null);
     const [workerId, setWorkerId] = useState<number | null>(null);
+    const [simulatedOrder, setSimulatedOrder] = useState<AvailableOrder | null>(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -92,6 +94,23 @@ const WorkerDashboardPage: React.FC = () => {
     }, []);
 
     useEffect(() => { fetchData(); }, [fetchData]);
+
+    // Simulate an incoming order for UI demonstration
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSimulatedOrder({
+                id: 999,
+                title: '紧急维修: 客厅空调漏水',
+                description: '客厅空调出风口严重漏水，地板已被打湿，需要紧急处理。',
+                distance_km: 1.2,
+                category: 'hvac',
+                urgency_score: 8,
+                created_at: new Date().toISOString(),
+                user_name: '李先生'
+            });
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -160,19 +179,13 @@ const WorkerDashboardPage: React.FC = () => {
                     </div>
                     <button
                         onClick={handleToggleAvailability}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 font-telemetry ${available
-                            ? 'text-data-green border border-data-green/30'
-                            : 'text-racing-red border border-racing-red/30'
+                        className={`flex items-center gap-2 px-6 h-10 rounded-2xl text-xs font-black transition-all duration-300 font-telemetry press-scale ${available
+                            ? 'text-data-green border border-data-green/30 bg-data-green/10 shadow-[0_0_20px_rgba(0,255,135,0.15)]'
+                            : 'text-racing-red border border-racing-red/30 bg-racing-red/10 shadow-[0_0_20px_rgba(225,6,0,0.15)]'
                             }`}
-                        style={{
-                            background: available ? 'rgba(0,255,135,0.08)' : 'rgba(225,6,0,0.08)',
-                            boxShadow: available
-                                ? '0 0 15px rgba(0,255,135,0.15), inset 0 0 15px rgba(0,255,135,0.05)'
-                                : '0 0 15px rgba(225,6,0,0.15), inset 0 0 15px rgba(225,6,0,0.05)',
-                        }}
                     >
-                        <span className={`w-2.5 h-2.5 rounded-full ${available ? 'bg-data-green shadow-lg shadow-data-green/50' : 'bg-racing-red shadow-lg shadow-racing-red/50'}`} />
-                        {available ? '在线' : '离线'}
+                        <div className={`w-2 h-2 rounded-full ${available ? 'bg-data-green animate-pulse shadow-[0_0_8px_#00FF87]' : 'bg-racing-red animate-pulse shadow-[0_0_8px_#E10600]'}`} />
+                        {available ? 'ON DUTY' : 'OFF DUTY'}
                     </button>
                 </div>
             </div>
@@ -201,9 +214,9 @@ const WorkerDashboardPage: React.FC = () => {
                         <button
                             key={t.key}
                             onClick={() => setTab(t.key)}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === t.key
-                                    ? 'bg-white dark:bg-surface-dark shadow-md text-primary'
-                                    : 'text-gray-400 hover:text-gray-600'
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 press-scale ${tab === t.key
+                                    ? 'bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 text-primary shadow-lg shadow-primary/10'
+                                    : 'text-gray-400 hover:text-gray-500 hover:bg-white/5'
                                 }`}
                         >
                             <span className="material-symbols-outlined text-base">{t.icon}</span>
@@ -413,6 +426,18 @@ const WorkerDashboardPage: React.FC = () => {
                     ))}
                 </div>
             </nav>
+
+            {/* ── Order Push Simulation Modal ── */}
+            {simulatedOrder && (
+                <OrderPushModal
+                    order={simulatedOrder}
+                    onAccept={(id) => {
+                        handleAccept(id);
+                        setSimulatedOrder(null);
+                    }}
+                    onDecline={() => setSimulatedOrder(null)}
+                />
+            )}
         </div>
     );
 };

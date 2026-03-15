@@ -52,6 +52,7 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
             latitude REAL,
             longitude REAL,
             urgency_score INTEGER DEFAULT 0,
+            match_score REAL,
             diagnosis_result TEXT,
             matched_at TEXT,
             completed_at TEXT,
@@ -60,6 +61,7 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
             severity TEXT,
             diagnosis_summary TEXT,
             confidence_score REAL,
+            pattern_extracted INTEGER DEFAULT 0,
             created_at TEXT DEFAULT (datetime('now')),
             updated_at TEXT DEFAULT (datetime('now'))
         );
@@ -84,6 +86,23 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
             event_type TEXT,
             payload TEXT,
             created_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS ai_usage_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            model_name TEXT,
+            input_tokens INTEGER,
+            output_tokens INTEGER,
+            total_tokens INTEGER,
+            cost_usd REAL,
+            endpoint TEXT,
+            duration_ms INTEGER,
+            created_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS ai_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            updated_at TEXT DEFAULT (datetime('now'))
         );
     `);
 
@@ -155,14 +174,17 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
 vi.mock('../server/services/ai.js', () => ({
     aiService: {
         diagnoseIssue: vi.fn().mockResolvedValue({
-            diagnosis: {
-                issue_identified: 'Leaking Faucet',
-                root_cause: 'Worn washer',
-                severity: 'minor',
-                urgency_score: 3,
-                confidence_score: 0.95,
-                diagnosis_summary: 'The faucet washer needs replacement.'
-            }
+            result: {
+                diagnosis: {
+                    issue_identified: 'Leaking Faucet',
+                    root_cause: 'Worn washer',
+                    severity: 'minor',
+                    urgency_score: 3,
+                    confidence_score: 0.95,
+                    diagnosis_summary: 'The faucet washer needs replacement.'
+                }
+            },
+            usage: { model_name: 'mock', input_tokens: 10, output_tokens: 10, total_tokens: 20 }
         })
     }
 }));

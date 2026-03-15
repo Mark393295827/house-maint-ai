@@ -1,4 +1,3 @@
-
 import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
@@ -68,6 +67,17 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
             is_available INTEGER DEFAULT 1,
             latitude REAL,
             longitude REAL
+        );
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            objective TEXT,
+            status TEXT DEFAULT 'new',
+            priority TEXT DEFAULT 'medium',
+            inputs TEXT,
+            result TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
         );
     `);
 
@@ -158,7 +168,7 @@ describe('Urgency Protocol API', () => {
 
     it('should create a report with default urgency 0', async () => {
         const res = await request(app)
-            .post('/api/reports')
+            .post('/api/v1/reports')
             .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 title: 'Normal Leak',
@@ -167,25 +177,25 @@ describe('Urgency Protocol API', () => {
             });
 
         expect(res.status).toBe(201);
-        expect(res.body.report.urgency_score).toBe(0);
-        reportId = res.body.report.id;
+        expect(res.body.data.report.urgency_score).toBe(0);
+        reportId = res.body.data.report.id;
     });
 
     it('should update urgency score to 10 (Hair on Fire)', async () => {
         const res = await request(app)
-            .put(`/api/reports/${reportId}`)
+            .put(`/api/v1/reports/${reportId}`)
             .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 urgency_score: 10
             });
 
         expect(res.status).toBe(200);
-        expect(res.body.report.urgency_score).toBe(10);
+        expect(res.body.data.report.urgency_score).toBe(10);
     });
 
     it('should create a report with explicit urgency', async () => {
         const res = await request(app)
-            .post('/api/reports')
+            .post('/api/v1/reports')
             .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 title: 'FIRE HAZARD',
@@ -195,12 +205,12 @@ describe('Urgency Protocol API', () => {
             });
 
         expect(res.status).toBe(201);
-        expect(res.body.report.urgency_score).toBe(9);
+        expect(res.body.data.report.urgency_score).toBe(9);
     });
 
     it('should validate urgency score range (0-10)', async () => {
         const res = await request(app)
-            .post('/api/reports')
+            .post('/api/v1/reports')
             .set('Cookie', [`accessToken=${userToken}`])
             .send({
                 title: 'Invalid Urgency',
@@ -208,6 +218,9 @@ describe('Urgency Protocol API', () => {
                 urgency_score: 11
             });
 
+        // The router uses Zod validation if defined, or manually.
+        // In reports.ts: urgency_score: z.number().min(0).max(10).optional()
+        // z.parse error returns 400.
         expect(res.status).toBe(400);
     });
 });

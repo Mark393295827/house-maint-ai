@@ -43,11 +43,17 @@ export const cacheMiddleware = (duration = 60) => {
 
                 // Cache the response asynchronously
                 if (res.statusCode === 200) {
-                    (redis as any).setex(key, duration, JSON.stringify(body))
-                        .catch((err: any) => console.error('Redis save error:', err))
-                        .finally(() => {
-                            activeProcessing.delete(key);
-                        });
+                    const setexPromise = (redis as any).setex(key, duration, JSON.stringify(body));
+                    if (setexPromise && typeof setexPromise.catch === 'function') {
+                        setexPromise
+                            .catch((err: any) => console.error('Redis save error:', err))
+                            .finally(() => {
+                                activeProcessing.delete(key);
+                            });
+                    } else {
+                        // Support for synchronous or incomplete mocks in testing
+                        activeProcessing.delete(key);
+                    }
                 } else {
                     activeProcessing.delete(key);
                 }

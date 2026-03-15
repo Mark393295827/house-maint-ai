@@ -6,6 +6,7 @@ import { cacheMiddleware, clearCache } from '../middleware/cache.js';
 import { matchingService } from '../services/matching.js';
 import type { WorkerWithUser, ReviewRow } from '../types/models.js';
 import { parseJsonColumn } from '../utils/parseJson.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
 
@@ -48,7 +49,7 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
             skills: parseJsonColumn<string[]>(w.skills, []),
         }));
 
-        res.json({ workers: parsed });
+        res.json(ApiResponse.success({ workers: parsed }));
     } catch (error) {
         next(error);
     }
@@ -78,15 +79,15 @@ router.get('/match', authenticate, async (req, res, next) => {
         }
 
         if (!report) {
-            return res.status(404).json({ error: 'Report context missing' });
+            return res.status(404).json(ApiResponse.fail('Report context missing'));
         }
 
         const topMatches = await matchingService.findTopMatches(report, parseInt(limit));
 
-        res.json({
+        res.json(ApiResponse.success({
             matches: topMatches,
-            total: topMatches.length // Simplified for match endpoint
-        });
+            total: topMatches.length
+        }));
     } catch (error) {
         next(error);
     }
@@ -109,7 +110,7 @@ router.get('/:id', optionalAuth, cacheMiddleware(3600), async (req, res, next) =
         const rawWorker = workers[0];
 
         if (!rawWorker) {
-            return res.status(404).json({ error: 'Worker not found' });
+            return res.status(404).json(ApiResponse.fail('Worker not found'));
         }
 
         const worker = {
@@ -132,7 +133,7 @@ router.get('/:id', optionalAuth, cacheMiddleware(3600), async (req, res, next) =
             photos: parseJsonColumn<string[]>(r.photos, []),
         }));
 
-        res.json({ worker, reviews: parsedReviews });
+        res.json(ApiResponse.success({ worker, reviews: parsedReviews }));
     } catch (error) {
         next(error);
     }
@@ -150,7 +151,7 @@ router.put('/:id/availability', authenticate, async (req, res, next) => {
         const worker = workers[0];
 
         if (!worker && req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Not authorized' });
+            return res.status(403).json(ApiResponse.fail('Not authorized'));
         }
 
         await db.query('UPDATE workers SET available = $1 WHERE id = $2', [available ? 1 : 0, req.params.id]);
@@ -158,7 +159,7 @@ router.put('/:id/availability', authenticate, async (req, res, next) => {
         // Clear cache for this worker and general list
         await clearCache(`workers`);
 
-        res.json({ message: 'Availability updated' });
+        res.json(ApiResponse.success(null, 'Availability updated'));
     } catch (error) {
         next(error);
     }

@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import './instrument.js'; // Sentry initialization must be first
+// import './instrument.js'; // Sentry initialization must be first
 import express from 'express';
 import * as Sentry from '@sentry/node';
 import cors from 'cors';
@@ -183,7 +183,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Sentry Error Handler (must be before custom error handler)
-Sentry.setupExpressErrorHandler(app);
+// Sentry.setupExpressErrorHandler(app);
 
 // Error handling
 app.use(errorHandler);

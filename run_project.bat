@@ -1,45 +1,79 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 CHCP 65001 > nul
 
-echo ==========================================
-echo   House Maint AI - 项目一键启动脚本
-echo ==========================================
+:: ==========================================
+:: House Maint AI - Startup Script
+:: ==========================================
 
 echo.
-set /p install="[1/2] 是否需要安装/更新依赖（npm install）? (y/n, 默认 n): "
-set /p initdb="[2/2] 是否需要初始化数据库（npm run init-db）? (y/n, 默认 n): "
-
-echo.
-echo ------------------------------------------
-echo 正在启动后端服务...
-if /i "%install%"=="y" (
-    if /i "%initdb%"=="y" (
-        start "House Maint AI - Backend" cmd /c "cd server && echo 正在安装依赖... && npm install && echo 正在初始化数据库... && npm run init-db && echo 正在启动开发服务器... && npm run dev || pause"
+echo [1/4] Checking Environment...
+if not exist ".env" (
+    echo [!] .env file not found!
+    set /p copy_env="Do you want to create one from .env.example? (y/n, default y): "
+    if "!copy_env!"=="" set copy_env=y
+    if /i "!copy_env!"=="y" (
+        copy .env.example .env
+        echo [+] Created .env file. Please edit it with your API keys.
     ) else (
-        start "House Maint AI - Backend" cmd /c "cd server && echo 正在安装依赖... && npm install && echo 正在启动开发服务器... && npm run dev || pause"
+        echo [!] Warning: Missing .env file may cause errors.
     )
 ) else (
-    if /i "%initdb%"=="y" (
-        start "House Maint AI - Backend" cmd /c "cd server && echo 正在初始化数据库... && npm run init-db && echo 正在启动开发服务器... && npm run dev || pause"
-    ) else (
-        start "House Maint AI - Backend" cmd /c "cd server && echo 正在启动开发服务器... && npm run dev || pause"
-    )
-)
-
-echo 正在启动前端服务...
-if /i "%install%"=="y" (
-    start "House Maint AI - Frontend" cmd /c "echo 正在安装依赖... && npm install && echo 正在启动开发服务器... && npm run dev || pause"
-) else (
-    start "House Maint AI - Frontend" cmd /c "echo 正在启动开发服务器... && npm run dev || pause"
+    echo [+] .env file is ready.
 )
 
 echo.
-echo ------------------------------------------
-echo 所有服务已在独立窗口中启动。
-echo 前端地址: http://localhost:5173
-echo 后端地址: http://localhost:3001
+echo [2/4] Dependency Check
+set /p install="Do you want to install/update dependencies? (y/n, default n): "
+set /p initdb="Do you want to initialize the database? (y/n, default n): "
+
+if /i "%install%"=="y" (
+    echo.
+    echo [-] Installing root and frontend dependencies...
+    call npm install
+    echo [-] Installing backend dependencies...
+    cd server && call npm install && cd ..
+)
+
+if /i "%initdb%"=="y" (
+    echo.
+    echo [-] Initializing database...
+    cd server && call npm run init-db && cd ..
+)
+
 echo.
-echo 请保留窗口直到您想停止服务。
+echo [3/4] Select Startup Mode
+echo   1. Hybrid (Recommended: One window for all logs)
+echo   2. Separate (Open separate windows for FE and BE)
+echo.
+set /p mode="Mode (1/2, default 1): "
+if "%mode%"=="" set mode=1
+
+echo.
+echo [4/4] Starting Services...
+echo ------------------------------------------
+
+if "%mode%"=="1" goto hybrid_mode
+goto separate_mode
+
+:hybrid_mode
+echo [*] Starting all services in Hybrid Mode...
+npm run dev:all
+goto end
+
+:separate_mode
+echo [*] Starting Backend (separate window)...
+start "House Maint AI - Backend" cmd /c "cd server && npm run dev || pause"
+
+echo [*] Starting Frontend (separate window)...
+start "House Maint AI - Frontend" cmd /c "npm run dev || pause"
+
+echo.
+echo [+] Services started.
+echo FE: http://localhost:5173
+echo BE: http://localhost:3001
 echo.
 pause
+goto end
+
+:end

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { metricsStore, resetMetrics } from '../middleware/metricsCollector.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get('/', (_req: Request, res: Response) => {
         ? metricsStore.responseTime.total / metricsStore.responseTime.count
         : 0;
 
-    res.json({
+    res.json(ApiResponse.success({
         system: {
             uptime_ms: uptime,
             uptime_human: formatUptime(uptime),
@@ -45,7 +46,7 @@ router.get('/', (_req: Request, res: Response) => {
             total_invocations: metricsStore.agents.invocations,
             by_agent: metricsStore.agents.byAgent,
         },
-    });
+    }));
 });
 
 /**
@@ -56,7 +57,7 @@ router.get('/health', (_req: Request, res: Response) => {
     const mem = process.memoryUsage();
     const cpu = process.cpuUsage();
 
-    res.json({
+    res.json(ApiResponse.success({
         memory: {
             rss_mb: +(mem.rss / 1024 / 1024).toFixed(2),
             heap_used_mb: +(mem.heapUsed / 1024 / 1024).toFixed(2),
@@ -70,7 +71,7 @@ router.get('/health', (_req: Request, res: Response) => {
         node_version: process.version,
         platform: process.platform,
         pid: process.pid,
-    });
+    }));
 });
 
 /**
@@ -94,10 +95,10 @@ router.post('/record', (req: Request, res: Response) => {
             break;
 
         default:
-            return res.status(400).json({ error: 'Unknown metric type. Use "sda" or "agent".' });
+            return res.status(400).json(ApiResponse.fail('Unknown metric type. Use "sda" or "agent".'));
     }
 
-    res.json({ success: true });
+    res.json(ApiResponse.success(null));
 });
 
 /**
@@ -106,7 +107,7 @@ router.post('/record', (req: Request, res: Response) => {
  */
 router.post('/reset', (_req: Request, res: Response) => {
     resetMetrics();
-    res.json({ success: true, message: 'Metrics reset' });
+    res.json(ApiResponse.success(null, 'Metrics reset'));
 });
 
 function formatUptime(ms: number): string {

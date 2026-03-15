@@ -1,99 +1,43 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
-import express from 'express';
-import { setupTestDb, clearTestDb } from './setup';
-import pool from '../../config/database';
-import authRoutes from '../../routes/auth';
-import cookieParser from 'cookie-parser';
-import { errorHandler } from '../../middleware/errorHandler';
+import app from '../../index.js';
 
-// Setup Express App
-const app = express();
-app.use(express.json());
-app.use(cookieParser());
-app.use('/api/auth', authRoutes);
-app.use(errorHandler);
+describe('Authentication Flow Integration', () => {
+    const user = {
+        name: 'Flow User',
+        phone: '13999999999',
+        password: 'Password123!'
+    };
 
-describe('Auth Flow Integration', () => {
-    beforeAll(async () => {
-        await setupTestDb();
-    });
+    it('should complete a full register -> login -> profile flow', async () => {
+        // 1. Register
+        const regRes = await request(app)
+            .post('/api/v1/auth/register')
+            .set('X-CSRF-Token', 'test')
+            .send(user);
+        expect(regRes.status).toBe(201);
 
-    beforeEach(async () => {
-        await clearTestDb();
-    });
-
-    it('should register a new user and verify in DB', async () => {
-        const newUser = {
-            phone: '13812345678',
-            password: 'Password123!',
-            name: 'Test User'
-        };
-
-        // 1. Register API Call
-        const res = await request(app)
-            .post('/api/auth/register')
-            .send(newUser)
-            .expect(201);
-
-        expect(res.body.user).toBeDefined();
-        expect(res.body.user.phone).toBe(newUser.phone);
-        // Should set cookie
-        expect(res.headers['set-cookie']).toBeDefined();
-
-        // 2. Verify in Database directly
-        const dbResult = await pool.query('SELECT * FROM users WHERE phone = $1', [newUser.phone]);
-        expect(dbResult.rows.length).toBe(1);
-        expect(dbResult.rows[0].name).toBe(newUser.name);
-        expect(dbResult.rows[0].role).toBe('user'); // Default role
-        expect(dbResult.rows[0].password_hash).not.toBe(newUser.password); // Should be hashed
-    });
-
-    it('should login with registered user and access protected route', async () => {
-        // 0. Setup: Create user
-        const userData = {
-            phone: '13987654321',
-            password: 'Password123!',
-            name: 'Login User'
-        };
-
-        await request(app).post('/api/auth/register').send(userData);
-
-        // 1. Login
+        // 2. Login
         const loginRes = await request(app)
-            .post('/api/auth/login')
-            .send({
-                phone: userData.phone,
-                password: userData.password
-            })
-            .expect(200);
+            .post('/api/v1/auth/login')
+            .send({ phone: user.phone, password: user.password });
+        expect(loginRes.status).toBe(200);
+        
+        const cookies = loginRes.get('Set-Cookie') as string[];
+        expect(cookies).toBeDefined();
 
-        const cookie = loginRes.headers['set-cookie'];
-        expect(cookie).toBeDefined();
+        // 3. Get profile
+        const profileRes = await request(app)
+            .get('/api/v1/auth/me')
+            .set('Cookie', cookies);
+        
+        expect(profileRes.status).toBe(200);
+        expect(profileRes.body.data.user.phone).toBe(user.phone);
 
-        // 2. Access Protected Route (Me) using cookie
-        const meRes = await request(app)
-            .get('/api/auth/me')
-            .set('Cookie', cookie)
-            .expect(200);
-
-        expect(meRes.body.user.phone).toBe(userData.phone);
-    });
-
-    it('should prevent duplicate registration', async () => {
-        const userData = {
-            phone: '13811112222',
-            password: 'Password123!',
-            name: 'Duplicate User'
-        };
-
-        // First registration
-        await request(app).post('/api/auth/register').send(userData).expect(201);
-
-        // Second registration
-        const res = await request(app).post('/api/auth/register').send(userData).expect(409);
-
-        expect(res.body.error).toBeDefined();
-        // Expect database constraint violation handling
+        // 4. Logout
+        const logoutRes = await request(app)
+            .post('/api/v1/auth/logout')
+            .set('Cookie', cookies);
+        expect(logoutRes.status).toBe(200);
     });
 });

@@ -40,12 +40,14 @@ CREATE TABLE IF NOT EXISTS reports (
     voice_url TEXT,
     video_url TEXT,
     image_urls TEXT, -- JSON array
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'matching', 'broadcasted', 'matched', 'in_progress', 'completed', 'cancelled', 'failed_analysis')),
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'matching', 'broadcasted', 'matched', 'in_progress', 'completed', 'cancelled', 'failed_analysis', 'flagged_for_review')),
     matched_worker_id INTEGER,
+    pattern_id INTEGER,
     latitude REAL,
 
     longitude REAL,
     urgency_score INTEGER DEFAULT 0, -- 0-10 Scale
+    match_score REAL,
     matched_at TEXT,
     completed_at TEXT,
     resolution_details TEXT, -- JSON: { steps, parts, cost, photos }
@@ -153,6 +155,10 @@ CREATE TABLE IF NOT EXISTS patterns (
     solution TEXT NOT NULL, -- JSON
     success_rate REAL DEFAULT 1.0,
     usage_count INTEGER DEFAULT 1,
+    performance_score REAL DEFAULT 0,
+    consecutive_high_ratings INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'experimental', -- experimental, production, deprecated
+    is_variant INTEGER DEFAULT 0,
     last_used TEXT DEFAULT (datetime('now')),
     created_at TEXT DEFAULT (datetime('now')),
     UNIQUE(problem_type, context_signature)

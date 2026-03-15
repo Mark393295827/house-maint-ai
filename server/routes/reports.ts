@@ -199,7 +199,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
         const report = rows[0];
 
         if (!report) {
-            return res.status(404).json({ error: 'Report not found' });
+            return res.status(404).json(ApiResponse.fail('Report not found'));
         }
 
         // Parse JSON fields
@@ -229,7 +229,7 @@ router.put('/:id', authenticate, async (req, res, next) => {
 
         const reportData = existing[0];
         if (reportData.user_id !== req.user.id && req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Not authorized' });
+            return res.status(403).json(ApiResponse.fail('Not authorized'));
         }
 
         // State Machine Guard
@@ -244,7 +244,7 @@ router.put('/:id', authenticate, async (req, res, next) => {
             else if (['completed', 'cancelled', 'failed_analysis'].includes(current)) valid = false; // Terminal states
 
             if (!valid && req.user.role !== 'admin') {
-                return res.status(400).json({ error: `Illegal state transition from ${current} to ${status}` });
+                return res.status(400).json(ApiResponse.fail(`Illegal state transition from ${current} to ${status}`));
             }
         }
 
@@ -279,7 +279,7 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
 
         // 2. Validate status
         if (!['pending', 'matching', 'matched', 'broadcasted'].includes(report.status)) {
-            return res.status(400).json({ error: `Cannot accept a job in "${report.status}" status` });
+            return res.status(400).json(ApiResponse.fail(`Cannot accept a job in "${report.status}" status`));
         }
 
         // 3. Authorize — only the matched worker or any worker if it's a pool job
@@ -290,7 +290,7 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
         const isPoolJob = !report.matched_worker_id;
 
         if (!isMatchedWorker && !isPoolJob && req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Not authorized to accept this job' });
+            return res.status(403).json(ApiResponse.fail('Not authorized to accept this job'));
         }
 
         // 4. Transition status
@@ -326,7 +326,7 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
 
         // 2. Authorize (Only assigned worker or admin)
         if (report.matched_worker_id === null) {
-            return res.status(400).json({ error: 'Report is not assigned to any worker' });
+            return res.status(400).json(ApiResponse.fail('Report is not assigned to any worker'));
         }
 
         // Verify that the requester is the assigned worker
@@ -334,7 +334,7 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
         const worker = workers[0];
 
         if ((!worker || worker.id !== report.matched_worker_id) && req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Not authorized' });
+            return res.status(403).json(ApiResponse.fail('Not authorized'));
         }
 
         // 3. Update report
@@ -380,7 +380,7 @@ router.delete('/:id', authenticate, async (req, res, next) => {
 
         const report = existing[0];
         if (report.user_id !== req.user.id && req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Not authorized' });
+            return res.status(403).json(ApiResponse.fail('Not authorized'));
         }
 
         await db.query('DELETE FROM reports WHERE id = $1', [req.params.id]);
@@ -426,11 +426,11 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
             if (req.user.role === 'worker' && report.matched_worker_id) {
                 const { rows: workers } = await db.query('SELECT id FROM workers WHERE user_id = $1', [req.user.id]);
                 if (!workers[0] || workers[0].id !== report.matched_worker_id) {
-                    return res.status(403).json({ error: 'Not authorized' });
+                    return res.status(403).json(ApiResponse.fail('Not authorized'));
                 }
             } else if (req.user.role === 'worker') {
                 // Worker not assigned
-                return res.status(403).json({ error: 'Not authorized' });
+                return res.status(403).json(ApiResponse.fail('Not authorized'));
             }
         }
 

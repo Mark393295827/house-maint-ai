@@ -3,6 +3,7 @@ import { z } from 'zod';
 import db from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
 import { cacheMiddleware, clearCache } from '../middleware/cache.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
 
@@ -42,7 +43,7 @@ router.get('/posts', cacheMiddleware(120), async (req, res, next) => {
             }
         });
 
-        res.json({ posts: formattedPosts });
+        res.json(ApiResponse.success({ posts: formattedPosts }));
     } catch (error) {
         next(error);
     }
@@ -81,13 +82,12 @@ router.post('/posts', authenticate, async (req, res, next) => {
         // Clear posts cache
         await clearCache('community/posts');
 
-        res.status(201).json({
-            message: 'Post created successfully',
+        res.status(201).json(ApiResponse.success({
             post: {
                 ...post,
                 tags: JSON.parse(post.tags || '[]')
             }
-        });
+        }, 'Post created successfully'));
     } catch (error) {
         next(error);
     }
@@ -106,14 +106,14 @@ router.post('/posts/:id/like', authenticate, async (req, res, next) => {
         `, [req.params.id]);
 
         if (rowCount === 0) {
-            return res.status(404).json({ error: 'Post not found' });
+            return res.status(404).json(ApiResponse.fail('Post not found'));
         }
 
         // Technically we should clear cache here too if we cache individual post details
         // For the list view, we might tolerate some delay or clear it:
         // await clearCache('community/posts'); 
 
-        res.json({ success: true, message: 'Post liked' });
+        res.json(ApiResponse.success(null, 'Post liked'));
     } catch (error) {
         next(error);
     }

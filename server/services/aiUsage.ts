@@ -21,9 +21,12 @@ class AiUsageService {
     }
 
     calculateCost(usage: AiUsage): number {
+        if (!usage) return 0;
         const model = usage.model_name || 'default';
         const pricing = PRICING[model] || PRICING['default'];
-        return (usage.input_tokens * pricing.input) + (usage.output_tokens * pricing.output);
+        const input = usage.input_tokens || 0;
+        const output = usage.output_tokens || 0;
+        return (input * pricing.input) + (output * pricing.output);
     }
 
     async logUsage(params: {
@@ -34,6 +37,11 @@ class AiUsageService {
     }) {
         const { userId, usage, endpoint, durationMs } = params;
         const costUsd = this.calculateCost(usage);
+
+        if (!usage) {
+            console.warn('logUsage called with null usage');
+            return;
+        }
 
         try {
             // 1. Log to Database

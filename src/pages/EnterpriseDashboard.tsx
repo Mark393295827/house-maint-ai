@@ -152,6 +152,99 @@ const AgentCard: React.FC<{ agent: AgentStatus }> = ({ agent }) => {
     );
 };
 
+const ActiveTaskMap: React.FC = () => (
+    <div className="telemetry-card rounded-2xl p-6 h-[400px] relative overflow-hidden group scan-line">
+        <div className="flex items-center justify-between mb-4 relative z-10">
+            <div>
+                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Active Task Map</h3>
+                <p className="text-xs text-gray-500">Real-time technician tracking · Sanya Beachhead</p>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] font-mono">
+                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-neon-cyan" /> 施工中</div>
+                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-pit-amber" /> 待命中</div>
+            </div>
+        </div>
+        
+        {/* SVG Map Illustration */}
+        <div className="absolute inset-0 pt-16">
+            <svg className="w-full h-full opacity-40" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 100 Q 200 50, 400 150 T 800 100" stroke="rgba(99,102,241,0.2)" strokeWidth="2" />
+                <path d="M100 0 L150 400" stroke="rgba(99,102,241,0.1)" strokeWidth="1" />
+                <path d="M300 0 L250 400" stroke="rgba(99,102,241,0.1)" strokeWidth="1" />
+                <path d="M500 0 L550 400" stroke="rgba(99,102,241,0.1)" strokeWidth="1" />
+                
+                {/* Active Pins */}
+                <g className="animate-pulse">
+                    <circle cx="220" cy="140" r="6" fill="#00F0FF" />
+                    <circle cx="220" cy="140" r="14" stroke="#00F0FF" strokeWidth="1" opacity="0.3" className="animate-ping" />
+                </g>
+                <g>
+                    <circle cx="450" cy="180" r="6" fill="#FFB800" />
+                </g>
+                <g className="animate-pulse" style={{ animationDelay: '1s' }}>
+                    <circle cx="580" cy="220" r="6" fill="#00FF87" />
+                    <circle cx="580" cy="220" r="14" stroke="#00FF87" strokeWidth="1" opacity="0.3" className="animate-ping" />
+                </g>
+            </svg>
+        </div>
+
+        <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-[10px] text-gray-500 font-mono">
+            <span>26.26.26.1 / 8080</span>
+            <span>ZOOM: 14.5x</span>
+        </div>
+    </div>
+);
+
+const UtilizationCharts: React.FC = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="telemetry-card rounded-2xl p-6">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Employee Utilization</h3>
+            <div className="flex items-center justify-center py-6 gap-8 text-white">
+                <div className="relative">
+                    <ScoreRing score={8.5} max={10} color="#00FF87" size={120} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="font-telemetry text-2xl font-bold text-data-green">85%</span>
+                        <span className="text-[10px] text-gray-500">PEAK</span>
+                    </div>
+                </div>
+                <div className="space-y-4 flex-1">
+                    {[
+                        { label: '张师傅', value: 92, color: '#00FF87' },
+                        { label: '李师傅', value: 78, color: '#00F0FF' },
+                        { label: '王师傅', value: 45, color: '#FFB800' },
+                    ].map(u => (
+                        <div key={u.label}>
+                            <div className="flex justify-between text-[10px] mb-1">
+                                <span className="text-gray-400">{u.label}</span>
+                                <span className="text-gray-200 font-mono">{u.value}%</span>
+                            </div>
+                            <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
+                                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${u.value}%`, background: u.color }} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+        
+        <div className="telemetry-card rounded-2xl p-6">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Revenue Efficiency</h3>
+            <div className="h-[140px] flex items-end justify-between gap-2 pt-4">
+                {[45, 67, 89, 72, 95, 82, 91].map((v, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                        <div className="w-full bg-gradient-to-t from-primary/20 to-primary/80 rounded-t-lg transition-all hover:to-neon-cyan relative" style={{ height: `${v}%` }}>
+                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-mono text-primary-light opacity-0 group-hover:opacity-100 transition-opacity">
+                                ¥{v*10}
+                            </div>
+                        </div>
+                        <span className="text-[8px] text-gray-600 font-mono">D{i+1}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
 // ============ Main Dashboard ============
 
 const EnterpriseDashboardHome: React.FC = () => {
@@ -323,6 +416,16 @@ const EnterpriseDashboardHome: React.FC = () => {
                         <DimensionCard key={dim.name} dim={dim} delay={i * 100} />
                     ))}
                 </div>
+            </div>
+
+            {/* ─── Active Task Map ─── */}
+            <div className="mb-8 stagger-item" style={{ animationDelay: '400ms' }}>
+                <ActiveTaskMap />
+            </div>
+
+            {/* ─── Utilization Analytics ─── */}
+            <div className="mb-8 stagger-item" style={{ animationDelay: '500ms' }}>
+                <UtilizationCharts />
             </div>
 
             {/* ─── Agent Matrix + Alerts ─── */}
@@ -508,20 +611,38 @@ const EnterpriseDashboardHome: React.FC = () => {
 
             {/* ─── Quick Actions ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="telemetry-card rounded-xl p-5 text-left hover:border-primary/30 transition-all group">
-                    <span className="text-2xl mb-2 block">📸</span>
-                    <h3 className="text-sm font-bold text-gray-200 mb-1 group-hover:text-primary-light transition-colors">AI 故障诊断</h3>
-                    <p className="text-xs text-gray-500">Upload photo → AI diagnosis in 2 minutes</p>
+                <button className="telemetry-card rounded-2xl p-6 text-left hover:border-primary/50 transition-all group press-scale relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span className="material-symbols-outlined text-4xl">photo_filter</span>
+                    </div>
+                    <span className="text-3xl mb-3 block">📸</span>
+                    <h3 className="text-sm font-black text-gray-200 mb-1 group-hover:text-primary-light transition-colors uppercase tracking-widest">AI 故障诊断</h3>
+                    <p className="text-xs text-gray-500 font-medium">Upload photo → AI diagnosis in 2 minutes</p>
+                    <div className="mt-4 flex items-center gap-2 text-[10px] font-black text-primary-light uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                        Launch Scanner <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    </div>
                 </button>
-                <button className="telemetry-card rounded-xl p-5 text-left hover:border-cyan-500/30 transition-all group">
-                    <span className="text-2xl mb-2 block">⚖️</span>
-                    <h3 className="text-sm font-bold text-gray-200 mb-1 group-hover:text-neon-cyan transition-colors">责任判定 (S2)</h3>
-                    <p className="text-xs text-gray-500">Photo → landlord/tenant fault in 30 seconds</p>
+                <button className="telemetry-card rounded-2xl p-6 text-left hover:border-cyan-500/50 transition-all group press-scale relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity text-neon-cyan">
+                        <span className="material-symbols-outlined text-4xl">gavel</span>
+                    </div>
+                    <span className="text-3xl mb-3 block">⚖️</span>
+                    <h3 className="text-sm font-black text-gray-200 mb-1 group-hover:text-neon-cyan transition-colors uppercase tracking-widest">责任判定 (S2)</h3>
+                    <p className="text-xs text-gray-500 font-medium">Photo → landlord/tenant fault in 30 seconds</p>
+                    <div className="mt-4 flex items-center gap-2 text-[10px] font-black text-neon-cyan uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                        Analyze Fault <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    </div>
                 </button>
-                <button className="telemetry-card rounded-xl p-5 text-left hover:border-emerald-500/30 transition-all group">
-                    <span className="text-2xl mb-2 block">🏖️</span>
-                    <h3 className="text-sm font-bold text-gray-200 mb-1 group-hover:text-data-green transition-colors">度假房交接 (S3)</h3>
-                    <p className="text-xs text-gray-500">Before/after photo diff → damage report</p>
+                <button className="telemetry-card rounded-2xl p-6 text-left hover:border-emerald-500/50 transition-all group press-scale relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity text-data-green">
+                        <span className="material-symbols-outlined text-4xl">villa</span>
+                    </div>
+                    <span className="text-3xl mb-3 block">🏖️</span>
+                    <h3 className="text-sm font-black text-gray-200 mb-1 group-hover:text-data-green transition-colors uppercase tracking-widest">度假房交接 (S3)</h3>
+                    <p className="text-xs text-gray-500 font-medium">Before/after photo diff → damage report</p>
+                    <div className="mt-4 flex items-center gap-2 text-[10px] font-black text-data-green uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                        Start Handover <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    </div>
                 </button>
             </div>
         </div>

@@ -60,6 +60,7 @@ vi.mock('../server/config/database.js', async (importOriginal) => {
             latitude REAL,
             longitude REAL,
             urgency_score INTEGER DEFAULT 0,
+            match_score REAL,
             diagnosis_result TEXT,
             matched_at TEXT,
             completed_at TEXT,

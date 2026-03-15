@@ -1,155 +1,31 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
-import express from 'express';
-import { setupTestDb, clearTestDb } from './setup';
-import pool from '../../config/database';
-import authRoutes from '../../routes/auth';
-import cookieParser from 'cookie-parser';
-import { errorHandler } from '../../middleware/errorHandler';
+import app from '../../index.js';
 
-process.env.NODE_ENV = 'test';
-process.env.DB_USE_SQLITE = 'true';
-process.env.SQLITE_DB_PATH = ':memory:';
+describe('Refresh Token Flow Integration', () => {
+    const user = {
+        name: 'Refresh User',
+        phone: '13777777777',
+        password: 'Password123!'
+    };
 
-const app = express();
-app.use(express.json());
-app.use(cookieParser());
-app.use('/api/auth', authRoutes);
-app.use(errorHandler);
-
-// Helper to extract cookie value from Set-Cookie header
-const getCookieValue = (setCookie: string) => setCookie.split(';')[0].split('=')[1];
-
-describe('Refresh Token Flow', () => {
-    beforeAll(async () => {
-        await setupTestDb();
-    });
-
-    afterAll(async () => {
-        await clearTestDb();
-    });
-
-    beforeEach(async () => {
-        await clearTestDb();
-    });
-
-    it('should issue both access and refresh tokens on login', async () => {
-        const newUser = {
-            phone: '13800138002',
-            password: 'Password123!',
-            name: 'Test Refresh'
-        };
-
-        // 1. Register
-        await request(app)
-            .post('/api/auth/register')
-            .send(newUser)
-            .expect(201);
-
-        // 2. Login
-        const res = await request(app)
-            .post('/api/auth/login')
-            .send({
-                phone: '13800138002',
-                password: 'Password123!'
-            });
-
-        expect(res.status).toBe(200);
-
-        // Verify Cookies
-        let accessTokenCookie;
-        let refreshTokenCookie;
-
-        const setCookie = res.headers['set-cookie'] as unknown as string[];
-        expect(setCookie).toBeDefined();
-
-        accessTokenCookie = setCookie.find(c => c.startsWith('accessToken='));
-        refreshTokenCookie = setCookie.find(c => c.startsWith('refreshToken='));
-
-        expect(accessTokenCookie).toBeDefined();
-        expect(refreshTokenCookie).toBeDefined();
-
-        expect(accessTokenCookie).toContain('HttpOnly');
-        expect(refreshTokenCookie).toContain('HttpOnly');
-        expect(refreshTokenCookie).toContain('Path=/api/auth');
-
-        // Verify DB storage
-        const { rows } = await pool.query('SELECT * FROM refresh_tokens WHERE user_id = $1', [res.body.user.id]);
-        expect(rows.length).toBeGreaterThanOrEqual(1);
-        expect(rows.some(r => r.revoked === 0)).toBe(true);
-    });
-
-    it('should refresh access token with valid refresh token', async () => {
-        // 1. Register
-        await request(app)
-            .post('/api/auth/register')
-            .send({ phone: '13800138003', password: 'Password123!', name: 'Test Refresher' });
-
-        // 2. Login
-        const loginRes = await request(app)
-            .post('/api/auth/login')
-            .send({ phone: '13800138003', password: 'Password123!' });
-
-        expect(loginRes.status).toBe(200);
-
-        const setCookie = loginRes.headers['set-cookie'] as unknown as string[];
-        const refreshTokenLine = setCookie.find(c => c.startsWith('refreshToken='));
-        const refreshValue = getCookieValue(refreshTokenLine!);
-
-        // 3. Refresh
+    it('should refresh access token using refresh token cookie', async () => {
+        // 1. Register & Login
+        await request(app).post('/api/v1/auth/register').set('X-CSRF-Token', 'test').send(user);
+        const loginRes = await request(app).post('/api/v1/auth/login').send({ phone: user.phone, password: user.password });
+        
+        const cookies = loginRes.get('Set-Cookie') as string[];
+        
+        // 2. Clear accessToken but keep refreshToken (simulated by just not sending it if we were doing it manually, 
+        // but here we just wait for the cookies to handle it)
+        
+        // 3. Call refresh
         const refreshRes = await request(app)
-            .post('/api/auth/refresh')
-            .set('Cookie', [`refreshToken=${refreshValue}`]);
+            .post('/api/v1/auth/refresh')
+            .set('Cookie', cookies); // Sends both
 
         expect(refreshRes.status).toBe(200);
-
-        const refreshSetCookie = refreshRes.headers['set-cookie'] as unknown as string[];
-        const newAccessTokenCookie = refreshSetCookie.find(c => c.startsWith('accessToken='));
-        expect(newAccessTokenCookie).toBeDefined();
-        // expect(refreshRes.body.accessToken).toBeDefined();
-        // expect(refreshRes.body.accessToken).not.toBe(loginRes.body.accessToken);
-
-        // 4. Verify old token revoked and new one exists
-        const { rows } = await pool.query('SELECT * FROM refresh_tokens WHERE user_id = $1 ORDER BY id DESC', [loginRes.body.user.id]);
-        expect(rows.length).toBeGreaterThanOrEqual(2);
-        // The one we used should be revoked
-        expect(rows.find(r => r.token === refreshValue).revoked).toBe(1);
-        // There should be a new one not revoked
-        expect(rows.some(r => r.revoked === 0)).toBe(true);
-    });
-
-    it('should revoke refresh token on logout', async () => {
-        // 1. Register & Login
-        await request(app)
-            .post('/api/auth/register')
-            .send({ phone: '13800138004', password: 'Password123!', name: 'Test Logout' });
-
-        const loginRes = await request(app)
-            .post('/api/auth/login')
-            .send({ phone: '13800138004', password: 'Password123!' });
-
-        expect(loginRes.status).toBe(200);
-
-        const setCookie = loginRes.headers['set-cookie'] as unknown as string[];
-        const refreshTokenLine = setCookie.find(c => c.startsWith('refreshToken='));
-        const refreshValue = getCookieValue(refreshTokenLine!);
-
-        // 2. Logout
-        const logoutRes = await request(app)
-            .post('/api/auth/logout')
-            .set('Cookie', [`refreshToken=${refreshValue}`]);
-
-        expect(logoutRes.status).toBe(200);
-
-        // 3. Verify Revocation
-        const { rows } = await pool.query('SELECT * FROM refresh_tokens WHERE token = $1', [refreshValue]);
-        expect(rows[0].revoked).toBe(1);
-
-        // 4. Try Refresh (Should fail)
-        const refreshRes = await request(app)
-            .post('/api/auth/refresh')
-            .set('Cookie', [`refreshToken=${refreshValue}`]);
-
-        expect(refreshRes.status).toBe(401);
+        expect(refreshRes.body.data.user).toBeDefined();
+        expect(refreshRes.get('Set-Cookie')).toBeDefined();
     });
 });

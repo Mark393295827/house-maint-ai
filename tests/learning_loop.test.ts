@@ -62,11 +62,11 @@ describe('AI Learning Loop', () => {
     });
 
     it('should deduplicate existing patterns', async () => {
-        // 1. Insert an existing pattern
+        // 1. Insert an existing pattern (must match values from DiagnosisAgent extractPattern mock)
         await db.query(`
             INSERT INTO patterns (problem_type, context_signature, solution, usage_count)
-            VALUES ('Demo Pattern: Refrigerator Issue', 'demo, fridge, cooling', '{}', 1)
-        `);
+            VALUES ($1, $2, $3, 1)
+        `, ['Demo', 'demo', '{}']);
 
         // 2. Create User
         const userRes = await db.query(`

@@ -249,7 +249,7 @@ router.post('/refresh', async (req, res, next) => {
 
         // Check DB for token validity and revocation
         const { rows } = await db.query(
-            'SELECT * FROM refresh_tokens WHERE token = $1 AND revoked = 0',
+            'SELECT * FROM refresh_tokens WHERE token = $1 AND (revoked = 0 OR revoked IS NULL)',
             [refreshToken]
         );
         const storedToken = rows[0];
@@ -295,7 +295,10 @@ router.post('/refresh', async (req, res, next) => {
         res.cookie('accessToken', newAccessToken, getAuthCookieOptions());
         res.cookie('refreshToken', newRefreshToken, getRefreshCookieOptions());
 
-        res.json(ApiResponse.success(null, 'Token refreshed'));
+        // Remove sensitive data
+        delete user.password_hash;
+
+        res.json(ApiResponse.success({ user }, 'Token refreshed'));
 
     } catch (error) {
         next(error);
@@ -321,7 +324,7 @@ router.post('/logout', async (req, res, next) => {
         }
 
         res.clearCookie('accessToken', { path: '/' });
-        res.clearCookie('refreshToken', { path: '/api/auth' });
+        res.clearCookie('refreshToken', { path: '/' });
         res.clearCookie('token', { path: '/' }); // Clear legacy cookie just in case
 
         res.json(ApiResponse.success(null, 'Logged out successfully'));

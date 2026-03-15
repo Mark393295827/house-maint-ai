@@ -43,17 +43,17 @@ describe('AI Service', () => {
     });
 
     it('should diagnose issue using Gemini (demo mode without API key)', async () => {
-        const result = (await aiService.diagnoseIssue('base64image', 'image/jpeg', 'Help')) as any;
+        const response = (await aiService.diagnoseIssue('base64image', 'image/jpeg', 'Help')) as any;
         // Without GEMINI_API_KEY, the service returns demo diagnosis
-        expect(result.diagnosis.issue_identified).toContain('Ceiling Fan');
-        expect(result.diagnosis.severity_score).toBe(2);
-        expect(result.diagnosis.category).toBe('Electrical');
+        expect(response.result.diagnosis.issue_type).toContain('Pipe Joint Leak');
+        expect(response.result.diagnosis.urgency_score).toBe(5);
+        expect(response.result.diagnosis.category).toBe('Plumbing');
     });
 
     it('should use mock response for DeepSeek if no key', async () => {
         const response = await aiService.chatWithExpert([{ role: 'user', content: 'Hello' }]);
-        expect(response).toBeTruthy();
+        expect(response.result).toBeTruthy();
         // Without DEEPSEEK_API_KEY, the service returns its own mock response
-        expect(response).toContain('mock response');
+        expect(response.result).toContain('Mock DeepSeek Response');
     });
 });

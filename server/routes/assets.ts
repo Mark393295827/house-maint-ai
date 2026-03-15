@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import db, { isSQLite } from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 import * as Sentry from '@sentry/node';
 
 const router = express.Router();
@@ -38,7 +39,7 @@ router.get('/', authenticate, async (req, res, next) => {
             return asset;
         });
 
-        res.json({ assets });
+        res.json(ApiResponse.success({ assets }));
     } catch (error) {
         next(error);
     }
@@ -77,7 +78,7 @@ router.post('/', authenticate, async (req, res, next) => {
         const asset = rows[0];
         asset.specs = JSON.parse(asset.specs || '{}');
 
-        res.status(201).json({ asset });
+        res.status(201).json(ApiResponse.success({ asset }));
     } catch (error) {
         next(error);
     }
@@ -98,10 +99,10 @@ router.delete('/:id', authenticate, async (req, res, next) => {
         );
 
         if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Asset not found or unauthorized' });
+            return res.status(404).json(ApiResponse.fail('Asset not found or unauthorized'));
         }
 
-        res.json({ message: 'Asset deleted' });
+        res.json(ApiResponse.success(null, 'Asset deleted'));
     } catch (error) {
         next(error);
     }
