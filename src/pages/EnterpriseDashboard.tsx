@@ -47,11 +47,11 @@ const ScoreRing: React.FC<{ score: number; max: number; color: string; size?: nu
 
     const gradientId = `ring-gradient-${color.replace('#', '')}`;
     return (
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90 drop-shadow-sm">
             <defs>
                 <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor={color} />
-                    <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0.4} />
                 </linearGradient>
             </defs>
             <circle
@@ -59,9 +59,8 @@ const ScoreRing: React.FC<{ score: number; max: number; color: string; size?: nu
                 cy={size / 2}
                 r={radius}
                 fill="transparent"
-                stroke="currentColor"
+                stroke="rgba(0,0,0,0.03)"
                 strokeWidth={stroke}
-                className="text-slate-100"
             />
             <circle
                 cx={size / 2}
@@ -79,33 +78,32 @@ const ScoreRing: React.FC<{ score: number; max: number; color: string; size?: nu
     );
 };
 
-const DimensionCard: React.FC<{ dim: DimensionScore; delay: number }> = ({ dim, delay }) => (
-    <div className="stagger-item aegis-card p-5 group transition-all duration-300"
-        style={{ animationDelay: `${delay}ms` }}>
-        <div className="flex items-center justify-between mb-4">
-            <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 block">Dimension</span>
-                <h3 className="text-sm font-black text-slate-800 tracking-tight">{dim.name}</h3>
+const DimensionCard: React.FC<{ dim: DimensionScore }> = ({ dim }) => (
+    <div className="aegis-card p-6 lg:p-8 group hover:-translate-y-1.5 transition-all duration-500 bg-white/60">
+        <div className="flex items-center justify-between mb-8">
+            <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#86868b]">Strategic Dimension</span>
+                <h3 className="text-base font-black text-[#1d1d1f] tracking-tight">{dim.name}</h3>
             </div>
-            <div className="relative flex items-center justify-center p-1 bg-slate-50 rounded-full border border-slate-100/50">
-                <ScoreRing score={dim.score} max={dim.maxScore} color={dim.color} size={52} stroke={4} />
-                <span className="absolute font-mono text-[11px] font-black text-slate-900">
+            <div className="relative flex items-center justify-center p-2 bg-white/40 rounded-full border border-white/40 shadow-sm">
+                <ScoreRing score={dim.score} max={dim.maxScore} color={dim.color} size={56} stroke={5} />
+                <span className="absolute font-sans text-xs font-black text-[#1d1d1f]">
                     {(dim.score / dim.maxScore * 100).toFixed(0)}%
                 </span>
             </div>
         </div>
-        <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-3xl font-black text-slate-900 font-mono tracking-tighter">{dim.score.toFixed(1)}</span>
-            <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">/ {dim.maxScore}</span>
+        <div className="flex items-baseline gap-2 mb-3">
+            <span className="text-4xl font-black text-[#1d1d1f] tracking-tighter tabular-nums">{dim.score.toFixed(1)}</span>
+            <span className="text-xs font-bold text-[#86868b] uppercase tracking-wider">/ {dim.maxScore}</span>
         </div>
-        <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{dim.description}</p>
-        <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
+        <p className="text-[12px] text-[#86868b] font-medium leading-relaxed max-w-[90%]">{dim.description}</p>
+        <div className="mt-8 h-1.5 bg-black/5 rounded-full overflow-hidden">
             <div 
-                className="h-full transition-all duration-1000 ease-out rounded-full" 
+                className="h-full transition-all duration-[1.5s] ease-out rounded-full" 
                 style={{ 
                     width: `${(dim.score / dim.maxScore) * 100}%`,
-                    backgroundColor: dim.color,
-                    boxShadow: `0 0 10px ${dim.color}44`
+                    background: `linear-gradient(90deg, ${dim.color}, ${dim.color}dd)`,
+                    boxShadow: `0 0 20px ${dim.color}33`
                 }} 
             />
         </div>
@@ -146,35 +144,35 @@ const AlertBadge: React.FC<{ alert: StrategyAlert }> = ({ alert }) => {
 
 const AgentCard: React.FC<{ agent: AgentStatus }> = ({ agent }) => {
     const statusColors = {
-        online: 'bg-emerald-500',
-        idle: 'bg-amber-500',
-        error: 'bg-rose-500 animate-pulse',
+        online: 'bg-[#28cd41]',
+        idle: 'bg-[#ff9500]',
+        error: 'bg-[#ff3b30] animate-pulse shadow-[0_0_8px_#ff3b3088]',
     };
 
     return (
-        <div className="aegis-card p-4 border-slate-100 group hover:border-blue-200 transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <div className={`w-1.5 h-1.5 rounded-full ${statusColors[agent.status]}`} />
-                    <h4 className="text-[12px] font-bold text-slate-800 font-mono tracking-tight uppercase">{agent.name}</h4>
+        <div className="aegis-card p-5 lg:p-6 border-white/20 group hover:border-[#007aff]/30 transition-all duration-500 bg-white/40">
+            <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${statusColors[agent.status]}`} />
+                    <h4 className="text-[13px] font-black text-[#1d1d1f] tracking-tight uppercase">{agent.name}</h4>
                 </div>
-                <div className="px-1.5 py-0.5 bg-slate-50 rounded border border-slate-100">
-                   <span className="text-[8px] text-slate-400 font-mono font-bold uppercase">{agent.model}</span>
+                <div className="px-2 py-0.5 bg-black/5 rounded-md border border-black/5">
+                   <span className="text-[9px] text-[#86868b] font-black uppercase tracking-widest">{agent.model}</span>
                 </div>
             </div>
-            <div className="flex items-end justify-between mb-3">
+            <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                   <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Compute Cost</p>
-                   <p className="font-mono text-sm font-black text-slate-900">${agent.costToday.toFixed(3)}</p>
+                   <p className="text-[9px] text-[#86868b] uppercase font-black tracking-[0.15em] mb-1.5">Compute Cost</p>
+                   <p className="font-sans text-sm font-black text-[#1d1d1f]">${agent.costToday.toFixed(4)}</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Invocations</p>
-                    <p className="font-mono text-sm font-black text-slate-700">{agent.callsToday}</p>
+                    <p className="text-[9px] text-[#86868b] uppercase font-black tracking-[0.15em] mb-1.5">Nodes Hit</p>
+                    <p className="font-sans text-sm font-black text-[#1d1d1f]">{agent.callsToday.toLocaleString()}</p>
                 </div>
             </div>
-            <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
+            <div className="h-1 bg-black/5 rounded-full overflow-hidden">
                 <div 
-                    className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-700 rounded-full" 
+                    className="h-full bg-gradient-to-r from-[#007aff] to-[#00c6ff] transition-all duration-1000 rounded-full" 
                     style={{ width: `${Math.min(100, agent.callsToday * 2)}%` }} 
                 />
             </div>
@@ -234,9 +232,9 @@ const EnterpriseDashboardHome: React.FC = () => {
     return (
         <div className="space-y-6 page-enter">
             {/* Row 1: 4D Strategy Health (Key Metics) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {dimensions.map((dim, i) => (
-                    <DimensionCard key={dim.name} dim={dim} delay={i * 100} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {dimensions.map((dim) => (
+                    <DimensionCard key={dim.name} dim={dim} />
                 ))}
             </div>
 

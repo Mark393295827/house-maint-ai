@@ -10,31 +10,27 @@ interface LayoutProps {
 const Header: React.FC = () => {
     const { user } = useAuth();
     return (
-        <header className="h-16 bg-[#f7f8fa]/80 backdrop-blur-md border-b border-slate-200/60 flex items-center px-8 sticky top-0 z-50">
-            <div className="flex-grow flex items-center max-w-2xl bg-white/50 rounded-xl px-4 py-2 border border-slate-200/40 focus-within:ring-2 focus-within:ring-blue-500/10 transition-all">
-                <span className="material-symbols-outlined text-slate-400 text-xl mr-3">search</span>
+        <header className="h-20 apple-glass border-b border-white/20 flex items-center px-10 sticky top-0 z-50">
+            <div className="flex-grow flex items-center max-w-2xl bg-white/40 rounded-2xl px-5 py-2.5 border border-white/40 focus-within:bg-white/60 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300">
+                <span className="material-symbols-outlined text-slate-400 text-xl mr-3 font-light">search</span>
                 <input 
                     type="text" 
-                    placeholder="Search across nodes, agents, or deployment zones..." 
-                    className="bg-transparent border-none outline-none w-full text-sm text-slate-700 placeholder:text-slate-400"
+                    placeholder="Search intelligence, reports, agents..." 
+                    className="bg-transparent border-none outline-none text-[13px] font-medium text-slate-800 placeholder:text-slate-400 w-full"
                 />
             </div>
-            
-            <div className="flex items-center gap-6 ml-auto">
-                <div className="flex items-center gap-4 border-r border-slate-200 pr-6">
-                    <div className="relative cursor-pointer group">
-                        <span className="material-symbols-outlined text-slate-500 group-hover:text-blue-600 transition-colors">notifications</span>
-                        <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+            <div className="ml-8 flex items-center gap-6">
+                <button className="relative p-2 text-slate-500 hover:text-slate-900 transition-colors">
+                    <span className="material-symbols-outlined font-light">notifications</span>
+                    <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <div className="flex items-center gap-3 pl-6 border-l border-slate-200/60">
+                    <div className="text-right">
+                        <p className="text-[12px] font-bold text-slate-900 leading-none mb-1">{user?.name || 'Administrator'}</p>
+                        <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{user?.role || 'Exec Ops'}</p>
                     </div>
-                </div>
-                
-                <div className="flex items-center gap-3 cursor-pointer group">
-                    <div className="text-right hidden sm:block">
-                        <p className="text-xs font-bold text-slate-800 tracking-tight leading-none mb-1">{user?.name || 'Admin User'}</p>
-                        <p className="text-[10px] text-slate-500 font-mono font-medium uppercase tracking-tighter">System Architect</p>
-                    </div>
-                    <div className="w-9 h-9 rounded-full bg-slate-200 border border-slate-100 shadow-sm flex items-center justify-center text-slate-600 font-bold overflow-hidden">
-                        {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user?.name?.[0] || 'A'}
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-slate-200 to-slate-100 border border-white flex items-center justify-center text-slate-400 overflow-hidden shadow-sm">
+                        <span className="material-symbols-outlined font-light">person</span>
                     </div>
                 </div>
             </div>
@@ -45,57 +41,56 @@ const Header: React.FC = () => {
 const Sidebar: React.FC = () => {
     const { t } = useLanguage();
     const navItems = [
-        { to: '/enterprise', end: true, icon: 'dashboard', label: t('enterprise.layout.nav.missionControl') },
-        { to: '/enterprise/properties', icon: 'business', label: t('enterprise.layout.nav.properties') },
-        { to: '/enterprise/tickets', icon: 'confirmation_number', label: t('enterprise.layout.nav.tickets') },
-        { to: '/enterprise/workers', icon: 'engineering', label: t('enterprise.layout.nav.workers') },
-        { to: '/enterprise/analytics', icon: 'analytics', label: t('enterprise.layout.nav.analytics') },
+        { path: '/enterprise', end: true, icon: 'dashboard', title: t('enterprise.layout.nav.missionControl') },
+        { path: '/enterprise/properties', icon: 'business', title: t('enterprise.layout.nav.properties') },
+        { path: '/enterprise/tickets', icon: 'confirmation_number', title: t('enterprise.layout.nav.tickets') },
+        { path: '/enterprise/workers', icon: 'engineering', title: t('enterprise.layout.nav.workers') },
+        { path: '/enterprise/analytics', icon: 'analytics', title: t('enterprise.layout.nav.analytics') },
     ];
 
     return (
-        <aside className="fixed left-0 top-0 bottom-0 w-[240px] bg-slate-900 text-white z-50 flex flex-col border-r border-slate-800">
-            <div className="p-6 mb-8">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                        <span className="material-symbols-outlined text-white text-xl">security</span>
+        <aside className="w-[260px] h-screen fixed left-0 top-0 bg-[#1d1d1f] text-white flex flex-col z-50 shadow-2xl">
+            <div className="p-10">
+                <div className="flex items-center gap-3 group cursor-pointer">
+                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-white text-xl font-light">shield_with_heart</span>
                     </div>
-                    <span className="font-display font-black text-xl tracking-tighter">AEGIS <span className="text-blue-500">OS</span></span>
+                    <h1 className="text-xl font-black tracking-tighter">AEGIS<span className="text-blue-500">.</span></h1>
                 </div>
             </div>
-
-            <nav className="flex-grow px-3 space-y-1">
+            
+            <nav className="flex-grow px-6 space-y-1">
                 {navItems.map((item) => (
-                    <NavLink 
-                        key={item.to} 
-                        to={item.to} 
+                    <NavLink
+                        key={item.path}
+                        to={item.path}
                         end={item.end}
                         className={({ isActive }) => `
-                            flex items-center gap-3 px-4 py-3 rounded-xl transition-all group
+                            flex items-center gap-3 px-5 py-3.5 rounded-xl transition-all duration-300 group
                             ${isActive 
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}
+                                ? 'bg-white/10 text-white shadow-sm' 
+                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}
                         `}
                     >
-                        <span className="material-symbols-outlined text-[22px]">
-                            {item.icon}
-                        </span>
-                        <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
+                        {({ isActive }) => (
+                            <>
+                                <span className={`material-symbols-outlined transition-colors font-light ${isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`}>
+                                    {item.icon}
+                                </span>
+                                <span className="text-[13px] font-bold tracking-tight">{item.title}</span>
+                                {isActive && (
+                                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+                                )}
+                            </>
+                        )}
                     </NavLink>
                 ))}
             </nav>
-
-            <div className="p-6 mt-auto">
-                <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Resource Load</span>
-                        <span className="text-[10px] text-blue-400 font-mono">14%</span>
-                    </div>
-                    <div className="h-1 bg-slate-700 rounded-full overflow-hidden mb-4">
-                        <div className="h-full bg-blue-500 w-[14%]" />
-                    </div>
-                    <button className="w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors font-mono">
-                        TERMINAL LOG
-                    </button>
+            <div className="p-8 mx-6 mb-8 rounded-2xl bg-white/5 border border-white/5">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">System Status</p>
+                <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[11px] font-bold text-slate-300">Operations Nominal</span>
                 </div>
             </div>
         </aside>
@@ -104,11 +99,11 @@ const Sidebar: React.FC = () => {
 
 const EnterpriseLayout: React.FC<LayoutProps> = ({ children }) => {
     return (
-        <div className="min-h-screen bg-[#F7F8FA] flex font-sans">
+        <div className="min-h-screen bg-[#f5f5f7] flex font-sans antialiased text-slate-900">
             <Sidebar />
-            <div className="flex-1 flex flex-col ml-[240px]">
+            <div className="flex-1 flex flex-col ml-[260px]">
                 <Header />
-                <main className="p-10 max-w-[1640px] w-full mx-auto">
+                <main className="p-10 lg:p-14 max-w-[1800px] w-full mx-auto">
                     {children}
                 </main>
             </div>

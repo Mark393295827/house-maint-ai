@@ -19,37 +19,58 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 // Custom icons for different statuses
-const createCustomIcon = (color: string) => {
+const createCustomIcon = (color: string, shadowColor: string) => {
     return L.divIcon({
         className: 'custom-div-icon',
         html: `
             <div style="
-                background-color: ${color}; 
-                width: 14px; 
-                height: 14px; 
-                border-radius: 50%; 
-                border: 2px solid white; 
-                box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 0 15px ${color}66;
+                width: 20px; 
+                height: 20px; 
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 position: relative;
             ">
+                <!-- Outer Glow -->
                 <div style="
                     position: absolute;
-                    top: -4px;
-                    left: -4px;
-                    right: -4px;
-                    bottom: -4px;
+                    width: 30px;
+                    height: 30px;
+                    background: ${shadowColor};
+                    filter: blur(8px);
+                    opacity: 0.4;
                     border-radius: 50%;
-                    background: ${color};
-                    opacity: 0.15;
                 "></div>
+                <!-- Marker Body -->
+                <div style="
+                    width: 16px; 
+                    height: 16px; 
+                    background: ${color}; 
+                    border-radius: 50%; 
+                    border: 2.5px solid white; 
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    position: relative;
+                    z-index: 2;
+                ">
+                    <div style="
+                        position: absolute;
+                        top: 2px;
+                        left: 2px;
+                        width: 4px;
+                        height: 4px;
+                        background: white;
+                        border-radius: 50%;
+                        opacity: 0.6;
+                    "></div>
+                </div>
             </div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
     });
 };
 
-const repairingIcon = createCustomIcon('#2563eb'); // Deep Blue (Modern markers)
-const idleIcon = createCustomIcon('#64748b'); // Slate/Grey for idle
+const repairingIcon = createCustomIcon('linear-gradient(135deg, #007aff, #00c6ff)', 'rgba(0, 122, 255, 0.4)');
+const idleIcon = createCustomIcon('linear-gradient(135deg, #8e8e93, #c7c7cc)', 'rgba(142, 142, 147, 0.3)');
 
 export interface WorkerLocation {
     id: string;
@@ -118,12 +139,11 @@ const WorkerMap: React.FC = () => {
                 style={{ height: '100%', width: '100%', backgroundColor: '#f7f8fa' }}
                 zoomControl={false}
             >
-                {/* Modern Grayscale Tiles */}
+                {/* Apple-style "Google Maps New" Tiles */}
                 <TileLayer
-                    key="modern-light"
-                    attribution='&copy; CARTO'
-                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                    className="map-grayscale-filter"
+                    key="apple-modern"
+                    attribution='&copy; Google Maps'
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                 />
                 
                 {workers.map(worker => (
@@ -150,20 +170,19 @@ const WorkerMap: React.FC = () => {
                 ))}
             </MapContainer>
             
-            {/* Custom overlay styles for Modern Light Tech */}
+            {/* Custom overlay styles for Apple FinTech */}
             <style dangerouslySetInnerHTML={{__html: `
-                .map-grayscale-filter {
-                    filter: grayscale(100%) brightness(1.05) contrast(0.9) opacity(0.85);
-                }
                 .leaflet-container {
                     font-family: inherit;
-                    background: #f7f8fa !important;
+                    background: #f5f5f7 !important;
                 }
                 .leaflet-popup-content-wrapper {
-                    background: #ffffff;
-                    border: 0.5px solid rgba(226, 232, 240, 0.8);
-                    border-radius: 12px;
-                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(20px) saturate(180%);
+                    -webkit-backdrop-filter: blur(20px) saturate(180%);
+                    border: 0.5px solid rgba(255, 255, 255, 0.4);
+                    border-radius: 20px;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
                     padding: 0;
                 }
                 .leaflet-popup-content {
@@ -172,19 +191,23 @@ const WorkerMap: React.FC = () => {
                     width: auto !important;
                 }
                 .leaflet-popup-tip {
-                    background: #ffffff;
-                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(20px);
                 }
-                .leaflet-bar {
+                .leaflet-control-zoom {
                     border: none !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
-                    border-radius: 8px !important;
-                    overflow: hidden;
+                    margin: 20px !important;
                 }
-                .leaflet-bar a {
-                    background-color: #ffffff !important;
-                    color: #64748b !important;
-                    border-bottom: 0.5px solid #f1f5f9 !important;
+                .leaflet-control-zoom-in, .leaflet-control-zoom-out {
+                    background-color: rgba(255, 255, 255, 0.8) !important;
+                    backdrop-filter: blur(10px) !important;
+                    color: #1d1d1f !important;
+                    border: 0.5px solid rgba(0,0,0,0.05) !important;
+                    border-radius: 12px !important;
+                    width: 36px !important;
+                    height: 36px !important;
+                    line-height: 36px !important;
+                    font-weight: 200 !important;
                 }
             `}} />
         </div>

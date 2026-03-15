@@ -4,22 +4,28 @@
 @import "tailwindcss";
 
 @theme {
-  /* ─── Modern Light Tech Theme (Paper & Alumni) ─── */
-  --color-aegis-bg: #f7f8fa;
-  --color-aegis-surface: #ffffff;
-  --color-aegis-border: #e2e8f0;
-  --color-aegis-text-main: #1a1e23;
-  --color-aegis-text-sub: #64748b;
-  --color-aegis-accent: #2563eb;
+  /* ─── Apple FinTech Aesthetic (San Francisco / Minimalist) ─── */
+  --color-aegis-bg: #f5f5f7;
+  --color-aegis-surface: rgba(255, 255, 255, 0.75);
+  --color-aegis-border: rgba(210, 210, 215, 0.4);
+  --color-aegis-text-main: #1d1d1f;
+  --color-aegis-text-sub: #86868b;
+  --color-aegis-accent: #0071e3;
   
-  /* ─── Custom Gradients ─── */
-  --gradient-cyan-blue: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
-  --gradient-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --gradient-rose: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  /* ─── Apple Visual Tokens ─── */
+  --shadow-apple-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-apple-modal: 0 20px 40px rgba(0, 0, 0, 0.1);
+  --shadow-apple-floating: 0 8px 30px rgba(0, 0, 0, 0.04), 0 20px 80px rgba(0, 0, 0, 0.02);
+
+  /* ─── Custom Gradients (Apple Palette) ─── */
+  --gradient-apple-blue: linear-gradient(135deg, #007aff 0%, #00c6ff 100%);
+  --gradient-apple-green: linear-gradient(135deg, #28cd41 0%, #4cd964 100%);
+  --gradient-apple-orange: linear-gradient(135deg, #ff9500 0%, #ffcc00 100%);
+  --gradient-apple-red: linear-gradient(135deg, #ff3b30 0%, #ff2d55 100%);
+  --gradient-apple-silver: linear-gradient(135deg, #8e8e93 0%, #c7c7cc 100%);
 
   /* ─── Typography ─── */
-  --font-family-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-family-sans: "SF Pro Display", "SF Pro Text", "Inter", -apple-system, system-ui, sans-serif;
   --font-family-display: "Outfit", "Noto Sans SC", system-ui, -apple-system, sans-serif;
   --font-family-mono: "JetBrains Mono", "Menlo", "Consolas", monospace;
 }
@@ -102,22 +108,31 @@
     animation: recording-pulse 1.5s ease-in-out infinite;
   }
 
+  /* ─── Apple Premium Utilities ─── */
+  .apple-glass {
+    background: var(--color-aegis-surface);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid var(--color-aegis-border);
+  }
+
   /* ─── Aegis Professional Card & Legacy Fallback ─── */
   .aegis-card,
   .dashboard-card {
     background: var(--color-aegis-surface);
-    border: 0.5px solid rgba(226, 232, 240, 0.8);
-    border-radius: 16px;
+    backdrop-filter: blur(30px) saturate(160%);
+    border: 0.5px solid var(--color-aegis-border);
+    border-radius: 20px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+    box-shadow: var(--shadow-apple-floating);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .aegis-card:hover,
   .dashboard-card:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px) scale(1.005);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
   }
 
   .font-mono-numbers {
