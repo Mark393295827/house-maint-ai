@@ -42,8 +42,8 @@ const WorkerMatchPage = () => {
     } = useMatchedWorkers({
         reportId: reportId ? Number(reportId) : undefined,
         category: activeCategory,
-        latitude: 37.7749,
-        longitude: -122.4194,
+        latitude: 18.2528,  // Sanya, Hainan — TODO: use browser geolocation
+        longitude: 109.5120,
         limit: 5
     });
 

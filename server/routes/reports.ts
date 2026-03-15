@@ -155,22 +155,18 @@ router.get('/', authenticate, async (req, res, next) => {
         const offset = parseInt(String(req.query.offset || '0'));
 
         let query = 'SELECT * FROM reports WHERE user_id = $1';
-        const params = [req.user.id];
+        let params: any[] = [req.user.id];
+
+        if (req.user.role === 'admin' || req.user.role === 'manager') {
+            query = 'SELECT * FROM reports WHERE 1=1';
+            params = [];
+        } else if (req.user.role === 'worker') {
+            query = 'SELECT * FROM reports WHERE (user_id = $1 OR matched_worker_id = (SELECT id FROM workers WHERE user_id = $1))';
+        }
 
         if (status) {
-            if (req.user.role === 'worker') {
-                // Workers see their own reports AND reports assigned to them
-                query = 'SELECT * FROM reports WHERE (user_id = $1 OR matched_worker_id = (SELECT id FROM workers WHERE user_id = $1))';
-                // Adjust param index for status
-                query += ' AND status = $2';
-                params.push(status);
-            } else {
-                query += ' AND status = $' + (params.length + 1);
-                params.push(status);
-            }
-        } else if (req.user.role === 'worker') {
-            // Workers see their own reports AND reports assigned to them
-            query = 'SELECT * FROM reports WHERE (user_id = $1 OR matched_worker_id = (SELECT id FROM workers WHERE user_id = $1))';
+            query += ' AND status = $' + (params.length + 1);
+            params.push(status);
         }
 
         query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);

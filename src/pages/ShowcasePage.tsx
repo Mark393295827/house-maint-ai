@@ -93,11 +93,11 @@ function useBrushReveal(delay = 300) {
 
 /* ─── Feature Data (icon + gradient only, text from i18n) ─── */
 const FEATURE_ICONS = [
-    { icon: 'auto_fix_high', gradient: 'from-violet-500 to-purple-600', glow: 'rgba(139, 92, 246, 0.15)' },
-    { icon: 'engineering', gradient: 'from-cyan-500 to-teal-600', glow: 'rgba(6, 182, 212, 0.15)' },
-    { icon: 'forum', gradient: 'from-amber-500 to-orange-600', glow: 'rgba(245, 158, 11, 0.15)' },
-    { icon: 'shield_with_heart', gradient: 'from-emerald-500 to-green-600', glow: 'rgba(16, 185, 129, 0.15)' },
-    { icon: 'monitoring', gradient: 'from-rose-500 to-pink-600', glow: 'rgba(244, 63, 94, 0.15)' },
+    { icon: 'camera_enhance', gradient: 'from-violet-500 to-purple-600', glow: 'rgba(139, 92, 246, 0.15)' },
+    { icon: 'location_on', gradient: 'from-cyan-500 to-teal-600', glow: 'rgba(6, 182, 212, 0.15)' },
+    { icon: 'construction', gradient: 'from-amber-500 to-orange-600', glow: 'rgba(245, 158, 11, 0.15)' },
+    { icon: 'hub', gradient: 'from-emerald-500 to-green-600', glow: 'rgba(16, 185, 129, 0.15)' },
+    { icon: 'dashboard_customize', gradient: 'from-rose-500 to-pink-600', glow: 'rgba(244, 63, 94, 0.15)' },
     { icon: 'payments', gradient: 'from-indigo-500 to-blue-600', glow: 'rgba(99, 102, 241, 0.15)' },
 ];
 
@@ -128,8 +128,11 @@ const DEMO_ROUTES = [
     { path: '/welcome', key: 'welcome' },
     { path: '/login', key: 'login' },
     { path: '/diagnosis', key: 'diagnosis' },
+    { path: '/worker/dashboard', key: 'workerPortal' },
+    { path: '/worker/register', key: 'registration' },
     { path: '/community', key: 'community' },
     { path: '/calendar', key: 'calendar' },
+    { path: '/enterprise', key: 'enterprise' },
 ];
 
 /* ─── Individual Stat Card ─── */

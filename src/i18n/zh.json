@@ -383,7 +383,7 @@
     "showcase": {
         "badge": "生产就绪 • 9.5/10 评分",
         "heroTitle": "让你的家，智能维护。",
-        "heroSubtitle": "基于 React 19、Node.js、Google Gemini 和 Stripe 构建的全栈 AI 家居维护平台。企业级安全、200+ 测试、精美移动优先设计。",
+        "heroSubtitle": "面向三亚物业管理与技师赋能的全栈 AI 平台。集成 Gemini 视觉辅助、地理围栏匹配及全渠道路由，将维修效率提升 200%。",
         "ctaTryDemo": "立即体验",
         "ctaGithub": "查看源码",
         "scrollHint": "向下滚动探索",
@@ -391,17 +391,17 @@
         "featuresTitle": "你需要的一切，",
         "featuresTitleHighlight": "不多不少。",
         "feature1Title": "AI 视觉诊断",
-        "feature1Desc": "将摄像头对准任何家居问题 — AI 在数秒内识别问题、严重性和维修策略。",
-        "feature2Title": "智能工人匹配",
-        "feature2Desc": "算法根据技能、距离、可用性和评分，为您匹配最佳工人。",
-        "feature3Title": "实时聊天预约",
-        "feature3Desc": "通过 WebSocket 直接与工人聊天，安排预约，实时追踪一切。",
-        "feature4Title": "企业级安全",
-        "feature4Desc": "httpOnly JWT、CSRF 防护、刷新令牌轮换、严格速率限制。",
-        "feature5Title": "全面可观测性",
-        "feature5Desc": "Sentry 错误追踪、Mixpanel 分析、AI 成本预算 — 全方位指标监控。",
-        "feature6Title": "Stripe 支付",
-        "feature6Desc": "端到端支付流程：Stripe Checkout、订阅支持、收入分析。",
+        "feature1Desc": "深度集成 Google Gemini — 毫秒级识别破损、漏水及隐患，并自动生成最佳维修策略。",
+        "feature2Title": "精准地理匹配",
+        "feature2Desc": "专为三亚等复杂城区设计 — 基于地理围栏与技能评分，为物业经理实时匹配最优技师。",
+        "feature3Title": "工人赋能中心",
+        "feature3Desc": "技师端专属工作台 — AI 自动生成详细维修步骤、工具清单及预计时长，大幅提升一次性修复率。",
+        "feature4Title": "全渠道报告路由",
+        "feature4Desc": "集成 OpenClaw 模拟 — 自动从多渠道消息中识别维护请求，零延迟生成任务单。",
+        "feature5Title": "物业全景视图",
+        "feature5Desc": "Sentry、Mixpanel 及自定义指标仪表盘 — 订单流向、维修成本、技师效能尽在掌握。",
+        "feature6Title": " Stipe 闭环支付",
+        "feature6Desc": "端到端金融安全 — 支持托管支付、分账逻辑及详细收入报表，让每一笔维修费清晰可见。",
         "demoLabel": "在线演示",
         "demoTitle": "实际",
         "demoTitleHighlight": "效果展示",
@@ -409,9 +409,12 @@
             "dashboard": "仪表盘",
             "welcome": "欢迎页",
             "login": "登录",
-            "diagnosis": "诊断",
+            "diagnosis": "AI 诊断",
             "community": "社区",
-            "calendar": "日历"
+            "calendar": "日历",
+            "workerPortal": "工人门户",
+            "registration": "工人注册",
+            "enterprise": "企业版后台"
         },
         "techLabel": "技术栈",
         "techTitle": "使用",
@@ -450,5 +453,80 @@
             "body": "距离上次水管检查已超过6个月。建议运行快速排水诊断。"
         },
         "action": "立即查看"
+    },
+    "enterprise": {
+        "layout": {
+            "title": "海斯基企业版",
+            "subtitle": "AI 物业管理系统",
+            "systemOnline": "系统在线",
+            "agentsActive": "活跃代理",
+            "nav": {
+                "missionControl": "任务控制中心",
+                "properties": "房产资产",
+                "tickets": "工单管理",
+                "workers": "工人目录",
+                "analytics": "数据分析"
+            }
+        },
+        "tickets": {
+            "title": "工单管理",
+            "subtitle": "系统级维护报修概览",
+            "columns": {
+                "id": "编号",
+                "title": "标题",
+                "category": "类别",
+                "status": "状态",
+                "assignee": "分配工人",
+                "date": "日期"
+            },
+            "unassigned": "未分配",
+            "workerId": "工人 #{{id}}",
+            "empty": "未找到工单记录。",
+            "status": {
+                "pending": "待处理",
+                "matching": "匹配中",
+                "matched": "已匹配",
+                "in_progress": "处理中",
+                "completed": "已完成",
+                "cancelled": "已取消"
+            }
+        },
+        "workers": {
+            "title": "工人目录",
+            "subtitle": "管理技师，追踪在线状态，并查看评分",
+            "columns": {
+                "worker": "工人",
+                "phone": "电话",
+                "skills": "技能",
+                "rating": "评分",
+                "jobs": "完成订单",
+                "status": "状态"
+            },
+            "id": "编号: {{id}}",
+            "na": "暂无",
+            "available": "在线",
+            "offline": "离线",
+            "empty": "未找到工人记录。"
+        },
+        "properties": {
+            "title": "房产资产组合",
+            "subtitle": "三亚地区房产概览",
+            "add": "+ 添加房产",
+            "metrics": {
+                "totalProps": "房产总数",
+                "totalUnits": "单元总数",
+                "activeAlerts": "活跃警报"
+            },
+            "columns": {
+                "id": "编号",
+                "name": "名称",
+                "units": "单元总数",
+                "status": "状态",
+                "alerts": "警报",
+                "inspected": "上次检查"
+            },
+            "warnings": "{{count}} 个警告",
+            "clear": "正常"
+        }
     }
 }

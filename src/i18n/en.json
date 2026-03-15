@@ -381,7 +381,7 @@
     "showcase": {
         "badge": "Production-Ready • 9.5/10 Rating",
         "heroTitle": "Your Home, Intelligently Maintained.",
-        "heroSubtitle": "A full-stack AI-powered home maintenance platform built with React 19, Node.js, Google Gemini, and Stripe. Enterprise-grade security, 200+ tests, and stunning mobile-first design.",
+        "heroSubtitle": "The full-stack AI platform for property management and technician empowerment. Gemini-powered vision, geo-fenced matching, and omnichannel routing.",
         "ctaTryDemo": "Try the Demo",
         "ctaGithub": "View on GitHub",
         "scrollHint": "Scroll to explore",
@@ -389,17 +389,17 @@
         "featuresTitle": "Everything you need,",
         "featuresTitleHighlight": "nothing you don't.",
         "feature1Title": "AI Vision Diagnosis",
-        "feature1Desc": "Point your camera at any home issue — AI identifies the problem, severity, and repair strategy in seconds.",
-        "feature2Title": "Smart Worker Matching",
-        "feature2Desc": "Our algorithm matches you with the best-rated, closest worker based on skill, availability, and reviews.",
-        "feature3Title": "Real-time Chat & Booking",
-        "feature3Desc": "Chat directly with workers via WebSocket, schedule appointments, and track everything in real-time.",
-        "feature4Title": "Enterprise Security",
-        "feature4Desc": "httpOnly JWT cookies, CSRF protection, refresh token rotation, and strict rate limiting across all endpoints.",
-        "feature5Title": "Full Observability",
-        "feature5Desc": "Sentry error tracking, Mixpanel analytics, AI cost budgeting — every metric tracked and alerted.",
-        "feature6Title": "Stripe Payments",
-        "feature6Desc": "End-to-end payment funnel with Stripe Checkout, subscription support, and revenue analytics.",
+        "feature1Desc": "Deep Gemini integration — identifying leaks and hazards in milliseconds with automated repair strategies.",
+        "feature2Title": "Geo-Fence Matching",
+        "feature2Desc": "Optimized for Sanya's complex districts — real-time matching based on proximity, rating, and specialized skills.",
+        "feature3Title": "Worker Empowerment",
+        "feature3Desc": "Dedicated toolset for technicians — AI-generated checklists and time estimates to ensure first-time fix accuracy.",
+        "feature4Title": "Omnichannel Routing",
+        "feature4Desc": "Powered by OpenClaw — automatically converting multi-channel reports into actionable maintenance tickets.",
+        "feature5Title": "Management Dashboard",
+        "feature5Desc": "Real-time observability with Sentry & Mixpanel — track job flow, worker performance, and maintenance costs.",
+        "feature6Title": "Stripe Secured Payments",
+        "feature6Desc": "End-to-end payment funnel — split-payments, escrow support, and detailed financial reporting for all repairs.",
         "demoLabel": "Live Demo",
         "demoTitle": "See it",
         "demoTitleHighlight": "in action.",
@@ -407,9 +407,12 @@
             "dashboard": "Dashboard",
             "welcome": "Welcome",
             "login": "Login",
-            "diagnosis": "Diagnosis",
+            "diagnosis": "AI Diagnosis",
             "community": "Community",
-            "calendar": "Calendar"
+            "calendar": "Calendar",
+            "workerPortal": "Worker Portal",
+            "registration": "Registration",
+            "enterprise": "Enterprise Platform"
         },
         "techLabel": "Tech Stack",
         "techTitle": "Built with",
@@ -448,5 +451,80 @@
             "body": "Over 6 months since last plumbing check. Suggest running quick drainage diagnostic."
         },
         "action": "View Now"
+    },
+    "enterprise": {
+        "layout": {
+            "title": "Hasiki Enterprise",
+            "subtitle": "Property Management AI",
+            "systemOnline": "System Online",
+            "agentsActive": "Agents Active",
+            "nav": {
+                "missionControl": "Mission Control",
+                "properties": "Properties",
+                "tickets": "Tickets",
+                "workers": "Workers",
+                "analytics": "Analytics"
+            }
+        },
+        "tickets": {
+            "title": "Ticket Management",
+            "subtitle": "System-wide maintenance reports",
+            "columns": {
+                "id": "ID",
+                "title": "Title",
+                "category": "Category",
+                "status": "Status",
+                "assignee": "Worker Assignee",
+                "date": "Date"
+            },
+            "unassigned": "Unassigned",
+            "workerId": "Worker #{{id}}",
+            "empty": "No tickets found.",
+            "status": {
+                "pending": "PENDING",
+                "matching": "MATCHING",
+                "matched": "MATCHED",
+                "in_progress": "IN PROGRESS",
+                "completed": "COMPLETED",
+                "cancelled": "CANCELLED"
+            }
+        },
+        "workers": {
+            "title": "Worker Directory",
+            "subtitle": "Manage technicians, track availability, and view ratings",
+            "columns": {
+                "worker": "Worker",
+                "phone": "Phone",
+                "skills": "Skills",
+                "rating": "Rating",
+                "jobs": "Jobs Completed",
+                "status": "Status"
+            },
+            "id": "ID: {{id}}",
+            "na": "N/A",
+            "available": "Available",
+            "offline": "Offline",
+            "empty": "No workers found."
+        },
+        "properties": {
+            "title": "Properties Portfolio",
+            "subtitle": "Sanya Region Properties Overview",
+            "add": "+ Add Property",
+            "metrics": {
+                "totalProps": "Total Properties",
+                "totalUnits": "Total Units",
+                "activeAlerts": "Active Alerts"
+            },
+            "columns": {
+                "id": "ID",
+                "name": "Name",
+                "units": "Total Units",
+                "status": "Status",
+                "alerts": "Alerts",
+                "inspected": "Last Inspected"
+            },
+            "warnings": "{{count}} Warnings",
+            "clear": "Clear"
+        }
     }
 }

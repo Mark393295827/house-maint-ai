@@ -16,19 +16,25 @@ const router = express.Router();
  */
 router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
     try {
-        const { skill, available } = req.query;
-        const isAvailable = available ? parseInt(available as string) : 1;
+        const { skill, available, all } = req.query;
+        const fetchAll = all === 'true' && (req.user && (req.user.role === 'admin' || req.user.role === 'manager'));
 
         let query = `
             SELECT w.*, u.name, u.phone, u.avatar
             FROM workers w
             JOIN users u ON w.user_id = u.id
-            WHERE w.available = $1
+            WHERE 1=1
         `;
-        const params: unknown[] = [isAvailable];
+        const params: unknown[] = [];
+
+        if (!fetchAll) {
+            const isAvailable = available ? parseInt(available as string) : 1;
+            query += ` AND w.available = $${params.length + 1}`;
+            params.push(isAvailable);
+        }
 
         if (skill) {
-            query += ` AND w.skills LIKE $2`;
+            query += ` AND w.skills LIKE $${params.length + 1}`;
             params.push(`%${skill}%`);
         }
 

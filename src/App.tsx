@@ -33,6 +33,7 @@ const WorkerDashboardPage = lazy(() => import('./pages/WorkerDashboardPage'));
 const WorkerJobPage = lazy(() => import('./pages/WorkerJobPage'));
 const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
 const WorkerRegistrationPage = lazy(() => import('./pages/WorkerRegistrationPage'));
+const WorkerDirectoryPage = lazy(() => import('./pages/WorkerDirectoryPage'));
 const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
 const JobReviewPage = lazy(() => import('./pages/JobReviewPage'));
 const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
@@ -107,6 +108,11 @@ function App() {
                     <Route path="/worker/register" element={
                       <ProtectedRoute>
                         <WorkerRegistrationPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/workers" element={
+                      <ProtectedRoute>
+                        <WorkerDirectoryPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/repair/:id" element={

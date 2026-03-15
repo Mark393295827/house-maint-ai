@@ -1,4 +1,4 @@
-# House Maint AI — AI-Powered Home Maintenance for China (WeChat Native)
+# House Maint AI — AI-Powered Home Maintenance for China (WeChat Native & Enterprise)
 
 > **"Like Quaala & Servwizee, but built exclusively for the Chinese WeChat ecosystem."**
 > Transforming residential maintenance triage with AI Vision, native WeChat mini-programs, and automated local worker (师傅) dispatch.
@@ -29,6 +29,23 @@ For Property Managers (物业) and Large-scale Landlords (二房东).
 For local freelance repair workers (师傅).
 *   **Worker Flow:** Workers receive structured, pre-diagnosed leads via WeChat push notifications. No app download required. 1-click to accept the job.
 *   **Value:** Eliminates the "free estimate truck roll." Connects qualified workers with high-intent jobs for a 10-15% commission via WeChat Pay.
+
+### 3. Enterprise: Mission Control Dashboard
+For Large Property Management Firms.
+*   **Mission Control:** Real-time observability of system-wide maintenance flow, AI token costs, and 4D strategy health.
+*   **Asset Management:** Portfolio-wide view of property units, technician availability, and ticket lifecycle.
+*   **Value:** Provides a centralized "War Room" for operations. Optimizes technician utilization across Sanya's coastal regions.
+
+---
+
+## 🌏 Internationalization (i18n)
+
+Full bilingual support (**English & Simplified Chinese**) across all platforms:
+- **User Dashboard:** Seamless language switching for homeowners and tenants.
+- **Worker Portal:** Localization for diverse technician teams.
+- **Enterprise Dashboard:** Professional reporting in both languages.
+
+---
 
 ---
 
@@ -81,6 +98,8 @@ npm run dev
 
 - `server/routes/wechat.ts`: Mini-program login and Official Account webhook handlers.
 - `server/routes/payments.ts`: WeChat Pay callback integration.
+- `server/routes/reports.ts`: System-wide ticket management for Enterprise users.
+- `src/pages/EnterprisePlaceholders.tsx`: The functional hub for Properties, Workers, and Analytics.
 - `server/services/pipl.ts`: Data anonymization and retention policies.
 
 *Refer to [ARCHITECTURE.md](./ARCHITECTURE.md) and [COMPETITIVE_ANALYSIS.md](./COMPETITIVE_ANALYSIS.md) for deep dives into the business model.*

@@ -7,6 +7,12 @@ import BottomNav from '../components/BottomNav';
 
 const CATEGORIES = ['plumbing', 'electrical', 'hvac', 'painting', 'carpentry', 'roofing', 'flooring', 'appliance'];
 
+const CATEGORY_LABELS: Record<string, string> = {
+    plumbing: '水工', electrical: '电工', hvac: '空调',
+    painting: '油漆', carpentry: '木工', roofing: '屋顶',
+    flooring: '地板', appliance: '家电',
+};
+
 const WorkerDirectoryPage: React.FC = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
@@ -75,7 +81,7 @@ const WorkerDirectoryPage: React.FC = () => {
                             className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${selectedCategory === cat ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark'
                                 }`}
                         >
-                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            {CATEGORY_LABELS[cat] || cat.charAt(0).toUpperCase() + cat.slice(1)}
                         </button>
                     ))}
                 </div>
@@ -109,7 +115,7 @@ const WorkerDirectoryPage: React.FC = () => {
                                     }}
                                 >
                                     <button
-                                        onClick={() => navigate(`/match?category=${selectedCategory}`)}
+                                        onClick={() => navigate(`/worker/job/${worker.id}`)}
                                         className="bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 text-left w-full hover:shadow-md transition-all h-full"
                                     >
                                         <div className="flex items-start gap-3">

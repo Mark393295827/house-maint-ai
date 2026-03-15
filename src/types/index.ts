@@ -22,6 +22,7 @@ export interface Worker {
     id: number;
     user_id: number;
     name: string;
+    phone?: string;
     avatar?: string | null;
     skills: string[];
     rating: number;

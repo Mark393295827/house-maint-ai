@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getAvailableOrders, getMyWorkerJobs, acceptJob, getWorkerDashboard } from '../services/api';
+import { getAvailableOrders, getMyWorkerJobs, acceptJob, getWorkerDashboard, updateWorkerAvailability } from '../services/api';
+import type { AvailableOrder, WorkerJob, WorkerDashboardStats } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 /* ─── Category helpers ─── */
@@ -59,10 +60,11 @@ const WorkerDashboardPage: React.FC = () => {
     const { user } = useAuth();
     const [tab, setTab] = useState<TabType>('available');
     const [available, setAvailable] = useState(true);
-    const [orders, setOrders] = useState<any[]>([]);
-    const [myJobs, setMyJobs] = useState<any[]>([]);
+    const [orders, setOrders] = useState<AvailableOrder[]>([]);
+    const [myJobs, setMyJobs] = useState<WorkerJob[]>([]);
     const [loading, setLoading] = useState(true);
     const [accepting, setAccepting] = useState<string | null>(null);
+    const [workerId, setWorkerId] = useState<number | null>(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -70,13 +72,17 @@ const WorkerDashboardPage: React.FC = () => {
             const [ordersRes, jobsRes, dashboardRes] = await Promise.all([
                 getAvailableOrders(),
                 getMyWorkerJobs(),
-                getWorkerDashboard().catch(() => ({ stats: null })) // Fallback if no profile yet
+                getWorkerDashboard().catch(() => ({ stats: null, worker: null })) // Fallback if no profile yet
             ]);
             setOrders(ordersRes.orders || []);
             setMyJobs(jobsRes.jobs || []);
             
             if (dashboardRes.stats) {
                 setStats(dashboardRes.stats);
+            }
+            if (dashboardRes.worker) {
+                setWorkerId(dashboardRes.worker.id);
+                setAvailable(!!dashboardRes.worker.available);
             }
         } catch (err) {
             console.error('Failed to fetch worker data:', err);
@@ -106,12 +112,25 @@ const WorkerDashboardPage: React.FC = () => {
         }
     };
 
-    const [stats, setStats] = useState<any>({
+    const [stats, setStats] = useState<WorkerDashboardStats>({
         earnings: 0,
         jobsCompleted: 0,
         rating: 5.0,
         activeJobs: 0
     });
+
+    const handleToggleAvailability = async () => {
+        const newAvailable = !available;
+        setAvailable(newAvailable);
+        if (workerId) {
+            try {
+                await updateWorkerAvailability(workerId, newAvailable);
+            } catch (err) {
+                console.error('Failed to update availability:', err);
+                setAvailable(!newAvailable); // Revert on error
+            }
+        }
+    };
 
     const activeJobs = myJobs.filter(j => j.status === 'in_progress' || j.status === 'matched');
     
@@ -140,7 +159,7 @@ const WorkerDashboardPage: React.FC = () => {
                         </div>
                     </div>
                     <button
-                        onClick={() => setAvailable(!available)}
+                        onClick={handleToggleAvailability}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 font-telemetry ${available
                             ? 'text-data-green border border-data-green/30'
                             : 'text-racing-red border border-racing-red/30'

@@ -1,18 +1,20 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface LayoutProps {
     children: React.ReactNode;
 }
 
 const EnterpriseLayout: React.FC<LayoutProps> = ({ children }) => {
+    const { t } = useLanguage();
 
     const navItems = [
-        { to: '/enterprise', end: true, icon: '📊', label: 'Mission Control' },
-        { to: '/enterprise/properties', icon: '🏢', label: 'Properties' },
-        { to: '/enterprise/tickets', icon: '🎫', label: 'Tickets' },
-        { to: '/enterprise/workers', icon: '👷', label: 'Workers' },
-        { to: '/enterprise/analytics', icon: '📈', label: 'Analytics' },
+        { to: '/enterprise', end: true, icon: '📊', label: t('enterprise.layout.nav.missionControl') },
+        { to: '/enterprise/properties', icon: '🏢', label: t('enterprise.layout.nav.properties') },
+        { to: '/enterprise/tickets', icon: '🎫', label: t('enterprise.layout.nav.tickets') },
+        { to: '/enterprise/workers', icon: '👷', label: t('enterprise.layout.nav.workers') },
+        { to: '/enterprise/analytics', icon: '📈', label: t('enterprise.layout.nav.analytics') },
     ];
 
     return (
@@ -24,15 +26,15 @@ const EnterpriseLayout: React.FC<LayoutProps> = ({ children }) => {
                         <span className="text-white font-bold text-sm">H</span>
                     </div>
                     <div>
-                        <h1 className="text-sm font-bold text-gray-200 font-display">Hasiki Enterprise</h1>
-                        <p className="text-[10px] text-gray-500 font-mono">Property Management AI</p>
+                        <h1 className="text-sm font-bold text-gray-200 font-display">{t('enterprise.layout.title')}</h1>
+                        <p className="text-[10px] text-gray-500 font-mono">{t('enterprise.layout.subtitle')}</p>
                     </div>
                 </div>
                 <div className="flex-1" />
                 <div className="flex items-center gap-3">
                     <div className="live-dot" />
                     <span className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">
-                        System Online
+                        {t('enterprise.layout.systemOnline')}
                     </span>
                 </div>
             </header>
@@ -61,7 +63,7 @@ const EnterpriseLayout: React.FC<LayoutProps> = ({ children }) => {
 
                     {/* Bottom: Agent Status Summary */}
                     <div className="p-4 border-t border-gray-800">
-                        <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Agents Active</div>
+                        <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">{t('enterprise.layout.agentsActive')}</div>
                         <div className="flex items-center gap-2">
                             <div className="flex -space-x-1">
                                 {[1, 2, 3, 4, 5].map((i) => (

@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
+import { registerWorker } from '../services/api';
 
 const SKILL_OPTIONS = [
     'plumbing', 'electrical', 'hvac', 'painting', 'carpentry',
     'roofing', 'flooring', 'appliance', 'landscaping', 'general',
 ];
+
+const SKILL_LABELS: Record<string, string> = {
+    plumbing: '水工/管道', electrical: '电工/电路', hvac: '空调/暖通',
+    painting: '墙面/油漆', carpentry: '木工/家具', roofing: '屋顶维修',
+    flooring: '地板铺设', appliance: '家电维修', landscaping: '绿化/园艺',
+    general: '通用维修',
+};
 
 const WorkerRegistrationPage: React.FC = () => {
     const { t } = useLanguage();
@@ -29,15 +37,20 @@ const WorkerRegistrationPage: React.FC = () => {
         }));
     };
 
+    const [submitError, setSubmitError] = useState('');
+
     const handleSubmit = async () => {
         setSubmitting(true);
+        setSubmitError('');
         try {
-            // Would call POST /api/worker-portal/register
-            // For now, navigate to dashboard
-            setTimeout(() => {
-                navigate('/worker-portal');
-            }, 1000);
-        } catch {
+            await registerWorker({
+                skills: form.skills,
+                bio: form.bio || undefined,
+                hourlyRate: form.hourlyRate ? parseFloat(form.hourlyRate) : undefined,
+            });
+            navigate('/worker/dashboard');
+        } catch (err: any) {
+            setSubmitError(err.message || '注册失败，请稍后重试');
             setSubmitting(false);
         }
     };
@@ -69,6 +82,12 @@ const WorkerRegistrationPage: React.FC = () => {
             </div>
 
             <main className="flex-1 px-6 py-6">
+                {submitError && (
+                    <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-medium flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm">error</span>
+                        {submitError}
+                    </div>
+                )}
                 {/* Step 1: Skills */}
                 {step === 1 && (
                     <div className="page-enter">
@@ -88,7 +107,7 @@ const WorkerRegistrationPage: React.FC = () => {
                                             : 'bg-gray-100 dark:bg-gray-800 text-text-main-light dark:text-text-main-dark'
                                         }`}
                                 >
-                                    {skill.charAt(0).toUpperCase() + skill.slice(1)}
+                                    {SKILL_LABELS[skill] || skill.charAt(0).toUpperCase() + skill.slice(1)}
                                 </button>
                             ))}
                         </div>
@@ -103,7 +122,7 @@ const WorkerRegistrationPage: React.FC = () => {
                                 {t('workerPortal.register.rate')}
                             </label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub-light dark:text-text-sub-dark">$</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub-light dark:text-text-sub-dark">¥</span>
                                 <input
                                     type="number"
                                     value={form.hourlyRate}
@@ -111,7 +130,7 @@ const WorkerRegistrationPage: React.FC = () => {
                                     placeholder="50"
                                     className="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-8 py-3 text-text-main-light dark:text-text-main-dark focus:outline-none focus:ring-2 focus:ring-primary/30"
                                 />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-text-sub-light dark:text-text-sub-dark">/hr</span>
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-text-sub-light dark:text-text-sub-dark">/小时</span>
                             </div>
                         </div>
                         <div>

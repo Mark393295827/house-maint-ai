@@ -244,12 +244,14 @@ export async function deleteReport(id: number | string): Promise<{ message: stri
 // ============ Workers API ============
 
 /**
- * Get all available workers
+ * Get all available workers (pass all=true to get unavailable ones if admin)
  */
-export async function getWorkers(skill?: string): Promise<WorkersResponse> {
-    let url = '/workers';
-    if (skill) url += `?skill=${skill}`;
-    return fetchAPI<WorkersResponse>(url);
+export async function getWorkers(skill?: string, all?: boolean): Promise<WorkersResponse> {
+    const params = new URLSearchParams();
+    if (skill) params.set('skill', skill);
+    if (all) params.set('all', 'true');
+    const qs = params.toString();
+    return fetchAPI<WorkersResponse>(`/workers${qs ? `?${qs}` : ''}`);
 }
 
 /**
@@ -465,29 +467,72 @@ export async function submitReview(data: {
 
 // ============ Worker Dashboard API ============
 
+/** Order available for workers to accept */
+export interface AvailableOrder {
+    id: number;
+    title: string;
+    description: string;
+    category: string;
+    urgency_score: number;
+    distance_km: number | null;
+    user_name: string;
+    created_at: string;
+    latitude?: number;
+    longitude?: number;
+}
+
+/** Job assigned to current worker */
+export interface WorkerJob {
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+    user_name: string;
+    client_avatar?: string;
+    category?: string;
+    created_at: string;
+}
+
+/** Worker dashboard statistics */
+export interface WorkerDashboardStats {
+    earnings: number;
+    jobsCompleted: number;
+    activeJobs: number;
+    rating: number;
+}
+
+export interface WorkerDashboardResponse {
+    worker: Worker;
+    stats: WorkerDashboardStats;
+}
+
+export interface WorkerRegistrationResponse {
+    worker: { user_id: number; skills: string[]; id?: number };
+}
+
 /**
  * Get available orders for workers (with distance from worker's position)
  */
-export async function getAvailableOrders(latitude?: number, longitude?: number): Promise<{ orders: any[] }> {
+export async function getAvailableOrders(latitude?: number, longitude?: number): Promise<{ orders: AvailableOrder[] }> {
     const params = new URLSearchParams();
     if (latitude) params.set('latitude', String(latitude));
     if (longitude) params.set('longitude', String(longitude));
     const qs = params.toString();
-    return fetchAPI<{ orders: any[] }>(`/reports/available${qs ? `?${qs}` : ''}`);
+    return fetchAPI<{ orders: AvailableOrder[] }>(`/reports/available${qs ? `?${qs}` : ''}`);
 }
 
 /**
  * Get jobs assigned to the current worker
  */
-export async function getMyWorkerJobs(): Promise<{ jobs: any[] }> {
-    return fetchAPI<{ jobs: any[] }>('/reports/my-jobs');
+export async function getMyWorkerJobs(): Promise<{ jobs: WorkerJob[] }> {
+    return fetchAPI<{ jobs: WorkerJob[] }>('/reports/my-jobs');
 }
 
 /**
  * Register as a worker (creates worker profile)
  */
-export async function registerWorker(data: { skills: string[]; bio?: string; hourlyRate?: number }): Promise<any> {
-    return fetchAPI<any>('/worker-portal/register', {
+export async function registerWorker(data: { skills: string[]; bio?: string; hourlyRate?: number }): Promise<WorkerRegistrationResponse> {
+    return fetchAPI<WorkerRegistrationResponse>('/worker-portal/register', {
         method: 'POST',
         body: JSON.stringify(data),
     });
@@ -496,8 +541,18 @@ export async function registerWorker(data: { skills: string[]; bio?: string; hou
 /**
  * Get worker dashboard stats
  */
-export async function getWorkerDashboard(): Promise<any> {
-    return fetchAPI<any>('/worker-portal/dashboard');
+export async function getWorkerDashboard(): Promise<WorkerDashboardResponse> {
+    return fetchAPI<WorkerDashboardResponse>('/worker-portal/dashboard');
+}
+
+/**
+ * Toggle worker availability
+ */
+export async function updateWorkerAvailability(workerId: number | string, available: boolean): Promise<{ message: string }> {
+    return fetchAPI<{ message: string }>(`/workers/${workerId}/availability`, {
+        method: 'PUT',
+        body: JSON.stringify({ available }),
+    });
 }
 
 /**
@@ -628,4 +683,5 @@ export default {
     submitReview,
     registerWorker,
     getWorkerDashboard,
+    updateWorkerAvailability,
 };
