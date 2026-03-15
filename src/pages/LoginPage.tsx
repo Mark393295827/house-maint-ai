@@ -38,7 +38,7 @@ const LoginPage = () => {
             setFormError(t('login.error.invalidPhone'));
             return;
         }
-        if (password.length < 6) {
+        if (password.length < 8) {
             setFormError(t('login.error.passwordShort'));
             return;
         }
@@ -137,7 +137,7 @@ const LoginPage = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="w-full h-12 pl-4 pr-12 bg-white/50 border border-black/5 rounded-xl text-[14px] font-bold focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10 transition-all"
-                                        placeholder="Min 6 characters"
+                                        placeholder="Min 8 characters"
                                     />
                                     <button
                                         type="button"

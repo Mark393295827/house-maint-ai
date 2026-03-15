@@ -1,13 +1,16 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { getActiveCaseCount } from '../store/cases';
+import { useReports } from '../hooks/useReports';
 
 const BottomNav = () => {
     const { locale } = useLanguage();
     const location = useLocation();
     const currentPath = location.pathname;
-    const activeBadge = getActiveCaseCount();
+    
+    const { data: reportsData } = useReports();
+    const reports = reportsData?.reports || [];
+    const activeBadge = reports.filter(r => r.status !== 'completed' && r.status !== 'cancelled').length;
 
     const navItems = [
         { path: '/', icon: 'home', label: locale === 'zh' ? '首页' : 'Home' },

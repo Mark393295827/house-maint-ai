@@ -37,6 +37,7 @@ const WorkerDirectoryPage = lazy(() => import('./pages/WorkerDirectoryPage'));
 const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
 const JobReviewPage = lazy(() => import('./pages/JobReviewPage'));
 const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
+const AssetsPage = lazy(() => import('./pages/AssetsPage'));
 
 function App() {
   useEffect(() => {
@@ -86,6 +87,11 @@ function App() {
                     <Route path="/notifications" element={
                       <ProtectedRoute>
                         <NotificationsPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/assets" element={
+                      <ProtectedRoute>
+                        <AssetsPage />
                       </ProtectedRoute>
                     } />
 

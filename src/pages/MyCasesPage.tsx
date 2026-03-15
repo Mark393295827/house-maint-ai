@@ -3,7 +3,8 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import BottomNav from '../components/BottomNav';
-import { getCases, type CaseRecord } from '../store/cases';
+import { useReports } from '../hooks/useReports';
+import type { Report as AppReport } from '../types';
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; label: string; labelZh: string }> = {
     critical: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', label: 'Critical', labelZh: '严重' },
@@ -12,7 +13,7 @@ const SEVERITY_CONFIG: Record<string, { bg: string; text: string; label: string;
 };
 
 /* Icon lookup by category */
-const catIcon = (c: CaseRecord) => {
+const catIcon = (c: { category?: string }) => {
     const map: Record<string, string> = { plumbing: 'plumbing', hvac: 'ac_unit', structural: 'foundation', electrical: 'bolt' };
     return map[(c.category || '').toLowerCase()] || 'build';
 };
@@ -23,13 +24,35 @@ const MyCasesPage = () => {
     const [tab, setTab] = useState<'active' | 'archived'>('active');
     const [search, setSearch] = useState('');
 
-    const allCases = getCases();
-    const filtered = allCases.filter(c =>
+    const { data: reportsData, isLoading: loadingReports } = useReports();
+    const reports = reportsData?.reports || [];
+
+    const mappedCases = reports.map((r: AppReport) => {
+        const isArchived = r.status === 'completed' || r.status === 'cancelled';
+        const step = r.status === 'pending' ? 1 : r.status === 'matching' ? 2 : r.status === 'matched' ? 3 : r.status === 'in_progress' ? 5 : 8;
+        return {
+            id: r.id,
+            title: r.title,
+            titleEn: r.title, // Backend might not have separate en title yet
+            status: isArchived ? 'archived' : 'active',
+            reportStatus: r.status,
+            step,
+            severity: (r as any).severity || 'moderate',
+            date: new Date(r.created_at).toISOString().split('T')[0],
+            category: r.category,
+            rootCause: (r as any).rootCause, // Might be in metadata
+        };
+    });
+
+    const filtered = mappedCases.filter(c =>
         c.status === tab &&
         (search === '' ||
             c.title.includes(search) ||
-            c.titleEn.toLowerCase().includes(search.toLowerCase()))
+            c.title.toLowerCase().includes(search.toLowerCase()))
     );
+
+    const activeCount = mappedCases.filter(c => c.status === 'active').length;
+    const archivedCount = mappedCases.filter(c => c.status === 'archived').length;
 
     const zh = locale === 'zh';
 
@@ -80,7 +103,7 @@ const MyCasesPage = () => {
                         >
                             {t === 'active' ? (zh ? '进行中' : 'Active') : (zh ? '已完成' : 'Archived')}
                             <span className="ml-1 text-xs opacity-70">
-                                ({allCases.filter(c => c.status === t).length})
+                                ({t === 'active' ? activeCount : archivedCount})
                             </span>
                         </button>
                     ))}
@@ -89,7 +112,11 @@ const MyCasesPage = () => {
 
             {/* Case list */}
             <div className="px-5" ref={parentRef} style={{ height: 'calc(100vh - 200px)', overflowY: 'auto' }}>
-                {filtered.length === 0 ? (
+                {loadingReports ? (
+                    <div className="flex flex-col items-center justify-center py-16">
+                        <div className="w-8 h-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
+                    </div>
+                ) : filtered.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 py-16 text-gray-400">
                         <span className="material-symbols-outlined text-5xl">folder_open</span>
                         <p className="text-sm">{zh ? '暂无案例' : 'No cases yet'}</p>

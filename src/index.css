@@ -28,6 +28,30 @@
   --font-family-sans: "SF Pro Display", "SF Pro Text", "Inter", -apple-system, system-ui, sans-serif;
   --font-family-display: "Outfit", "Noto Sans SC", system-ui, -apple-system, sans-serif;
   --font-family-mono: "JetBrains Mono", "Menlo", "Consolas", monospace;
+
+  /* ─── Tailwind v4 Colors ─── */
+  --color-primary: #2bb673;
+  --color-primary-dark: #23945d;
+  --color-background-light: #f6f8f7;
+  --color-background-dark: #131f19;
+  --color-surface-light: #ffffff;
+  --color-surface-dark: #1c2e25;
+  --color-text-main-light: #0f1a15;
+  --color-text-main-dark: #e0e7e3;
+  --color-text-sub-light: #568f74;
+  --color-text-sub-dark: #8abfab;
+
+  /* ─── Action Colors ─── */
+  --color-action-primary: #007AFF;
+  --color-action-primary-dark: #0056B3;
+  --color-action-warning: #FF9500;
+  --color-action-warning-dark: #CC7700;
+  --color-success: #34C759;
+  --color-danger: #FF3B30;
+
+  /* ─── Border Radius ─── */
+  --radius-xl: 1.5rem;
+  --radius-2xl: 1.25rem;
 }
 
 @layer base {

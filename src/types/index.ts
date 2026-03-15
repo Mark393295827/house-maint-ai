@@ -56,6 +56,7 @@ export interface Report {
     matched_worker_id?: number;
     latitude?: number;
     longitude?: number;
+    urgency_score?: number;
     created_at: string;
     updated_at?: string;
     // Computed / optional join fields

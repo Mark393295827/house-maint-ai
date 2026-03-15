@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { addCase, generateCaseId, type CaseRecord } from '../../store/cases';
+import { useCreateReport } from '../../hooks/useReports';
 import Analytics from '../../services/analytics';
 
 // Phase Components
@@ -34,42 +34,51 @@ const DiagnosisWizard: React.FC = () => {
         setPhase('dispatch');
     }, []);
 
+    const createReportMutation = useCreateReport();
+
     /* ─── Dispatch confirmation → Feedback ─── */
-    const handleDispatch = useCallback((worker: any) => {
+    const handleDispatch = useCallback(async (worker: any) => {
         sessionStorage.setItem('selectedWorker', JSON.stringify(worker));
 
-        const newCaseId = generateCaseId();
-        const newCase: CaseRecord = {
-            id: newCaseId,
-            title: demandData?.scope?.slice(0, 20) || (locale === 'zh' ? '新诊断' : 'New Diagnosis'),
-            titleEn: demandData?.scope?.slice(0, 20) || 'New Diagnosis',
-            status: 'active',
-            step: 2,
-            severity: (demandData?.severity as any) || 'moderate',
-            date: new Date().toISOString().split('T')[0],
-            category: demandData?.projectType || 'other',
-            rootCause: demandData?.scope || '',
-            solution: '',
-        };
-        addCase(newCase);
-        setCaseId(newCaseId);
-        Analytics.track('inquiry_dispatched', { caseId: newCaseId, category: demandData?.projectType, severity: demandData?.severity });
+        // Logic mapping: critical -> 10, moderate -> 6 (changed from 7), low -> 3 (changed from 4)
+        const urgencyScore = demandData?.severity === 'critical' ? 10 : demandData?.severity === 'moderate' ? 6 : 3;
+        
+        try {
+            const result = await createReportMutation.mutateAsync({
+                title: demandData?.scope?.slice(0, 30) || (locale === 'zh' ? '新诊断' : 'New Diagnosis'),
+                description: demandData?.scope || '',
+                category: (['plumbing', 'electrical', 'appliance', 'carpentry', 'painting'].includes(demandData?.projectType || '') ? demandData?.projectType : 'other') as any,
+                image_urls: imageUrl ? [imageUrl] : [],
+                urgency_score: urgencyScore,
+            });
 
-        // Save inquiry metrics to localStorage for the dashboard
-        const metrics = JSON.parse(localStorage.getItem('inquiry_metrics') || '[]');
-        metrics.push({
-            caseId: newCaseId,
-            projectType: demandData?.projectType,
-            area: demandData?.area,
-            severity: demandData?.severity,
-            hasPhoto: demandData?.hasPhoto || false,
-            timestamp: new Date().toISOString(),
-        });
-        localStorage.setItem('inquiry_metrics', JSON.stringify(metrics));
+            const newCaseId = String(result.report.id);
+            setCaseId(newCaseId);
+            
+            Analytics.track('inquiry_dispatched', { 
+                caseId: newCaseId, 
+                category: demandData?.projectType, 
+                severity: demandData?.severity 
+            });
 
-        // Show feedback modal
-        setPhase('feedback');
-    }, [demandData, locale]);
+            // Save inquiry metrics to localStorage for secondary analytics
+            const metrics = JSON.parse(localStorage.getItem('inquiry_metrics') || '[]');
+            metrics.push({
+                caseId: newCaseId,
+                projectType: demandData?.projectType,
+                area: demandData?.area,
+                severity: demandData?.severity,
+                hasPhoto: !!imageUrl,
+                timestamp: new Date().toISOString(),
+            });
+            localStorage.setItem('inquiry_metrics', JSON.stringify(metrics));
+
+            setPhase('feedback');
+        } catch (err) {
+            console.error('Failed to create report:', err);
+            // Optionally handle error UI
+        }
+    }, [demandData, locale, imageUrl, createReportMutation]);
 
     /* ─── Feedback close → Navigate away ─── */
     const handleFeedbackClose = useCallback(() => {
@@ -95,6 +104,7 @@ const DiagnosisWizard: React.FC = () => {
         severity: demandData.severity,
         estimated_cost: demandData.budget,
         description: demandData.scope,
+        imageUrl: imageUrl,
     } : null;
 
     return (
@@ -127,7 +137,6 @@ const DiagnosisWizard: React.FC = () => {
                     <StepDispatch
                         diagnosis={diagnosisCompat}
                         locale={locale}
-                        imageUrl={imageUrl || ''}
                         onDispatch={handleDispatch}
                     />
                 )}

@@ -135,6 +135,7 @@ const ProfilePage = () => {
             <SettingsSection
                 darkMode={darkMode}
                 onToggleDarkMode={toggleDarkMode}
+                onManageAssets={() => navigate('/assets')}
             />
 
             <SupportSection />

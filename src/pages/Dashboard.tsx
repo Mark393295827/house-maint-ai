@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import BottomNav from '../components/BottomNav';
 import { useState, useEffect, useRef } from 'react';
-import { getCases, getActiveCases, getArchivedCases } from '../store/cases';
+import { useReports } from '../hooks/useReports';
+import type { Report as AppReport } from '../types';
 import { getInsights, ProactiveInsight } from '../store/proactive';
 
 function useCountUp(target: number, duration = 650) {
@@ -26,14 +27,19 @@ const Dashboard = () => {
     const { t, locale } = useLanguage();
     const navigate = useNavigate();
 
-    /* ─── Shared store ─── */
-    const allCases = getCases();
-    const activeCaseData = getActiveCases();
-    const archivedCount = getArchivedCases().length;
-    const monthCount = allCases.filter(c => c.date?.startsWith('2026-02')).length;
+    /* ─── API Data ─── */
+    const { data: reportsData, isLoading: loadingReports } = useReports();
+    const reports = reportsData?.reports || [];
+    
+    const activeReports = reports.filter((r: AppReport) => r.status !== 'completed' && r.status !== 'cancelled');
+    const completedCount = reports.filter((r: AppReport) => r.status === 'completed').length;
+    
+    // Monthly count logic (using created_at instead of date)
+    const currentMonth = new Date().toISOString().slice(0, 7); // e.g., "2026-03"
+    const monthCount = reports.filter((r: AppReport) => r.created_at?.startsWith(currentMonth)).length;
 
-    const liveActive = useCountUp(activeCaseData.length);
-    const liveDone = useCountUp(archivedCount);
+    const liveActive = useCountUp(activeReports.length);
+    const liveDone = useCountUp(completedCount);
     const liveMth = useCountUp(monthCount);
 
     const [insights, setInsights] = useState<ProactiveInsight[]>(getInsights());
@@ -49,18 +55,23 @@ const Dashboard = () => {
     const activeInsight = insights[0];
 
     /* ─── Re-map to display format ─── */
-    const activeCases = activeCaseData.map(c => ({
-        id: c.id,
-        title: locale === 'zh' ? c.title : c.titleEn,
-        status: `Step ${c.step}/8`,
-        percentage: Math.round((c.step / 8) * 100),
-        step: c.step,
-        severity: c.severity,
-        date: c.date,
-    }));
-    const completedCases = getArchivedCases().map(c => ({
-        id: c.id, title: locale === 'zh' ? c.title : c.titleEn,
-        date: c.date, category: c.category || '',
+    const activeCases = activeReports.map((r: AppReport) => {
+        const step = r.status === 'pending' ? 1 : r.status === 'matching' ? 2 : r.status === 'matched' ? 3 : r.status === 'in_progress' ? 5 : 8;
+        return {
+            id: String(r.id),
+            title: r.title,
+            status: r.status === 'pending' ? 'Pending' : r.status === 'matching' ? 'Matching' : 'In Progress',
+            percentage: Math.round((step / 8) * 100),
+            step,
+            severity: (r as any).severity || 'moderate',
+            date: new Date(r.created_at).toISOString().split('T')[0],
+        };
+    });
+    const completedCases = reports.filter((r: AppReport) => r.status === 'completed').map((r: AppReport) => ({
+        id: String(r.id), 
+        title: r.title,
+        date: new Date(r.created_at).toISOString().split('T')[0], 
+        category: r.category || '',
     }));
     const todoItems = [
         { id: 1, text: locale === 'zh' ? '检查厨房水管密封修复效果' : 'Verify kitchen pipe seal repair', due: locale === 'zh' ? '明天' : 'Tomorrow', type: 'check' },
@@ -235,8 +246,16 @@ const Dashboard = () => {
                 </div>
                 {/* Active cases */}
                 <div className="space-y-3 mb-3">
-                    {activeCases.map(c => (
-                        <div key={c.id} className="group flex flex-col gap-3 p-4 rounded-3xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98]">
+                    {loadingReports ? (
+                        <div className="flex justify-center py-8">
+                            <div className="w-8 h-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        </div>
+                    ) : activeCases.length === 0 ? (
+                        <div className="text-center py-8 bg-white dark:bg-surface-dark rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                           <p className="text-xs text-gray-400">{locale === 'zh' ? '暂无进行中案例' : 'No active cases'}</p>
+                        </div>
+                    ) : activeCases.map(c => (
+                        <div key={String(c.id)} className="group flex flex-col gap-3 p-4 rounded-3xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98]">
                             <div className="flex items-center gap-3">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${c.severity === 'critical' ? 'bg-red-50 dark:bg-red-900/20 text-red-500' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-500'}`}>
                                     <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>

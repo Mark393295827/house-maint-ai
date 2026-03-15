@@ -4,10 +4,11 @@ import { useLanguage } from '../../i18n/LanguageContext';
 interface SettingsSectionProps {
     darkMode: boolean;
     onToggleDarkMode: () => void;
+    onManageAssets: () => void;
 }
 
-const SettingsSection: React.FC<SettingsSectionProps> = ({ darkMode, onToggleDarkMode }) => {
-    const { t } = useLanguage();
+const SettingsSection: React.FC<SettingsSectionProps> = ({ darkMode, onToggleDarkMode, onManageAssets }) => {
+    const { t, locale } = useLanguage();
 
     return (
         <div className="px-4 space-y-4">
@@ -61,6 +62,22 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ darkMode, onToggleDar
                         <span className="text-sm">中文</span>
                         <span className="material-symbols-outlined text-gray-400">chevron_right</span>
                     </div>
+                </div>
+
+                {/* My Assets */}
+                <div 
+                    className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                    onClick={onManageAssets}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-teal-600">
+                            <span className="material-symbols-outlined">inventory_2</span>
+                        </div>
+                        <div>
+                            <p className="font-bold text-text-main-light dark:text-text-main-dark">{locale === 'zh' ? '我的设备' : 'My Assets'}</p>
+                        </div>
+                    </div>
+                    <span className="material-symbols-outlined text-gray-400">chevron_right</span>
                 </div>
             </div>
         </div>

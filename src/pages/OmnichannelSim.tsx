@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import aiService from '../services/ai';
-import { addCase, generateCaseId } from '../store/cases';
+import { useCreateReport } from '../hooks/useReports';
 import { useState, useEffect, useRef } from 'react'; // Added useState, useEffect, useRef
 
 const OmnichannelSim = () => {
-    const { t, locale } = useLanguage(); // Added locale
+    const { t } = useLanguage(); // Removed locale
     const navigate = useNavigate();
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'ai' | 'system', text: string }>>([]);
@@ -52,23 +52,22 @@ const OmnichannelSim = () => {
         }
     };
 
-    const handleCreateTicket = () => {
+    const createReportMutation = useCreateReport();
+
+    const handleCreateTicket = async () => {
         if (!diagnosisResult) return;
 
-        const newCase = {
-            id: generateCaseId(),
-            title: diagnosisResult.issue_type || t('match.report.fallback'),
-            titleEn: diagnosisResult.issue_type || 'Maintenance Issue',
-            status: 'active' as const,
-            step: Math.floor(Math.random() * 3) + 1, // Random start step
-            severity: diagnosisResult.severity || 'moderate',
-            date: new Date().toISOString().split('T')[0],
-            category: diagnosisResult.issue_type,
-            rootCause: diagnosisResult.diagnosis_summary
-        };
-
-        addCase(newCase);
-        navigate('/');
+        try {
+            await createReportMutation.mutateAsync({
+                title: diagnosisResult.issue_type || t('match.report.fallback'),
+                description: diagnosisResult.diagnosis_summary || '',
+                category: (['plumbing', 'electrical', 'appliance', 'carpentry', 'painting'].includes(diagnosisResult.issue_type || '') ? diagnosisResult.issue_type : 'other') as any,
+                urgency_score: diagnosisResult.severity === 'critical' ? 10 : 5,
+            });
+            navigate('/');
+        } catch (err) {
+            console.error('Failed to create ticket via omnichannel:', err);
+        }
     };
 
     return (
