@@ -106,10 +106,14 @@ class AiService {
     }
 
     /** Active Inquiry: progressive question gathering */
-    async inquiryConversation(history: ChatMessage[], image?: string, mimeType?: string, locale?: string): Promise<AiResponse<any>> {
+    async inquiryConversation(history: ChatMessage[], image?: string, mimeType?: string, locale: string = 'zh'): Promise<AiResponse<any>> {
         try {
             return await diagnosisAgent.inquiryConversation(history, image, mimeType, locale);
-        } catch (error) { Sentry.captureException(error); throw new Error('Inquiry conversation failed'); }
+        } catch (error) {
+            console.error('DIAGNOSIS AGENT ERROR:', error);
+            Sentry.captureException(error);
+            throw new Error('Inquiry conversation failed');
+        }
     }
 
     /**

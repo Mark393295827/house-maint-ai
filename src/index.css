@@ -4,38 +4,19 @@
 @import "tailwindcss";
 
 @theme {
-  /* ─── Primary: Indigo → Cyan (trust + intelligence) ─── */
-  --color-primary: #6366f1;
-  --color-primary-light: #818cf8;
-  --color-primary-dark: #4f46e5;
-  --color-accent: #06b6d4;
-  --color-accent-warm: #f59e0b;
-
-  /* ─── F1-Inspired Racing Accents ─── */
-  --color-racing-red: #E10600;
-  --color-data-green: #00FF87;
-  --color-neon-cyan: #00F0FF;
-  --color-pit-amber: #FFB800;
-
-  /* ─── Surfaces: warm cream (light) / cockpit black (dark) ─── */
-  --color-background-light: #fafaf9;
-  --color-background-dark: #080a12;
-  --color-surface-light: #ffffff;
-  --color-surface-dark: #0f1221;
-
-  /* ─── Text: high-contrast, legible ─── */
-  --color-text-main-light: #1e1b4b;
-  --color-text-main-dark: #eef0ff;
-  --color-text-sub-light: #6b7280;
-  --color-text-sub-dark: #7c85a6;
-
-  /* ─── Semantic ─── */
-  --color-action-primary: #6366f1;
-  --color-action-primary-dark: #4f46e5;
-  --color-action-warning: #f59e0b;
-  --color-action-warning-dark: #d97706;
-  --color-success: #10b981;
-  --color-danger: #ef4444;
+  /* ─── Modern Light Tech Theme (Paper & Alumni) ─── */
+  --color-aegis-bg: #f7f8fa;
+  --color-aegis-surface: #ffffff;
+  --color-aegis-border: #e2e8f0;
+  --color-aegis-text-main: #1a1e23;
+  --color-aegis-text-sub: #64748b;
+  --color-aegis-accent: #2563eb;
+  
+  /* ─── Custom Gradients ─── */
+  --gradient-cyan-blue: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+  --gradient-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --gradient-rose: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
 
   /* ─── Typography ─── */
   --font-family-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
@@ -45,17 +26,17 @@
 
 @layer base {
   body {
-    @apply bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-sans min-h-screen transition-colors duration-300 antialiased;
+    background-color: var(--color-aegis-bg);
+    color: var(--color-aegis-text-main);
+    @apply font-sans min-h-screen transition-colors duration-300 antialiased;
     font-feature-settings: "cv11", "ss01";
   }
 
-  /* Ambient gradient mesh in dark mode */
-  body.dark,
-  .dark body {
+  /* Subtle background pattern for light mode */
+  body {
     background-image:
-      radial-gradient(ellipse 600px 600px at 10% 20%, rgba(99, 102, 241, 0.06), transparent),
-      radial-gradient(ellipse 500px 500px at 80% 60%, rgba(0, 240, 255, 0.04), transparent),
-      radial-gradient(ellipse 400px 400px at 50% 80%, rgba(0, 255, 135, 0.03), transparent);
+      radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.03) 0%, transparent 50%);
   }
 
   h1,
@@ -121,43 +102,30 @@
     animation: recording-pulse 1.5s ease-in-out infinite;
   }
 
-  /* ─── F1 Telemetry Card ─── */
-  .telemetry-card {
-    background: rgba(15, 18, 33, 0.85);
-    backdrop-filter: blur(24px) saturate(120%);
-    -webkit-backdrop-filter: blur(24px) saturate(120%);
-    border: 1px solid rgba(99, 102, 241, 0.12);
+  /* ─── Aegis Professional Card & Legacy Fallback ─── */
+  .aegis-card,
+  .dashboard-card {
+    background: var(--color-aegis-surface);
+    border: 0.5px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
   }
 
-  .telemetry-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+  .aegis-card:hover,
+  .dashboard-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
   }
 
-  /* ─── F1 Monospaced Numerics ─── */
-  .font-telemetry {
+  .font-mono-numbers {
     font-family: var(--font-family-mono);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
   }
 
-  /* ─── Carbon Fiber Texture ─── */
-  .carbon-fiber {
-    background-image:
-      linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
-      linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%),
-      linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%);
-    background-size: 4px 4px;
-    background-position: 0 0, 0 2px, 2px -2px, -2px 0;
-  }
+
 
   /* ─── Live Indicator Dot ─── */
   .live-dot {
@@ -272,28 +240,7 @@
   animation: neonGlow 3s ease-in-out infinite;
 }
 
-/* ─── F1 Scan Line Sweep (for telemetry cards) ─── */
-@keyframes scanLine {
-  0% {
-    transform: translateX(-100%);
-  }
 
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.scan-line::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.06), transparent);
-  animation: scanLine 4s ease-in-out infinite;
-  pointer-events: none;
-}
 
 /* ─── Stagger animation ─── */
 @keyframes staggerFadeIn {
