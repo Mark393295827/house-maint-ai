@@ -3,9 +3,20 @@
 > **"Like Quaala & Servwizee, but built exclusively for the Chinese WeChat ecosystem."**
 > Transforming residential maintenance triage with AI Vision, native WeChat mini-programs, and automated local worker (师傅) dispatch.
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![AI](https://img.shields.io/badge/AI-DeepSeek_Baidu-blue.svg)](https://deepseek.com/)
-[![Ecosystem](https://img.shields.io/badge/Ecosystem-WeChat_MiniProgram-green.svg)](https://developers.weixin.qq.com/)
+<div align="center">
+  <img src="./assets/screenshots/renter_report_mockup.png" width="22%" alt="WeChat Renter Report" />
+  <img src="./assets/screenshots/ai_diagnosis_mockup.png" width="22%" alt="AI Diagnosis Result" />
+  <img src="./assets/screenshots/worker_push_mockup.png" width="22%" alt="Master Order Push" />
+  <img src="./assets/screenshots/showcase_demo.png" width="22%" alt="Enterprise Dashboard" />
+</div>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <a href="https://github.com/Mark393295827/house-maint-ai/stargazers"><img src="https://img.shields.io/github/stars/Mark393295827/house-maint-ai?style=social" alt="Stars"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-20+-green.svg" alt="Node.js"></a>
+  <a href="https://developers.weixin.qq.com/"><img src="https://img.shields.io/badge/Platform-WeChat_MiniProgram-07C160?logo=wechat&logoColor=white" alt="WeChat Mini Program"></a>
+  <a href="https://deepseek.com/"><img src="https://img.shields.io/badge/AI-DeepSeek_Baidu-blue.svg" alt="AI"></a>
+</p>
 
 ---
 
@@ -45,7 +56,6 @@ _A Frictionless Consumer Touchpoint_
 
 Our meticulously crafted UI/UX ensures tenant adoption. With a native, responsive design tailored for the WeChat ecosystem, the entire diagnostic and dispatch process feels premium and effortless.
 
-![Showcase Demo](./assets/screenshots/showcase_demo.png)
 
 ---
 
