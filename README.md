@@ -15,51 +15,45 @@ House Maint AI is a highly localized B2B2C triage and dispatch platform. We solv
 
 By combining **AI Photo/Voice Triage** with a native **WeChat Ecosystem**, we create an impenetrable 18-month legal and operational moat against foreign competitors.
 
----
+## 📸 Product Innovations (The B2B2C Engine)
 
-## 📸 Visual Showcase
+House Maint AI isn't just an app—it's a **fully-integrated operational ecosystem**. We've digitized the entire lifecycle of local maintenance: from a tenant's panicked WeChat photo, to an AI-generated repair mandate, straight to the local technician's phone. 
 
-### Hasiki Enterprise Platform
-![Showcase Demo](./assets/screenshots/showcase_demo.png)
+### 🌟 1. The Enterprise "War Room" (Mission Control)
+_For Large Property Management Firms & Institutional Landlords_
 
-### Mission Control & Analytics
+Stop managing chaos in spreadsheets. Our **Mission Control** gives operations managers real-time, portfolio-wide observability. Track active tickets, monitor AI token costs, assess technician utilization across districts, and monitor **4D Strategy Health** all from a single pane of glass.
+
 ![Mission Control](./assets/screenshots/mission_control.png)
 
-### Portfolio & Asset Management
+### 📊 2. Portfolio & Asset Management
+_Data-Driven Property Insights_
+
+Effortlessly scale from 10 to 10,000 units. The **Asset Management** hub provides a high-level overview of property health, active alerts, and recent inspections across Sanya's coastal lines, enabling proactive rather than reactive maintenance.
+
 ![Properties](./assets/screenshots/properties.png)
 
-### Worker Portal & Technician Directory
+### ⚡ 3. The Virtual Quoting Marketplace (Worker Portal)
+_For Local Freelance Technicians (师傅)_
+
+No more "free estimate truck rolls." When a job is routed, technicians receive structured, pre-diagnosed leads via WeChat push notifications. The **Worker Portal** provides a dedicated, localized interface for technicians to accept jobs, access AI-generated checklists, and secure their 10-15% commission via WeChat Pay escrow.
+
 ![Workers](./assets/screenshots/workers.png)
 
----
+### 📱 4. The Seamless Showcase Experience
+_A Frictionless Consumer Touchpoint_
 
-## ✨ Core Workflows (The Dual Pivot)
+Our meticulously crafted UI/UX ensures tenant adoption. With a native, responsive design tailored for the WeChat ecosystem, the entire diagnostic and dispatch process feels premium and effortless.
 
-### 1. B2B: Property Manager SaaS (The Quaala Model)
-For Property Managers (物业) and Large-scale Landlords (二房东).
-*   **Tenant Flow:** Tenant sends a photo or voice note of a leak to our Official Account.
-*   **AI Triage:** The AI diagnoses the issue, assigns responsibility (landlord vs. tenant damage), and attempts to provide a "DIY Fix Guide" (Ticket Deflection).
-*   **Value:** Reduces maintenance coordination time by 40%. Generates predictable MRR (¥10/door/month).
-
-### 2. Marketplace: Virtual Quoting (The Servwizee Model)
-For local freelance repair workers (师傅).
-*   **Worker Flow:** Workers receive structured, pre-diagnosed leads via WeChat push notifications. No app download required. 1-click to accept the job.
-*   **Value:** Eliminates the "free estimate truck roll." Connects qualified workers with high-intent jobs for a 10-15% commission via WeChat Pay.
-
-### 3. Enterprise: Mission Control Dashboard
-For Large Property Management Firms.
-*   **Mission Control:** Real-time observability of system-wide maintenance flow, AI token costs, and 4D strategy health.
-*   **Asset Management:** Portfolio-wide view of property units, technician availability, and ticket lifecycle.
-*   **Value:** Provides a centralized "War Room" for operations. Optimizes technician utilization across Sanya's coastal regions.
+![Showcase Demo](./assets/screenshots/showcase_demo.png)
 
 ---
 
-## 🌏 Internationalization (i18n)
+## 🌏 Seamless Internationalization (i18n)
 
-Full bilingual support (**English & Simplified Chinese**) across all platforms:
-- **User Dashboard:** Seamless language switching for homeowners and tenants.
-- **Worker Portal:** Localization for diverse technician teams.
-- **Enterprise Dashboard:** Professional reporting in both languages.
+Built for global operators working in localized markets. House Maint AI offers **True Bilingual Support (English & Simplified Chinese)** out of the box. 
+
+Whether it's an expat tenant reporting an issue or a local property manager reviewing tickets, the **User Dashboard, Worker Portal, and Enterprise Control Center** switch languages seamlessly without losing context or functionality.
 
 ---
 
