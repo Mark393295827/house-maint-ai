@@ -33,65 +33,72 @@ const countBy = <T,>(arr: T[], fn: (item: T) => string): Record<string, number> 
     return counts;
 };
 
-/* ─── Stat Card Component ─── */
-const StatCard: React.FC<{ icon: string; label: string; value: string | number; sub?: string; color: string }> = ({ icon, label, value, sub, color }) => (
-    <div className="bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] rounded-2xl p-4 hover:border-white/10 transition-colors">
-        <div className="flex items-center gap-2 mb-3">
-            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}>
-                <span className="material-symbols-outlined text-white text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+/* ─── Apple Stat Card ─── */
+const AppleStatCard: React.FC<{ icon: string; label: string; value: string | number; sub?: string; color: string; gradient: string }> = ({ icon, label, value, sub, color, gradient }) => (
+    <div className="aegis-card p-6 bg-white/60 hover:bg-white/80 transition-all duration-500">
+        <div className="flex items-center gap-3 mb-5">
+            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg shadow-black/5`}>
+                <span className="material-symbols-outlined text-white text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
             </div>
-            <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider">{label}</span>
+            <span className="text-[10px] font-black text-[#86868b] uppercase tracking-[0.2em]">{label}</span>
         </div>
-        <div className="text-2xl font-black text-white tabular-nums">{value}</div>
-        {sub && <p className="text-[11px] text-white/30 mt-0.5">{sub}</p>}
+        <div className="text-4xl font-black text-[#1d1d1f] tracking-tighter tabular-nums">{value}</div>
+        {sub && <p className="text-[11px] text-[#86868b] font-bold mt-2 opacity-60 uppercase tracking-tight">{sub}</p>}
     </div>
 );
 
-/* ─── Bar Chart Component ─── */
-const BarChart: React.FC<{ data: Record<string, number>; color: string }> = ({ data, color }) => {
-    const maxVal = Math.max(...Object.values(data), 1);
+/* ─── Detailed Progress Bar ─── */
+const AppleProgressBar: React.FC<{ label: string; value: number; max: number; gradient: string }> = ({ label, value, max, gradient }) => {
+    const pct = Math.min((value / max) * 100, 100);
     return (
-        <div className="space-y-2">
-            {Object.entries(data).sort((a, b) => b[1] - a[1]).map(([key, val]) => (
-                <div key={key} className="flex items-center gap-3">
-                    <span className="text-xs text-white/60 w-20 truncate text-right">{key}</span>
-                    <div className="flex-1 h-6 bg-white/5 rounded-lg overflow-hidden relative">
-                        <div className={`h-full bg-gradient-to-r ${color} rounded-lg transition-all duration-700`} style={{ width: `${(val / maxVal) * 100}%` }} />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/50">{val}</span>
-                    </div>
-                </div>
-            ))}
+        <div className="mb-6 last:mb-0">
+            <div className="flex justify-between items-end mb-2.5">
+                <span className="text-[11px] font-black text-[#1d1d1f] uppercase tracking-wider">{label}</span>
+                <span className="text-[11px] font-black text-[#86868b] tabular-nums">{value} UNITS</span>
+            </div>
+            <div className="h-2.5 bg-black/5 rounded-full overflow-hidden p-[1px] border border-white/20 shadow-inner">
+                <div 
+                    className={`h-full bg-gradient-to-r ${gradient} rounded-full transition-all duration-1000 ease-out shadow-sm`}
+                    style={{ width: `${pct}%` }}
+                />
+            </div>
         </div>
     );
 };
 
-/* ─── Ring Gauge ─── */
-const RingGauge: React.FC<{ value: number; max: number; label: string; color: string }> = ({ value, max, label, color }) => {
+/* ─── High-Precision Ring ─── */
+const AppleRingGauge: React.FC<{ value: number; max: number; label: string; colors: [string, string] }> = ({ value, max, label, colors }) => {
     const pct = max > 0 ? (value / max) * 100 : 0;
     const r = 40, circ = 2 * Math.PI * r, offset = circ - (pct / 100) * circ;
+    const gradId = `ring-grad-${label.replace(/\s+/g, '-')}`;
+    
     return (
         <div className="flex flex-col items-center">
-            <svg width="100" height="100" className="-rotate-90">
-                <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-                <circle cx="50" cy="50" r={r} fill="none" stroke={`url(#grad-${label})`} strokeWidth="8"
-                    strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
-                    className="transition-all duration-1000" />
-                <defs>
-                    <linearGradient id={`grad-${label}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor={color.split(' ')[0]} />
-                        <stop offset="100%" stopColor={color.split(' ')[1] || color.split(' ')[0]} />
-                    </linearGradient>
-                </defs>
-            </svg>
-            <span className="text-xl font-black text-white -mt-[62px] mb-8">{value.toFixed(1)}</span>
-            <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">{label}</p>
+            <div className="relative">
+                <svg width="120" height="120" className="-rotate-90 filter drop-shadow-sm">
+                    <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(0,0,0,0.04)" strokeWidth="10" />
+                    <circle cx="60" cy="60" r={r} fill="none" stroke={`url(#${gradId})`} strokeWidth="10"
+                        strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
+                        className="transition-all duration-1000" />
+                    <defs>
+                        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor={colors[0]} />
+                            <stop offset="100%" stopColor={colors[1]} />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-[28px] font-black text-[#1d1d1f] tracking-tighter -mb-1">{value.toFixed(1)}</span>
+                    <span className="text-[9px] font-black text-[#86868b] uppercase tracking-[0.1em]">{label}</span>
+                </div>
+            </div>
         </div>
     );
 };
 
 /* ─── Main Dashboard ─── */
 const MetricsDashboard: React.FC = () => {
-    const { locale } = useLanguage();
+    const { locale, t } = useLanguage();
     const navigate = useNavigate();
     const isZh = locale === 'zh';
 
@@ -125,149 +132,157 @@ const MetricsDashboard: React.FC = () => {
     const maxDaily = Math.max(...last7Days.map(d => d.count), 1);
 
     return (
-        <div className="min-h-screen bg-[#0b0d1a] text-white">
-            {/* Header */}
-            <div className="sticky top-0 z-20 bg-[#0b0d1a]/95 backdrop-blur-xl border-b border-white/5 px-5 pt-14 pb-4">
-                <div className="flex items-center gap-3">
-                    <button onClick={() => navigate(-1)} className="p-2 bg-white/10 hover:bg-white/15 rounded-xl transition-colors">
-                        <span className="material-symbols-outlined text-xl text-white/60">arrow_back</span>
+        <div className="min-h-screen bg-[#f5f5f7] page-enter">
+            {/* Nav Header */}
+            <div className="sticky top-0 z-30 apple-glass border-b border-white/20 px-8 py-5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center bg-white/20 border border-black/5 rounded-2xl hover:bg-white/40 transition-all press-scale">
+                        <span className="material-symbols-outlined text-[20px] text-[#1d1d1f]">arrow_back</span>
                     </button>
                     <div>
-                        <h1 className="text-lg font-bold">{isZh ? '运营数据看板' : 'Metrics Dashboard'}</h1>
-                        <p className="text-xs text-white/40">{isZh ? '基于实际使用数据的智能洞察' : 'Insights from real usage data'}</p>
+                        <h1 className="text-[15px] font-black text-[#1d1d1f] tracking-tight">{isZh ? '运营数据看板' : 'Metrics Dashboard'}</h1>
+                        <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest">{isZh ? '实时分析报告' : 'Real-time Analytics'}</p>
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <div className="px-4 py-2 bg-white/40 border border-black/5 rounded-xl text-[11px] font-black text-[#1d1d1f] flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[#28cd41] animate-pulse" />
+                        LIVE
                     </div>
                 </div>
             </div>
 
-            <div className="px-5 py-5 space-y-6 pb-24">
-                {/* KPI Cards */}
-                <div className="grid grid-cols-2 gap-3">
-                    <StatCard icon="query_stats" label={isZh ? '总咨询' : 'Inquiries'} value={totalInquiries}
-                        sub={isZh ? '全部对话数' : 'Total conversations'} color="from-violet-500 to-indigo-600" />
-                    <StatCard icon="check_circle" label={isZh ? '转化率' : 'Conversion'} value={`${conversionRate}%`}
-                        sub={isZh ? '完成派单比' : 'Dispatch rate'} color="from-emerald-500 to-green-600" />
-                    <StatCard icon="photo_camera" label={isZh ? '拍照率' : 'Photo Rate'} value={`${photoRate}%`}
-                        sub={isZh ? '使用拍照功能' : 'Used camera'} color="from-blue-500 to-cyan-600" />
-                    <StatCard icon="feedback" label={isZh ? '反馈数' : 'Feedbacks'} value={totalFeedbacks}
-                        sub={isZh ? '已提交评价' : 'Reviews submitted'} color="from-amber-400 to-orange-500" />
+            <div className="p-8 lg:p-14 space-y-10 max-w-[1600px] mx-auto">
+                {/* Row 1: Key Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <AppleStatCard 
+                        icon="analytics" 
+                        label={isZh ? '总咨询' : 'Inquiries'} 
+                        value={totalInquiries}
+                        sub={isZh ? '累计对话数量' : 'Total Sessions'} 
+                        gradient="from-[#007aff] to-[#32ade6]"
+                        color="[#007aff]"
+                    />
+                    <AppleStatCard 
+                        icon="published_with_changes" 
+                        label={isZh ? '转化率' : 'Conversion'} 
+                        value={`${conversionRate}%`}
+                        sub={isZh ? '工单转换效能' : 'Dispatch Logic'} 
+                        gradient="from-[#28cd41] to-[#34c759]"
+                        color="[#28cd41]"
+                    />
+                    <AppleStatCard 
+                        icon="photo_camera" 
+                        label={isZh ? '拍照率' : 'Photo Rate'} 
+                        value={`${photoRate}%`}
+                        sub={isZh ? '视觉诊断占比' : 'Visual Context'} 
+                        gradient="from-[#5856d6] to-[#af52de]"
+                        color="[#5856d6]"
+                    />
+                    <AppleStatCard 
+                        icon="forum" 
+                        label={isZh ? '反馈数' : 'Feedbacks'} 
+                        value={totalFeedbacks}
+                        sub={isZh ? '用户评价采集' : 'Voice of User'} 
+                        gradient="from-[#ff9500] to-[#ffcc00]"
+                        color="[#ff9500]"
+                    />
                 </div>
 
-                {/* Rating Gauges */}
-                {totalFeedbacks > 0 && (
-                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '用户满意度' : 'User Satisfaction'}</h3>
-                        <div className="flex justify-around">
-                            <RingGauge value={avgRating} max={5} label={isZh ? '满意度' : 'Rating'} color="#a78bfa #818cf8" />
-                            <RingGauge value={avgAccuracy} max={5} label={isZh ? '准确度' : 'Accuracy'} color="#34d399 #10b981" />
-                        </div>
-                    </div>
-                )}
-
-                {/* Weekly Trend */}
-                <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-                    <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '近7天趋势' : '7-Day Trend'}</h3>
-                    <div className="flex items-end gap-1 h-32">
-                        {last7Days.map((day, i) => (
-                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                                <span className="text-[9px] font-bold text-white/40">{day.count || ''}</span>
-                                <div className="w-full bg-white/5 rounded-t-lg relative overflow-hidden" style={{ height: `${Math.max((day.count / maxDaily) * 100, 4)}%` }}>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-violet-600 to-violet-400 rounded-t-lg" />
-                                </div>
-                                <span className="text-[9px] text-white/30">{day.label}</span>
+                {/* Row 2: Satisfaction & Trend */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Satisfaction Ring */}
+                    <div className="aegis-card p-10 bg-white group flex flex-col items-center justify-center">
+                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.2em] mb-10 self-start">{isZh ? '用户满意度' : 'Service Quality'}</p>
+                        {totalFeedbacks > 0 ? (
+                            <div className="flex justify-around w-full gap-8">
+                                <AppleRingGauge value={avgRating} max={5} label={isZh ? '满意度' : 'Rating'} colors={["#5856d6", "#007aff"]} />
+                                <AppleRingGauge value={avgAccuracy} max={5} label={isZh ? '准确度' : 'Precision'} colors={["#28cd41", "#34c759"]} />
                             </div>
-                        ))}
+                        ) : (
+                            <div className="text-center py-10 opacity-30">
+                                <span className="material-symbols-outlined text-[48px] mb-4">stars</span>
+                                <p className="text-[12px] font-bold">Waiting for Review Data</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Weekly Trend (Visual Column Chart) */}
+                    <div className="aegis-card p-10 bg-white lg:col-span-2">
+                        <div className="flex justify-between items-start mb-10">
+                            <div>
+                                <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.2em]">{isZh ? '咨询量趋势' : 'Session Velocity'}</p>
+                                <h3 className="text-2xl font-black text-[#1d1d1f] tracking-tight mt-1">Last 7 Operating Days</h3>
+                            </div>
+                        </div>
+                        <div className="flex items-end gap-3 h-48 lg:h-64">
+                            {last7Days.map((day, i) => (
+                                <div key={i} className="flex-1 flex flex-col items-center gap-3">
+                                    <div className="w-full bg-[#f5f5f7] rounded-2xl relative overflow-hidden flex flex-col justify-end" style={{ height: '100%' }}>
+                                        <div 
+                                            className="w-full bg-gradient-to-t from-[#007aff] to-[#32ade6] rounded-xl transition-all duration-1000 shadow-lg shadow-blue-500/10"
+                                            style={{ height: `${Math.max((day.count / maxDaily) * 100, 2)}%` }}
+                                        >
+                                            <div className="absolute top-2 left-0 right-0 text-center">
+                                                <span className="text-[10px] font-black text-white/80 tabular-nums">{day.count || ''}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className="text-[10px] font-black text-[#86868b] uppercase">{day.label}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Category Distribution */}
-                {Object.keys(typeCounts).length > 0 && (
-                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '项目类型分布' : 'Project Type Distribution'}</h3>
-                        <BarChart data={typeCounts} color="from-violet-500 to-indigo-500" />
-                    </div>
-                )}
-
-                {/* Area Distribution */}
-                {Object.keys(areaCounts).length > 0 && (
-                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '区域分布' : 'Area Distribution'}</h3>
-                        <BarChart data={areaCounts} color="from-blue-500 to-cyan-500" />
-                    </div>
-                )}
-
-                {/* Severity Distribution */}
-                {Object.keys(severityCounts).length > 0 && (
-                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '严重程度分布' : 'Severity Distribution'}</h3>
-                        <div className="flex gap-3">
-                            {Object.entries(severityCounts).map(([sev, count]) => {
-                                const colors: Record<string, string> = { critical: 'from-red-500 to-rose-600', moderate: 'from-amber-400 to-orange-500', low: 'from-emerald-400 to-green-500' };
-                                const labels: Record<string, string> = isZh ? { critical: '紧急', moderate: '中等', low: '轻微' } : { critical: 'Critical', moderate: 'Moderate', low: 'Low' };
-                                return (
-                                    <div key={sev} className="flex-1 text-center">
-                                        <div className={`bg-gradient-to-br ${colors[sev] || colors.moderate} rounded-xl py-3 px-2 mb-1`}>
-                                            <span className="text-xl font-black">{count}</span>
-                                        </div>
-                                        <span className="text-[10px] text-white/50 font-bold uppercase">{labels[sev] || sev}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-
-                {/* Feedback Tags */}
-                {Object.keys(tagCounts).length > 0 && (
-                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '用户反馈标签' : 'Feedback Tags'}</h3>
-                        <div className="flex flex-wrap gap-2">
-                            {Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).map(([tag, count]) => (
-                                <div key={tag} className="bg-violet-500/10 border border-violet-500/20 rounded-full px-3.5 py-1.5 flex items-center gap-2">
-                                    <span className="text-sm text-violet-300">{tag}</span>
-                                    <span className="text-[10px] font-bold text-violet-400/60 bg-violet-500/20 rounded-full px-1.5 py-0.5">{count}</span>
-                                </div>
+                {/* Row 3: Distributions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Distribution Alpha */}
+                    <div className="aegis-card p-10 bg-white">
+                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.2em] mb-10">{isZh ? '项目类型分布' : 'Workload Categorization'}</p>
+                        <div className="space-y-4">
+                            {Object.entries(typeCounts).sort((a,b) => b[1]-a[1]).map(([key, val]) => (
+                                <AppleProgressBar 
+                                    key={key} 
+                                    label={key} 
+                                    value={val} 
+                                    max={totalInquiries} 
+                                    gradient="from-[#5856d6] to-[#007aff]" 
+                                />
                             ))}
                         </div>
                     </div>
-                )}
 
-                {/* Recent Feedback List */}
-                {feedback.length > 0 && (
-                    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-                        <h3 className="text-sm font-bold text-white/70 mb-4">{isZh ? '最近评价' : 'Recent Feedback'}</h3>
-                        <div className="space-y-3">
-                            {feedback.slice(-5).reverse().map((f, i) => (
-                                <div key={i} className="bg-white/[0.03] rounded-xl px-4 py-3 border border-white/5">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <div className="flex gap-0.5">
-                                            {[1, 2, 3, 4, 5].map(s => (
-                                                <span key={s} className={`material-symbols-outlined text-sm ${s <= f.rating ? 'text-amber-400' : 'text-white/10'}`}
-                                                    style={{ fontVariationSettings: `'FILL' ${s <= f.rating ? 1 : 0}` }}>star</span>
-                                            ))}
-                                        </div>
-                                        <span className="text-[10px] text-white/20">{new Date(f.timestamp).toLocaleDateString()}</span>
-                                    </div>
-                                    {f.tags.length > 0 && (
-                                        <div className="flex gap-1 flex-wrap mb-1">
-                                            {f.tags.map(t => <span key={t} className="text-[10px] text-white/40 bg-white/5 rounded-full px-2 py-0.5">{t}</span>)}
-                                        </div>
-                                    )}
-                                    {f.comment && <p className="text-xs text-white/50">{f.comment}</p>}
-                                </div>
+                    {/* Distribution Beta */}
+                    <div className="aegis-card p-10 bg-white">
+                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.2em] mb-10">{isZh ? '区域分布' : 'Regional Density'}</p>
+                        <div className="space-y-4">
+                            {Object.entries(areaCounts).sort((a,b) => b[1]-a[1]).map(([key, val]) => (
+                                <AppleProgressBar 
+                                    key={key} 
+                                    label={key} 
+                                    value={val} 
+                                    max={totalInquiries} 
+                                    gradient="from-[#28cd41] to-[#007aff]" 
+                                />
                             ))}
                         </div>
                     </div>
-                )}
+                </div>
 
-                {/* Empty state */}
+                {/* Empty state fallback */}
                 {totalInquiries === 0 && (
-                    <div className="text-center py-20">
-                        <span className="material-symbols-outlined text-6xl text-white/10 mb-4 block">monitoring</span>
-                        <h3 className="text-white/40 font-bold mb-2">{isZh ? '暂无数据' : 'No Data Yet'}</h3>
-                        <p className="text-white/20 text-sm max-w-xs mx-auto">{isZh ? '完成一些诊断咨询后，数据将显示在此处' : 'Complete some diagnosis inquiries and data will appear here'}</p>
+                    <div className="aegis-card p-20 bg-white text-center flex flex-col items-center">
+                        <div className="w-24 h-24 rounded-[32px] bg-[#f5f5f7] flex items-center justify-center mb-8 shadow-inner border border-white">
+                            <span className="material-symbols-outlined text-[48px] text-[#86868b] opacity-20">bar_chart_4_bars</span>
+                        </div>
+                        <h3 className="text-3xl font-black text-[#1d1d1f] tracking-tighter mb-4">{isZh ? '暂无分析数据' : 'Intelligence Gap'}</h3>
+                        <p className="text-[15px] font-medium text-[#86868b] max-w-sm mb-10 leading-relaxed">
+                            {isZh ? '在系统收集到足够的诊断咨询数据后，我们将为您自动生成运营洞察模型。' : 'We require a larger dataset of diagnostic inquiries to generate high-fidelity operational models.'}
+                        </p>
                         <button onClick={() => navigate('/diagnosis')}
-                            className="mt-6 px-6 py-3 bg-violet-600 rounded-2xl font-bold text-sm hover:bg-violet-700 transition-colors">
-                            {isZh ? '开始诊断' : 'Start Diagnosis'}
+                            className="px-10 py-4 bg-[#1d1d1f] text-white rounded-[20px] text-[13px] font-black uppercase tracking-widest hover:bg-black transition-all press-scale shadow-2xl shadow-black/20">
+                            {isZh ? '启动诊断采集' : 'Initiate Data Collection'}
                         </button>
                     </div>
                 )}
