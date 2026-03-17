@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import api from '../services/api';
+import { connectSocket, disconnectSocket } from '../services/socket';
 import type { User, AuthContextValue, AuthResult } from '../types';
 
 // Create the Auth Context
@@ -21,6 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
                 const data = await api.getCurrentUser();
                 setUser(data.user);
+                connectSocket();
             } catch (_err) {
                 // No valid cookie — user is not authenticated
                 setUser(null);
@@ -37,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const data = await api.login(phone, password);
             setUser(data.user);
+            connectSocket();
             return { success: true, user: data.user };
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Login failed';
@@ -81,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Logout function — calls server to clear httpOnly cookie
     const logout = useCallback(async () => {
+        disconnectSocket();
         await api.logout();
         setUser(null);
         setError(null);

@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { PropertiesPage, TicketsPage, EnterpriseWorkersPage, AnalyticsPage } from './EnterprisePlaceholders';
 import EnterpriseMap from '../components/EnterpriseMap';
 import { PerformanceChart, WorkloadDistribution } from '../components/OperationCharts';
+import { post } from '../services/api';
 // ============ Types ============
 
 interface StrategyAlert {
@@ -190,12 +191,7 @@ const EnterpriseDashboardHome: React.FC = () => {
     const handleResearch = async () => {
         setResearchLoading(true);
         try {
-            const res = await fetch('/api/ai/research-market', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sector: researchSector, focusArea: researchFocus })
-            });
-            const data = await res.json();
+            const data = await post('/ai/research-market', { sector: researchSector, focusArea: researchFocus });
             setResearchResult(data);
         } catch (e) {
             console.error('Research failed:', e);
