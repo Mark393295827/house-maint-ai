@@ -531,7 +531,7 @@ export async function getMyWorkerJobs(): Promise<{ jobs: WorkerJob[] }> {
 /**
  * Register as a worker (creates worker profile)
  */
-export async function registerWorker(data: { skills: string[]; bio?: string; hourlyRate?: number }): Promise<WorkerRegistrationResponse> {
+export async function registerWorker(data: { skills: string[]; latitude?: number; longitude?: number }): Promise<WorkerRegistrationResponse> {
     return fetchAPI<WorkerRegistrationResponse>('/worker-portal/register', {
         method: 'POST',
         body: JSON.stringify(data),

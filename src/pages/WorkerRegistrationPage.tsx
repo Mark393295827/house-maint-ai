@@ -45,8 +45,6 @@ const WorkerRegistrationPage: React.FC = () => {
         try {
             await registerWorker({
                 skills: form.skills,
-                bio: form.bio || undefined,
-                hourlyRate: form.hourlyRate ? parseFloat(form.hourlyRate) : undefined,
             });
             navigate('/worker/dashboard');
         } catch (err: any) {

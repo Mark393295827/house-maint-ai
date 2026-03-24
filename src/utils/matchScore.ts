@@ -24,7 +24,7 @@ export const DEFAULT_WEIGHTS = {
  * @param {number} maxDistance - 最大考虑距离 (km)
  * @returns {number} 距离分数
  */
-export function calculateDistanceScore(distance, maxDistance = 10) {
+export function calculateDistanceScore(distance: number, maxDistance = 10): number {
     if (distance <= 0) return 100;
     if (distance >= maxDistance) return 0;
     return Math.round((1 - distance / maxDistance) * 100);
@@ -35,7 +35,7 @@ export function calculateDistanceScore(distance, maxDistance = 10) {
  * @param {number} rating - 评分 (0-5)
  * @returns {number} 评价分数
  */
-export function calculateRatingScore(rating) {
+export function calculateRatingScore(rating: number): number {
     return Math.round((rating / 5) * 100);
 }
 
@@ -45,11 +45,11 @@ export function calculateRatingScore(rating) {
  * @param {string[]} requiredSkills - 所需技能列表
  * @returns {number} 技能匹配分数
  */
-export function calculateTechnicalScore(workerSkills, requiredSkills) {
+export function calculateTechnicalScore(workerSkills: string[], requiredSkills: string[]): number {
     if (!requiredSkills || requiredSkills.length === 0) return 100;
     if (!workerSkills || workerSkills.length === 0) return 0;
 
-    const matchCount = requiredSkills.filter(skill =>
+    const matchCount = requiredSkills.filter((skill: string) =>
         workerSkills.includes(skill)
     ).length;
 
@@ -61,16 +61,16 @@ export function calculateTechnicalScore(workerSkills, requiredSkills) {
  * 
  * 公式: S = w1 * D + w2 * R + w3 * T
  * 
- * @param {Object} worker - 工人信息
- * @param {number} worker.distance - 距离 (km)
- * @param {number} worker.rating - 评分 (0-5)
- * @param {string[]} worker.skills - 工人技能列表
- * @param {Object} report - 报修信息
- * @param {string[]} report.requiredSkills - 所需技能列表
- * @param {Object} weights - 权重配置
- * @returns {number} 匹配度分数 (0-100)
+ * @param worker - 工人信息
+ * @param report - 报修信息
+ * @param weights - 权重配置
+ * @returns 匹配度分数 (0-100)
  */
-export function calculateMatchScore(worker, report, weights = {}) {
+export function calculateMatchScore(
+    worker: { distance: number; rating: number; skills: string[] },
+    report: { requiredSkills?: string[] },
+    weights: Partial<typeof DEFAULT_WEIGHTS> = {}
+): number {
     const { w1, w2, w3 } = { ...DEFAULT_WEIGHTS, ...weights };
 
     // D: 距离分数
@@ -80,7 +80,7 @@ export function calculateMatchScore(worker, report, weights = {}) {
     const R = calculateRatingScore(worker.rating);
 
     // T: 技能匹配分数
-    const T = calculateTechnicalScore(worker.skills, report.requiredSkills);
+    const T = calculateTechnicalScore(worker.skills, report.requiredSkills ?? []);
 
     // 加权计算: S = w1*D + w2*R + w3*T
     const S = w1 * D + w2 * R + w3 * T;
@@ -93,7 +93,7 @@ export function calculateMatchScore(worker, report, weights = {}) {
  * @param {number} score - 匹配度分数
  * @returns {Object} 等级信息
  */
-export function getMatchLevel(score) {
+export function getMatchLevel(score: number) {
     if (score >= 90) return { level: 'excellent', label: '极佳', color: '#34C759' };
     if (score >= 70) return { level: 'good', label: '良好', color: '#007AFF' };
     if (score >= 50) return { level: 'fair', label: '一般', color: '#FF9500' };

@@ -10,7 +10,7 @@ interface JobCompletionModalProps {
 }
 
 const JobCompletionModal: React.FC<JobCompletionModalProps> = ({ reportId, onClose, onComplete }) => {
-    const { t } = useLanguage();
+    useLanguage();
     const [loading, setLoading] = useState(false);
     const [details, setDetails] = useState({
         steps: '',

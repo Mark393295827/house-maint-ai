@@ -23,6 +23,9 @@ const LoginPage = () => {
     const from = location.state?.from?.pathname || '/';
 
     const validatePhone = (phone: string) => {
+        // Login: just check length — let backend validate credentials
+        if (isLoginMode) return phone.length >= 10;
+        // Register: strict Chinese mobile format
         if (isZh) return /^1[3-9]\d{9}$/.test(phone);
         return /^\d{10,15}$/.test(phone);
     };
@@ -38,9 +41,18 @@ const LoginPage = () => {
             setFormError(t('login.error.invalidPhone'));
             return;
         }
-        if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
-            setFormError(isZh ? '密码必须至少8位，包含字母和数字' : 'Password must be at least 8 chars with letters & numbers');
-            return;
+        if (isLoginMode) {
+            // Login: only require non-empty password
+            if (!password) {
+                setFormError(isZh ? '请输入密码' : 'Please enter your password');
+                return;
+            }
+        } else {
+            // Register: strict password policy
+            if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+                setFormError(isZh ? '密码必须至少8位，包含字母和数字' : 'Password must be at least 8 chars with letters & numbers');
+                return;
+            }
         }
         if (!isLoginMode && !name.trim()) {
             setFormError(t('login.error.nameRequired'));
@@ -54,10 +66,13 @@ const LoginPage = () => {
 
             if (result.success) {
                 showToast(isLoginMode ? t('login.error.loginSuccess') : t('login.error.registerSuccess'), 'success');
-                navigate(from, { replace: true });
+                // Redirect workers to worker dashboard, consumers to their intended page
+                const destination = result.user?.role === 'worker' ? '/worker/dashboard' : from;
+                navigate(destination, { replace: true });
             }
-        } catch (err: any) {
-            setFormError(err.message || t('login.error.networkError'));
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : t('login.error.networkError');
+            setFormError(message);
         }
     };
 
@@ -77,7 +92,11 @@ const LoginPage = () => {
 
             {/* Language toggle — top right */}
             <header className="relative z-50 flex items-center justify-between p-6 lg:px-12">
-                <Link to="/" className="w-10 h-10 flex items-center justify-center bg-white border border-black/5 rounded-2xl shadow-sm hover:shadow-md transition-all press-scale">
+                <Link
+                    to="/"
+                    aria-label={isZh ? '关闭并返回' : 'Close and return'}
+                    className="w-10 h-10 flex items-center justify-center bg-white border border-black/5 rounded-2xl shadow-sm hover:shadow-md transition-all press-scale"
+                >
                     <span className="material-symbols-outlined text-[20px]">close</span>
                 </Link>
                 <LanguageToggle />
@@ -142,6 +161,7 @@ const LoginPage = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
+                                        aria-label={showPassword ? (isZh ? '隐藏密码' : 'Hide password') : (isZh ? '显示密码' : 'Show password')}
                                         className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[#86868b] hover:text-[#1d1d1f] transition-colors"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility_off' : 'visibility'}</span>

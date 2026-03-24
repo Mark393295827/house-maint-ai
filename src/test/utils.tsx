@@ -1,8 +1,9 @@
+import React from 'react';
 import { render } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
 // Helper to render components with Router context
-export function renderWithRouter(Component, options = {}) {
+export function renderWithRouter(Component: React.ReactNode, options: Record<string, unknown> = {}) {
     return render(
         <BrowserRouter>
             {Component}
@@ -13,13 +14,13 @@ export function renderWithRouter(Component, options = {}) {
 
 // Mock localStorage
 export const mockLocalStorage = (() => {
-    let store = {};
+    let store: Record<string, string> = {};
     return {
-        getItem: (key) => store[key] || null,
-        setItem: (key, value) => {
+        getItem: (key: string) => store[key] || null,
+        setItem: (key: string, value: string) => {
             store[key] = value.toString();
         },
-        removeItem: (key) => {
+        removeItem: (key: string) => {
             delete store[key];
         },
         clear: () => {

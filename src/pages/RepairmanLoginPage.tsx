@@ -21,12 +21,10 @@ const RepairmanLoginPage = () => {
 
     const from = location.state?.from?.pathname || '/worker/dashboard';
 
-    // Language-specific phone validation
+    // Phone validation: relaxed for login, strict for register
     const validatePhone = (phone: string) => {
-        if (locale === 'zh') {
-            return /^1[3-9]\d{9}$/.test(phone);
-        }
-        // EN: accept 10+ digit international format
+        if (isLoginMode) return phone.length >= 10;
+        if (locale === 'zh') return /^1[3-9]\d{9}$/.test(phone);
         return /^\d{10,15}$/.test(phone);
     };
 
@@ -42,10 +40,20 @@ const RepairmanLoginPage = () => {
             showToast(t('login.error.invalidPhone') || 'Invalid phone number', 'warning');
             return;
         }
-        if (password.length < 6) {
-            setFormError(t('login.error.passwordShort') || 'Password too short');
-            showToast(t('login.error.passwordShort') || 'Password too short', 'warning');
-            return;
+        if (isLoginMode) {
+            if (!password) {
+                const msg = locale === 'zh' ? '请输入密码' : 'Please enter your password';
+                setFormError(msg);
+                showToast(msg, 'warning');
+                return;
+            }
+        } else {
+            if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+                const msg = locale === 'zh' ? '密码必须至少8位，包含字母和数字' : 'Password must be at least 8 chars with letters & numbers';
+                setFormError(msg);
+                showToast(msg, 'warning');
+                return;
+            }
         }
         if (!isLoginMode && !name.trim()) {
             setFormError(t('login.error.nameRequired') || 'Name is required');
@@ -56,7 +64,7 @@ const RepairmanLoginPage = () => {
         try {
             const result = isLoginMode
                 ? await login(phone, password)
-                : await (register as any)(phone, password, name, 'worker'); 
+                : await register(phone, password, name, 'worker');
 
             if (result.success) {
                 showToast(isLoginMode ? (t('login.error.loginSuccess') || 'Login successful') : (t('login.error.registerSuccess') || 'Registration successful'), 'success');
@@ -64,8 +72,9 @@ const RepairmanLoginPage = () => {
             } else {
                 showToast(result.error || (t('login.error.genericFail') || 'Action failed'), 'error');
             }
-        } catch (err: any) {
-            showToast(err.message || (t('login.error.networkError') || 'Network error'), 'error');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : (t('login.error.networkError') || 'Network error');
+            showToast(message, 'error');
         }
     };
 

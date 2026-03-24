@@ -106,6 +106,11 @@ export function csrfGuard(req: Request, res: Response, next: NextFunction): void
         return next();
     }
 
+    // Webhook calls originate from external payment providers, not browser sessions.
+    if (req.path === '/api/v1/payments/webhook' || req.originalUrl.startsWith('/api/v1/payments/webhook')) {
+        return next();
+    }
+
     const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
     if (safeMethods.includes(req.method)) {
         return next();
@@ -218,7 +223,7 @@ export function getRefreshCookieOptions(): CookieOptions {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/api/auth', // Restricted path
+        path: '/api/v1/auth', // Restricted path must match refresh/logout endpoints
     };
 }
 

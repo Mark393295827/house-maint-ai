@@ -40,13 +40,7 @@ export default defineConfig({
       '**/load-tests/**',
       '**/.{idea,git,cache,output,temp}/**',
     ],
-    // Use project-based configuration for different environments
-    environmentMatchGlobs: [
-      // Server tests use node environment
-      ['server/**/*.test.ts', 'node'],
-      // All other tests use jsdom
-      ['**/*.test.{js,jsx,ts,tsx}', 'jsdom'],
-    ],
+
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

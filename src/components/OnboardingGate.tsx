@@ -18,8 +18,12 @@ const OnboardingGate = () => {
         return <Navigate to="/welcome" replace />;
     }
 
-    if (user?.role === 'worker' || user?.role === 'admin') {
+    if (user?.role === 'worker') {
         return <Navigate to="/worker/dashboard" replace />;
+    }
+
+    if (user?.role === 'admin' || user?.role === 'manager') {
+        return <Navigate to="/enterprise" replace />;
     }
 
     return <Dashboard />;

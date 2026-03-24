@@ -1,5 +1,4 @@
-
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import MatchScoreCard from '../components/MatchScoreCard';
 import BottomNav from '../components/BottomNav';
@@ -22,6 +21,25 @@ const WorkerMatchPage = () => {
     const storedReportId = sessionStorage.getItem('lastReportId');
     const reportId = reportIdParam || storedReportId;
     const categoryParam = searchParams.get('category') || 'plumbing';
+    const isDemoMode = import.meta.env.DEV && import.meta.env.VITE_ENABLE_MATCH_MOCKS === 'true';
+    const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+
+    useEffect(() => {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setUserLocation({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                });
+            },
+            () => {
+                // User can deny location; backend still supports report-based matching.
+                setUserLocation(null);
+            },
+            { maximumAge: 60_000, timeout: 8_000 }
+        );
+    }, []);
 
     // Queries
     // 1. Fetch Report
@@ -42,8 +60,8 @@ const WorkerMatchPage = () => {
     } = useMatchedWorkers({
         reportId: reportId ? Number(reportId) : undefined,
         category: activeCategory,
-        latitude: 18.2528,  // Sanya, Hainan — TODO: use browser geolocation
-        longitude: 109.5120,
+        latitude: userLocation?.latitude,
+        longitude: userLocation?.longitude,
         limit: 5
     });
 
@@ -52,7 +70,7 @@ const WorkerMatchPage = () => {
 
     // Determine displayed data (Real vs Mock)
     const displayData = useMemo(() => {
-        if (isError || !user) {
+        if ((isError || !user) && isDemoMode) {
             return {
                 workers: mockWorkers,
                 report: mockReport,
@@ -60,12 +78,25 @@ const WorkerMatchPage = () => {
             };
         }
 
+        if (!user || isError) {
+            return {
+                workers: [],
+                report: report || null,
+                isMock: false,
+            };
+        }
+
+        const referenceLatitude = userLocation?.latitude ?? report?.latitude;
+        const referenceLongitude = userLocation?.longitude ?? report?.longitude;
+
         const transformedWorkers = (workersRes?.matches || []).map((w: Worker) => ({
             ...w,
             id: w.id,
             name: w.name,
             avatar: w.avatar,
-            distance: calculateDistance(w.latitude, w.longitude, 37.7749, -122.4194),
+            distance: typeof w.distance === 'number'
+                ? w.distance
+                : calculateDistance(w.latitude, w.longitude, referenceLatitude, referenceLongitude),
             rating: w.rating,
             skills: w.skills,
             distanceScore: w.distanceScore,
@@ -77,7 +108,7 @@ const WorkerMatchPage = () => {
             report: report,
             isMock: false
         };
-    }, [isError, user, workersRes, report]);
+    }, [isDemoMode, isError, report, user, userLocation?.latitude, userLocation?.longitude, workersRes]);
 
     const { workers, report: activeReport, isMock } = displayData;
 
@@ -165,7 +196,7 @@ const WorkerMatchPage = () => {
                                 <div key={worker.id} onClick={() => handleSelectWorker(worker)} className="cursor-pointer">
                                     <MatchScoreCard
                                         worker={worker}
-                                        report={activeReport || mockReport}
+                                        report={activeReport || (isMock ? mockReport : { id: 0, title: '', description: '', user_id: 0, status: 'pending', created_at: new Date().toISOString() })}
                                     />
                                 </div>
                             ))

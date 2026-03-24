@@ -15,6 +15,16 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
 
+const clearAuthCookies = (res: express.Response) => {
+    const refreshPath = getRefreshCookieOptions().path || '/api/v1/auth';
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('token', { path: '/' }); // legacy fallback
+    res.clearCookie('refreshToken', { path: refreshPath });
+    // Backward compatibility: clear previously mis-scoped refresh cookie if present.
+    res.clearCookie('refreshToken', { path: '/api/auth' });
+    res.clearCookie('_csrf', { path: '/' });
+};
+
 // ... (Validation schemas remain the same, omitting for brevity in replacement if possible, but I need to replace the endpoints)
 
 // Validation schemas
@@ -211,9 +221,9 @@ router.post('/login', async (req, res, next) => {
         res.cookie('refreshToken', refreshToken, getRefreshCookieOptions());
 
         // Remove sensitive data before sending
-        delete user.password_hash;
+        const { password_hash: _, ...safeUser } = user;
 
-        res.json(ApiResponse.success({ user }, 'Login successful'));
+        res.json(ApiResponse.success({ user: safeUser }, 'Login successful'));
     } catch (error) {
         next(error);
     }
@@ -257,15 +267,13 @@ router.post('/refresh', async (req, res, next) => {
         if (!storedToken) {
             // Token not found or revoked - potentially reused revoked token!
             // Security: In a full system, verify if it was *revoked* and alert.
-            res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
+            clearAuthCookies(res);
             return res.status(401).json({ error: 'Invalid refresh token' });
         }
 
         // Check expiry (DB) - helpful if DB constraint differs from JWT
         if (new Date(storedToken.expires_at) < new Date()) {
-            res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
+            clearAuthCookies(res);
             return res.status(401).json({ error: 'Refresh token expired' });
         }
 
@@ -296,9 +304,9 @@ router.post('/refresh', async (req, res, next) => {
         res.cookie('refreshToken', newRefreshToken, getRefreshCookieOptions());
 
         // Remove sensitive data
-        delete user.password_hash;
+        const { password_hash: _, ...safeUser } = user;
 
-        res.json(ApiResponse.success({ user }, 'Token refreshed'));
+        res.json(ApiResponse.success({ user: safeUser }, 'Token refreshed'));
 
     } catch (error) {
         next(error);
@@ -323,9 +331,7 @@ router.post('/logout', async (req, res, next) => {
             await db.query('UPDATE refresh_tokens SET revoked = 1 WHERE token = $1', [refreshToken]);
         }
 
-        res.clearCookie('accessToken', { path: '/' });
-        res.clearCookie('refreshToken', { path: '/' });
-        res.clearCookie('token', { path: '/' }); // Clear legacy cookie just in case
+        clearAuthCookies(res);
 
         res.json(ApiResponse.success(null, 'Logged out successfully'));
     } catch (error) {

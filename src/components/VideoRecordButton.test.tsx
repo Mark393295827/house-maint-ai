@@ -74,7 +74,7 @@ describe('VideoRecordButton', () => {
         // SVG for progress ring should be present
         const button = screen.getByTestId('video-record-button');
         const container = button.closest('.relative');
-        expect(container.querySelector('svg')).toBeInTheDocument();
+        expect(container!.querySelector('svg')).toBeInTheDocument();
     });
 
     it('should trigger haptic success on stop recording', () => {

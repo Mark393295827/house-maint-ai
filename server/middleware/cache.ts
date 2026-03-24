@@ -16,7 +16,9 @@ export const cacheMiddleware = (duration = 60) => {
             return next();
         }
 
-        const key = `cache:${req.originalUrl || req.url}`;
+        const authUser = (req as any).user;
+        const authScope = authUser ? `user:${authUser.id}:role:${authUser.role || 'unknown'}` : 'public';
+        const key = `cache:${authScope}:${req.originalUrl || req.url}`;
 
         try {
             // Anti-stampede protection
@@ -77,9 +79,21 @@ export const clearCache = async (pattern: string) => {
     try {
         const redisAny = redis as any;
         if (typeof redisAny.keys === 'function') {
-            const keys = await redisAny.keys(`cache:${pattern}*`);
-            if (keys && keys.length > 0) {
-                await redisAny.del(...keys);
+            const searchPatterns = [
+                `cache:${pattern}*`,     // legacy key format
+                `cache:*:${pattern}*`,   // scoped key format
+            ];
+
+            const keysToDelete = new Set<string>();
+            for (const p of searchPatterns) {
+                const keys = await redisAny.keys(p);
+                if (keys && keys.length > 0) {
+                    keys.forEach((k: string) => keysToDelete.add(k));
+                }
+            }
+
+            if (keysToDelete.size > 0) {
+                await redisAny.del(...Array.from(keysToDelete));
             }
         }
     } catch (error) {

@@ -40,6 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await api.login(phone, password);
             setUser(data.user);
             connectSocket();
+            // Pre-warm CSRF token for subsequent mutations
+            api.refreshCsrfToken().catch(() => {});
             return { success: true, user: data.user };
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Login failed';
@@ -60,9 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // If registering as a worker, automatically initialize worker profile
             if (role === 'worker' || data.user.role === 'worker') {
                 try {
-                    await api.registerWorker({ 
-                        skills: ['general'], 
-                        bio: 'Professional maintenance provider' 
+                    await api.registerWorker({
+                        skills: ['general'],
                     });
                 } catch (workerErr) {
                     console.error('Failed to auto-initialize worker profile:', workerErr);
@@ -72,6 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             
             setUser(data.user);
+            connectSocket();
+            // Pre-warm CSRF token for subsequent mutations
+            api.refreshCsrfToken().catch(() => {});
             return { success: true, user: data.user };
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Registration failed';

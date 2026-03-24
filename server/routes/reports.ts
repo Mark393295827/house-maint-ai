@@ -193,7 +193,11 @@ router.get('/:id', authenticate, async (req, res, next) => {
             LEFT JOIN users u ON r.user_id = u.id
             LEFT JOIN workers w ON r.matched_worker_id = w.id
             LEFT JOIN users wu ON w.user_id = wu.id
-            WHERE r.id = $1 AND (r.user_id = $2 OR $3 = 'admin')
+            WHERE r.id = $1 AND (
+                r.user_id = $2
+                OR $3 IN ('admin', 'manager')
+                OR ($3 = 'worker' AND r.matched_worker_id = (SELECT id FROM workers WHERE user_id = $2))
+            )
         `, [req.params.id, req.user.id, req.user.role]);
 
         const report = rows[0];
@@ -204,7 +208,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
 
         // Parse JSON fields
         if (report.image_urls) {
-            report.image_urls = parseJsonColumn<string[]>(report.image_urls, []) as unknown as string;
+            report.image_urls = parseJsonColumn<string[]>(report.image_urls, []);
         }
 
         res.json(ApiResponse.success({ report }));
@@ -272,6 +276,10 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
     try {
         const reportId = req.params.id;
 
+        if (!['worker', 'admin'].includes(req.user.role)) {
+            return res.status(403).json(ApiResponse.fail('Only workers can accept jobs'));
+        }
+
         // 1. Get report
         const { rows: reports } = await db.query('SELECT * FROM reports WHERE id = $1', [reportId]);
         if (reports.length === 0) return res.status(404).json({ error: 'Report not found' });
@@ -284,9 +292,13 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
 
         // 3. Authorize — only the matched worker or any worker if it's a pool job
         const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [req.user.id]);
-        const worker = workers[0];
-        
-        const isMatchedWorker = worker && report.matched_worker_id === worker.id;
+        const worker = workers[0] || null;
+
+        if (req.user.role === 'worker' && !worker) {
+            return res.status(403).json(ApiResponse.fail('Worker profile not found'));
+        }
+
+        const isMatchedWorker = !!worker && report.matched_worker_id === worker.id;
         const isPoolJob = !report.matched_worker_id;
 
         if (!isMatchedWorker && !isPoolJob && req.user.role !== 'admin') {
@@ -301,7 +313,7 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = $1
             RETURNING *
-        `, [reportId, worker.id]);
+        `, [reportId, worker?.id ?? null]);
 
         res.json(ApiResponse.success({ report: updated[0] }, 'Job accepted'));
     } catch (error) {

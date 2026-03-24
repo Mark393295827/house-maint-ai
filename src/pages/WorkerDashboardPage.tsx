@@ -65,6 +65,7 @@ const WorkerDashboardPage: React.FC = () => {
     const [accepting, setAccepting] = useState<string | null>(null);
     const [workerId, setWorkerId] = useState<number | null>(null);
     const [simulatedOrder, setSimulatedOrder] = useState<AvailableOrder | null>(null);
+    const enableDemoOrderPush = import.meta.env.DEV && import.meta.env.VITE_ENABLE_WORKER_PUSH_SIM === 'true';
 
     const [stats, setStats] = useState<WorkerDashboardStats>({
         earnings: 0,
@@ -99,6 +100,7 @@ const WorkerDashboardPage: React.FC = () => {
     useEffect(() => { fetchData(); }, [fetchData]);
 
     useEffect(() => {
+        if (!enableDemoOrderPush) return;
         const timer = setTimeout(() => {
             setSimulatedOrder({
                 id: 999,
@@ -112,7 +114,7 @@ const WorkerDashboardPage: React.FC = () => {
             });
         }, 8000);
         return () => clearTimeout(timer);
-    }, []);
+    }, [enableDemoOrderPush]);
 
     const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 

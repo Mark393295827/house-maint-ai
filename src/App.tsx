@@ -66,15 +66,15 @@ function App() {
                     <Route path="/payment/success" element={<PaymentSuccessPage />} />
                     <Route path="/payment/cancel" element={<PaymentCancelPage />} />
 
-                    {/* Protected routes */}
-                    <Route path="/diagnosis" element={<ProtectedRoute><DiagnosisPage /></ProtectedRoute>} />
-                    <Route path="/cases" element={<ProtectedRoute><MyCasesPage /></ProtectedRoute>} />
+                    {/* Consumer-only routes */}
+                    <Route path="/diagnosis" element={<ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}><DiagnosisPage /></ProtectedRoute>} />
+                    <Route path="/cases" element={<ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}><MyCasesPage /></ProtectedRoute>} />
                     <Route path="/library" element={<ProtectedRoute><CaseLibraryPage /></ProtectedRoute>} />
                     <Route path="/showcase" element={<ProtectedRoute><ShowcasePage /></ProtectedRoute>} />
                     <Route path="/omnichannel-sim" element={<ProtectedRoute><OmnichannelSim /></ProtectedRoute>} />
-                    <Route path="/metrics" element={<ProtectedRoute><MetricsDashboard /></ProtectedRoute>} />
+                    <Route path="/metrics" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><MetricsDashboard /></ProtectedRoute>} />
 
-                    {/* Protected routes */}
+                    {/* Shared authenticated routes */}
                     <Route path="/calendar" element={
                       <ProtectedRoute>
                         <CalendarPage />
@@ -91,24 +91,24 @@ function App() {
                       </ProtectedRoute>
                     } />
                     <Route path="/assets" element={
-                      <ProtectedRoute>
+                      <ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}>
                         <AssetsPage />
                       </ProtectedRoute>
                     } />
 
-                    {/* Worker routes */}
+                    {/* Worker-only routes */}
                     <Route path="/worker/dashboard" element={
-                      <ProtectedRoute>
+                      <ProtectedRoute allowedRoles={['worker', 'admin']}>
                         <WorkerDashboardPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/worker/job/:id" element={
-                      <ProtectedRoute>
+                      <ProtectedRoute allowedRoles={['worker', 'admin']}>
                         <WorkerJobPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/worker/match" element={
-                      <ProtectedRoute>
+                      <ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}>
                         <WorkerMatchPage />
                       </ProtectedRoute>
                     } />
@@ -135,7 +135,7 @@ function App() {
 
                     {/* Enterprise Management Dashboard */}
                     <Route path="/enterprise/*" element={
-                      <ProtectedRoute>
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
                         <EnterpriseDashboard />
                       </ProtectedRoute>
                     } />

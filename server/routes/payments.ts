@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request } from 'express';
 import { authenticate } from '../middleware/auth.js';
 import db from '../config/database.js';
 import { emitToWorkers } from '../socket.js';
@@ -10,6 +10,8 @@ const router = express.Router();
 const MCH_ID = process.env.WECHAT_MCH_ID || '1234567890';
 const APP_ID = process.env.WECHAT_APP_ID || 'wx_test_app_id';
 const API_V3_KEY = process.env.WECHAT_API_V3_KEY || 'test_api_v3_key_1234567890123456';
+const WEBHOOK_VERIFY_REQUIRED = process.env.NODE_ENV === 'production' || process.env.WECHAT_WEBHOOK_VERIFY === 'true';
+const WEBHOOK_SECRET = process.env.WECHAT_WEBHOOK_SECRET || API_V3_KEY;
 
 /**
  * Helper to generate WeChat Pay JSAPI Signature (Mocked for localized dev)
@@ -18,6 +20,60 @@ function generateWeChatPaySignature(appId: string, timeStamp: string, nonceStr: 
     const message = `${appId}\n${timeStamp}\n${nonceStr}\n${packageStr}\n`;
     // In production, this uses RSA signature with the merchant's API certificate
     return crypto.createHmac('sha256', privateKey).update(message).digest('base64');
+}
+
+function getRawBodyString(body: unknown): string {
+    if (Buffer.isBuffer(body)) {
+        return body.toString('utf8');
+    }
+    if (typeof body === 'string') {
+        return body;
+    }
+    if (body && typeof body === 'object') {
+        return JSON.stringify(body);
+    }
+    return '';
+}
+
+function verifyWebhookSignature(req: Request, rawBody: string): { ok: boolean; reason?: string } {
+    if (!WEBHOOK_VERIFY_REQUIRED) {
+        return { ok: true };
+    }
+
+    const signatureHeader = req.header('wechatpay-signature') || '';
+    const timestamp = req.header('wechatpay-timestamp') || '';
+    const nonce = req.header('wechatpay-nonce') || '';
+
+    if (!signatureHeader || !timestamp || !nonce) {
+        return { ok: false, reason: 'Missing webhook signature headers' };
+    }
+
+    const timestampNum = Number(timestamp);
+    if (!Number.isFinite(timestampNum)) {
+        return { ok: false, reason: 'Invalid webhook timestamp' };
+    }
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    // Reject stale/replayed requests outside a 5-minute window.
+    if (Math.abs(nowSeconds - timestampNum) > 300) {
+        return { ok: false, reason: 'Webhook timestamp outside allowable window' };
+    }
+
+    const payload = `${timestamp}\n${nonce}\n${rawBody}\n`;
+    const expectedSignature = crypto.createHmac('sha256', WEBHOOK_SECRET).update(payload).digest('base64');
+
+    const providedBuffer = Buffer.from(signatureHeader, 'utf8');
+    const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
+
+    if (providedBuffer.length !== expectedBuffer.length) {
+        return { ok: false, reason: 'Invalid webhook signature length' };
+    }
+
+    if (!crypto.timingSafeEqual(providedBuffer, expectedBuffer)) {
+        return { ok: false, reason: 'Webhook signature verification failed' };
+    }
+
+    return { ok: true };
 }
 
 /**
@@ -94,7 +150,7 @@ router.post('/checkout', authenticate, async (req, res, next) => {
  * POST /api/v1/payments/webhook
  * Handle WeChat Pay V3 Webhooks
  */
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+router.post('/webhook', async (req, res) => {
     // WeChat Pay V3 Webhooks send an encrypted payload
     /* 
     const wechatSignature = req.headers['wechatpay-signature'];
@@ -104,8 +160,13 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     */
 
     try {
-        // Parse the body (WeChat sends JSON, but we use raw to verify signature first in prod)
-        const bodyStr = req.body.toString('utf8');
+        const bodyStr = getRawBodyString(req.body);
+        const verification = verifyWebhookSignature(req, bodyStr);
+        if (!verification.ok) {
+            return res.status(401).json({ code: 'FAIL', message: verification.reason || 'Invalid webhook signature' });
+        }
+
+        // Parse the body only after signature validation
         const event = JSON.parse(bodyStr);
 
         // In production, you MUST decrypt event.resource.ciphertext using API_V3_KEY AEAD_AES_256_GCM

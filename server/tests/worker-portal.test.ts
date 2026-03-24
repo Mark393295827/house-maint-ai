@@ -60,7 +60,7 @@ describe('Worker Portal Routes', () => {
                 .send({ skills: ['plumbing'], hourlyRate: 80, bio: 'Expert plumber' });
 
             expect(res.status).toBe(201);
-            expect(res.body.worker).toBeDefined();
+            expect(res.body.data.worker).toBeDefined();
         });
 
         it('should reject registration with no skills', async () => {
@@ -82,7 +82,6 @@ describe('Worker Portal Routes', () => {
                 .send({ skills: ['electrical'] });
 
             expect(res.status).toBe(409);
-            expect(res.body.workerId).toBe(5);
         });
     });
 
@@ -104,11 +103,11 @@ describe('Worker Portal Routes', () => {
             const res = await request(app).get('/api/worker-portal/dashboard');
 
             expect(res.status).toBe(200);
-            expect(res.body.stats).toBeDefined();
-            expect(res.body.stats.earnings).toBe(450);
-            expect(res.body.stats.jobsCompleted).toBe(3);
-            expect(res.body.stats.activeJobs).toBe(1);
-            expect(res.body.stats.rating).toBe(4.5);
+            expect(res.body.data.stats).toBeDefined();
+            expect(res.body.data.stats.earnings).toBe(450);
+            expect(res.body.data.stats.jobsCompleted).toBe(3);
+            expect(res.body.data.stats.activeJobs).toBe(1);
+            expect(res.body.data.stats.rating).toBe(4.5);
         });
 
         it('should auto-initialize worker profile for worker role', async () => {
@@ -130,7 +129,7 @@ describe('Worker Portal Routes', () => {
             const res = await request(app).get('/api/worker-portal/dashboard');
 
             expect(res.status).toBe(200);
-            expect(res.body.stats.earnings).toBe(0);
+            expect(res.body.data.stats.earnings).toBe(0);
         });
     });
 
@@ -151,8 +150,8 @@ describe('Worker Portal Routes', () => {
             const res = await request(app).get('/api/worker-portal/jobs');
 
             expect(res.status).toBe(200);
-            expect(res.body.jobs).toHaveLength(2);
-            expect(res.body.jobs[0].title).toBe('Fix pipe');
+            expect(res.body.data.jobs).toHaveLength(2);
+            expect(res.body.data.jobs[0].title).toBe('Fix pipe');
         });
 
         it('should return 404 if no worker profile', async () => {

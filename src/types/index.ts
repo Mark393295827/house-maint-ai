@@ -137,7 +137,7 @@ export interface AuthContextValue {
     isLoading: boolean;
     error: string | null;
     login: (phone: string, password: string) => Promise<AuthResult>;
-    register: (phone: string, password: string, name: string) => Promise<AuthResult>;
+    register: (phone: string, password: string, name: string, role?: string) => Promise<AuthResult>;
     logout: () => void;
     updateUser: (data: { name?: string; avatar?: string }) => Promise<AuthResult>;
     clearError: () => void;

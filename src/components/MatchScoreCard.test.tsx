@@ -16,17 +16,26 @@ import * as matchScoreUtils from '../utils/matchScore';
 
 describe('MatchScoreCard', () => {
     const mockWorker = {
+        id: 1,
+        user_id: 1,
         name: '张师傅',
         avatar: 'https://example.com/avatar.jpg',
         distance: 2.5,
         rating: 4.8,
         skills: ['plumbing', 'electrical'],
+        total_jobs: 50,
+        available: true,
         distanceScore: 75,
         technicalScore: 90,
     };
 
     const mockReport = {
+        id: 1,
+        user_id: 1,
+        title: '水管漏水报修',
         description: '水管漏水',
+        status: 'pending' as const,
+        created_at: '2026-01-01T00:00:00Z',
         requiredSkills: ['plumbing'],
     };
 

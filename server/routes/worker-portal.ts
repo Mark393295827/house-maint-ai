@@ -2,15 +2,14 @@ import express from 'express';
 import { z } from 'zod';
 import db from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
 
 const registerSchema = z.object({
     skills: z.array(z.string()).min(1),
-    hourlyRate: z.number().optional(),
-    serviceArea: z.string().optional(),
-    bio: z.string().optional(),
-    experience: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
 });
 
 /**
@@ -21,29 +20,29 @@ router.post('/register', authenticate, async (req, res, next) => {
     try {
         const parsed = registerSchema.safeParse(req.body);
         if (!parsed.success) {
-            return res.status(400).json({ error: 'Invalid data', details: parsed.error.format() });
+            return res.status(400).json(ApiResponse.fail('Invalid data'));
         }
 
-        const { skills, hourlyRate, serviceArea, bio } = parsed.data;
+        const { skills, latitude, longitude } = parsed.data;
         const userId = req.user.id;
 
         // Check if already a worker
         const { rows: existing } = await db.query('SELECT id FROM workers WHERE user_id = $1', [userId]);
         if (existing.length > 0) {
-            return res.status(409).json({ error: 'Already registered as worker', workerId: existing[0].id });
+            return res.status(409).json(ApiResponse.fail('Already registered as worker'));
         }
 
         // Create worker record
         const { rows } = await db.query(`
-            INSERT INTO workers (user_id, skills, hourly_rate, service_area, bio, available)
-            VALUES ($1, $2, $3, $4, $5, 1)
+            INSERT INTO workers (user_id, skills, latitude, longitude, available)
+            VALUES ($1, $2, $3, $4, 1)
             RETURNING *
-        `, [userId, JSON.stringify(skills), hourlyRate || null, serviceArea || null, bio || null]);
+        `, [userId, JSON.stringify(skills), latitude || null, longitude || null]);
 
         // Update user role
         await db.query('UPDATE users SET role = $1 WHERE id = $2', ['worker', userId]);
 
-        res.status(201).json({ worker: rows[0] || { user_id: userId, skills } });
+        res.status(201).json(ApiResponse.success({ worker: rows[0] || { user_id: userId, skills } }, 'Worker registered'));
     } catch (error) {
         next(error);
     }
@@ -70,7 +69,7 @@ router.get('/dashboard', authenticate, async (req, res, next) => {
                 `, [userId, JSON.stringify(['general'])]);
                 workers = newWorker;
             } else {
-                return res.status(404).json({ error: 'Worker profile not found', registered: false });
+                return res.status(404).json(ApiResponse.fail('Worker profile not found'));
             }
         }
         const worker = workers[0];
@@ -91,7 +90,7 @@ router.get('/dashboard', authenticate, async (req, res, next) => {
             WHERE r.matched_worker_id = $1 AND o.status = 'paid'
         `, [worker.id]);
 
-        res.json({
+        res.json(ApiResponse.success({
             worker,
             stats: {
                 earnings: parseFloat(earningsResult[0]?.total || '0'),
@@ -99,7 +98,7 @@ router.get('/dashboard', authenticate, async (req, res, next) => {
                 activeJobs: parseInt(jobStats[0]?.active || '0'),
                 rating: parseFloat(worker.rating || '0'),
             },
-        });
+        }));
     } catch (error) {
         next(error);
     }
@@ -113,7 +112,7 @@ router.get('/jobs', authenticate, async (req, res, next) => {
     try {
         const { rows: workers } = await db.query('SELECT id FROM workers WHERE user_id = $1', [req.user.id]);
         if (workers.length === 0) {
-            return res.status(404).json({ error: 'Worker profile not found' });
+            return res.status(404).json(ApiResponse.fail('Worker profile not found'));
         }
 
         const { rows: jobs } = await db.query(`
@@ -124,7 +123,7 @@ router.get('/jobs', authenticate, async (req, res, next) => {
             ORDER BY r.created_at DESC
         `, [workers[0].id]);
 
-        res.json({ jobs });
+        res.json(ApiResponse.success({ jobs }));
     } catch (error) {
         next(error);
     }
@@ -136,30 +135,30 @@ router.get('/jobs', authenticate, async (req, res, next) => {
  */
 router.put('/profile', authenticate, async (req, res, next) => {
     try {
-        const { skills, hourlyRate, serviceArea, bio } = req.body;
+        const { skills, latitude, longitude, available } = req.body;
         const userId = req.user.id;
 
         const { rows: workers } = await db.query('SELECT id FROM workers WHERE user_id = $1', [userId]);
         if (workers.length === 0) {
-            return res.status(404).json({ error: 'Worker profile not found' });
+            return res.status(404).json(ApiResponse.fail('Worker profile not found'));
         }
 
         await db.query(`
             UPDATE workers SET
                 skills = COALESCE($1, skills),
-                hourly_rate = COALESCE($2, hourly_rate),
-                service_area = COALESCE($3, service_area),
-                bio = COALESCE($4, bio)
+                latitude = COALESCE($2, latitude),
+                longitude = COALESCE($3, longitude),
+                available = COALESCE($4, available)
             WHERE user_id = $5
         `, [
             skills ? JSON.stringify(skills) : null,
-            hourlyRate || null,
-            serviceArea || null,
-            bio || null,
+            latitude ?? null,
+            longitude ?? null,
+            available != null ? (available ? 1 : 0) : null,
             userId,
         ]);
 
-        res.json({ message: 'Profile updated' });
+        res.json(ApiResponse.success(null, 'Profile updated'));
     } catch (error) {
         next(error);
     }

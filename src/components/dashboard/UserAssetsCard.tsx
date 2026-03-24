@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { useAssets, useAddAsset, useDeleteAsset } from '../../hooks/useAssets';
-import { useLanguage } from '../../i18n/LanguageContext';
 
 const UserAssetsCard = () => {
     // const { t } = useLanguage(); // Unused

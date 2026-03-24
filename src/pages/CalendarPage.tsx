@@ -124,16 +124,15 @@ const CalendarPage = () => {
         try {
             const reportId = sessionStorage.getItem('lastReportId');
 
-            if (reportId && selectedWorker) {
-                // Update report status to 'matched' and assign worker
-                await api.updateReport(reportId, {
-                    status: 'matched',
-                    matched_worker_id: selectedWorker.id
-                });
-            } else {
-                // Fallback for demo without a real report
-                await new Promise(resolve => setTimeout(resolve, 1000));
+            if (!reportId || !selectedWorker) {
+                throw new Error('Missing booking context. Please restart matching flow.');
             }
+
+            // Update report status to 'matched' and assign worker
+            await api.updateReport(reportId, {
+                status: 'matched',
+                matched_worker_id: selectedWorker.id
+            });
 
             hapticSuccess();
             setBookingSuccess(true);

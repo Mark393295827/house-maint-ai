@@ -26,7 +26,7 @@ const Analytics = {
      * @param {string} name - Event name
      * @param {object} props - Event properties
      */
-    track: (name, props = {}) => {
+    track: (name: string, props: Record<string, unknown> = {}) => {
         if (import.meta.env.VITE_MIXPANEL_TOKEN) {
             mixpanel.track(name, props);
         } else {
@@ -41,7 +41,7 @@ const Analytics = {
      * @param {string} id - User ID
      * @param {object} data - User properties
      */
-    identify: (id, data = {}) => {
+    identify: (id: string, data: Record<string, unknown> = {}) => {
         if (import.meta.env.VITE_MIXPANEL_TOKEN) {
             mixpanel.identify(id);
             if (Object.keys(data).length > 0) {

@@ -54,6 +54,7 @@ const DiagnosisWizard: React.FC = () => {
 
             const newCaseId = String(result.report.id);
             setCaseId(newCaseId);
+            sessionStorage.setItem('lastReportId', newCaseId);
             
             Analytics.track('inquiry_dispatched', { 
                 caseId: newCaseId, 
