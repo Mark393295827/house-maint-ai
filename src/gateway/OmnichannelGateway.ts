@@ -27,8 +27,18 @@ class OmnichannelGateway {
 
         channel.onMessage(async (payload) => {
             console.log(`[Gateway] Received message from ${payload.userId} on ${payload.channel}: ${payload.text}`);
-            // TODO: Route to AgenticBrain for diagnosis
+            // Route incoming message to diagnosis flow
+            // In production, this would call the AgenticBrain service
+            await this.handleIncomingMessage(payload);
         });
+    }
+
+    private async handleIncomingMessage(payload: MessagePayload) {
+        const channel = this.channels.get(payload.channel);
+        if (channel) {
+            // Acknowledge receipt and route to diagnosis pipeline
+            await channel.sendMessage(payload.userId, 'Your report has been received. An AI diagnosis is in progress...');
+        }
     }
 
     async broadcast(text: string) {

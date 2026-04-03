@@ -13,8 +13,9 @@ let socket: Socket | null = null;
 export function connectSocket(): Socket {
     if (socket?.connected) return socket;
 
-    socket = io('/', {
+    socket = io(window.location.origin, {
         withCredentials: true,  // sends httpOnly accessToken cookie
+        path: '/socket.io',
         transports: ['websocket', 'polling'],
         reconnectionAttempts: 5,
         reconnectionDelay: 2000,

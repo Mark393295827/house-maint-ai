@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useReports } from '../hooks/useReports';
 import type { Report as AppReport } from '../types';
 import { getInsights, ProactiveInsight } from '../store/proactive';
+import api from '../services/api';
 
 function useCountUp(target: number, duration = 650) {
     const [count, setCount] = useState(0);
@@ -43,6 +44,7 @@ const Dashboard = () => {
     const liveMth = useCountUp(monthCount);
 
     const [insights, setInsights] = useState<ProactiveInsight[]>(getInsights());
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
 
     useEffect(() => {
         const handleUpdate = () => {
@@ -52,7 +54,31 @@ const Dashboard = () => {
         return () => window.removeEventListener('proactive-update', handleUpdate);
     }, []);
 
+    // Fetch real notification count
+    useEffect(() => {
+        api.getNotifications()
+            .then(data => setUnreadNotifications(data.unreadCount || 0))
+            .catch(() => setUnreadNotifications(0));
+    }, []);
+
     const activeInsight = insights[0];
+
+    // Dynamic todo items from active reports
+    const todoItems = activeReports.slice(0, 3).map((r: AppReport) => ({
+        id: r.id,
+        text: r.title,
+        due: r.status === 'in_progress'
+            ? (locale === 'zh' ? '处理中' : 'In Progress')
+            : (locale === 'zh' ? '待处理' : 'Pending'),
+        type: r.status === 'in_progress' ? 'check' : 'do',
+    }));
+
+    // Dynamic case library counts from reports data
+    const categoryCounts = reports.reduce((acc: Record<string, number>, r: AppReport) => {
+        const cat = (r.category || 'other').toLowerCase();
+        acc[cat] = (acc[cat] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
 
     /* ─── Re-map to display format ─── */
     const activeCases = activeReports.map((r: AppReport) => {
@@ -73,10 +99,7 @@ const Dashboard = () => {
         date: new Date(r.created_at).toISOString().split('T')[0], 
         category: r.category || '',
     }));
-    const todoItems = [
-        { id: 1, text: locale === 'zh' ? '检查厨房水管密封修复效果' : 'Verify kitchen pipe seal repair', due: locale === 'zh' ? '明天' : 'Tomorrow', type: 'check' },
-        { id: 2, text: locale === 'zh' ? '购买空调清洗剂' : 'Buy AC cleaning solution', due: locale === 'zh' ? '本周' : 'This week', type: 'do' },
-    ];
+    // (todoItems are now computed above from activeReports)
 
     return (
         <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark pb-[90px] overflow-x-hidden shadow-2xl">
@@ -96,7 +119,9 @@ const Dashboard = () => {
                     </div>
                     <button onClick={() => navigate('/notifications')} className="relative w-10 h-10 rounded-xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700/50 flex items-center justify-center hover:border-primary/30 transition-colors">
                         <span className="material-symbols-outlined text-gray-600 dark:text-gray-400">notifications</span>
-                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-racing-red text-white text-[9px] font-bold flex items-center justify-center shadow-lg shadow-racing-red/40">2</div>
+                        {unreadNotifications > 0 && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-racing-red text-white text-[9px] font-bold flex items-center justify-center shadow-lg shadow-racing-red/40">{unreadNotifications > 9 ? '9+' : unreadNotifications}</div>
+                        )}
                     </button>
                 </div>
             </div>
@@ -176,7 +201,7 @@ const Dashboard = () => {
                         { icon: 'add_a_photo', metric: '30s', label: locale === 'zh' ? '极速诊断' : 'Photo Diagnosis', color: 'from-indigo-500 to-violet-500', path: '/diagnosis' },
                         { icon: 'hub', metric: 'Claw', label: locale === 'zh' ? '全渠道模拟' : 'Omnichannel', color: 'from-cyan-500 to-teal-500', path: '/omnichannel-sim' },
                         { icon: 'verified_user', metric: '防', label: locale === 'zh' ? '复发机制' : 'Anti-Relapse', color: 'from-emerald-500 to-green-500', path: '/library' },
-                        { icon: 'videocam', metric: 'Live', label: locale === 'zh' ? '远程巡检' : 'Remote Inspect', color: 'from-rose-500 to-pink-500', path: '/remote' },
+                        { icon: 'videocam', metric: 'Live', label: locale === 'zh' ? '远程巡检' : 'Remote Inspect', color: 'from-rose-500 to-pink-500', path: '/diagnosis' },
                     ].map((h, i) => (
                         <button
                             key={i}
@@ -224,14 +249,20 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="mt-3 flex gap-2">
-                        <div className="flex-1 h-8 px-3 rounded-xl bg-rose-500 text-white text-xs font-bold flex items-center justify-center gap-1">
+                        <button
+                            onClick={() => { localStorage.setItem('remote_notify', 'true'); }}
+                            className="flex-1 h-8 px-3 rounded-xl bg-rose-500 text-white text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform"
+                        >
                             <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>notifications</span>
                             {locale === 'zh' ? '上线通知' : 'Notify Me'}
-                        </div>
-                        <div className="flex items-center gap-1 px-3 h-8 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-medium">
+                        </button>
+                        <button
+                            onClick={() => navigate('/showcase')}
+                            className="flex items-center gap-1 px-3 h-8 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-medium active:scale-95 transition-transform"
+                        >
                             <span className="material-symbols-outlined text-xs">info</span>
                             {locale === 'zh' ? '了解更多' : 'Learn More'}
-                        </div>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -315,16 +346,16 @@ const Dashboard = () => {
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                     {[
-                        { icon: 'plumbing', label: locale === 'zh' ? '管道' : 'Plumbing', count: 24, color: 'from-blue-500 to-cyan-500' },
-                        { icon: 'bolt', label: locale === 'zh' ? '电气' : 'Electrical', count: 18, color: 'from-amber-500 to-orange-500' },
-                        { icon: 'ac_unit', label: locale === 'zh' ? '暖通' : 'HVAC', count: 12, color: 'from-violet-500 to-purple-500' },
+                        { icon: 'plumbing', label: locale === 'zh' ? '管道' : 'Plumbing', key: 'plumbing', color: 'from-blue-500 to-cyan-500' },
+                        { icon: 'bolt', label: locale === 'zh' ? '电气' : 'Electrical', key: 'electrical', color: 'from-amber-500 to-orange-500' },
+                        { icon: 'ac_unit', label: locale === 'zh' ? '暖通' : 'HVAC', key: 'hvac', color: 'from-violet-500 to-purple-500' },
                     ].map((cat, i) => (
-                        <button key={i} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 active:scale-95 transition-transform">
+                        <button key={i} onClick={() => navigate('/library')} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 active:scale-95 transition-transform">
                             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center shadow-lg`}>
                                 <span className="material-symbols-outlined text-white">{cat.icon}</span>
                             </div>
                             <span className="text-xs font-bold text-text-main-light dark:text-text-main-dark">{cat.label}</span>
-                            <span className="text-[10px] text-gray-400">{cat.count} {locale === 'zh' ? '案例' : 'cases'}</span>
+                            <span className="text-[10px] text-gray-400">{categoryCounts[cat.key] || 0} {locale === 'zh' ? '案例' : 'cases'}</span>
                         </button>
                     ))}
                 </div>
@@ -338,8 +369,13 @@ const Dashboard = () => {
                     </h2>
                 </div>
                 <div className="space-y-2">
-                    {todoItems.map(item => (
-                        <div key={item.id} className="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700">
+                    {todoItems.length === 0 ? (
+                        <div className="text-center py-6 bg-white dark:bg-surface-dark rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                            <span className="material-symbols-outlined text-3xl text-gray-300 mb-1">task_alt</span>
+                            <p className="text-xs text-gray-400">{locale === 'zh' ? '暂无待办事项' : 'All clear!'}</p>
+                        </div>
+                    ) : todoItems.map(item => (
+                        <div key={item.id} onClick={() => navigate('/cases')} className="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 cursor-pointer active:scale-[0.98] transition-transform">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${item.type === 'check' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
                                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1", color: item.type === 'check' ? '#10b981' : '#3b82f6' }}>
                                     {item.type === 'check' ? 'fact_check' : 'assignment'}

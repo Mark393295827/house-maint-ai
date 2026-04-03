@@ -67,7 +67,6 @@ router.post('/', authenticate, async (req, res, next) => {
 /**
  * GET /api/reports/available
  * Get available orders for workers (pending/matching status)
- * Returns distance from worker's current position
  */
 router.get('/available', authenticate, async (req, res, next) => {
     try {
@@ -87,7 +86,6 @@ router.get('/available', authenticate, async (req, res, next) => {
             LIMIT 50
         `);
 
-        // Haversine distance calculation
         const enriched = orders.map((order: any) => {
             let distanceKm: number | null = null;
             if (order.latitude && order.longitude) {
@@ -119,7 +117,6 @@ router.get('/my-jobs', authenticate, async (req, res, next) => {
             return res.status(403).json({ error: 'Workers only' });
         }
 
-        // Get the worker record for this user
         const { rows: workerRows } = await db.query('SELECT id FROM workers WHERE user_id = $1', [req.user.id]);
         const workerId = workerRows[0]?.id;
 
@@ -206,7 +203,6 @@ router.get('/:id', authenticate, async (req, res, next) => {
             return res.status(404).json(ApiResponse.fail('Report not found'));
         }
 
-        // Parse JSON fields
         if (report.image_urls) {
             report.image_urls = parseJsonColumn<string[]>(report.image_urls, []);
         }
@@ -225,7 +221,6 @@ router.put('/:id', authenticate, async (req, res, next) => {
     try {
         const { status, matched_worker_id, urgency_score } = req.body;
 
-        // Verify ownership or admin
         const { rows: existing } = await db.query('SELECT * FROM reports WHERE id = $1', [req.params.id]);
         if (existing.length === 0) {
             return res.status(404).json({ error: 'Report not found' });
@@ -245,7 +240,7 @@ router.put('/:id', authenticate, async (req, res, next) => {
             else if (current === 'broadcasted' && ['matched', 'cancelled'].includes(status)) valid = true;
             else if (current === 'matched' && ['in_progress', 'cancelled'].includes(status)) valid = true;
             else if (current === 'in_progress' && ['completed', 'cancelled'].includes(status)) valid = true;
-            else if (['completed', 'cancelled', 'failed_analysis'].includes(current)) valid = false; // Terminal states
+            else if (['completed', 'cancelled', 'failed_analysis'].includes(current)) valid = false;
 
             if (!valid && req.user.role !== 'admin') {
                 return res.status(400).json(ApiResponse.fail(`Illegal state transition from ${current} to ${status}`));
@@ -280,17 +275,14 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
             return res.status(403).json(ApiResponse.fail('Only workers can accept jobs'));
         }
 
-        // 1. Get report
         const { rows: reports } = await db.query('SELECT * FROM reports WHERE id = $1', [reportId]);
         if (reports.length === 0) return res.status(404).json({ error: 'Report not found' });
         const report = reports[0];
 
-        // 2. Validate status
         if (!['pending', 'matching', 'matched', 'broadcasted'].includes(report.status)) {
             return res.status(400).json(ApiResponse.fail(`Cannot accept a job in "${report.status}" status`));
         }
 
-        // 3. Authorize — only the matched worker or any worker if it's a pool job
         const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [req.user.id]);
         const worker = workers[0] || null;
 
@@ -305,7 +297,6 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
             return res.status(403).json(ApiResponse.fail('Not authorized to accept this job'));
         }
 
-        // 4. Transition status
         const { rows: updated } = await db.query(`
             UPDATE reports
             SET status = 'in_progress',
@@ -330,18 +321,15 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
         const { resolution_details } = req.body;
         const reportId = req.params.id;
 
-        // 1. Get report
         const { rows: reports } = await db.query('SELECT * FROM reports WHERE id = $1', [reportId]);
         if (reports.length === 0) return res.status(404).json({ error: 'Report not found' });
 
         const report = reports[0];
 
-        // 2. Authorize (Only assigned worker or admin)
         if (report.matched_worker_id === null) {
             return res.status(400).json(ApiResponse.fail('Report is not assigned to any worker'));
         }
 
-        // Verify that the requester is the assigned worker
         const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [req.user.id]);
         const worker = workers[0];
 
@@ -349,7 +337,6 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
             return res.status(403).json(ApiResponse.fail('Not authorized'));
         }
 
-        // 3. Update report
         const resolutionJson = JSON.stringify(resolution_details || {});
 
         const { rows: updated } = await db.query(`
@@ -362,10 +349,8 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
             RETURNING *
         `, [resolutionJson, reportId]);
 
-        // 4. Update worker stats (increment total_jobs)
         await db.query('UPDATE workers SET total_jobs = total_jobs + 1 WHERE id = $1', [report.matched_worker_id]);
 
-        // 5. Fire-and-forget: trigger learning loop (Stage 6-7)
         import('../services/learning.js').then(({ learningService }) => {
             learningService.processCompletedReports().catch((err: unknown) =>
                 console.error('Learning loop error:', err)
@@ -413,59 +398,55 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
     try {
         const reportId = req.params.id;
 
-        // 1. Get report details with user assets context
-        // We join with user_assets to give the AI context about the device
-        const { rows: reports } = await db.query(`
-            SELECT r.*, 
-                   json_group_array(json_object(
-                       'name', ua.name, 
-                       'brand', ua.brand, 
-                       'model', ua.model
-                   )) as user_assets
-            FROM reports r
-            LEFT JOIN user_assets ua ON r.user_id = ua.user_id
-            WHERE r.id = $1
-            GROUP BY r.id
-        `, [reportId]);
+        // Cross-compatible SQL (works on both PostgreSQL and SQLite)
+        const { rows: reports } = await db.query(
+            'SELECT * FROM reports WHERE id = $1',
+            [reportId]
+        );
 
         if (reports.length === 0) return res.status(404).json({ error: 'Report not found' });
 
         const report = reports[0];
 
-        // 2. Authorize (Report Owner or Admin or Assigned Worker)
+        // Fetch user assets separately (works on both PostgreSQL and SQLite)
+        let userAssets: any[] = [];
+        try {
+            const { rows: assetRows } = await db.query(
+                'SELECT name, brand, model FROM user_assets WHERE user_id = $1',
+                [report.user_id]
+            );
+            userAssets = assetRows;
+        } catch {
+            // user_assets table may not exist yet
+        }
+
+        // Authorize
         if (report.user_id !== req.user.id && req.user.role !== 'admin') {
-            // Check if assigned worker
             if (req.user.role === 'worker' && report.matched_worker_id) {
                 const { rows: workers } = await db.query('SELECT id FROM workers WHERE user_id = $1', [req.user.id]);
                 if (!workers[0] || workers[0].id !== report.matched_worker_id) {
                     return res.status(403).json(ApiResponse.fail('Not authorized'));
                 }
             } else if (req.user.role === 'worker') {
-                // Worker not assigned
                 return res.status(403).json(ApiResponse.fail('Not authorized'));
             }
         }
 
-        // 3. Prepare Context for AI
         const issueContext = {
             title: report.title,
             description: report.description,
             category: report.category,
             status: report.status,
-            home_context: typeof report.user_assets === 'string' ? JSON.parse(report.user_assets) : report.user_assets,
+            home_context: userAssets,
             image_urls: report.image_urls
         };
 
-        // 4. Generate Plan via DeepSeek
-        // This might take 10-30 seconds, so client should handle loading state
         const plan = await aiService.generateRepairPlan({
             title: issueContext.title,
             description: issueContext.description,
             diagnosis: issueContext.home_context,
         });
 
-        // 5. Return plan (and optionally save it to a notes field or separate plans table)
-        // For MVP, we return it directly. Client can choose to save it as a "Resolution Draft".
         res.json(ApiResponse.success({
             report_id: reportId,
             plan: plan,

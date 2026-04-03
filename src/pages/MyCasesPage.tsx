@@ -144,7 +144,7 @@ const MyCasesPage = () => {
                                         paddingBottom: '12px'
                                     }}
                                 >
-                                    <div className="p-4 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 shadow-sm active:scale-[0.98] transition-transform cursor-pointer h-full">
+                                    <div className="p-4 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 shadow-sm active:scale-[0.98] transition-transform cursor-pointer h-full" onClick={() => navigate(`/cases`)}>
                                         <div className="flex items-start gap-3">
                                             {/* Icon */}
                                             <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${sev.bg}`}>

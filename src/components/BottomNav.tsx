@@ -8,6 +8,7 @@ const BottomNav = () => {
     const location = useLocation();
     const currentPath = location.pathname;
     
+    // Use cached data — staleTime prevents re-fetch on every page navigation
     const { data: reportsData } = useReports();
     const reports = reportsData?.reports || [];
     const activeBadge = reports.filter(r => r.status !== 'completed' && r.status !== 'cancelled').length;

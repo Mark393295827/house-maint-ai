@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useCreateReport } from '../../hooks/useReports';
+import { useToast } from '../../contexts/ToastContext';
 import Analytics from '../../services/analytics';
 
 // Phase Components
@@ -16,6 +17,7 @@ type Phase = 'inquiry' | 'summary' | 'dispatch' | 'feedback';
 const DiagnosisWizard: React.FC = () => {
     const { locale } = useLanguage();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [phase, setPhase] = useState<Phase>('inquiry');
     const [demandData, setDemandData] = useState<DemandData | null>(null);
@@ -77,7 +79,8 @@ const DiagnosisWizard: React.FC = () => {
             setPhase('feedback');
         } catch (err) {
             console.error('Failed to create report:', err);
-            // Optionally handle error UI
+            const message = err instanceof Error ? err.message : (locale === 'zh' ? '创建报修失败，请重试' : 'Failed to create report. Please try again.');
+            showToast(message, 'error');
         }
     }, [demandData, locale, imageUrl, createReportMutation]);
 

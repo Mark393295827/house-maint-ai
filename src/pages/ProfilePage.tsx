@@ -6,6 +6,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import api from '../services/api';
 import type { Report } from '../types';
 import JobCompletionModal from '../components/reports/JobCompletionModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Sub-components
 import ProfileCard from '../components/profile/ProfileCard';
@@ -17,6 +18,7 @@ const ProfilePage = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
     const { user, logout, updateUser } = useAuth();
+    const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState('');
     const [isSaving, setIsSaving] = useState(false);
@@ -110,7 +112,7 @@ const ProfilePage = () => {
             {/* Header */}
             <div className="flex items-center justify-between p-4 pt-6">
                 <h1 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark">{t('profile.title')}</h1>
-                <button className="p-2 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors">
+                <button onClick={() => navigate('/assets')} className="p-2 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors">
                     <span className="material-symbols-outlined">settings</span>
                 </button>
             </div>
@@ -157,7 +159,9 @@ const ProfilePage = () => {
                     reportId={completingReportId}
                     onClose={() => setCompletingReportId(null)}
                     onComplete={() => {
-                        window.location.reload();
+                        queryClient.invalidateQueries({ queryKey: ['reports'] });
+                        api.getReports(null, 5).then(data => setReports(data.reports || []));
+                        setCompletingReportId(null);
                     }}
                 />
             )}

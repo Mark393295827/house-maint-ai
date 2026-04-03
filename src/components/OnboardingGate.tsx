@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Dashboard from '../pages/Dashboard';
+import Dashboard from '../pages/Dashboard.tsx';
 import LoadingSpinner from './LoadingSpinner';
 
 /**

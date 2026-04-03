@@ -36,7 +36,7 @@ const WelcomePage = () => {
                     <div className="w-full max-w-4xl text-center mb-16 lg:mb-24 page-enter">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f5f5f7] border border-[#d2d2d7]/50 text-[10px] font-black tracking-widest uppercase mb-8 shadow-sm">
                             <span className="flex h-1.5 w-1.5 rounded-full bg-[#28cd41]" />
-                            AI-Powered Diagnostics Now Live
+                            {isZh ? 'AI 智能诊断已上线' : 'AI-Powered Diagnostics Now Live'}
                         </div>
                         <h1 className="text-5xl lg:text-7xl font-black leading-[1.05] tracking-[-0.03em] mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                             {t('welcome.title')}
@@ -113,19 +113,19 @@ const WelcomePage = () => {
                     <div className="w-full text-center py-20 px-6 aegis-card bg-[#1d1d1f] text-white stagger-item overflow-hidden relative">
                          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0071e3]/20 to-transparent" />
                          <div className="relative z-10 py-10">
-                            <h2 className="text-2xl lg:text-3xl font-black mb-10 tracking-tight">One simple diagnostic tool.<br/>Infinite peace of mind.</h2>
+                            <h2 className="text-2xl lg:text-3xl font-black mb-10 tracking-tight">{isZh ? '一个简单的诊断工具。' : 'One simple diagnostic tool.'}<br/>{isZh ? '无限安心。' : 'Infinite peace of mind.'}</h2>
                             <div className="flex flex-wrap justify-center gap-12 lg:gap-24">
                                 <div className="flex flex-col items-center">
                                     <span className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">30s</span>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Classification</span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{isZh ? '智能分级' : 'Classification'}</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <span className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">10X</span>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Effeciency</span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{isZh ? '效率提升' : 'Efficiency'}</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <span className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">0</span>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Mystery Repairs</span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{isZh ? '神秘维修' : 'Mystery Repairs'}</span>
                                 </div>
                             </div>
                          </div>
@@ -138,9 +138,9 @@ const WelcomePage = () => {
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
                     <p className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest">© 2026 Aegis. Crafted for Professional Excellence.</p>
                     <div className="flex gap-8">
-                        <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest cursor-not-allowed">Privacy</span>
-                        <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest cursor-not-allowed">Terms</span>
-                        <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest cursor-not-allowed">Support</span>
+                        <Link to="/showcase" className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest hover:text-[#1d1d1f] transition-colors">{isZh ? '隐私政策' : 'Privacy'}</Link>
+                        <Link to="/showcase" className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest hover:text-[#1d1d1f] transition-colors">{isZh ? '服务条款' : 'Terms'}</Link>
+                        <Link to="/showcase" className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest hover:text-[#1d1d1f] transition-colors">{isZh ? '支持' : 'Support'}</Link>
                     </div>
                 </div>
             </footer>

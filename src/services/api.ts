@@ -87,11 +87,40 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
         credentials: 'include',
     });
 
+    // Handle 403 CSRF token expired — auto-refresh and retry once
+    if (response.status === 403) {
+        const errorBody = await response.json().catch(() => ({ error: 'Forbidden' }));
+        if (errorBody.error?.includes('CSRF')) {
+            // Clear cached token and re-fetch
+            csrfToken = null;
+            csrfFetchPromise = null;
+            const newToken = await getCsrfToken();
+            const retryHeaders = { ...headers, 'X-CSRF-Token': newToken };
+            const retryResponse = await fetch(url, {
+                ...options,
+                headers: retryHeaders,
+                credentials: 'include',
+            });
+            const retryResult = await retryResponse.json().catch(() => null);
+            if (!retryResponse.ok) {
+                throw new Error(retryResult?.error || 'API Error');
+            }
+            if (retryResult?.status === 'success' && retryResult.data !== undefined) {
+                if (retryResult.message && typeof retryResult.data === 'object' && retryResult.data !== null) {
+                    return { ...retryResult.data, message: retryResult.message } as T;
+                }
+                return retryResult.data as T;
+            }
+            return retryResult as T;
+        }
+        throw new Error(errorBody.error || 'Forbidden');
+    }
+
     // Handle 401 Unauthorized (Token expired)
     if (response.status === 401) {
         // Don't retry if we're already trying to login or refresh
         if (endpoint.includes('/auth/login') || endpoint.includes('/auth/refresh')) {
-            const data = await response.json();
+            const data = await response.json().catch(() => ({ error: 'Authentication failed' }));
             throw new Error(data.error || 'Authentication failed');
         }
 
@@ -123,7 +152,13 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
         }
     }
 
-    const result = await response.json();
+    // Parse response — handle non-JSON gracefully
+    let result;
+    try {
+        result = await response.json();
+    } catch {
+        throw new Error(`Server error (${response.status})`);
+    }
 
     if (!response.ok) {
         throw new Error(result.error || 'API Error');
@@ -149,10 +184,9 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
  * Register a new user
  */
 export async function register(phone: string, password: string, name: string, role: string = 'user'): Promise<LoginResponse> {
-    const finalRole = phone.startsWith('139') ? 'worker' : role;
     return fetchAPI<LoginResponse>('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ phone, password, name, role: finalRole }),
+        body: JSON.stringify({ phone, password, name, role }),
     });
 }
 

@@ -29,7 +29,7 @@ const clearAuthCookies = (res: express.Response) => {
 
 // Validation schemas
 const registerSchema = z.object({
-    phone: z.string().regex(/^1[3-9]\d{9}$/, 'Invalid phone number'),
+    phone: z.string().regex(/^\d{10,15}$/, 'Phone number must be 10-15 digits'),
     password: z.string()
         .min(8, 'Password must be at least 8 characters')
         .regex(/[A-Za-z]/, 'Password must contain at least one letter')
@@ -39,7 +39,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-    phone: z.string().regex(/^1[3-9]\d{9}$/, 'Invalid phone number'),
+    phone: z.string().min(10, 'Phone must be at least 10 digits').max(15, 'Phone must be at most 15 digits'),
     password: z.string().min(1, 'Password is required')
 });
 
