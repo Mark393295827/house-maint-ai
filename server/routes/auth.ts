@@ -113,7 +113,7 @@ router.post('/register', async (req, res, next) => {
         }
 
         // Hash password
-        const passwordHash = bcrypt.hashSync(data.password, 10);
+        const passwordHash = await bcrypt.hash(data.password, 10);
 
         // Insert user
         const { rows: users } = await db.query(`
@@ -199,7 +199,7 @@ router.post('/login', async (req, res, next) => {
         }
 
         // Verify password
-        const valid = bcrypt.compareSync(data.password, user.password_hash);
+        const valid = await bcrypt.compare(data.password, user.password_hash);
         if (!valid) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }

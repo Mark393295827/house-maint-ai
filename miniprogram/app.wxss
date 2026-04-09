@@ -1,0 +1,27 @@
+/** app.wxss **/
+page {
+  background-color: #0f172a; /* Slate 900 for dark enterprise aesthetic */
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei',
+    sans-serif;
+  box-sizing: border-box;
+}
+
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 8px;
+  padding: 12px 24px;
+  text-align: center;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 20px;
+}

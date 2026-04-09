@@ -10,9 +10,9 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npm run dev',
+        command: 'npm run dev:all',
         url: 'http://127.0.0.1:5173',
-        reuseExistingServer: true,
+        reuseExistingServer: false,
         timeout: 120000,
     },
     projects: [
@@ -21,8 +21,12 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] },
         },
         {
-            name: 'Mobile Chrome',
-            use: { ...devices['Pixel 5'] },
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] },
+        },
+        {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
         },
     ],
 });

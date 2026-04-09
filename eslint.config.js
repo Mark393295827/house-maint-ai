@@ -3,6 +3,7 @@ import ts from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 
 export default [
+  { ignores: ["dist/**", "server/dist/**", "coverage/**"] },
   js.configs.recommended,
   {
     files: ["**/*.ts", "**/*.tsx"],

@@ -1,78 +1,34 @@
-name: AI Regression Test (Swarm Check)
+name: AI Regression Integration
 
 on:
-  schedule:
-    - cron: '0 2 * * 0' # Run at 02:00 on Sunday
   pull_request:
-    paths:
-      - 'server/agents/**'
-      - 'server/services/diagnostics_claw.ts'
-      - 'server/services/planning_claw.ts'
-      - 'server/services/vendor_claw.ts'
-      - 'server/services/ai.ts'
-  workflow_dispatch:
+    branches: [ "main" ]
 
 jobs:
-  verify:
-    name: Verify AI Swarm Logic
+  ai-regression-eval:
+    name: Core LLM Regression (Accuracy Threshold >= 85%)
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: house_maint
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
 
       - name: Install Dependencies
         run: npm ci
-
-      - name: Initialize Database
+        
+      # Make sure the developer configures github secrets for GEMINI_API_KEY
+      - name: Execute LLM Test Runner
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: house_maint
-          DB_USER: postgres
-          DB_PASSWORD: postgres
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npm run test:ai
+        
+      - name: Report Status
+        if: failure()
         run: |
-          cd server
-          npm run db:migrate
-          npm run init-db
-
-      - name: Run Swarm Verification Script
-        env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: house_maint
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-        run: |
-          cd server
-          npx tsx scripts/verify-swarm.ts
+          echo "::error title=AI Regression Failed::Accuracy fell below 85% acceptable limit. Please verify model drift or systemic prompt failures."

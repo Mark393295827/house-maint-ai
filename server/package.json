@@ -6,14 +6,14 @@
     "type": "module",
     "scripts": {
         "start": "node dist/index.js",
-        "build": "tsc",
-        "dev": "tsx watch index.ts",
-        "init-db": "tsx scripts/init-db.ts",
+        "build": "npm exec -- tsc",
+        "dev": "npm exec -- tsx watch index.ts",
+        "init-db": "npm exec -- tsx scripts/init-db.ts",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
-        "db:cleanup": "tsx scripts/db-cleanup.ts",
-        "verify-swarm": "tsx scripts/verify-swarm.ts",
-        "test": "vitest"
+        "db:cleanup": "npm exec -- tsx scripts/db-cleanup.ts",
+        "verify-swarm": "npm exec -- tsx scripts/verify-swarm.ts",
+        "test": "npm exec -- vitest"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.975.0",

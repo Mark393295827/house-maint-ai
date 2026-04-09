@@ -22,12 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
                 const data = await api.getCurrentUser();
                 setUser(data.user);
+                sessionStorage.setItem('wasLoggedIn', 'true');
                 connectSocket();
             } catch (_err) {
                 // No valid cookie — user is not authenticated
                 setUser(null);
                 // If we expected to be logged in (e.g., had a previous session), notify
-                if (document.cookie.includes('refreshToken') || sessionStorage.getItem('wasLoggedIn')) {
+                if (sessionStorage.getItem('wasLoggedIn')) {
                     setError('Session expired. Please log in again.');
                 }
             }
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             
             setUser(data.user);
             connectSocket();
+            sessionStorage.setItem('wasLoggedIn', 'true');
             // Pre-warm CSRF token for subsequent mutations
             api.refreshCsrfToken().catch(() => {});
             return { success: true, user: data.user };
@@ -95,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logout = useCallback(async () => {
         disconnectSocket();
         await api.logout();
+        sessionStorage.removeItem('wasLoggedIn');
         setUser(null);
         setError(null);
     }, []);

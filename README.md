@@ -253,6 +253,12 @@ npm install
 cp .env.example .env
 # Edit .env with your API keys
 
+# Initialize the database (using drizzle-kit for local sqlite)
+cd server
+npm exec -- drizzle-kit push
+npm run init-db # Fill with any seed data you need
+cd ..
+
 # Start development server (frontend + backend)
 npm run dev
 ```

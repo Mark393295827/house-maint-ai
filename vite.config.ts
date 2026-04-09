@@ -31,6 +31,7 @@ export default defineConfig({
       REDIS_MOCK: 'true'
     },
     globals: true,
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'miniprogram/**/*.test.ts'],
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     exclude: [

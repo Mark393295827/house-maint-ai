@@ -9,6 +9,19 @@ import { parseJsonColumn } from '../utils/parseJson.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
+const workerListQuerySchema = z.object({
+    skill: z.string().trim().min(1).max(100).optional(),
+    available: z.coerce.number().int().min(0).max(1).optional(),
+    all: z.enum(['true', 'false']).optional(),
+});
+
+const workerMatchQuerySchema = z.object({
+    report_id: z.coerce.number().int().positive().optional(),
+    latitude: z.coerce.number().min(-90).max(90).optional(),
+    longitude: z.coerce.number().min(-180).max(180).optional(),
+    category: z.string().trim().min(1).max(100).optional(),
+    limit: z.coerce.number().int().min(1).max(50).default(5),
+});
 
 /**
  * GET /api/workers
@@ -17,7 +30,7 @@ const router = express.Router();
  */
 router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
     try {
-        const { skill, available, all } = req.query;
+        const { skill, available, all } = workerListQuerySchema.parse(req.query);
         const fetchAll = all === 'true' && (req.user && (req.user.role === 'admin' || req.user.role === 'manager'));
 
         let query = `
@@ -29,7 +42,7 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
         const params: unknown[] = [];
 
         if (!fetchAll) {
-            const isAvailable = available ? parseInt(available as string) : 1;
+            const isAvailable = available ?? 1;
             query += ` AND w.available = $${params.length + 1}`;
             params.push(isAvailable);
         }
@@ -61,7 +74,7 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
  */
 router.get('/match', authenticate, async (req, res, next) => {
     try {
-        const { report_id, latitude, longitude, category, limit = '5' } = req.query as Record<string, string>;
+        const { report_id, latitude, longitude, category, limit } = workerMatchQuerySchema.parse(req.query);
 
         // Get report if report_id provided
         let report: { latitude: number | null; longitude: number | null; category: string | null; description: string; user_id: number } | null = null;
@@ -70,8 +83,8 @@ router.get('/match', authenticate, async (req, res, next) => {
             report = rows[0] ?? null;
         } else {
             report = {
-                latitude: parseFloat(latitude) || null,
-                longitude: parseFloat(longitude) || null,
+                latitude: latitude ?? null,
+                longitude: longitude ?? null,
                 category: category || null,
                 description: '',
                 user_id: req.user.id
@@ -82,7 +95,7 @@ router.get('/match', authenticate, async (req, res, next) => {
             return res.status(404).json(ApiResponse.fail('Report context missing'));
         }
 
-        const topMatches = await matchingService.findTopMatches(report, parseInt(limit));
+        const topMatches = await matchingService.findTopMatches(report, limit);
 
         res.json(ApiResponse.success({
             matches: topMatches,

@@ -15,9 +15,11 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({ amount, reportId }) =
         setLoading(true);
         try {
             const { url } = await api.createCheckoutSession(amount, reportId);
-            if (url) {
-                window.location.href = url;
+            if (!url) {
+                throw new Error('Payment provider did not return a redirect URL');
             }
+
+            window.location.assign(url);
         } catch (error) {
             console.error('Checkout error:', error);
             alert('Failed to initialize payment.');

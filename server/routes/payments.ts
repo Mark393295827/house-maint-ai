@@ -3,6 +3,8 @@ import { authenticate } from '../middleware/auth.js';
 import db from '../config/database.js';
 import { emitToWorkers } from '../socket.js';
 import crypto from 'crypto';
+import { z } from 'zod';
+import { decryptAddress } from '../utils/crypto.js';
 
 const router = express.Router();
 
@@ -12,6 +14,13 @@ const APP_ID = process.env.WECHAT_APP_ID || 'wx_test_app_id';
 const API_V3_KEY = process.env.WECHAT_API_V3_KEY || 'test_api_v3_key_1234567890123456';
 const WEBHOOK_VERIFY_REQUIRED = process.env.NODE_ENV === 'production' || process.env.WECHAT_WEBHOOK_VERIFY === 'true';
 const WEBHOOK_SECRET = process.env.WECHAT_WEBHOOK_SECRET || API_V3_KEY;
+const checkoutSchema = z.object({
+    amount: z.coerce.number().positive().max(1_000_000),
+    currency: z.string().trim().length(3).default('cny'),
+    reportId: z.union([z.coerce.number().int().positive(), z.string().trim().min(1).max(64)]).optional(),
+    idempotencyKey: z.string().trim().max(120).optional(),
+    type: z.enum(['payment', 'escrow']).default('payment'),
+});
 
 /**
  * Helper to generate WeChat Pay JSAPI Signature (Mocked for localized dev)
@@ -76,6 +85,31 @@ function verifyWebhookSignature(req: Request, rawBody: string): { ok: boolean; r
     return { ok: true };
 }
 
+function getFrontendBaseUrl(): string {
+    const candidates = [
+        process.env.FRONTEND_APP_URL,
+        process.env.APP_URL,
+        process.env.CORS_ORIGINS?.split(',')[0]?.trim(),
+        'http://localhost:5173',
+    ].filter((value): value is string => Boolean(value));
+
+    for (const candidate of candidates) {
+        try {
+            return new URL(candidate).toString();
+        } catch {
+            continue;
+        }
+    }
+
+    return 'http://localhost:5173/';
+}
+
+function buildCheckoutRedirect(outTradeNo: string, path: string): string {
+    const url = new URL(path, getFrontendBaseUrl());
+    url.searchParams.set('session_id', outTradeNo);
+    return url.toString();
+}
+
 /**
  * POST /api/v1/payments/checkout
  * Create a WeChat Pay JSAPI order (Native Mini Program Payment)
@@ -83,11 +117,7 @@ function verifyWebhookSignature(req: Request, rawBody: string): { ok: boolean; r
  */
 router.post('/checkout', authenticate, async (req, res, next) => {
     try {
-        const { amount, currency = 'cny', reportId, idempotencyKey } = req.body;
-
-        if (!amount) {
-            return res.status(400).json({ error: 'Amount is required' });
-        }
+        const { amount, currency, reportId } = checkoutSchema.parse(req.body);
 
         // 1. Idempotency Guard
         if (reportId) {
@@ -100,7 +130,11 @@ router.post('/checkout', authenticate, async (req, res, next) => {
                 const existingOrder = existing[0];
                 // Return existing WeChat prepay details if we had stored them
                 // For now, we simulate returning the existing OutTradeNo
+                const redirectUrl = buildCheckoutRedirect(existingOrder.wechat_out_trade_no, '/payment/success');
                 return res.json({
+                    id: existingOrder.id ?? existingOrder.wechat_out_trade_no,
+                    url: redirectUrl,
+                    cancelUrl: buildCheckoutRedirect(existingOrder.wechat_out_trade_no, '/payment/cancel'),
                     outTradeNo: existingOrder.wechat_out_trade_no,
                     message: 'Existing pending order found',
                     deduplicated: true
@@ -130,7 +164,11 @@ router.post('/checkout', authenticate, async (req, res, next) => {
         const paySign = generateWeChatPaySignature(APP_ID, timeStamp, nonceStr, packageStr, API_V3_KEY);
 
         // 5. Return JSAPI parameters exactly as the Mini Program requires them
+        const redirectUrl = buildCheckoutRedirect(outTradeNo, '/payment/success');
         res.json({
+            id: outTradeNo,
+            url: redirectUrl,
+            cancelUrl: buildCheckoutRedirect(outTradeNo, '/payment/cancel'),
             timeStamp,
             nonceStr,
             package: packageStr,
@@ -281,6 +319,73 @@ router.get('/orders/:id', authenticate, async (req, res, next) => {
         res.json({ order: orders[0] });
     } catch (error) {
         console.error('Get order detail error:', error);
+        next(error);
+    }
+});
+
+/**
+ * POST /api/v1/payments/release
+ * Release Escrow / Payment to Worker (Property Manager or Owner action)
+ */
+router.post('/release', authenticate, async (req, res, next) => {
+    try {
+        if (!['admin', 'manager', 'tenant', 'user'].includes(req.user.role)) {
+            return res.status(403).json({ error: 'Forbidden: Insufficient permissions to release funds' });
+        }
+
+        const schema = z.object({ reportId: z.number().int().positive() });
+        const { reportId } = schema.parse(req.body);
+
+        console.log(`[WeChat API Mock] Transferring Escrow + Labor Fee to Worker Wallet for Report ${reportId}`);
+
+        await db.query(
+            `UPDATE reports SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE id = $1`,
+            [reportId]
+        );
+
+        res.json({ message: 'Funds released successfully to worker WeChat Wallet.' });
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * GET /api/v1/payments/reports/:id/address
+ * Zero-trust Address fetching: Only returns decrypted address if Escrow is paid.
+ */
+router.get('/reports/:id/address', authenticate, async (req, res, next) => {
+    try {
+        const reportId = Number(req.params.id);
+        if (isNaN(reportId)) return res.status(400).json({ error: 'Invalid ID' });
+
+        const { rows: reports } = await db.query(
+            `SELECT * FROM reports WHERE id = $1`,
+            [reportId]
+        );
+        
+        if (!reports.length) return res.status(404).json({ error: 'Report not found' });
+        const report = reports[0];
+
+        // Authorization Guard
+        if (req.user.role === 'worker') {
+             // Worker must have paid escrow (10%) for this exact report to see the address
+             const { rows: escrowOrders } = await db.query(
+                 `SELECT * FROM orders WHERE user_id = $1 AND report_id = $2 AND status = 'paid'`,
+                 [req.user.id, reportId]
+             );
+             if (escrowOrders.length === 0) {
+                 return res.status(403).json({ error: 'Address locked. Active Escrow payment required.' });
+             }
+        } else if (req.user.role === 'user' && report.user_id !== req.user.id) {
+             return res.status(403).json({ error: 'Access denied: You do not own this report.' });
+        }
+        
+        // Decrypt Address Payload
+        const plainAddress = decryptAddress(report.encrypted_address);
+        
+        res.json({ address: plainAddress || 'Location unverified / No address stored' });
+
+    } catch (error) {
         next(error);
     }
 });

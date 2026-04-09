@@ -107,7 +107,8 @@ export function csrfGuard(req: Request, res: Response, next: NextFunction): void
     }
 
     // Webhook calls originate from external payment providers, not browser sessions.
-    if (req.path === '/api/v1/payments/webhook' || req.originalUrl.startsWith('/api/v1/payments/webhook')) {
+    const requestPath = req.originalUrl.split('?')[0];
+    if (requestPath === '/api/v1/payments/webhook') {
         return next();
     }
 
@@ -159,7 +160,7 @@ export function generateAccessToken(user: { id: number; phone: string; name: str
             name: user.name,
             role: user.role,
             type: 'access',
-            nonce: Math.random().toString(36).substring(2)
+            nonce: crypto.randomBytes(16).toString('hex')
         },
         JWT_SECRET,
         { expiresIn: '15m' }
@@ -174,7 +175,7 @@ export function generateRefreshToken(user: { id: number }): string {
         {
             id: user.id,
             type: 'refresh',
-            jti: Math.random().toString(36).substring(2) + Date.now().toString(36)
+            jti: crypto.randomBytes(24).toString('hex')
         },
         JWT_SECRET,
         { expiresIn: '7d' }

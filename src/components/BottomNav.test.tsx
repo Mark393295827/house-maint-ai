@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { screen } from '@testing-library/react';
+import { renderWithProviders as render } from '../test/utils';
 import { LanguageProvider } from '../i18n/LanguageContext';
 import BottomNav from '../components/BottomNav';
 
@@ -11,13 +11,7 @@ vi.mock('../i18n/LanguageContext', () => ({
 
 // Helper to render with Router + LanguageProvider
 function renderBottomNav() {
-    return render(
-        <LanguageProvider>
-            <BrowserRouter>
-                <BottomNav />
-            </BrowserRouter>
-        </LanguageProvider>
-    );
+    return render(<BottomNav />);
 }
 
 describe('BottomNav', () => {

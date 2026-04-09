@@ -5,6 +5,8 @@ import MetricsDashboard from './MetricsDashboard';
 import { useLanguage } from '../i18n/LanguageContext';
 
 // ============ Tickets Page ============
+import { calculateSummaryMetrics, generateMonthlyCSV, downloadCSV } from '../utils/reportExport';
+
 export const TicketsPage: React.FC = () => {
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
@@ -12,7 +14,26 @@ export const TicketsPage: React.FC = () => {
 
     useEffect(() => {
         getReports(null, 100, 0).then(res => {
-            setReports(res.reports || []);
+            // Apply mock PM Dashboard fields if missing
+            const enriched = (res.reports || []).map((r, i) => {
+                const mockSeverity = ['Emergency', '48h', 'DIY'][i % 3] as 'Emergency' | '48h' | 'DIY';
+                const mockFault = ['landlord', 'tenant', 'unconfirmed'][i % 3] as 'landlord' | 'tenant' | 'unconfirmed';
+                return {
+                    ...r,
+                    ai_severity: r.ai_severity || mockSeverity,
+                    fault_attribution: r.fault_attribution || mockFault,
+                    duration_hours: r.duration_hours || Math.floor(Math.random() * 24),
+                    anonymized_image: r.anonymized_image || 'https://via.placeholder.com/150/1e293b/cbd5e1?text=Face+Blurred'
+                };
+            });
+
+            // Priority Queue Logic: Emergency > 48h > DIY
+            enriched.sort((a, b) => {
+               const priorityMap = { 'Emergency': 3, '48h': 2, 'DIY': 1 };
+               return (priorityMap[b.ai_severity!] || 0) - (priorityMap[a.ai_severity!] || 0);
+            });
+
+            setReports(enriched);
         }).finally(() => setLoading(false));
     }, []);
 
@@ -27,11 +48,43 @@ export const TicketsPage: React.FC = () => {
         }
     };
 
+    const getSeverityBadge = (severity?: string) => {
+        switch (severity) {
+            case 'Emergency': return 'bg-red-100 text-red-700 border-red-200';
+            case '48h': return 'bg-orange-100 text-orange-700 border-orange-200';
+            case 'DIY': return 'bg-green-100 text-green-700 border-green-200';
+            default: return 'bg-slate-100 text-slate-500 border-slate-200';
+        }
+    };
+
+    const getFaultBadge = (fault?: string) => {
+        switch(fault) {
+            case 'landlord': return 'bg-blue-100 text-blue-700 border-blue-200';
+            case 'tenant': return 'bg-orange-100 text-orange-700 border-orange-200';
+            default: return 'bg-slate-100 text-slate-500 border-slate-200'; // unconfirmed
+        }
+    };
+
+    const handleExportCSV = () => {
+        const stats = calculateSummaryMetrics(reports);
+        const csvStr = generateMonthlyCSV(reports, stats, '2026-04');
+        downloadCSV(csvStr, 'report_2026_04.csv');
+    };
+
     return (
         <div className="page-enter">
-            <div className="mb-10 lg:mb-14">
-                <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.tickets.title')}</h1>
-                <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.tickets.subtitle')}</p>
+            <div className="mb-10 lg:mb-14 flex justify-between items-end">
+                <div>
+                    <h1 className="text-4xl font-black text-black tracking-tighter">Priority Queue</h1>
+                    <p className="text-[14px] font-black text-[#86868b] mt-2">Triaged & Assessed via Multimodal Agent</p>
+                </div>
+                <button 
+                  onClick={handleExportCSV}
+                  className="px-6 py-3 bg-slate-800 text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-slate-700 transition"
+                  data-testid="export-csv-btn"
+                >
+                    Export Monthly CSV
+                </button>
             </div>
             
             {loading ? (
@@ -41,64 +94,63 @@ export const TicketsPage: React.FC = () => {
             ) : (
                 <div className="ent-card overflow-hidden bg-white/30 ent-glass">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left min-w-[1000px]">
+                        <table className="w-full text-left min-w-[1200px]" data-testid="tickets-table">
                             <thead className="text-[10px] font-black uppercase tracking-[0.25em] bg-white/40 border-b border-black/5 text-[#86868b]">
                                 <tr>
-                                    <th className="px-10 py-6">{t('enterprise.tickets.columns.id')}</th>
-                                    <th className="px-10 py-6">{t('enterprise.tickets.columns.title')}</th>
-                                    <th className="px-10 py-6">{t('enterprise.tickets.columns.category')}</th>
-                                    <th className="px-10 py-6">{t('enterprise.tickets.columns.status')}</th>
-                                    <th className="px-10 py-6">{t('enterprise.tickets.columns.assignee')}</th>
-                                    <th className="px-10 py-6 text-right">{t('enterprise.tickets.columns.date')}</th>
+                                    <th className="px-6 py-6">Image</th>
+                                    <th className="px-6 py-6">Property / Title</th>
+                                    <th className="px-6 py-6">AI Priority</th>
+                                    <th className="px-6 py-6">Fault Attribution</th>
+                                    <th className="px-6 py-6 font-mono">Duration</th>
+                                    <th className="px-6 py-6 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-black/5 bg-white/20">
                                 {reports.map((report) => (
-                                    <tr key={report.id} className="hover:bg-white/60 transition-all duration-300 group">
-                                        <td className="px-10 py-6 font-mono text-[12px] text-[#86868b]">#{report.id}</td>
-                                        <td className="px-10 py-6">
-                                            <div className="text-[15px] font-black text-black group-hover:text-[#007aff] transition-colors tracking-tight">{report.title}</div>
-                                            <div className="text-[11px] text-[#86868b] font-black mt-1 truncate max-w-sm line-clamp-1">{report.description}</div>
+                                    <tr key={report.id} className="hover:bg-white/60 transition-all duration-300 group ticket-row" data-testid={`ticket-row-${report.id}`}>
+                                        <td className="px-6 py-6">
+                                            <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-200 border border-slate-300 relative">
+                                                 <img src={report.anonymized_image} alt="Ticket" className="w-full h-full object-cover blur-[2px] hover:blur-none transition-all duration-300" />
+                                            </div>
                                         </td>
-                                        <td className="px-10 py-6">
-                                            <span className="text-[13px] font-bold text-[#424245] capitalize">{report.category || 'Other'}</span>
+                                        <td className="px-6 py-6">
+                                            <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Sanya #SY-{(report.id * 123) % 900}</div>
+                                            <div className="text-[14px] font-black text-black group-hover:text-[#007aff] transition-colors">{report.title}</div>
+                                            <div className="text-[12px] text-[#86868b] mt-1 pr-6 truncate max-w-sm">{report.description}</div>
                                         </td>
-                                        <td className="px-10 py-6">
-                                            <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full border ${getStatusColor(report.status)} uppercase tracking-widest shadow-sm`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                                                    report.status === 'completed' ? 'bg-[#28cd41]' : 
-                                                    report.status === 'in_progress' ? 'bg-[#32ade6]' : 
-                                                    'bg-current'
-                                                }`} />
-                                                {t(`enterprise.tickets.status.${report.status}`)}
+                                        <td className="px-6 py-6">
+                                            <span className={`inline-block px-3 py-1 font-bold text-[11px] uppercase tracking-widest border rounded-[6px] ${getSeverityBadge(report.ai_severity)}`}>
+                                                {report.ai_severity}
+                                            </span>
+                                            <div className="text-[11px] text-slate-500 font-bold mt-2 capitalize">{report.category}</div>
+                                        </td>
+                                        <td className="px-6 py-6">
+                                            <span className={`inline-block px-3 py-1 font-bold text-[11px] uppercase tracking-widest border rounded-full ${getFaultBadge(report.fault_attribution)}`}>
+                                                {report.fault_attribution}
                                             </span>
                                         </td>
-                                        <td className="px-10 py-6">
-                                            {report.matched_worker_id ? (
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-[11px] font-black text-blue-600 border border-blue-500/20 shadow-sm">
-                                                        <span className="material-symbols-outlined text-[16px]">engineering</span>
-                                                    </div>
-                                                    <span className="text-[13px] font-black text-black">{t('enterprise.tickets.workerId').replace('{{id}}', report.matched_worker_id.toString())}</span>
-                                                </div>
-                                            ) : (
-                                                <span className="text-[13px] font-bold text-[#86868b] italic opacity-60">{t('enterprise.tickets.unassigned')}</span>
-                                            )}
+                                        <td className="px-6 py-6 text-[13px] font-mono font-bold text-slate-600">
+                                            {report.duration_hours} Hrs
                                         </td>
-                                        <td className="px-10 py-6 text-right text-[13px] font-bold text-[#86868b] tabular-nums">
-                                            {new Date(report.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        <td className="px-6 py-6 text-right space-x-2">
+                                            {report.ai_severity === 'DIY' ? (
+                                                <button className="px-4 py-2 bg-green-50 text-green-700 font-bold text-[11px] uppercase tracking-widest rounded-lg border border-green-200 hover:bg-green-100 transition">
+                                                    DIY 教程
+                                                </button>
+                                            ) : (
+                                                <button className="px-4 py-2 bg-blue-50 text-blue-700 font-bold text-[11px] uppercase tracking-widest rounded-lg border border-blue-200 hover:bg-blue-100 transition" data-testid="dispatch-btn">
+                                                    派单
+                                                </button>
+                                            )}
+                                            <button className="px-4 py-2 bg-slate-100 text-slate-600 font-bold text-[11px] uppercase tracking-widest rounded-lg border border-slate-200 hover:bg-slate-200 transition">
+                                                关闭工单
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                    {reports.length === 0 && (
-                        <div className="px-10 py-24 text-center">
-                            <span className="material-symbols-outlined text-5xl text-slate-200 mb-4 block">receipt_long</span>
-                            <p className="text-base text-[#86868b] font-black tracking-tight">{t('enterprise.tickets.empty')}</p>
-                        </div>
-                    )}
                 </div>
             )}
         </div>

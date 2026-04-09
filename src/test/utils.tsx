@@ -12,6 +12,28 @@ export function renderWithRouter(Component: React.ReactNode, options: Record<str
     );
 }
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastProvider } from '../contexts/ToastContext';
+import { AuthProvider } from '../contexts/AuthContext';
+
+export function renderWithProviders(Component: React.ReactNode, options: Record<string, unknown> = {}) {
+    const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+    });
+    return render(
+        <QueryClientProvider client={queryClient}>
+            <ToastProvider>
+                <AuthProvider>
+                    <BrowserRouter>
+                        {Component}
+                    </BrowserRouter>
+                </AuthProvider>
+            </ToastProvider>
+        </QueryClientProvider>,
+        options
+    );
+}
+
 // Mock localStorage
 export const mockLocalStorage = (() => {
     let store: Record<string, string> = {};

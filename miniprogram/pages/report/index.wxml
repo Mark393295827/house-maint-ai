@@ -1,0 +1,15 @@
+<view class="container index-page">
+  <view class="header">
+    <text class="title">House Maint AI</text>
+    <text class="subtitle">AI-Powered Residential Maintenance</text>
+  </view>
+  
+  <view class="auth-section">
+    <image class="qr-icon" src="/assets/qr-placeholder.png" mode="aspectFit"></image>
+    <text class="welcome-text">Scan property code or login to report an issue</text>
+    
+    <button class="btn-primary" bindtap="handleLogin" loading="{{isLoading}}">
+      Login via WeChat
+    </button>
+  </view>
+</view>

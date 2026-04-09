@@ -7,17 +7,28 @@ import type { ReportRow } from '../types/models.js';
 import { parseJsonColumn } from '../utils/parseJson.js';
 
 const router = express.Router();
+const MAX_PAGE_SIZE = 100;
+const reportListQuerySchema = z.object({
+    status: z.string().trim().min(1).max(40).optional(),
+    limit: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(20),
+    offset: z.coerce.number().int().min(0).max(10_000).default(0),
+});
+
+const availableOrdersQuerySchema = z.object({
+    latitude: z.coerce.number().min(-90).max(90).optional(),
+    longitude: z.coerce.number().min(-180).max(180).optional(),
+});
 
 // Validation schema
 const reportSchema = z.object({
-    title: z.string().min(2, 'Title is required'),
-    description: z.string().min(10, 'Description must be at least 10 characters'),
+    title: z.string().trim().min(2, 'Title is required').max(120, 'Title must be 120 characters or fewer'),
+    description: z.string().trim().min(10, 'Description must be at least 10 characters').max(4000, 'Description must be 4000 characters or fewer'),
     category: z.enum(['plumbing', 'electrical', 'appliance', 'carpentry', 'painting', 'other']).optional(),
-    voice_url: z.string().optional(),
-    video_url: z.string().optional(),
-    image_urls: z.array(z.string()).optional(),
-    latitude: z.number().optional(),
-    longitude: z.number().optional(),
+    voice_url: z.string().trim().max(2048).optional(),
+    video_url: z.string().trim().max(2048).optional(),
+    image_urls: z.array(z.string().trim().max(2048)).max(10).optional(),
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
     urgency_score: z.number().min(0).max(10).optional().default(0)
 });
 
@@ -41,8 +52,8 @@ router.post('/', authenticate, async (req, res, next) => {
             data.voice_url || null,
             data.video_url || null,
             data.image_urls ? JSON.stringify(data.image_urls) : null,
-            data.latitude || null,
-            data.longitude || null,
+            data.latitude ?? null,
+            data.longitude ?? null,
             data.urgency_score
         ]);
 
@@ -74,8 +85,9 @@ router.get('/available', authenticate, async (req, res, next) => {
             return res.status(403).json({ error: 'Workers only' });
         }
 
-        const workerLat = parseFloat(req.query.latitude as string) || 39.9042;
-        const workerLng = parseFloat(req.query.longitude as string) || 116.4074;
+        const { latitude, longitude } = availableOrdersQuerySchema.parse(req.query);
+        const workerLat = latitude ?? 39.9042;
+        const workerLng = longitude ?? 116.4074;
 
         const { rows: orders } = await db.query(`
             SELECT r.*, u.name as user_name, u.phone as user_phone
@@ -88,7 +100,7 @@ router.get('/available', authenticate, async (req, res, next) => {
 
         const enriched = orders.map((order: any) => {
             let distanceKm: number | null = null;
-            if (order.latitude && order.longitude) {
+            if (typeof order.latitude === 'number' && typeof order.longitude === 'number') {
                 const R = 6371;
                 const dLat = (order.latitude - workerLat) * Math.PI / 180;
                 const dLng = (order.longitude - workerLng) * Math.PI / 180;
@@ -147,9 +159,7 @@ router.get('/my-jobs', authenticate, async (req, res, next) => {
  */
 router.get('/', authenticate, async (req, res, next) => {
     try {
-        const { status } = req.query;
-        const limit = parseInt(String(req.query.limit || '20'));
-        const offset = parseInt(String(req.query.offset || '0'));
+        const { status, limit, offset } = reportListQuerySchema.parse(req.query);
 
         let query = 'SELECT * FROM reports WHERE user_id = $1';
         let params: any[] = [req.user.id];

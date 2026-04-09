@@ -61,6 +61,11 @@ export interface Report {
     updated_at?: string;
     // Computed / optional join fields
     requiredSkills?: string[];
+    // PM Dashboard Mock Fields
+    ai_severity?: 'Emergency' | '48h' | 'DIY';
+    fault_attribution?: 'landlord' | 'tenant' | 'unconfirmed';
+    duration_hours?: number;
+    anonymized_image?: string;
 }
 
 // ============ Post (Community) ============

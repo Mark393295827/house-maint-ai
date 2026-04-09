@@ -1,0 +1,38 @@
+<view class="container upload-page">
+  <view class="header">
+    <text class="title">Report an Issue</text>
+    <text class="subtitle">Take a photo and briefly describe the problem.</text>
+  </view>
+  
+  <view class="upload-area" bindtap="handleChooseMedia">
+    <block wx:if="{{!imagePath}}">
+      <view class="placeholder">
+        <text class="icon">+</text>
+        <text>Tap to take a photo</text>
+      </view>
+    </block>
+    <block wx:else>
+      <image src="{{imagePath}}" mode="aspectFill" class="preview-image"></image>
+    </block>
+  </view>
+
+  <view class="audio-area">
+    <button 
+      class="btn-audio {{isRecording ? 'recording' : ''}}" 
+      bindtouchstart="startRecord" 
+      bindtouchend="stopRecord"
+    >
+      {{isRecording ? 'Recording... Release to stop' : 'Hold to Speak (Max 60s)'}}
+    </button>
+    <text wx:if="{{audioPath}}" class="audio-status">Audio recorded ({{duration}}s)</text>
+  </view>
+
+  <button 
+    class="btn-primary submit-btn" 
+    disabled="{{!imagePath && !audioPath}}" 
+    loading="{{isDiagnosing}}"
+    bindtap="handleSubmit"
+  >
+    Get AI Diagnosis
+  </button>
+</view>

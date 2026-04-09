@@ -1,0 +1,38 @@
+<view class="container diagnosis-page">
+  <view class="header">
+    <text class="title">AI Diagnosis Report</text>
+  </view>
+  
+  <view class="card severity-card" style="border-left-color: {{diagnosis.badgeColor}}">
+    <view class="badge" style="background-color: {{diagnosis.badgeColor}}">
+      {{diagnosis.badgeText}}
+    </view>
+    <view class="detail-row">
+      <text class="label">Category:</text>
+      <text class="value">{{diagnosis.category}}</text>
+    </view>
+    <view class="detail-row hypothesis">
+      <text class="label">Hypothesis:</text>
+      <text class="value">{{diagnosis.hypothesis}}</text>
+    </view>
+  </view>
+
+  <block wx:if="{{diagnosis.isDIY}}">
+    <view class="card diy-card">
+      <text class="card-title">DIY Video Tutorial</text>
+      <view class="video-placeholder">
+        <text class="play-icon">▶</text>
+        <text>Watch Guide</text>
+      </view>
+      <button class="btn-primary" bindtap="handleMarkResolved">I Fixed It</button>
+    </view>
+  </block>
+  <block wx:else>
+    <view class="card worker-card">
+      <text class="card-title">Finding an Expert</text>
+      <text class="value">Our system is locating the nearest available technician specializing in {{diagnosis.category}}...</text>
+      <button class="btn-primary" style="background-color: #f59e0b;" bindtap="handleViewMatch">Track Expert</button>
+    </view>
+  </block>
+
+</view>

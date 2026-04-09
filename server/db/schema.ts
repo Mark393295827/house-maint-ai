@@ -43,6 +43,7 @@ export const reports = sqliteTable('reports', {
     matchedWorkerId: integer('matched_worker_id').references(() => workers.id, { onDelete: 'set null' }),
     latitude: real('latitude'),
     longitude: real('longitude'),
+    encryptedAddress: text('encrypted_address'),
     matchedAt: text('matched_at'),
     completedAt: text('completed_at'),
     resolutionDetails: text('resolution_details'), // JSON: { steps, parts, cost, photos }

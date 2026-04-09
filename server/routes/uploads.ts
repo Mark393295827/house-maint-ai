@@ -42,18 +42,39 @@ const storage = multerS3({
 
 // File filter
 const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedMimes: Record<string, string[]> = {
-        voice: ['audio/mpeg', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/mp4'],
-        video: ['video/mp4', 'video/webm', 'video/quicktime'],
-        image: ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    const allowedFiles: Record<string, { mimeTypes: string[]; extensions: string[] }> = {
+        voice: {
+            mimeTypes: ['audio/mpeg', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/mp4'],
+            extensions: ['.mp3', '.wav', '.webm', '.ogg', '.m4a'],
+        },
+        video: {
+            mimeTypes: ['video/mp4', 'video/webm', 'video/quicktime'],
+            extensions: ['.mp4', '.webm', '.mov'],
+        },
+        image: {
+            mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+            extensions: ['.jpg', '.jpeg', '.png', '.webp', '.gif'],
+        },
     };
 
-    const allowed = allowedMimes[file.fieldname] || [];
-    if (allowed.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error(`Invalid file type for ${file.fieldname}`));
+    const rules = allowedFiles[file.fieldname];
+    if (!rules) {
+        cb(new Error(`Unsupported upload field: ${file.fieldname}`));
+        return;
     }
+
+    const extension = extname(file.originalname).toLowerCase();
+    if (!rules.mimeTypes.includes(file.mimetype)) {
+        cb(new Error(`Invalid file type for ${file.fieldname}`));
+        return;
+    }
+
+    if (!rules.extensions.includes(extension)) {
+        cb(new Error(`Invalid file extension for ${file.fieldname}`));
+        return;
+    }
+
+    cb(null, true);
 };
 
 const upload = multer({

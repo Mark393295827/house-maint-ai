@@ -8,6 +8,37 @@ import { trackInferenceValue } from '../middleware/inferenceValue.js';
 import { anonymizeImagePayload } from '../middleware/piplBlur.js';
 
 const router = express.Router();
+const AI_INLINE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+const MAX_BASE64_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_TEXT_LENGTH = 4000;
+const MAX_HISTORY_MESSAGES = 40;
+const MAX_CONTEXT_JSON_LENGTH = 12000;
+
+function stripDataUrlPrefix(value: string): string {
+    return value.replace(/^data:[^;]+;base64,/, '').replace(/\s+/g, '');
+}
+
+function estimateBase64Size(value: string): number {
+    const normalized = stripDataUrlPrefix(value);
+    const padding = normalized.endsWith('==') ? 2 : normalized.endsWith('=') ? 1 : 0;
+    return Math.max(0, Math.floor((normalized.length * 3) / 4) - padding);
+}
+
+const base64ImageSchema = z.string()
+    .min(1, 'Image payload is required')
+    .refine((value) => /^[A-Za-z0-9+/=]+$/.test(stripDataUrlPrefix(value)), 'Image payload must be base64 encoded')
+    .refine((value) => estimateBase64Size(value) <= MAX_BASE64_IMAGE_BYTES, 'Image payload exceeds 5MB limit');
+
+const localeSchema = z.string().trim().min(2).max(12);
+const historyMessageSchema = z.object({
+    role: z.enum(['user', 'assistant', 'system']),
+    content: z.string().trim().min(1).max(MAX_TEXT_LENGTH),
+});
+
+const boundedContextSchema = z.record(z.any()).refine(
+    (value) => JSON.stringify(value).length <= MAX_CONTEXT_JSON_LENGTH,
+    'Context payload is too large'
+);
 
 // Track AI costs and Inference-to-Value Ratio for all routes
 router.use(trackAiCost);
@@ -15,22 +46,34 @@ router.use(trackInferenceValue);
 
 // Schema for diagnosis
 const diagnoseSchema = z.object({
-    image: z.string().optional(), // base64
-    mimeType: z.string().optional(),
-    text: z.string().optional()
+    image: base64ImageSchema.optional(),
+    mimeType: z.enum(AI_INLINE_MIME_TYPES).optional(),
+    text: z.string().trim().min(1).max(MAX_TEXT_LENGTH).optional()
 });
 
 // Schema for chat/plan
 const chatSchema = z.object({
-    messages: z.array(z.object({
-        role: z.enum(['user', 'assistant', 'system']),
-        content: z.string()
-    }))
+    messages: z.array(historyMessageSchema).min(1).max(MAX_HISTORY_MESSAGES),
 });
 
 const planSchema = z.object({
-    issueDetails: z.record(z.any())
+    issueDetails: boundedContextSchema
 });
+
+function sendAiError(res: Response, error: unknown, fallbackMessage: string) {
+    if (error instanceof z.ZodError) {
+        return res.status(400).json({
+            error: 'Validation failed',
+            details: error.errors,
+        });
+    }
+
+    Sentry.captureException(error);
+    return res.status(500).json({
+        error: fallbackMessage,
+        details: error instanceof Error ? error.message : String(error),
+    });
+}
 
 /**
  * POST /api/ai/diagnose
@@ -48,11 +91,7 @@ router.post('/diagnose', anonymizeImagePayload, async (req: Request, res: Respon
         res.json(result);
     } catch (error) {
         console.error('AI Diagnosis Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({
-            error: 'Diagnosis failed',
-            details: error instanceof Error ? error.message : String(error)
-        });
+        return sendAiError(res, error, 'Diagnosis failed');
     }
 });
 
@@ -61,12 +100,9 @@ router.post('/diagnose', anonymizeImagePayload, async (req: Request, res: Respon
  * Multi-turn diagnosis conversation with follow-up Q&A
  */
 const diagnoseChatSchema = z.object({
-    image: z.string().optional(),
-    mimeType: z.string().optional(),
-    history: z.array(z.object({
-        role: z.enum(['user', 'assistant', 'system']),
-        content: z.string()
-    }))
+    image: base64ImageSchema.optional(),
+    mimeType: z.enum(AI_INLINE_MIME_TYPES).optional(),
+    history: z.array(historyMessageSchema).min(1).max(MAX_HISTORY_MESSAGES)
 });
 
 router.post('/diagnose/chat', anonymizeImagePayload, async (req: Request, res: Response) => {
@@ -79,21 +115,17 @@ router.post('/diagnose/chat', anonymizeImagePayload, async (req: Request, res: R
         res.json(result);
     } catch (error) {
         console.error('AI Diagnosis Chat Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Diagnosis conversation failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Diagnosis conversation failed');
     }
 });
 
 // ──────── Active Inquiry Endpoint ────────
 
 const inquirySchema = z.object({
-    image: z.string().optional(),
-    mimeType: z.string().optional(),
-    locale: z.string().optional(),
-    history: z.array(z.object({
-        role: z.enum(['user', 'assistant', 'system']),
-        content: z.string()
-    }))
+    image: base64ImageSchema.optional(),
+    mimeType: z.enum(AI_INLINE_MIME_TYPES).optional(),
+    locale: localeSchema.optional(),
+    history: z.array(historyMessageSchema).min(1).max(MAX_HISTORY_MESSAGES)
 });
 
 /**
@@ -110,26 +142,22 @@ router.post('/diagnose/inquiry', anonymizeImagePayload, async (req: Request, res
         res.json(result);
     } catch (error) {
         console.error('AI Inquiry Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Inquiry conversation failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Inquiry conversation failed');
     }
 });
 
 // ──────── 8-Step Diagnostic Flow Endpoints ────────
 
 const stepSchema = z.object({
-    image: z.string().optional(),
-    mimeType: z.string().optional(),
-    text: z.string().optional(),
-    locale: z.string().optional(),
-    category: z.string().optional(),
-    hypothesis: z.string().optional(),
-    rootCause: z.string().optional(),
-    context: z.record(z.any()).optional(),
-    history: z.array(z.object({
-        role: z.enum(['user', 'assistant', 'system']),
-        content: z.string()
-    })).optional()
+    image: base64ImageSchema.optional(),
+    mimeType: z.enum(AI_INLINE_MIME_TYPES).optional(),
+    text: z.string().trim().min(1).max(MAX_TEXT_LENGTH).optional(),
+    locale: localeSchema.optional(),
+    category: z.string().trim().min(1).max(120).optional(),
+    hypothesis: z.string().trim().min(1).max(MAX_TEXT_LENGTH).optional(),
+    rootCause: z.string().trim().min(1).max(MAX_TEXT_LENGTH).optional(),
+    context: boundedContextSchema.optional(),
+    history: z.array(historyMessageSchema).max(MAX_HISTORY_MESSAGES).optional()
 });
 
 /** Step 2: MECE Category Analysis */
@@ -140,8 +168,7 @@ router.post('/diagnose/mece', anonymizeImagePayload, async (req: Request, res: R
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'MECE analysis failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'MECE analysis failed');
     }
 });
 
@@ -154,8 +181,7 @@ router.post('/diagnose/hypothesis', anonymizeImagePayload, async (req: Request, 
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Hypothesis generation failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Hypothesis generation failed');
     }
 });
 
@@ -168,8 +194,7 @@ router.post('/diagnose/checklist', anonymizeImagePayload, async (req: Request, r
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Checklist generation failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Checklist generation failed');
     }
 });
 
@@ -183,8 +208,7 @@ router.post('/diagnose/five-why', anonymizeImagePayload, async (req: Request, re
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: '5-Why analysis failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, '5-Why analysis failed');
     }
 });
 
@@ -197,8 +221,7 @@ router.post('/diagnose/solution', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Solution generation failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Solution generation failed');
     }
 });
 
@@ -217,11 +240,7 @@ router.post('/chat', async (req: Request, res: Response) => {
         res.json({ role: 'assistant', content: reply });
     } catch (error) {
         console.error('AI Chat Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({
-            error: 'Chat failed',
-            details: error instanceof Error ? error.message : String(error)
-        });
+        return sendAiError(res, error, 'Chat failed');
     }
 });
 
@@ -240,11 +259,7 @@ router.post('/plan', async (req: Request, res: Response) => {
         res.json({ plan });
     } catch (error) {
         console.error('AI Plan Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({
-            error: 'Plan generation failed',
-            details: error instanceof Error ? error.message : String(error)
-        });
+        return sendAiError(res, error, 'Plan generation failed');
     }
 });
 
@@ -252,9 +267,9 @@ router.post('/plan', async (req: Request, res: Response) => {
 
 /** S1: Material BOM Generation (材料清单) */
 const materialSchema = z.object({
-    diagnosisSummary: z.string(),
-    category: z.string(),
-    locale: z.string().optional()
+    diagnosisSummary: z.string().trim().min(1).max(MAX_TEXT_LENGTH),
+    category: z.string().trim().min(1).max(120),
+    locale: localeSchema.optional()
 });
 
 router.post('/material-bom', async (req: Request, res: Response) => {
@@ -264,19 +279,18 @@ router.post('/material-bom', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Material BOM generation failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Material BOM generation failed');
     }
 });
 
 /** S2: Fault Attribution (责任判定) */
 const faultSchema = z.object({
-    image: z.string().optional(),
-    mimeType: z.string().optional(),
-    description: z.string().optional(),
+    image: base64ImageSchema.optional(),
+    mimeType: z.enum(AI_INLINE_MIME_TYPES).optional(),
+    description: z.string().trim().min(1).max(MAX_TEXT_LENGTH).optional(),
     propertyAgeYears: z.number().optional(),
     tenancyMonths: z.number().optional(),
-    locale: z.string().optional()
+    locale: localeSchema.optional()
 });
 
 router.post('/fault-attribution', anonymizeImagePayload, async (req: Request, res: Response) => {
@@ -286,17 +300,16 @@ router.post('/fault-attribution', anonymizeImagePayload, async (req: Request, re
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Fault attribution failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Fault attribution failed');
     }
 });
 
 /** S3: Vacation Rental Turnover Comparison (度假房交接) */
 const turnoverSchema = z.object({
-    beforeImages: z.array(z.object({ data: z.string(), mimeType: z.string() })),
-    afterImages: z.array(z.object({ data: z.string(), mimeType: z.string() })),
-    propertyName: z.string().optional(),
-    locale: z.string().optional()
+    beforeImages: z.array(z.object({ data: base64ImageSchema, mimeType: z.enum(AI_INLINE_MIME_TYPES) })).min(1).max(10),
+    afterImages: z.array(z.object({ data: base64ImageSchema, mimeType: z.enum(AI_INLINE_MIME_TYPES) })).min(1).max(10),
+    propertyName: z.string().trim().min(1).max(200).optional(),
+    locale: localeSchema.optional()
 });
 
 router.post('/turnover-compare', anonymizeImagePayload, async (req: Request, res: Response) => {
@@ -306,17 +319,16 @@ router.post('/turnover-compare', anonymizeImagePayload, async (req: Request, res
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Turnover comparison failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Turnover comparison failed');
     }
 });
 
 /** Research Swarm: Full market research (调研代理群) */
 const researchSchema = z.object({
-    sector: z.string().min(1),
-    focusArea: z.string().optional(),
-    currentTAM: z.number().optional(),
-    locale: z.string().optional()
+    sector: z.string().trim().min(1).max(200),
+    focusArea: z.string().trim().min(1).max(400).optional(),
+    currentTAM: z.number().nonnegative().optional(),
+    locale: localeSchema.optional()
 });
 
 router.post('/research-market', async (req: Request, res: Response) => {
@@ -326,8 +338,7 @@ router.post('/research-market', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Research swarm failed', details: error instanceof Error ? error.message : String(error) });
+        return sendAiError(res, error, 'Research swarm failed');
     }
 });
 

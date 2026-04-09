@@ -6,7 +6,8 @@ export default defineConfig({
             DB_USE_SQLITE: 'true',
             REDIS_MOCK: 'true'
         },
-        include: ['**/*.test.ts'],
+        include: ['tests/**/*.test.ts', 'server/tests/**/*.test.ts'],
+        exclude: ['tests/e2e/**', 'src/**/*.test.ts', 'src/**/*.test.tsx'],
         setupFiles: ['./tests/setup.ts'],
         environment: 'node',
         globals: true,

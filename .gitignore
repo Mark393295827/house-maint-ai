@@ -65,6 +65,8 @@ coverage/
 # Security Emergency Cleanup
 .env.production
 *.db
+*.sqlite
+*.sqlite3
 server/data/*.db*
 house.db
 sqlite.db
