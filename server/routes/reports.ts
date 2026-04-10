@@ -318,7 +318,16 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
  */
 router.put('/:id/complete', authenticate, async (req, res, next) => {
     try {
-        const { resolution_details } = req.body;
+        const resolutionSchema = z.object({
+            steps: z.string().optional(),
+            parts: z.string().optional(),
+            cost: z.number().nonnegative().optional(),
+        });
+        const parsed = resolutionSchema.safeParse(req.body.resolution_details ?? {});
+        if (!parsed.success) {
+            return res.status(400).json(ApiResponse.fail('Invalid resolution_details: ' + parsed.error.message));
+        }
+        const resolution_details = parsed.data;
         const reportId = req.params.id;
 
         const { rows: reports } = await db.query('SELECT * FROM reports WHERE id = $1', [reportId]);

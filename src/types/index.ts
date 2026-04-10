@@ -41,7 +41,7 @@ export interface Worker {
 
 // ============ Report ============
 
-export type ReportStatus = 'pending' | 'matching' | 'matched' | 'in_progress' | 'completed' | 'cancelled';
+export type ReportStatus = 'pending' | 'matching' | 'broadcasted' | 'matched' | 'in_progress' | 'completed' | 'cancelled' | 'failed_analysis' | 'flagged_for_review';
 
 export interface Report {
     id: number;

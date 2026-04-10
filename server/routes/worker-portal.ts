@@ -116,7 +116,7 @@ router.get('/jobs', authenticate, async (req, res, next) => {
         }
 
         const { rows: jobs } = await db.query(`
-            SELECT r.*, u.name as client_name, u.avatar as client_avatar
+            SELECT r.*, u.name as user_name, u.avatar as client_avatar
             FROM reports r
             JOIN users u ON r.user_id = u.id
             WHERE r.matched_worker_id = $1
