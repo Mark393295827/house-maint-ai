@@ -119,7 +119,7 @@ const ShowcasePage = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#fbfbfd] text-[#1d1d1f] overflow-x-hidden font-sans">
+        <div className="showcase-modern min-h-screen bg-[#fbfbfd] text-[#1d1d1f] overflow-x-hidden font-sans">
             {/* Language toggle — fixed top-right */}
             <div className="fixed top-5 right-5 z-50">
                 <LanguageToggle />
@@ -129,10 +129,10 @@ const ShowcasePage = () => {
                 SECTION 1: HERO
                ═══════════════════════════════════════════ */}
             <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
-                {/* Background blobs (Lightened for Apple palette) */}
-                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#0071e3]/5 morph-blob opacity-60" />
-                <div className="absolute bottom-[-15%] right-[-10%] w-[500px] h-[500px] bg-[#5e5ce6]/5 morph-blob-fast opacity-60" />
-                <div className="absolute top-[30%] right-[20%] w-[300px] h-[300px] bg-[#af52de]/3 morph-blob opacity-60" style={{ animationDelay: '-4s' }} />
+                {/* Adaptive ambient material */}
+                <div className="showcase-ambient-layer showcase-ambient-layer--primary" />
+                <div className="showcase-ambient-layer showcase-ambient-layer--secondary" />
+                <div className="showcase-ambient-layer showcase-ambient-layer--tertiary" style={{ animationDelay: '-4s' }} />
 
                 {/* Precise light grid overlay */}
                 <div className="absolute inset-0 opacity-[0.4]" style={{
@@ -143,7 +143,7 @@ const ShowcasePage = () => {
                 {/* Content */}
                 <div className="relative z-10 max-w-4xl mx-auto text-center">
                     {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full apple-glass bg-white/40 ring-1 ring-black/5 mb-8 page-enter backdrop-blur-3xl shadow-sm">
+                    <div className="showcase-badge inline-flex items-center gap-2 px-4 py-2 rounded-full apple-glass bg-white/40 ring-1 ring-black/5 mb-8 page-enter backdrop-blur-3xl shadow-sm">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#28cd41] animate-pulse" />
                         <span className="text-[10px] font-black text-[#1d1d1f]/60 tracking-widest uppercase">{t('showcase.badge')}</span>
                     </div>
@@ -164,7 +164,7 @@ const ShowcasePage = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-5 page-enter" style={{ animationDelay: '950ms' }}>
                         <Link
                             to="/welcome"
-                            className="relative inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#1d1d1f] text-white font-black text-lg shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:bg-black hover:shadow-[0_25px_50px_rgba(0,0,0,0.15)] transition-all active:scale-[0.97] press-scale"
+                            className="showcase-action showcase-action-primary relative inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#1d1d1f] text-white font-black text-lg shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:bg-black hover:shadow-[0_25px_50px_rgba(0,0,0,0.15)] transition-all active:scale-[0.97] press-scale"
                         >
                             {t('showcase.ctaTryDemo')}
                             <span className="material-symbols-outlined text-xl">arrow_forward</span>
@@ -173,7 +173,7 @@ const ShowcasePage = () => {
                             href="https://github.com/Mark393295827/house-maint-ai"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-3 px-10 py-5 rounded-[22px] apple-glass bg-white/40 ring-1 ring-black/5 text-[#1d1d1f] font-black tracking-tight hover:bg-white/60 transition-all shadow-sm active:scale-[0.97]"
+                            className="showcase-action showcase-action-glass inline-flex items-center gap-3 px-10 py-5 rounded-[22px] apple-glass bg-white/40 ring-1 ring-black/5 text-[#1d1d1f] font-black tracking-tight hover:bg-white/60 transition-all shadow-sm active:scale-[0.97]"
                         >
                             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" /></svg>
                             {t('showcase.ctaGithub')}
@@ -205,7 +205,7 @@ const ShowcasePage = () => {
                         {FEATURE_ICONS.map((feature, i) => (
                             <div
                                 key={i}
-                                className="aegis-card group p-10 bg-white/60 hover:bg-white transition-all duration-700 stagger-item border-none"
+                                className="showcase-feature-card aegis-card group p-10 bg-white/60 hover:bg-white transition-all duration-700 stagger-item border-none"
                                 style={{ animationDelay: `${i * 100}ms` }}
                             >
                                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-xl shadow-black/5 mb-8 transform group-hover:-translate-y-1 transition-transform`}
@@ -225,7 +225,7 @@ const ShowcasePage = () => {
             {/* ═══════════════════════════════════════════
                 SECTION 3: LIVE DEMO
                ═══════════════════════════════════════════ */}
-            <section ref={demoReveal} className="reveal py-32 px-6 bg-[#f5f5f7]">
+            <section ref={demoReveal} className="showcase-demo-section reveal py-32 px-6 bg-[#f5f5f7]">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
                         <span className="text-[11px] font-black tracking-[0.25em] uppercase text-[#5e5ce6] mb-6 block">{t('showcase.demoLabel')}</span>
@@ -240,7 +240,8 @@ const ShowcasePage = () => {
                             <button
                                 key={route.path}
                                 onClick={() => handleDemoRoute(route.path)}
-                                className={`px-6 py-3 rounded-full text-[13px] font-black transition-all duration-300 ${iframeRoute === route.path
+                                aria-pressed={iframeRoute === route.path}
+                                className={`showcase-route-chip px-6 py-3 rounded-full text-[13px] font-black transition-all duration-300 ${iframeRoute === route.path
                                         ? 'bg-[#1d1d1f] text-white shadow-xl shadow-black/10'
                                         : 'bg-white/40 text-[#1d1d1f]/60 border border-black/5 hover:bg-white/80 hover:text-[#1d1d1f]'
                                     }`}
@@ -252,23 +253,23 @@ const ShowcasePage = () => {
 
                     {/* Precision Device Preview */}
                     <div className="flex justify-center">
-                        <div className="relative group perspective-1000">
+                        <div className="showcase-device-wrap relative group perspective-1000">
                             {/* Ambient Glow */}
-                            <div className="absolute inset-x-0 -bottom-20 bg-gradient-to-t from-black/5 to-transparent h-60 blur-3xl rounded-[100px] opacity-60" />
+                            <div className="showcase-device-glow absolute inset-x-0 -bottom-20 bg-gradient-to-t from-black/5 to-transparent h-60 blur-3xl rounded-[100px] opacity-60" />
 
                             {/* Apple Device Frame */}
-                            <div className="relative bg-[#000] rounded-[52px] p-[10px] shadow-[0_50px_100px_rgba(0,0,0,0.12)] ring-1 ring-black/10 transform transition-transform duration-1000">
+                            <div className="showcase-device-shell relative bg-[#000] rounded-[52px] p-[10px] shadow-[0_50px_100px_rgba(0,0,0,0.12)] ring-1 ring-black/10 transform transition-transform duration-1000">
                                 {/* Dynamic Island */}
-                                <div className="absolute top-[18px] left-1/2 -translate-x-1/2 w-[110px] h-[34px] bg-black rounded-[20px] z-20 flex items-center justify-center gap-1.5 px-3">
+                                <div className="showcase-dynamic-island absolute top-[18px] left-1/2 -translate-x-1/2 w-[110px] h-[34px] bg-black rounded-[20px] z-20 flex items-center justify-center gap-1.5 px-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-[#1d1d1f] shadow-inner" />
                                     <div className="flex-1" />
                                     <div className="w-4 h-4 rounded-full bg-[#1d1d1f] shadow-inner opacity-20" />
                                 </div>
 
                                 {/* Precision Screen */}
-                                <div className="w-[375px] h-[780px] sm:w-[393px] sm:h-[820px] rounded-[44px] overflow-hidden bg-white relative">
+                                <div className="showcase-device-screen w-[375px] h-[780px] sm:w-[393px] sm:h-[820px] rounded-[44px] overflow-hidden bg-white relative">
                                     {/* Glass Overlay on Iframe (Optional) */}
-                                    <div className="absolute inset-0 pointer-events-none rounded-[44px] ring-1 ring-inset ring-white/10 z-10" />
+                                    <div className="showcase-screen-sheen absolute inset-0 pointer-events-none rounded-[44px] ring-1 ring-inset ring-white/10 z-10" />
                                     
                                     <iframe
                                         ref={iframeRef}
@@ -303,7 +304,7 @@ const ShowcasePage = () => {
                         {TECH_STACK.map((tech, i) => (
                             <div
                                 key={i}
-                                className="aegis-card flex flex-col items-center gap-4 p-8 bg-[#fbfbfd] hover:bg-white transition-all duration-500 hover:shadow-xl hover:shadow-black/5 transform hover:-translate-y-1 stagger-item"
+                                className="showcase-tech-card aegis-card flex flex-col items-center gap-4 p-8 bg-[#fbfbfd] hover:bg-white transition-all duration-500 hover:shadow-xl hover:shadow-black/5 transform hover:-translate-y-1 stagger-item"
                             >
                                 <span className="text-3xl filter grayscale group-hover:grayscale-0 transition-all">{tech.icon}</span>
                                 <span className="text-[11px] font-black text-[#86868b] uppercase tracking-widest">{tech.name}</span>
@@ -316,7 +317,7 @@ const ShowcasePage = () => {
             {/* ═══════════════════════════════════════════
                 SECTION 5: STATS
                ═══════════════════════════════════════════ */}
-            <section ref={statsReveal} className="reveal py-32 px-6 bg-[#1d1d1f]">
+            <section ref={statsReveal} className="showcase-stats-section reveal py-32 px-6 bg-[#1d1d1f]">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 lg:gap-20">
                         {STATS_CONFIG.map((stat, i) => (
@@ -335,10 +336,10 @@ const ShowcasePage = () => {
             {/* ═══════════════════════════════════════════
                 SECTION 6: CTA FOOTER
                ═══════════════════════════════════════════ */}
-            <section ref={ctaReveal} className="reveal py-40 px-6 relative overflow-hidden flex flex-col items-center text-center">
+            <section ref={ctaReveal} className="showcase-cta-section reveal py-40 px-6 relative overflow-hidden flex flex-col items-center text-center">
                 {/* Visual Finish */}
                 <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#0071e3]/20 to-transparent" />
-                <div className="absolute -bottom-[20%] w-[1200px] h-[600px] bg-[#0071e3]/5 rounded-[100%] blur-[120px]" />
+                <div className="showcase-cta-glow absolute -bottom-[20%] w-[1200px] h-[600px] bg-[#0071e3]/5 rounded-[100%] blur-[120px]" />
 
                 <div className="relative z-10 max-w-4xl mx-auto">
                     <h2 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter text-[#1d1d1f] mb-8 leading-[1.05]">
@@ -351,14 +352,14 @@ const ShowcasePage = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
                         <Link
                             to="/welcome"
-                            className="inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#0071e3] text-white font-black text-lg shadow-[0_20px_40px_rgba(0,113,227,0.2)] hover:bg-[#0077ed] hover:shadow-[0_25px_50px_rgba(0,113,227,0.3)] transition-all transform active:scale-[0.97]"
+                            className="showcase-action showcase-action-primary inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#0071e3] text-white font-black text-lg shadow-[0_20px_40px_rgba(0,113,227,0.2)] hover:bg-[#0077ed] hover:shadow-[0_25px_50px_rgba(0,113,227,0.3)] transition-all transform active:scale-[0.97]"
                         >
                             <span className="material-symbols-outlined font-black">play_arrow</span>
                             {t('showcase.ctaLaunch')}
                         </Link>
                         <Link
                             to="/preview"
-                            className="inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#1d1d1f] text-white font-black text-lg hover:bg-black transition-all transform active:scale-[0.97]"
+                            className="showcase-action showcase-action-dark inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#1d1d1f] text-white font-black text-lg hover:bg-black transition-all transform active:scale-[0.97]"
                         >
                             <span className="material-symbols-outlined font-light">devices</span>
                             {t('showcase.ctaPreview')}
@@ -368,10 +369,10 @@ const ShowcasePage = () => {
             </section>
 
             {/* Global Footer */}
-            <footer className="py-12 px-8 border-t border-black/5 bg-white/40">
+            <footer className="showcase-footer py-12 px-8 border-t border-black/5 bg-white/40">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-[12px] bg-[#1d1d1f] flex items-center justify-center shadow-lg">
+                        <div className="showcase-logo w-10 h-10 rounded-[12px] bg-[#1d1d1f] flex items-center justify-center shadow-lg">
                             <span className="material-symbols-outlined text-white text-[20px]">home</span>
                         </div>
                         <div>
