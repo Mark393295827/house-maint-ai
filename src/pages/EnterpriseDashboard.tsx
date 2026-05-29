@@ -80,8 +80,8 @@ const ScoreRing: React.FC<{ score: number; max: number; color: string; size?: nu
 };
 
 const DimensionCard: React.FC<{ dim: DimensionScore }> = ({ dim }) => (
-    <div className="ent-card p-6 lg:p-7 group hover:-translate-y-1.5 transition-all duration-500 bg-white/60">
-        <div className="flex items-center justify-between mb-8">
+    <div className="ent-card p-4 sm:p-5 lg:p-7 group hover:-translate-y-1.5 transition-all duration-500 bg-white/60">
+        <div className="flex items-center justify-between gap-4 mb-6 lg:mb-8">
             <div className="space-y-1">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#86868b]">Strategic Dimension</span>
                 <h3 className="text-base font-black text-[#1d1d1f] tracking-tight">{dim.name}</h3>
@@ -97,8 +97,8 @@ const DimensionCard: React.FC<{ dim: DimensionScore }> = ({ dim }) => (
             <span className="text-4xl font-black text-black tracking-tighter tabular-nums">{dim.score.toFixed(1)}</span>
             <span className="text-xs font-black text-[#86868b] uppercase tracking-wider">/ {dim.maxScore}</span>
         </div>
-        <p className="text-[12px] text-[#86868b] font-medium leading-relaxed max-w-[90%]">{dim.description}</p>
-        <div className="mt-8 h-1.5 bg-black/5 rounded-full overflow-hidden">
+        <p className="text-[12px] text-[#86868b] font-medium leading-relaxed max-w-[95%]">{dim.description}</p>
+        <div className="mt-6 lg:mt-8 h-1.5 bg-black/5 rounded-full overflow-hidden">
             <div 
                 className="h-full transition-all duration-[1.5s] ease-out rounded-full" 
                 style={{ 
@@ -226,18 +226,18 @@ const EnterpriseDashboardHome: React.FC = () => {
     }, [user]);
 
     return (
-        <div className="space-y-8 page-enter">
+        <div className="space-y-5 lg:space-y-8 page-enter">
             {/* Row 1: 4D Strategy Health (Key Metics) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-8">
                 {dimensions.map((dim) => (
                     <DimensionCard key={dim.name} dim={dim} />
                 ))}
             </div>
 
             {/* Row 2: Main Visualization (Map + Performance) */}
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-                <div className="lg:col-span-7 ent-card overflow-hidden bg-white/50 ent-glass">
-                    <div className="p-6 border-b border-black/5 flex items-center justify-between bg-white/40">
+            <div className="grid grid-cols-1 xl:grid-cols-10 gap-5 lg:gap-8">
+                <div className="xl:col-span-7 ent-card overflow-hidden bg-white/50 ent-glass">
+                    <div className="p-4 sm:p-6 border-b border-black/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white/40">
                         <div>
                             <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-2">Global Technician Deployment</h3>
                             <p className="text-[10px] text-[#007aff] font-black uppercase tracking-widest font-mono">Live geo-tracking · Sanya District · 12 Active Nodes</p>
@@ -250,13 +250,13 @@ const EnterpriseDashboardHome: React.FC = () => {
                             <span className="material-symbols-outlined text-slate-400 text-sm cursor-pointer hover:text-blue-600 transition-colors">fullscreen</span>
                         </div>
                     </div>
-                    <div className="h-[500px] relative">
+                    <div className="h-[340px] sm:h-[420px] lg:h-[500px] relative">
                          <EnterpriseMap />
                     </div>
                 </div>
 
-                <div className="lg:col-span-3 ent-card p-6 bg-white/80 ent-glass">
-                    <div className="flex items-center justify-between mb-8">
+                <div className="xl:col-span-3 ent-card p-4 sm:p-6 bg-white/80 ent-glass">
+                    <div className="flex items-center justify-between gap-4 mb-6 lg:mb-8">
                         <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">System Load Swarm</h3>
                         <div className="flex items-center gap-2 bg-black/5 px-2.5 py-1.5 rounded-lg text-[10px] text-slate-500 font-black uppercase tracking-widest">
                             Realtime <span className="material-symbols-outlined text-[14px]">expand_more</span>
@@ -288,16 +288,16 @@ const EnterpriseDashboardHome: React.FC = () => {
             </div>
 
             {/* Row 3: Agent Swarm & Strategy Alerts */}
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-                <div className="lg:col-span-6 ent-card overflow-hidden bg-white/50 ent-glass">
-                    <div className="p-6 border-b border-black/5 flex items-center justify-between bg-white/40">
+            <div className="grid grid-cols-1 xl:grid-cols-10 gap-5 lg:gap-8">
+                <div className="xl:col-span-6 ent-card overflow-hidden bg-white/50 ent-glass">
+                    <div className="p-4 sm:p-6 border-b border-black/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white/40">
                         <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">LLM Agent Swarm Status</h3>
                         <div className="flex items-center gap-4 text-[9px] font-black text-slate-500 uppercase tracking-widest">
                             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#28cd41]" /> ONLINE</div>
                             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#ff9500]" /> IDLE</div>
                         </div>
                     </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4">
                         {agents.map((agent) => (
                             <AgentCard key={agent.name} agent={agent} />
                         ))}
@@ -308,12 +308,12 @@ const EnterpriseDashboardHome: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="lg:col-span-4 ent-card overflow-hidden bg-white/80 ent-glass">
-                    <div className="p-6 border-b border-black/5 flex items-center justify-between">
+                <div className="xl:col-span-4 ent-card overflow-hidden bg-white/80 ent-glass">
+                    <div className="p-4 sm:p-6 border-b border-black/5 flex items-center justify-between gap-4">
                         <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Strategy Control Alerts</h3>
                         <span className="material-symbols-outlined text-slate-400 text-sm">notifications_active</span>
                     </div>
-                    <div className="p-6 max-h-[400px] overflow-y-auto ent-scrollbar">
+                    <div className="p-4 sm:p-6 max-h-[400px] overflow-y-auto ent-scrollbar">
                         {alerts.map((alert, i) => (
                             <AlertBadge key={i} alert={alert} />
                         ))}
@@ -322,9 +322,9 @@ const EnterpriseDashboardHome: React.FC = () => {
             </div>
 
             {/* Row 4: Research Swarm & Efficiency */}
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-                <div className="lg:col-span-7 ent-card p-8 bg-white/60 ent-glass">
-                    <div className="flex items-center justify-between mb-8">
+            <div className="grid grid-cols-1 xl:grid-cols-10 gap-5 lg:gap-8">
+                <div className="xl:col-span-7 ent-card p-4 sm:p-6 lg:p-8 bg-white/60 ent-glass">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                         <div>
                             <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Automated Market Intelligence</h2>
                             <p className="text-[14px] text-slate-900 font-black tracking-tight uppercase">Terminal Research Swarm</p>
@@ -333,7 +333,7 @@ const EnterpriseDashboardHome: React.FC = () => {
                            3 AGENT CROSS-VALIDATION
                         </div>
                     </div>
-                    <div className="flex flex-col md:flex-row gap-4 mb-8">
+                    <div className="flex flex-col sm:flex-row gap-4 mb-8">
                         <div className="flex-1">
                             <input 
                                 type="text" 
@@ -344,7 +344,7 @@ const EnterpriseDashboardHome: React.FC = () => {
                             />
                         </div>
                         <button onClick={handleResearch} disabled={researchLoading}
-                            className="px-8 py-4 bg-[#007aff] hover:bg-blue-600 text-white rounded-2xl text-[12px] font-black transition-all disabled:opacity-50 uppercase tracking-widest flex items-center gap-3 shadow-xl shadow-blue-500/20 active:scale-95">
+                            className="px-6 sm:px-8 py-4 bg-[#007aff] hover:bg-blue-600 text-white rounded-2xl text-[12px] font-black transition-all disabled:opacity-50 uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-blue-500/20 active:scale-95">
                              {researchLoading ? 'Executing Evolution...' : 'Execute Intelligence Scan'} <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
                         </button>
                     </div>
@@ -360,8 +360,8 @@ const EnterpriseDashboardHome: React.FC = () => {
                     )}
                 </div>
 
-                <div className="lg:col-span-3 ent-card p-8 relative overflow-hidden group bg-white/80 ent-glass">
-                    <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Efficiency Topology</h3>
+                <div className="xl:col-span-3 ent-card p-4 sm:p-6 lg:p-8 relative overflow-hidden group bg-white/80 ent-glass">
+                    <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 lg:mb-8">Efficiency Topology</h3>
                     <WorkloadDistribution />
                     <div className="mt-8 pt-6 border-t border-black/5">
                         <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3">
