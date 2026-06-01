@@ -33,6 +33,7 @@ const MASTER_SCHEMA = `
         match_score REAL,
         severity_tag TEXT DEFAULT '48h',
         resolution_details TEXT,
+        pattern_extracted INTEGER DEFAULT 0,
         completed_at TEXT,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
