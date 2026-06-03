@@ -1,4 +1,4 @@
-import db, { query, isSQLite } from '../config/database.js';
+import { query } from '../config/database.js';
 import { diagnosticsClaw } from '../services/diagnostics_claw.js';
 import { planningClaw } from '../services/planning_claw.js';
 import { vendorClaw } from '../services/vendor_claw.js';
@@ -60,7 +60,7 @@ async function runVerification() {
     await query('DELETE FROM matches');
     await query('DELETE FROM reports');
     await query('DELETE FROM patterns');
-    try { await query('DELETE FROM sqlite_sequence WHERE name IN ("reports", "matches", "reviews", "patterns")'); } catch (e) { }
+    try { await query('DELETE FROM sqlite_sequence WHERE name IN ("reports", "matches", "reviews", "patterns")'); } catch (e) { console.error('Error clearing sqlite_sequence:', e); }
     log('🧹 Database cleared for verification.');
 
     try {
