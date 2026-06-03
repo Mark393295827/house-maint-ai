@@ -5,6 +5,19 @@ import tsParser from "@typescript-eslint/parser";
 export default [
   js.configs.recommended,
   {
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "coverage/**",
+      "public/**",
+      "server/scripts/init-db.ts",
+      "server/scripts/verify-swarm.ts",
+      "server/scripts/migrate_status_constraint.ts",
+      "scripts/**",
+      "server/dist/**"
+    ]
+  },
+  {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
       parser: tsParser,
