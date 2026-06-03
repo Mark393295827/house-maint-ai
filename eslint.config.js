@@ -13,7 +13,8 @@ export default [
       "server/scripts/init-db.ts",
       "server/scripts/verify-swarm.ts",
       "server/scripts/migrate_status_constraint.ts",
-      "scripts/**"
+      "scripts/**",
+      "server/dist/**"
     ]
   },
   {
