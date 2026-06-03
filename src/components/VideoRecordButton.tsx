@@ -24,6 +24,10 @@ export default function VideoRecordButton({
     const [isRecording, setIsRecording] = useState(false);
     const [duration, setDuration] = useState(0);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const durationRef = useRef(0);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const mediaChunksRef = useRef<Blob[]>([]);
+    const streamRef = useRef<MediaStream | null>(null);
 
     // 计算进度环参数
     const circumference = 2 * Math.PI * 38; // r=38
@@ -35,8 +39,25 @@ export default function VideoRecordButton({
             if (timerRef.current) {
                 clearInterval(timerRef.current);
             }
+            streamRef.current?.getTracks().forEach(track => track.stop());
         };
     }, []);
+
+    const completeRecording = (blob?: Blob, mimeType?: string) => {
+        const recordedDuration = Math.max(1, durationRef.current);
+
+        onRecordComplete?.({
+            duration: recordedDuration,
+            maxWidth: VIDEO_CONSTRAINTS.maxWidth,
+            maxHeight: VIDEO_CONSTRAINTS.maxHeight,
+            timestamp: new Date().toISOString(),
+            blob,
+            mimeType,
+            filename: blob ? `video-${Date.now()}.webm` : undefined
+        });
+        setDuration(0);
+        durationRef.current = 0;
+    };
 
     const stopRecording = () => {
         hapticSuccess();
@@ -47,29 +68,60 @@ export default function VideoRecordButton({
             timerRef.current = null;
         }
 
-        onRecordComplete?.({
-            duration: duration + 1,
-            maxWidth: VIDEO_CONSTRAINTS.maxWidth,
-            maxHeight: VIDEO_CONSTRAINTS.maxHeight,
-            timestamp: new Date().toISOString()
-        });
-        setDuration(0);
+        const recorder = mediaRecorderRef.current;
+        if (recorder && recorder.state !== 'inactive') {
+            recorder.onstop = () => {
+                const mimeType = recorder.mimeType || 'video/webm';
+                const blob = mediaChunksRef.current.length > 0
+                    ? new Blob(mediaChunksRef.current, { type: mimeType })
+                    : undefined;
+                completeRecording(blob, mimeType);
+                streamRef.current?.getTracks().forEach(track => track.stop());
+                mediaRecorderRef.current = null;
+                streamRef.current = null;
+                mediaChunksRef.current = [];
+            };
+            recorder.stop();
+            return;
+        }
+
+        completeRecording();
     };
 
-    const startRecording = () => {
+    const startRecording = async () => {
         hapticButtonPress();
         setIsRecording(true);
         setDuration(0);
+        durationRef.current = 0;
         onRecordStart?.();
 
+        if (navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== 'undefined') {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: VIDEO_CONSTRAINTS.maxWidth },
+                        height: { ideal: VIDEO_CONSTRAINTS.maxHeight }
+                    },
+                    audio: true
+                });
+                streamRef.current = stream;
+                mediaChunksRef.current = [];
+                const mimeType = MediaRecorder.isTypeSupported?.('video/webm') ? 'video/webm' : '';
+                const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+                recorder.ondataavailable = event => {
+                    if (event.data.size > 0) mediaChunksRef.current.push(event.data);
+                };
+                recorder.start();
+                mediaRecorderRef.current = recorder;
+            } catch {
+                mediaRecorderRef.current = null;
+            }
+        }
+
         timerRef.current = setInterval(() => {
-            setDuration(d => {
-                if (d >= maxDuration - 1) {
-                    stopRecording();
-                    return maxDuration;
-                }
-                return d + 1;
-            });
+            durationRef.current += 1;
+            setDuration(durationRef.current);
+            if (durationRef.current >= maxDuration) stopRecording();
         }, 1000);
     };
 
@@ -78,7 +130,7 @@ export default function VideoRecordButton({
             {/* 视频录制按钮 */}
             <div className="relative w-20 h-20">
                 <button
-                    onClick={isRecording ? stopRecording : startRecording}
+                    onClick={isRecording ? stopRecording : () => void startRecording()}
                     className={`
             w-full h-full rounded-full
             flex items-center justify-center

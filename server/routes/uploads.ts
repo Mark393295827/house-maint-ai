@@ -1,11 +1,30 @@
 import express from 'express';
 import multer from 'multer';
-import { extname } from 'path';
+import { mkdirSync } from 'fs';
+import { dirname, extname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { authenticate } from '../middleware/auth.js';
 import { S3Client } from '@aws-sdk/client-s3';
 import multerS3 from 'multer-s3';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const uploadsRoot = join(__dirname, '..', 'uploads');
+
+const folderForField = (fieldname: string) => {
+    if (fieldname === 'voice') return 'voice';
+    if (fieldname === 'video') return 'video';
+    if (fieldname === 'image') return 'images';
+    return 'uploads';
+};
+
+const hasS3Config = Boolean(
+    process.env.AWS_REGION &&
+    process.env.AWS_ACCESS_KEY_ID &&
+    process.env.AWS_SECRET_ACCESS_KEY &&
+    process.env.AWS_BUCKET_NAME
+);
 
 // S3 Client configuration
 const s3 = new S3Client({
@@ -19,8 +38,9 @@ const s3 = new S3Client({
     forcePathStyle: !!process.env.AWS_ENDPOINT // Needed for some non-AWS providers
 });
 
-// Configure multer storage
-const storage = multerS3({
+// Configure multer storage. S3 is used in production; local disk is the
+// development fallback so voice/video capture can be tested without cloud keys.
+const s3Storage = multerS3({
     s3: s3,
     bucket: process.env.AWS_BUCKET_NAME || 'house-maint-uploads',
     contentType: multerS3.AUTO_CONTENT_TYPE,
@@ -30,15 +50,24 @@ const storage = multerS3({
     key: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const ext = extname(file.originalname);
-
-        let folder = 'uploads';
-        if (file.fieldname === 'voice') folder = 'voice';
-        else if (file.fieldname === 'video') folder = 'video';
-        else if (file.fieldname === 'image') folder = 'images';
-
-        cb(null, `${folder}/${uniqueSuffix}${ext}`);
+        cb(null, `${folderForField(file.fieldname)}/${uniqueSuffix}${ext}`);
     }
 });
+
+const diskStorage = multer.diskStorage({
+    destination: (_req, file, cb) => {
+        const folder = folderForField(file.fieldname);
+        const destination = join(uploadsRoot, folder);
+        mkdirSync(destination, { recursive: true });
+        cb(null, destination);
+    },
+    filename: (_req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+    }
+});
+
+const storage = hasS3Config ? s3Storage : diskStorage;
 
 // File filter
 const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
@@ -65,8 +94,21 @@ const upload = multer({
 });
 
 interface MulterS3File extends Express.Multer.File {
-    location: string;
-    key: string;
+    location?: string;
+    key?: string;
+}
+
+function buildUploadResponse(file: MulterS3File) {
+    const folder = folderForField(file.fieldname);
+    const filename = file.key || `${folder}/${file.filename}`;
+    const url = file.location || `/uploads/${folder}/${file.filename}`;
+
+    return {
+        url,
+        filename,
+        size: file.size,
+        storage: file.location ? 's3' : 'local'
+    };
 }
 
 /**
@@ -82,9 +124,7 @@ router.post('/voice', authenticate, upload.single('voice'), (req, res) => {
 
     res.json({
         message: 'Voice uploaded successfully',
-        url: file.location,
-        filename: file.key,
-        size: file.size
+        ...buildUploadResponse(file)
     });
 });
 
@@ -101,9 +141,7 @@ router.post('/video', authenticate, upload.single('video'), (req, res) => {
 
     res.json({
         message: 'Video uploaded successfully',
-        url: file.location,
-        filename: file.key,
-        size: file.size
+        ...buildUploadResponse(file)
     });
 });
 
@@ -120,9 +158,7 @@ router.post('/image', authenticate, upload.single('image'), (req, res) => {
 
     res.json({
         message: 'Image uploaded successfully',
-        url: file.location,
-        filename: file.key,
-        size: file.size
+        ...buildUploadResponse(file)
     });
 });
 
@@ -136,11 +172,12 @@ router.post('/images', authenticate, upload.array('image', 5), (req, res) => {
     }
 
     const files = req.files as MulterS3File[];
-    const urls = files.map(file => file.location);
+    const responses = files.map(buildUploadResponse);
 
     res.json({
         message: 'Images uploaded successfully',
-        urls,
+        urls: responses.map(file => file.url),
+        files: responses,
         count: req.files.length
     });
 });

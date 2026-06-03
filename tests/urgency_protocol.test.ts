@@ -208,6 +208,22 @@ describe('Urgency Protocol API', () => {
         expect(res.body.data.report.urgency_score).toBe(9);
     });
 
+    it('should accept frontend maintenance categories', async () => {
+        for (const category of ['hvac', 'structural']) {
+            const res = await request(app)
+                .post('/api/v1/reports')
+                .set('Cookie', [`accessToken=${userToken}`])
+                .send({
+                    title: `${category} issue`,
+                    description: 'Frontend category submitted from quick report',
+                    category
+                });
+
+            expect(res.status).toBe(201);
+            expect(res.body.data.report.category).toBe(category);
+        }
+    });
+
     it('should validate urgency score range (0-10)', async () => {
         const res = await request(app)
             .post('/api/v1/reports')

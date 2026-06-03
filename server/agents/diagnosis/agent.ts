@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AiProvider, AiResponse, DiagnosisResult, parseAiJson, withRetry, ChatMessage } from '../common.js';
+import { AiProvider, AiResponse, DiagnosisResult, normalizeDiagnosisResult, parseAiJson, withRetry, ChatMessage } from '../common.js';
 
 // Gemini Provider for Multimodal (CLAW 1) — 8-Step Diagnostic Methodology
 export class DiagnosisAgent implements AiProvider {
@@ -31,7 +31,14 @@ export class DiagnosisAgent implements AiProvider {
             model: "gemini-1.5-flash",
             systemInstruction: systemPrompt
         });
-        const result = await modelWithSystem.generateContent(parts);
+        const normalizedParts = parts.map(part => typeof part === 'string' ? { text: part } : part);
+        const result = await modelWithSystem.generateContent({
+            contents: [{ role: 'user', parts: normalizedParts }],
+            generationConfig: {
+                temperature: 0.1,
+                responseMimeType: 'application/json'
+            }
+        });
         const text = result.response.text();
         const usage = result.response.usageMetadata || { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
         return { text, usage };
@@ -59,7 +66,8 @@ export class DiagnosisAgent implements AiProvider {
                 'You are an expert home maintenance diagnostic AI. Return only valid JSON.',
                 parts
             );
-            return { result: parseAiJson<DiagnosisResult>(responseText, ['diagnosis']), usage: this.mapUsage(usage) };
+            const parsed = parseAiJson<unknown>(responseText, []);
+            return { result: normalizeDiagnosisResult(parsed), usage: this.mapUsage(usage) };
         });
     }
 
