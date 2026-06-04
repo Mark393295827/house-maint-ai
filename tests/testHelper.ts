@@ -34,6 +34,9 @@ const MASTER_SCHEMA = `
         severity_tag TEXT DEFAULT '48h',
         resolution_details TEXT,
         completed_at TEXT,
+        diagnosis_correct INTEGER,
+        first_time_fix INTEGER,
+        pattern_extracted INTEGER DEFAULT 0,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
