@@ -31,9 +31,13 @@ const MASTER_SCHEMA = `
         longitude REAL,
         urgency_score INTEGER DEFAULT 0,
         match_score REAL,
-        severity_tag TEXT DEFAULT '48h',
-        resolution_details TEXT,
+        matched_at TEXT,
         completed_at TEXT,
+        resolution_details TEXT,
+        severity_tag TEXT DEFAULT '48h',
+        diagnosis_correct INTEGER,
+        first_time_fix INTEGER,
+        pattern_extracted INTEGER DEFAULT 0,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
