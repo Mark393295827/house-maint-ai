@@ -95,7 +95,13 @@ describe('Error Handler Middleware', () => {
 
         const error = new Error('Sensitive database failure detail');
 
+        // Spy on console.error and provide a no-op implementation
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
         errorHandler(error, req as Request, res as Response, next);
+
+        // Restore console.error
+        spy.mockRestore();
 
         expect(status).toHaveBeenCalledWith(500);
         expect(json).toHaveBeenCalledWith({
@@ -111,7 +117,13 @@ describe('Error Handler Middleware', () => {
 
         const error = new Error('Dev failure detail');
 
+        // Spy on console.error and provide a no-op implementation
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
         errorHandler(error, req as Request, res as Response, next);
+
+        // Restore console.error
+        spy.mockRestore();
 
         expect(status).toHaveBeenCalledWith(500);
         expect(json).toHaveBeenCalledWith(expect.objectContaining({
