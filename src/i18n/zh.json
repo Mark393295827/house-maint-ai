@@ -465,7 +465,8 @@
                 "properties": "房产资产",
                 "tickets": "工单管理",
                 "workers": "工人目录",
-                "analytics": "数据分析"
+                "analytics": "数据分析",
+                "aiConfig": "AI 配置"
             }
         },
         "tickets": {

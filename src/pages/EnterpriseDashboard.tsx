@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import EnterpriseLayout from '../components/EnterpriseLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { PropertiesPage, TicketsPage, EnterpriseWorkersPage, AnalyticsPage } from './EnterprisePlaceholders';
+import EnterpriseAIConfigPage from './EnterpriseAIConfigPage';
 import EnterpriseMap from '../components/EnterpriseMap';
 import { PerformanceChart, WorkloadDistribution } from '../components/OperationCharts';
 import { post } from '../services/api';
@@ -391,6 +392,7 @@ const EnterpriseDashboard: React.FC = () => {
                 <Route path="tickets" element={<TicketsPage />} />
                 <Route path="workers" element={<EnterpriseWorkersPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="ai-config" element={<EnterpriseAIConfigPage />} />
             </Routes>
         </EnterpriseLayout>
     );

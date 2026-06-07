@@ -19,6 +19,7 @@ const useEnterpriseNavItems = () => {
         { path: `${basePath}/tickets`, icon: 'confirmation_number', title: t('enterprise.layout.nav.tickets') },
         { path: `${basePath}/workers`, icon: 'engineering', title: t('enterprise.layout.nav.workers') },
         { path: `${basePath}/analytics`, icon: 'analytics', title: t('enterprise.layout.nav.analytics') },
+        { path: `${basePath}/ai-config`, icon: 'tune', title: t('enterprise.layout.nav.aiConfig') },
     ];
 };
 

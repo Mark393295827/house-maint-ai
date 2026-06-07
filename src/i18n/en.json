@@ -463,7 +463,8 @@
                 "properties": "Properties",
                 "tickets": "Tickets",
                 "workers": "Workers",
-                "analytics": "Analytics"
+                "analytics": "Analytics",
+                "aiConfig": "AI Config"
             }
         },
         "tickets": {
