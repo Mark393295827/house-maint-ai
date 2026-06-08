@@ -21,7 +21,7 @@ try {
         stdio: 'inherit'
     });
     console.log('\n✅ All tests passed!');
-} catch (_error) {
+} catch {
     console.error('\n❌ Some tests failed');
     process.exit(1);
 }

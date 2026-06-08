@@ -60,7 +60,7 @@ async function runVerification() {
     await query('DELETE FROM matches');
     await query('DELETE FROM reports');
     await query('DELETE FROM patterns');
-    try { await query('DELETE FROM sqlite_sequence WHERE name IN ("reports", "matches", "reviews", "patterns")'); } catch (e) { }
+    try { await query('DELETE FROM sqlite_sequence WHERE name IN ("reports", "matches", "reviews", "patterns")'); } catch (_e) { /* ignore */ }
     log('🧹 Database cleared for verification.');
 
     try {
