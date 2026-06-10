@@ -13,7 +13,7 @@ function readSecret(secretName: string, envVar: string, defaultValue: string = '
     if (existsSync(secretPath)) {
         try {
             return readFileSync(secretPath, 'utf8').trim();
-        } catch (error) {
+        } catch (_error) {
             console.warn(`Warning: Could not read secret file ${secretPath}`);
         }
     }
