@@ -30,7 +30,7 @@ export function readJsonFile(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf-8');
         return JSON.parse(content);
-    } catch (_error) {
+    } catch {
         return null;
     }
 }

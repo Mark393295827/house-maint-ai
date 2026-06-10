@@ -1,5 +1,5 @@
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { errorHandler } from '../middleware/errorHandler.js';
 import { AppError } from '../utils/AppError.js';
 import { ZodError } from 'zod';
@@ -16,8 +16,10 @@ describe('Error Handler Middleware', () => {
     let next: any;
     let json: any;
     let status: any;
+    let spyConsoleError: any;
 
     beforeEach(() => {
+        spyConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
         req = {};
         json = vi.fn();
         status = vi.fn().mockReturnValue({ json });
@@ -26,6 +28,12 @@ describe('Error Handler Middleware', () => {
             json
         };
         next = vi.fn();
+    });
+
+    afterEach(() => {
+        if (spyConsoleError) {
+            spyConsoleError.mockRestore();
+        }
     });
 
     it('should handle ZodError with 400', () => {
