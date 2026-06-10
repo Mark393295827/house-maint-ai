@@ -17,7 +17,7 @@ const file = fs.createWriteStream(ZIP_PATH);
 https.get(REPO_URL, (response) => {
     // Handle redirects
     if (response.statusCode === 301 || response.statusCode === 302) {
-        https.get(response.headers.location, (res) => {
+        https.get(response.headers.location!, (res) => {
             res.pipe(file);
             file.on('finish', () => {
                 file.close(() => extractAndCopy());

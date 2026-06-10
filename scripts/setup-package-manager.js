@@ -41,7 +41,7 @@ function setup() {
     try {
         const version = execSync(`${packageManager} --version`, { encoding: 'utf-8' }).trim();
         console.log(`✅ ${packageManager} version ${version} is installed`);
-    } catch {
+    } catch (_error) {
         console.error(`❌ ${packageManager} is not installed. Please install it first.`);
         process.exit(1);
     }
@@ -55,7 +55,7 @@ function setup() {
                 stdio: 'inherit'
             });
             console.log('✅ Dependencies installed successfully');
-        } catch {
+        } catch (_error) {
             console.error('❌ Failed to install dependencies');
             process.exit(1);
         }

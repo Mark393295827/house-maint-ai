@@ -42,7 +42,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = jwtPayloadSchema.parse(decoded);
         next();
-    } catch (_error) {
+    } catch (error) {
         res.status(401).json({ error: 'Invalid token' });
     }
 }
@@ -61,7 +61,7 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = jwtPayloadSchema.parse(decoded);
-    } catch (_error) {
+    } catch (error) {
         // Ignore invalid token in optional auth
     }
 

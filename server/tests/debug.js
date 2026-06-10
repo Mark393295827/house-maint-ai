@@ -1,4 +1,10 @@
 import { SQLiteFallback } from '../config/database.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function run() {
     try {
         console.log('Working Dir:', process.cwd());
