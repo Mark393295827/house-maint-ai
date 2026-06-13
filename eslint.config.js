@@ -38,6 +38,9 @@ export default [
     },
   },
   {
+    ignores: ["dist/**", "server/dist/**"],
+  },
+  {
     files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
     languageOptions: {
       globals: {
