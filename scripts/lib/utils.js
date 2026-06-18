@@ -30,7 +30,7 @@ export function readJsonFile(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf-8');
         return JSON.parse(content);
-    } catch (_error) {
+    } catch {
         return null;
     }
 }
@@ -87,7 +87,7 @@ export async function safeExec(command) {
             success: true,
             output: execSync(command, { encoding: 'utf-8' }).trim()
         };
-    } catch (error) {
+    } catch {
         return {
             success: false,
             error: error.message
