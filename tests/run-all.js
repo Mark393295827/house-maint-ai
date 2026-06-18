@@ -7,6 +7,7 @@
 import { execSync } from 'child_process';
 import path from 'path';
 import process from 'process';
+
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +22,7 @@ try {
         stdio: 'inherit'
     });
     console.log('\n✅ All tests passed!');
-} catch (_error) {
+} catch {
     console.error('\n❌ Some tests failed');
     process.exit(1);
 }
