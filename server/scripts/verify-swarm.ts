@@ -56,11 +56,13 @@ async function runVerification() {
     log('🐜 ATOMIC SWARM VERIFICATION STARTED (OpenClaw v1.0)');
 
     // Clear previous data
+    await query('DELETE FROM pheromone_events');
+    await query('DELETE FROM tasks');
     await query('DELETE FROM reviews');
     await query('DELETE FROM matches');
     await query('DELETE FROM reports');
     await query('DELETE FROM patterns');
-    try { await query('DELETE FROM sqlite_sequence WHERE name IN ("reports", "matches", "reviews", "patterns")'); } catch {
+    try { await query("DELETE FROM sqlite_sequence WHERE name IN ('reports', 'matches', 'reviews', 'patterns', 'tasks', 'pheromone_events')"); } catch {
         // sqlite_sequence only exists when AUTOINCREMENT tables have been created.
     }
     log('🧹 Database cleared for verification.');
@@ -88,9 +90,19 @@ async function runVerification() {
         }
         log(`✅ Report #${reportId} created.`);
 
+        await query(`
+            INSERT INTO tasks (title, objective, priority, inputs)
+            VALUES ($1, $2, $3, $4)
+        `, [
+            `Diagnose report ${reportId}`,
+            'diagnose_image',
+            'critical',
+            JSON.stringify({ report_id: reportId })
+        ]);
+
         // 2. Diagnostics Claw
         log('\n--- Step 2: Diagnostics Claw (Perception) ---');
-        await (diagnosticsClaw as any).processPendingReports();
+        await (diagnosticsClaw as any).processBlackboardTasks();
 
         const r2 = await query('SELECT status, issue_type, severity, confidence_score FROM reports WHERE id = $1', [reportId]);
         log(`Current Status: ${r2.rows[0].status}`);

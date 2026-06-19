@@ -225,7 +225,7 @@ describe('Diagnostics Claw Service', () => {
         const { rows } = await db.query("SELECT * FROM reports WHERE id = $1", [reportId]);
         const report = rows[0];
 
-        expect(report.status).toBe('matching');
+        expect(report.status).toBe('analyzed');
         expect(report.diagnosis_result).toBeDefined();
 
         const diagnosis = JSON.parse(report.diagnosis_result);
