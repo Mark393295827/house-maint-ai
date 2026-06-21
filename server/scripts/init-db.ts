@@ -52,7 +52,7 @@ const initDb = async () => {
                         [user.phone, passwordHash, user.name, user.avatar, user.role]
                     );
                 }
-            } catch (e) {
+            } catch (e) { /* ignore */
                 console.error(`Error inserting user ${user.phone}:`, e);
             }
         }
@@ -86,7 +86,7 @@ const initDb = async () => {
                             [user.id, profile.skills, profile.rating, profile.lat, profile.lng, 1]
                         );
                     }
-                } catch (e) {
+                } catch (e) { /* ignore */
                     console.error(`Error inserting worker profile for ${user.id}:`, e);
                 }
             }
@@ -116,7 +116,7 @@ const initDb = async () => {
                          ON CONFLICT (report_id) DO NOTHING`,
                         [report.id, report.user_id, report.matched_worker_id, 5, 'Excellent service and quick repair!']
                     );
-                } catch (e) { }
+                } catch (e) { /* ignore */  }
             }
             console.log('✅ Test reviews seeded');
 
@@ -124,10 +124,10 @@ const initDb = async () => {
             if (isSQLite) {
                 try {
                     await pool.query(`ALTER TABLE patterns ADD COLUMN performance_score REAL DEFAULT 0`);
-                } catch (e) { }
+                } catch (e) { /* ignore */  }
                 try {
                     await pool.query(`ALTER TABLE patterns ADD COLUMN generation_version INTEGER DEFAULT 1`);
-                } catch (e) { }
+                } catch (e) { /* ignore */  }
             } else {
                 await pool.query(`
                     ALTER TABLE patterns 
@@ -140,7 +140,7 @@ const initDb = async () => {
             if (isSQLite) {
                 try {
                     await pool.query(`ALTER TABLE reports ADD COLUMN pattern_id INTEGER`);
-                } catch (e) { }
+                } catch (e) { /* ignore */  }
             } else {
                 await pool.query(`
                     ALTER TABLE reports 
@@ -163,7 +163,7 @@ const initDb = async () => {
                 if (isSQLite) {
                     try {
                         await pool.query(`ALTER TABLE reports ADD COLUMN ${col.name} ${col.type}`);
-                    } catch (e) { }
+                    } catch (e) { /* ignore */  }
                 } else {
                     await pool.query(`
                         ALTER TABLE reports 
@@ -179,7 +179,7 @@ const initDb = async () => {
                 if (isSQLite) {
                     try {
                         await pool.query(`ALTER TABLE patterns ADD COLUMN ${col.name} ${col.type}`);
-                    } catch (e) { }
+                    } catch (e) { /* ignore */  }
                 } else {
                     await pool.query(`
                         ALTER TABLE patterns 
@@ -197,7 +197,7 @@ const initDb = async () => {
                 if (isSQLite) {
                     try {
                         await pool.query(`ALTER TABLE workers ADD COLUMN ${col.name} ${col.type}`);
-                    } catch (e) { }
+                    } catch (e) { /* ignore */  }
                 } else {
                     await pool.query(`
                         ALTER TABLE workers 
@@ -209,11 +209,11 @@ const initDb = async () => {
             console.log('✅ Database initialization complete!');
             process.exit(0);
 
-        } catch (e) {
+        } catch (e) { /* ignore */
             console.error('Error in init-db:', e);
             process.exit(1);
         }
-    } catch (e) {
+    } catch (e) { /* ignore */
         console.error('Outer error in init-db:', e);
         process.exit(1);
     }
