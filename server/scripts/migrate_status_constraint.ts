@@ -24,7 +24,7 @@ async function migrate() {
 
         // --- 1. REPORTS ---
         console.log('📦 Migrating Reports...');
-        try { await pool.query('DROP TABLE IF EXISTS reports_old'); } catch (e: any) { }
+        try { await pool.query('DROP TABLE IF EXISTS reports_old'); } catch (e: any) { /* ignore */ }
 
         // Check if reports exists
         try {
@@ -93,8 +93,8 @@ async function migrate() {
 
         // --- 2. MATCHES ---
         console.log('📦 Migrating Matches (Fixing FK)...');
-        try { await pool.query('DROP TABLE IF EXISTS matches_old'); } catch (e: any) { }
-        try { await pool.query('ALTER TABLE matches RENAME TO matches_old'); } catch (e: any) { }
+        try { await pool.query('DROP TABLE IF EXISTS matches_old'); } catch (e: any) { /* ignore */ }
+        try { await pool.query('ALTER TABLE matches RENAME TO matches_old'); } catch (e: any) { /* ignore */ }
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS matches (
@@ -119,8 +119,8 @@ async function migrate() {
 
         // --- 3. REVIEWS ---
         console.log('📦 Migrating Reviews (Fixing FK)...');
-        try { await pool.query('DROP TABLE IF EXISTS reviews_old'); } catch (e: any) { }
-        try { await pool.query('ALTER TABLE reviews RENAME TO reviews_old'); } catch (e: any) { }
+        try { await pool.query('DROP TABLE IF EXISTS reviews_old'); } catch (e: any) { /* ignore */ }
+        try { await pool.query('ALTER TABLE reviews RENAME TO reviews_old'); } catch (e: any) { /* ignore */ }
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS reviews (
@@ -145,7 +145,7 @@ async function migrate() {
         console.log('✅ SQLite tables migrated successfully');
         process.exit(0);
 
-    } catch (e) {
+    } catch (e) { /* ignore */
         console.error('❌ Migration failed:', e);
         process.exit(1);
     }

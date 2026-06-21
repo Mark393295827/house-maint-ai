@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
@@ -19,6 +19,7 @@ vi.mock('../config/redis.js', () => ({
     }
 }));
 
+import { clearTestDb } from './integration/setup.js';
 import reviewRoutes from '../routes/reviews.js';
 import db from '../config/database.js';
 
@@ -27,14 +28,15 @@ app.use(express.json());
 app.use('/api/reviews', reviewRoutes);
 
 describe('Reviews API Integration', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
+        await clearTestDb();
         try {
             console.log('Seeding review test data...');
             // Rely on global tests/setup.ts which sets DB_USE_SQLITE=true
-            await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (1, '13800138001', 'hash', 'Alice', 'user')`);
-            await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (2, '13800138002', 'hash', 'Bob Worker', 'worker')`);
-            await db.query(`INSERT INTO workers (id, user_id, skills, rating) VALUES (1, 2, '["plumbing"]', 5.0)`);
-            await db.query(`INSERT INTO reports (id, user_id, title, description, status, matched_worker_id) VALUES (1, 1, 'Leaky Pipe', 'Fix it', 'completed', 1)`);
+            await db.query(`INSERT OR IGNORE INTO users (id, phone, password_hash, name, role) VALUES (1, '13800138001', 'hash', 'Alice', 'user')`);
+            await db.query(`INSERT OR IGNORE INTO users (id, phone, password_hash, name, role) VALUES (2, '13800138002', 'hash', 'Bob Worker', 'worker')`);
+            await db.query(`INSERT OR IGNORE INTO workers (id, user_id, skills, rating) VALUES (1, 2, '["plumbing"]', 5.0)`);
+            await db.query(`INSERT OR IGNORE INTO reports (id, user_id, title, description, status, matched_worker_id) VALUES (1, 1, 'Leaky Pipe', 'Fix it', 'completed', 1)`);
             console.log('Seeding complete.');
         } catch (error) {
             console.error('Test Seeding Failed:', error);
@@ -61,11 +63,13 @@ describe('Reviews API Integration', () => {
     });
 
     it('should fetch worker reviews with reviewer name', async () => {
+        await request(app).post('/api/reviews').send({ booking_id: 1, rating: 5, comment: 'Great' });
         const res = await request(app).get('/api/reviews/worker/1');
         expect(res.status).toBe(200);
         expect(res.body.reviews).toHaveLength(1);
         expect(res.body.reviews[0].reviewer_name).toBe('Alice');
     });
+
 
     it('should return 400 for non-existent reports', async () => {
         const res = await request(app)

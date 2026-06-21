@@ -1,8 +1,12 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { clearTestDb } from './setup.js';
 import request from 'supertest';
 import app from '../../index.js';
 
 describe('Authentication Flow Integration', () => {
+    beforeEach(async () => {
+        await clearTestDb();
+    });
     const user = {
         name: 'Flow User',
         phone: '13999999999',
