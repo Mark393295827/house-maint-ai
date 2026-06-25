@@ -46,6 +46,11 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
+      working-directory: ./
+
+    - name: Install dependencies (Backend)
+      run: npm ci
+      working-directory: ./server
 
     - name: Audit dependencies
       run: npm audit --audit-level=high
