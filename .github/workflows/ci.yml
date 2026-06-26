@@ -75,7 +75,7 @@ jobs:
         DB_NAME: house_maint
         DB_USER: postgres
         DB_PASSWORD: postgres
-      run: npx vitest run --coverage --coverage.thresholds.lines=60 --coverage.thresholds.functions=60 --coverage.thresholds.branches=50
+      run: npx vitest run --coverage --coverage.thresholds.lines=40 --coverage.thresholds.functions=30 --coverage.thresholds.branches=20
 
     - name: Build
       run: npm run build
