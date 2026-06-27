@@ -47,6 +47,9 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Install server dependencies
+      run: npm ci --prefix server
+
     - name: Audit dependencies
       run: npm audit --audit-level=high
 

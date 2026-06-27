@@ -23,6 +23,10 @@ export default function VoiceRecordButton({
     const [isRecording, setIsRecording] = useState(false);
     const [duration, setDuration] = useState(0);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const durationRef = useRef(0);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const mediaChunksRef = useRef<Blob[]>([]);
+    const streamRef = useRef<MediaStream | null>(null);
 
     // 清理定时器
     useEffect(() => {
@@ -30,8 +34,24 @@ export default function VoiceRecordButton({
             if (timerRef.current) {
                 clearInterval(timerRef.current);
             }
+            streamRef.current?.getTracks().forEach(track => track.stop());
         };
     }, []);
+
+    const completeRecording = (blob?: Blob, mimeType?: string) => {
+        const recordedDuration = Math.max(1, durationRef.current);
+
+        onRecordComplete?.({
+            duration: recordedDuration,
+            timestamp: new Date().toISOString(),
+            blob,
+            mimeType,
+            filename: blob ? `voice-${Date.now()}.webm` : undefined
+        });
+
+        setDuration(0);
+        durationRef.current = 0;
+    };
 
     const stopRecording = () => {
         hapticWarning();
@@ -42,28 +62,55 @@ export default function VoiceRecordButton({
             timerRef.current = null;
         }
 
-        onRecordComplete?.({
-            duration: duration + 1,
-            timestamp: new Date().toISOString()
-        });
-        setDuration(0);
+        const recorder = mediaRecorderRef.current;
+        if (recorder && recorder.state !== 'inactive') {
+            recorder.onstop = () => {
+                const mimeType = recorder.mimeType || 'audio/webm';
+                const blob = mediaChunksRef.current.length > 0
+                    ? new Blob(mediaChunksRef.current, { type: mimeType })
+                    : undefined;
+                completeRecording(blob, mimeType);
+                streamRef.current?.getTracks().forEach(track => track.stop());
+                mediaRecorderRef.current = null;
+                streamRef.current = null;
+                mediaChunksRef.current = [];
+            };
+            recorder.stop();
+            return;
+        }
+
+        completeRecording();
     };
 
-    const startRecording = () => {
+    const startRecording = async () => {
         hapticButtonPress();
         setIsRecording(true);
         setDuration(0);
+        durationRef.current = 0;
         onRecordStart?.();
+
+        if (navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== 'undefined') {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                streamRef.current = stream;
+                mediaChunksRef.current = [];
+                const mimeType = MediaRecorder.isTypeSupported?.('audio/webm') ? 'audio/webm' : '';
+                const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+                recorder.ondataavailable = event => {
+                    if (event.data.size > 0) mediaChunksRef.current.push(event.data);
+                };
+                recorder.start();
+                mediaRecorderRef.current = recorder;
+            } catch {
+                mediaRecorderRef.current = null;
+            }
+        }
 
         // 开始计时
         timerRef.current = setInterval(() => {
-            setDuration(d => {
-                if (d >= maxDuration - 1) {
-                    stopRecording();
-                    return maxDuration;
-                }
-                return d + 1;
-            });
+            durationRef.current += 1;
+            setDuration(durationRef.current);
+            if (durationRef.current >= maxDuration) stopRecording();
         }, 1000);
     };
 
@@ -77,7 +124,7 @@ export default function VoiceRecordButton({
         <div className="flex flex-col items-center gap-4">
             {/* 录音按钮 */}
             <button
-                onClick={isRecording ? stopRecording : startRecording}
+                onClick={isRecording ? stopRecording : () => void startRecording()}
                 className={`
           w-20 h-20 rounded-full
           flex items-center justify-center

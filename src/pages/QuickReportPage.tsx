@@ -6,7 +6,8 @@ import VideoRecordButton from '../components/VideoRecordButton';
 import { hapticSuccess, hapticError } from '../utils/haptics';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../services/api';
+import api, { uploadVideo, uploadVoice } from '../services/api';
+import { buildRecordingReference, urgencyToScore } from '../utils/reportPayload';
 
 import type { RecordingData } from '../types';
 
@@ -70,9 +71,18 @@ export default function QuickReportPage() {
         setError(null);
 
         try {
-            // Note: voice/video URLs are placeholders until MediaRecorder is integrated
-            const voiceUrl: string | undefined = undefined;
-            const videoUrl: string | undefined = undefined;
+            let voiceUrl = buildRecordingReference('voice', recordings.voice);
+            let videoUrl = buildRecordingReference('video', recordings.video);
+
+            if (recordings.voice?.blob) {
+                const uploaded = await uploadVoice(recordings.voice.blob);
+                voiceUrl = uploaded.url;
+            }
+
+            if (recordings.video?.blob) {
+                const uploaded = await uploadVideo(recordings.video.blob);
+                videoUrl = uploaded.url;
+            }
 
             // Create report
             const reportData = {
@@ -81,6 +91,7 @@ export default function QuickReportPage() {
                 category: category || 'other',
                 voice_url: voiceUrl ?? undefined,
                 video_url: videoUrl ?? undefined,
+                urgency_score: urgencyToScore(urgency),
             };
 
             const result = await api.createReport(reportData);

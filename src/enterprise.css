@@ -22,6 +22,35 @@
   --enterprise-glass: blur(30px) saturate(210%);
 }
 
+html {
+  background: var(--enterprise-bg);
+}
+
+.enterprise-shell {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(0, 122, 255, 0.16), transparent 28rem),
+    radial-gradient(circle at 12% 24%, rgba(0, 198, 255, 0.10), transparent 24rem),
+    linear-gradient(135deg, #fbfcff 0%, var(--enterprise-bg) 45%, #eef4ff 100%);
+}
+
+.enterprise-topbar {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.enterprise-main {
+  min-width: 0;
+}
+
+.pt-safe-top {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+.pb-safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 /* ─── Utility Classes ─── */
 
 .ent-glass {
@@ -34,7 +63,7 @@
 .ent-card {
   background: white;
   border: var(--enterprise-border-micro);
-  border-radius: 24px;
+  border-radius: 18px;
   box-shadow: var(--enterprise-shadow-soft);
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -91,4 +120,57 @@
 
 .ent-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 1023px) {
+  .enterprise-shell {
+    background:
+      radial-gradient(circle at 70% 6%, rgba(0, 122, 255, 0.18), transparent 18rem),
+      radial-gradient(circle at 10% 32%, rgba(40, 205, 65, 0.10), transparent 16rem),
+      linear-gradient(180deg, #fbfcff 0%, #f4f7fb 48%, #eef4ff 100%);
+  }
+
+  .enterprise-topbar {
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  }
+
+  .enterprise-search {
+    min-height: 48px;
+  }
+
+  .enterprise-mobile-tabs {
+    background: linear-gradient(180deg, rgba(247, 248, 250, 0), rgba(247, 248, 250, 0.86) 36%, rgba(247, 248, 250, 0.96));
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .enterprise-shell .ent-card {
+    border-radius: 16px;
+  }
+
+  .enterprise-shell table {
+    min-width: 760px !important;
+  }
+
+  .enterprise-shell th,
+  .enterprise-shell td {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .enterprise-shell h1 {
+    font-size: clamp(1.875rem, 8vw, 2.5rem) !important;
+    line-height: 0.98;
+  }
+}
+
+@media (max-width: 430px) {
+  .enterprise-main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .enterprise-shell .ent-card {
+    border-radius: 14px;
+  }
 }

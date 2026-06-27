@@ -139,6 +139,11 @@ function App() {
                         <EnterpriseDashboard />
                       </ProtectedRoute>
                     } />
+                    <Route path="/enterpriseUI/*" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <EnterpriseDashboard />
+                      </ProtectedRoute>
+                    } />
                   </Routes>
                 </div>
               </Suspense>

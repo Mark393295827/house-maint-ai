@@ -24,7 +24,9 @@ async function migrate() {
 
         // --- 1. REPORTS ---
         console.log('📦 Migrating Reports...');
-        try { await pool.query('DROP TABLE IF EXISTS reports_old'); } catch (e: any) { }
+        try { await pool.query('DROP TABLE IF EXISTS reports_old'); } catch {
+            // Old backup table may not exist.
+        }
 
         // Check if reports exists
         try {
@@ -93,8 +95,12 @@ async function migrate() {
 
         // --- 2. MATCHES ---
         console.log('📦 Migrating Matches (Fixing FK)...');
-        try { await pool.query('DROP TABLE IF EXISTS matches_old'); } catch (e: any) { }
-        try { await pool.query('ALTER TABLE matches RENAME TO matches_old'); } catch (e: any) { }
+        try { await pool.query('DROP TABLE IF EXISTS matches_old'); } catch {
+            // Old backup table may not exist.
+        }
+        try { await pool.query('ALTER TABLE matches RENAME TO matches_old'); } catch {
+            // Matches table may be missing on a fresh database.
+        }
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS matches (
@@ -119,8 +125,12 @@ async function migrate() {
 
         // --- 3. REVIEWS ---
         console.log('📦 Migrating Reviews (Fixing FK)...');
-        try { await pool.query('DROP TABLE IF EXISTS reviews_old'); } catch (e: any) { }
-        try { await pool.query('ALTER TABLE reviews RENAME TO reviews_old'); } catch (e: any) { }
+        try { await pool.query('DROP TABLE IF EXISTS reviews_old'); } catch {
+            // Old backup table may not exist.
+        }
+        try { await pool.query('ALTER TABLE reviews RENAME TO reviews_old'); } catch {
+            // Reviews table may be missing on a fresh database.
+        }
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS reviews (

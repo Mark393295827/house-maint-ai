@@ -120,7 +120,7 @@ export class DiagnosticsClawService {
             // Legacy Side-Effect: Update Reports Table for UI
             const { issue_type, severity, diagnosis_summary, confidence_score } = diagnosis.diagnosis;
 
-            let status = 'matching';
+            let status = 'analyzed';
             if (confidence_score && confidence_score < 0.7) {
                 status = 'flagged_for_review';
             }

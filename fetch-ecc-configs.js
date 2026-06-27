@@ -16,8 +16,8 @@ console.log('Fetching configs from everything-claude-code...');
 const file = fs.createWriteStream(ZIP_PATH);
 https.get(REPO_URL, (response) => {
     // Handle redirects
-    if (response.statusCode === 301 || response.statusCode === 302) {
-        https.get(response.headers.location!, (res) => {
+    if ((response.statusCode === 301 || response.statusCode === 302) && response.headers.location) {
+        https.get(response.headers.location, (res) => {
             res.pipe(file);
             file.on('finish', () => {
                 file.close(() => extractAndCopy());

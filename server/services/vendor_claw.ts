@@ -27,10 +27,10 @@ export class VendorSourcingClawService {
         this.isProcessing = true;
 
         try {
-            // Find reports in 'matching' status
+            // Find reports ready for worker sourcing. Keep "matching" for legacy reports.
             const { rows: matchingReports } = await db.query(`
                 SELECT * FROM reports 
-                WHERE status = 'matching' 
+                WHERE status IN ('planned', 'matching')
                 ORDER BY created_at ASC 
                 LIMIT 5
             `);

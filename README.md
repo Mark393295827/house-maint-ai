@@ -25,6 +25,16 @@ From a tenant's photo to a dispatched technician — in 30 seconds.
 
 ---
 
+## 🧭 Systematic Architecture
+
+<div align="center">
+  <img src="./assets/screenshots/systematic_architecture.jpg" width="95%" alt="HASIKI Enterprise Digital Twin Systematic Architecture" />
+</div>
+
+<p align="center"><sub>HASIKI Enterprise Digital Twin — AI Agent Matrix · Core Services · Data Infrastructure</sub></p>
+
+---
+
 ## ⚡ Product at a Glance
 
 <div align="center">

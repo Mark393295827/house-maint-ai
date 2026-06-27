@@ -12,7 +12,7 @@ const router = express.Router();
 const reportSchema = z.object({
     title: z.string().min(2, 'Title is required'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
-    category: z.enum(['plumbing', 'electrical', 'appliance', 'carpentry', 'painting', 'other']).optional(),
+    category: z.enum(['plumbing', 'electrical', 'hvac', 'appliance', 'structural', 'carpentry', 'painting', 'other']).optional(),
     voice_url: z.string().optional(),
     video_url: z.string().optional(),
     image_urls: z.array(z.string()).optional(),

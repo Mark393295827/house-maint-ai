@@ -44,6 +44,119 @@ export function parseAiJson<T>(raw: string, requiredFields: string[]): T {
     return parsed;
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+    return value && typeof value === 'object' ? value as Record<string, unknown> : {};
+}
+
+function firstString(...values: unknown[]): string | undefined {
+    for (const value of values) {
+        if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+    return undefined;
+}
+
+function normalizeConfidenceScore(value: unknown): number {
+    const raw = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+    if (!Number.isFinite(raw)) return 0.7;
+    if (raw > 10) return Math.min(1, Math.max(0, raw / 100));
+    if (raw > 1) return Math.min(1, Math.max(0, raw / 10));
+    return Math.min(1, Math.max(0, raw));
+}
+
+function normalizeUrgencyScore(value: unknown, severity: DiagnosisResult['diagnosis']['severity']): number {
+    const raw = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+    if (Number.isFinite(raw)) return Math.min(10, Math.max(0, Math.round(raw)));
+    if (severity === 'critical') return 10;
+    if (severity === 'moderate') return 5;
+    return 2;
+}
+
+function normalizeSeverity(value: unknown): DiagnosisResult['diagnosis']['severity'] {
+    const severity = String(value || '').trim().toLowerCase();
+    if (['critical', 'severe', 'high', 'urgent', 'emergency', 'immediate'].includes(severity)) return 'critical';
+    if (['low', 'minor', 'cosmetic', 'not_applicable', 'none'].includes(severity)) return 'cosmetic';
+    return 'moderate';
+}
+
+function normalizeCategory(value: unknown): string {
+    const category = String(value || '').trim().toLowerCase();
+    if (!category) return 'other';
+
+    const aliases: Record<string, string> = {
+        plumbing: 'plumbing',
+        pipe: 'plumbing',
+        water: 'plumbing',
+        leak: 'plumbing',
+        electrical: 'electrical',
+        electric: 'electrical',
+        outlet: 'electrical',
+        hvac: 'hvac',
+        ac: 'hvac',
+        aircon: 'hvac',
+        appliance: 'appliance',
+        appliances: 'appliance',
+        structural: 'structural',
+        wall: 'structural',
+        ceiling: 'structural',
+        painting: 'painting',
+        paint: 'painting',
+        carpentry: 'carpentry',
+        woodwork: 'carpentry',
+    };
+
+    return aliases[category] || category;
+}
+
+function normalizeStringArray(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+    return value.filter((item): item is string => typeof item === 'string' && !!item.trim()).map(item => item.trim());
+}
+
+/**
+ * Coerce varied Gemini outputs into the stable nested diagnosis contract used by
+ * the rest of the pipeline. This protects downstream matching from model drift
+ * such as `confidence_score: 5`, title-cased severity, or flat JSON responses.
+ */
+export function normalizeDiagnosisResult(raw: unknown): DiagnosisResult {
+    const root = asRecord(raw);
+    const diagnosis = asRecord(root.diagnosis);
+    const source = Object.keys(diagnosis).length > 0 ? diagnosis : root;
+    const solution = asRecord(root.solution);
+    const workerCriteria = asRecord(root.worker_matching_criteria);
+
+    const severity = normalizeSeverity(source.severity);
+    const category = normalizeCategory(firstString(source.category, source.issue_category) || 'other');
+    const recommendedAction = firstString(root.recommended_next_action, solution.recommended_next_action);
+    const steps = normalizeStringArray(solution.steps);
+
+    return {
+        diagnosis: {
+            issue_type: firstString(source.issue_type, source.issue_identified, root.issue_type) || 'Unknown issue',
+            severity,
+            diagnosis_summary: firstString(source.diagnosis_summary, source.summary, root.diagnosis_summary) || 'No diagnosis summary provided.',
+            confidence_score: normalizeConfidenceScore(source.confidence_score ?? root.confidence_score),
+            category,
+            urgency_score: normalizeUrgencyScore(source.urgency_score ?? root.urgency_score, severity),
+            safety_warning: firstString(source.safety_warning, root.safety_warning) || null,
+        },
+        solution: {
+            can_diy: typeof solution.can_diy === 'boolean'
+                ? solution.can_diy
+                : typeof root.can_diy === 'boolean'
+                    ? root.can_diy
+                    : false,
+            steps: steps.length > 0 ? steps : recommendedAction ? [recommendedAction] : [],
+            required_parts: Array.isArray(solution.required_parts) ? solution.required_parts as DiagnosisResult['solution']['required_parts'] : [],
+            tools_needed: normalizeStringArray(solution.tools_needed),
+        },
+        worker_matching_criteria: {
+            required_skill: firstString(workerCriteria.required_skill, workerCriteria.skill, category) || 'general',
+            urgency: firstString(workerCriteria.urgency) || (severity === 'critical' ? 'immediate' : 'flexible'),
+            estimated_man_hours: firstString(workerCriteria.estimated_man_hours) || 'unknown',
+        },
+    };
+}
+
 // ============ Common Interfaces ============
 
 // OpenClaw v1.0 - CLAW 1: DIAGNOSTICS (Perception Layer)

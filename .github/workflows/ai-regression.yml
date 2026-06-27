@@ -54,25 +54,23 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Install Server Dependencies
+        run: npm ci --prefix server
+
       - name: Initialize Database
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: house_maint
-          DB_USER: postgres
-          DB_PASSWORD: postgres
+          DB_USE_SQLITE: 'true'
+          SQLITE_DB_PATH: data/ai-regression.db
+          REDIS_MOCK: 'true'
         run: |
           cd server
-          npm run db:migrate
           npm run init-db
 
       - name: Run Swarm Verification Script
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: house_maint
-          DB_USER: postgres
-          DB_PASSWORD: postgres
+          DB_USE_SQLITE: 'true'
+          SQLITE_DB_PATH: data/ai-regression.db
+          REDIS_MOCK: 'true'
         run: |
           cd server
           npx tsx scripts/verify-swarm.ts

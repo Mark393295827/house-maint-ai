@@ -118,6 +118,9 @@ export interface MatchLevel {
 export interface RecordingData {
     duration: number;
     timestamp: string;
+    blob?: Blob;
+    mimeType?: string;
+    filename?: string;
     maxWidth?: number;
     maxHeight?: number;
 }
