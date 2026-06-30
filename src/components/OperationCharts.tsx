@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const PerformanceChart: React.FC = () => {
     // A simple SVG line chart simulating Aegis style
@@ -45,6 +46,8 @@ export const PerformanceChart: React.FC = () => {
 };
 
 export const WorkloadDistribution: React.FC = () => {
+    const { t } = useLanguage();
+
     return (
         <div className="flex flex-col sm:flex-row sm:items-center gap-8 sm:gap-10 lg:gap-12 mt-6 lg:mt-10">
             <div className="relative w-32 h-32 sm:w-40 sm:h-40 mx-auto sm:mx-0 shrink-0">
@@ -56,29 +59,29 @@ export const WorkloadDistribution: React.FC = () => {
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-3xl sm:text-4xl font-black text-[#1d1d1f] tracking-tighter tabular-nums">85%</span>
-                    <span className="text-[10px] text-[#86868b] font-black uppercase tracking-[0.2em] mt-1">Load</span>
+                    <span className="text-[10px] text-[#86868b] font-black uppercase tracking-[0.2em] mt-1">{t('enterprise.charts.load')}</span>
                 </div>
             </div>
             <div className="space-y-4 sm:space-y-5">
                 <div className="flex items-center gap-5 group">
                     <div className="w-3.5 h-3.5 rounded-full bg-[#007aff] shadow-lg shadow-blue-500/20" />
                     <div>
-                        <span className="block text-[13px] font-black text-[#1d1d1f] tracking-tight">AI Compute</span>
-                        <span className="text-[11px] font-black text-[#86868b] opacity-60">60% Capacity</span>
+                        <span className="block text-[13px] font-black text-[#1d1d1f] tracking-tight">{t('enterprise.charts.aiCompute')}</span>
+                        <span className="text-[11px] font-black text-[#86868b] opacity-60">{t('enterprise.charts.capacity', { value: 60 })}</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-5 group">
                     <div className="w-3.5 h-3.5 rounded-full bg-[#28cd41] shadow-lg shadow-green-500/20" />
                     <div>
-                        <span className="block text-[13px] font-black text-[#1d1d1f] tracking-tight">Agent Latency</span>
-                        <span className="text-[11px] font-black text-[#86868b] opacity-60">25% Capacity</span>
+                        <span className="block text-[13px] font-black text-[#1d1d1f] tracking-tight">{t('enterprise.charts.agentLatency')}</span>
+                        <span className="text-[11px] font-black text-[#86868b] opacity-60">{t('enterprise.charts.capacity', { value: 25 })}</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-5 group">
                     <div className="w-3.5 h-3.5 rounded-full bg-[#ff9500] shadow-lg shadow-orange-500/20" />
                     <div>
-                        <span className="block text-[13px] font-black text-[#1d1d1f] tracking-tight">System Idle</span>
-                        <span className="text-[11px] font-black text-[#86868b] opacity-60">15% Capacity</span>
+                        <span className="block text-[13px] font-black text-[#1d1d1f] tracking-tight">{t('enterprise.charts.systemIdle')}</span>
+                        <span className="text-[11px] font-black text-[#86868b] opacity-60">{t('enterprise.charts.capacity', { value: 15 })}</span>
                     </div>
                 </div>
             </div>

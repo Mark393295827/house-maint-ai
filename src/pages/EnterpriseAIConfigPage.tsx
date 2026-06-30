@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const AI_CONFIG_STORAGE_KEY = 'enterprise.ai.orchestration.config.v1';
 
@@ -280,55 +281,56 @@ function loadConfig(): EnterpriseAIConfig {
     }
 }
 
-const panelItems: Array<{ id: PanelId; label: string; icon: string }> = [
-    { id: 'keys', label: 'AIP Keys', icon: 'key' },
-    { id: 'models', label: 'Models', icon: 'hub' },
-    { id: 'skills', label: 'Skills', icon: 'extension' },
-    { id: 'agents', label: 'Agents', icon: 'smart_toy' },
-    { id: 'workflow', label: 'Workflow', icon: 'account_tree' },
-    { id: 'blueprints', label: 'Blueprints', icon: 'architecture' },
+const panelItems: Array<{ id: PanelId; icon: string }> = [
+    { id: 'keys', icon: 'key' },
+    { id: 'models', icon: 'hub' },
+    { id: 'skills', icon: 'extension' },
+    { id: 'agents', icon: 'smart_toy' },
+    { id: 'workflow', icon: 'account_tree' },
+    { id: 'blueprints', icon: 'architecture' },
 ];
 
-const runtimeOptions: Array<{ id: RuntimeMode; name: string }> = [
-    { id: 'auto', name: 'Auto execute' },
-    { id: 'approval', name: 'Approval gate' },
-    { id: 'manual', name: 'Manual only' },
-];
-
-const gateOptions: Array<{ id: WorkflowGate; name: string }> = [
-    { id: 'auto', name: 'Auto' },
-    { id: 'confidence', name: 'Confidence gate' },
-    { id: 'human', name: 'Human approval' },
-];
-
-const blueprintStatusOptions: Array<{ id: BlueprintStatus; name: string }> = [
-    { id: 'draft', name: 'Draft' },
-    { id: 'ready', name: 'Ready' },
-    { id: 'live', name: 'Live' },
-];
+const runtimeOptionIds: RuntimeMode[] = ['auto', 'approval', 'manual'];
+const gateOptionIds: WorkflowGate[] = ['auto', 'confidence', 'human'];
+const blueprintStatusOptionIds: BlueprintStatus[] = ['draft', 'ready', 'live'];
 
 const Toggle: React.FC<{
     checked: boolean;
     label: string;
     onChange: () => void;
-}> = ({ checked, label, onChange }) => (
-    <button
-        type="button"
-        role="switch"
-        aria-label={label}
-        aria-checked={checked}
-        onClick={onChange}
-        className={`relative h-7 w-12 shrink-0 rounded-full border transition-colors ${
-            checked ? 'bg-[#007aff] border-[#007aff]' : 'bg-slate-200 border-slate-200'
-        }`}
-    >
-        <span
-            className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                checked ? 'translate-x-5' : 'translate-x-0.5'
+}> = ({ checked, label, onChange }) => {
+    const { t } = useLanguage();
+
+    return (
+        <button
+            type="button"
+            role="switch"
+            aria-label={label}
+            aria-checked={checked}
+            onClick={onChange}
+            className={`group inline-flex h-9 w-[118px] shrink-0 items-center rounded-full border px-1.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#007aff]/15 ${
+                checked
+                    ? 'border-[#007aff]/30 bg-[#007aff] text-white shadow-lg shadow-blue-500/20'
+                    : 'border-black/10 bg-white text-slate-500 shadow-sm hover:border-slate-300'
             }`}
-        />
-    </button>
-);
+        >
+            <span
+                className={`flex h-6 w-6 items-center justify-center rounded-full bg-white text-[14px] shadow-sm transition-transform duration-300 ${
+                    checked ? 'translate-x-[76px] text-[#007aff]' : 'translate-x-0 text-slate-400'
+                }`}
+            >
+                <span className="material-symbols-outlined text-[16px]">{checked ? 'check' : 'pause'}</span>
+            </span>
+            <span
+                className={`pointer-events-none -ml-6 flex-1 pr-2 text-center text-[10px] font-black uppercase tracking-widest transition-opacity ${
+                    checked ? 'opacity-100' : 'opacity-80'
+                }`}
+            >
+                {checked ? t('enterprise.aiConfig.enabled') : t('enterprise.aiConfig.disabled')}
+            </span>
+        </button>
+    );
+};
 
 const SelectField: React.FC<{
     label: string;
@@ -413,13 +415,17 @@ const SectionHeader: React.FC<{
 );
 
 const EnterpriseAIConfigPage: React.FC = () => {
+    const { t } = useLanguage();
     const [activePanel, setActivePanel] = useState<PanelId>('keys');
     const [config, setConfig] = useState<EnterpriseAIConfig>(() => loadConfig());
-    const [saveMessage, setSaveMessage] = useState('');
+    const [saveMessage, setSaveMessage] = useState<'saved' | 'resetDone' | ''>('');
 
     const providerOptions = useMemo(() => config.modelProviders.map((provider) => ({ id: provider.id, name: provider.name })), [config.modelProviders]);
     const modelOptions = useMemo(() => config.modelProfiles.map((model) => ({ id: model.id, name: model.name })), [config.modelProfiles]);
     const agentOptions = useMemo(() => config.agents.map((agent) => ({ id: agent.id, name: agent.name })), [config.agents]);
+    const runtimeOptions = useMemo(() => runtimeOptionIds.map((id) => ({ id, name: t(`enterprise.aiConfig.options.runtime.${id}`) })), [t]);
+    const gateOptions = useMemo(() => gateOptionIds.map((id) => ({ id, name: t(`enterprise.aiConfig.options.gate.${id}`) })), [t]);
+    const blueprintStatusOptions = useMemo(() => blueprintStatusOptionIds.map((id) => ({ id, name: t(`enterprise.aiConfig.options.status.${id}`) })), [t]);
 
     const summary = useMemo(() => {
         const activeProviders = config.modelProviders.filter((provider) => provider.enabled).length;
@@ -442,6 +448,8 @@ const EnterpriseAIConfigPage: React.FC = () => {
     const getModelName = (modelId: string) => config.modelProfiles.find((model) => model.id === modelId)?.name || modelId;
     const getProviderName = (providerId: string) => config.modelProviders.find((provider) => provider.id === providerId)?.name || providerId;
     const getAgentName = (agentId: string) => config.agents.find((agent) => agent.id === agentId)?.name || agentId;
+    const fieldLabel = (key: string, name: string) => t(`enterprise.aiConfig.fields.${key}`, { name });
+    const toggleLabel = (name: string, enabled: boolean) => t(enabled ? 'enterprise.aiConfig.toggleOff' : 'enterprise.aiConfig.toggleOn', { name });
 
     const markDirty = () => setSaveMessage('');
 
@@ -685,29 +693,29 @@ const EnterpriseAIConfigPage: React.FC = () => {
 
     const saveConfig = () => {
         localStorage.setItem(AI_CONFIG_STORAGE_KEY, JSON.stringify(config));
-        setSaveMessage('Configuration saved locally');
+        setSaveMessage('saved');
     };
 
     const resetConfig = () => {
         setConfig(defaultConfig);
         localStorage.removeItem(AI_CONFIG_STORAGE_KEY);
-        setSaveMessage('Configuration reset to defaults');
+        setSaveMessage('resetDone');
     };
 
     return (
         <div className="page-enter space-y-6 lg:space-y-8">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div className="max-w-3xl">
-                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#007aff]">Enterprise AI Control Plane</p>
-                    <h1 className="text-3xl font-black tracking-tight text-black sm:text-4xl">AI Operations Configuration</h1>
+                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#007aff]">{t('enterprise.aiConfig.eyebrow')}</p>
+                    <h1 className="text-3xl font-black tracking-tight text-black sm:text-4xl">{t('enterprise.aiConfig.title')}</h1>
                     <p className="mt-3 text-[13px] font-bold leading-relaxed text-[#86868b]">
-                        Configure AIP providers, multi-model routing, skills, agents, workflow gates, and creation blueprints for enterprise maintenance operations.
+                        {t('enterprise.aiConfig.subtitle')}
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     {saveMessage && (
                         <span className="rounded-full border border-[#28cd41]/20 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-widest text-[#28cd41] shadow-sm">
-                            {saveMessage}
+                            {t(`enterprise.aiConfig.${saveMessage}`)}
                         </span>
                     )}
                     <button
@@ -716,7 +724,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                         className="inline-flex h-11 items-center gap-2 rounded-xl border border-black/5 bg-white px-4 text-[11px] font-black uppercase tracking-widest text-slate-500 shadow-sm transition hover:text-black"
                     >
                         <span aria-hidden="true" className="material-symbols-outlined text-[18px]">restart_alt</span>
-                        Reset
+                        {t('enterprise.aiConfig.reset')}
                     </button>
                     <button
                         type="button"
@@ -724,19 +732,19 @@ const EnterpriseAIConfigPage: React.FC = () => {
                         className="inline-flex h-11 items-center gap-2 rounded-xl border border-[#007aff] bg-[#007aff] px-5 text-[11px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-500/20 transition hover:bg-blue-600"
                     >
                         <span aria-hidden="true" className="material-symbols-outlined text-[18px]">save</span>
-                        Save configuration
+                        {t('enterprise.aiConfig.save')}
                     </button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
                 {[
-                    { label: 'AIP Providers', value: summary.activeProviders, tone: 'text-black' },
-                    { label: 'Configured Keys', value: summary.configuredKeys, tone: 'text-[#007aff]' },
-                    { label: 'Model Profiles', value: summary.activeModels, tone: 'text-[#5856d6]' },
-                    { label: 'Active Agents', value: summary.activeAgents, tone: 'text-black' },
-                    { label: 'Enabled Skills', value: summary.activeSkills, tone: 'text-[#28cd41]' },
-                    { label: 'Blueprints', value: summary.blueprints, tone: 'text-[#ff9500]' },
+                    { label: t('enterprise.aiConfig.summary.providers'), value: summary.activeProviders, tone: 'text-black' },
+                    { label: t('enterprise.aiConfig.summary.keys'), value: summary.configuredKeys, tone: 'text-[#007aff]' },
+                    { label: t('enterprise.aiConfig.summary.models'), value: summary.activeModels, tone: 'text-[#5856d6]' },
+                    { label: t('enterprise.aiConfig.summary.agents'), value: summary.activeAgents, tone: 'text-black' },
+                    { label: t('enterprise.aiConfig.summary.skills'), value: summary.activeSkills, tone: 'text-[#28cd41]' },
+                    { label: t('enterprise.aiConfig.summary.blueprints'), value: summary.blueprints, tone: 'text-[#ff9500]' },
                 ].map((item) => (
                     <div key={item.label} className="ent-card bg-white/70 p-5">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#86868b]">{item.label}</p>
@@ -758,7 +766,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                         }`}
                     >
                         <span aria-hidden="true" className="material-symbols-outlined text-[18px]">{panel.icon}</span>
-                        {panel.label}
+                        {t(`enterprise.aiConfig.panels.${panel.id}`)}
                     </button>
                 ))}
             </div>
@@ -766,9 +774,9 @@ const EnterpriseAIConfigPage: React.FC = () => {
             {activePanel === 'keys' && (
                 <section className="space-y-5">
                     <SectionHeader
-                        title="AIP / API Key Vault"
-                        description="Manage model providers and key references used by the enterprise AI runtime."
-                        buttonLabel="Add provider"
+                        title={t('enterprise.aiConfig.sections.keysTitle')}
+                        description={t('enterprise.aiConfig.sections.keysDesc')}
+                        buttonLabel={t('enterprise.aiConfig.actions.addProvider')}
                         onButtonClick={addProvider}
                     />
                     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -779,16 +787,16 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#007aff]">{provider.providerType}</p>
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{provider.name}</h3>
                                         <p className="mt-2 text-[12px] font-bold text-[#86868b]">
-                                            {config.modelProfiles.filter((model) => model.providerId === provider.id).length} linked models
+                                            {t('enterprise.aiConfig.linkedModels', { count: config.modelProfiles.filter((model) => model.providerId === provider.id).length })}
                                         </p>
                                     </div>
-                                    <Toggle checked={provider.enabled} label={`Toggle ${provider.name}`} onChange={() => updateProvider(provider.id, { enabled: !provider.enabled })} />
+                                    <Toggle checked={provider.enabled} label={toggleLabel(provider.name, provider.enabled)} onChange={() => updateProvider(provider.id, { enabled: !provider.enabled })} />
                                 </div>
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <TextField label={`Provider name for ${provider.name}`} value={provider.name} onChange={(name) => updateProvider(provider.id, { name })} />
-                                    <TextField label={`Provider type for ${provider.name}`} value={provider.providerType} onChange={(providerType) => updateProvider(provider.id, { providerType })} />
-                                    <TextField label={`Base URL for ${provider.name}`} value={provider.baseUrl} onChange={(baseUrl) => updateProvider(provider.id, { baseUrl })} />
-                                    <TextField label={`API key for ${provider.name}`} type="password" value={provider.apiKey} onChange={(apiKey) => updateProvider(provider.id, { apiKey })} />
+                                    <TextField label={fieldLabel('providerName', provider.name)} value={provider.name} onChange={(name) => updateProvider(provider.id, { name })} />
+                                    <TextField label={fieldLabel('providerType', provider.name)} value={provider.providerType} onChange={(providerType) => updateProvider(provider.id, { providerType })} />
+                                    <TextField label={fieldLabel('baseUrl', provider.name)} value={provider.baseUrl} onChange={(baseUrl) => updateProvider(provider.id, { baseUrl })} />
+                                    <TextField label={fieldLabel('apiKey', provider.name)} type="password" value={provider.apiKey} onChange={(apiKey) => updateProvider(provider.id, { apiKey })} />
                                 </div>
                                 <button
                                     type="button"
@@ -796,7 +804,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                     className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-black/5 bg-white px-3 text-[11px] font-black uppercase tracking-widest text-slate-500 transition hover:text-red-600"
                                 >
                                     <span aria-hidden="true" className="material-symbols-outlined text-[17px]">delete</span>
-                                    Remove provider {provider.name}
+                                    {t('enterprise.aiConfig.actions.removeProvider', { name: provider.name })}
                                 </button>
                             </article>
                         ))}
@@ -807,9 +815,9 @@ const EnterpriseAIConfigPage: React.FC = () => {
             {activePanel === 'models' && (
                 <section className="space-y-5">
                     <SectionHeader
-                        title="Multi-Model Catalog"
-                        description="Create model profiles and bind each one to a provider, endpoint model code, cost, and best-use case."
-                        buttonLabel="Add model"
+                        title={t('enterprise.aiConfig.sections.modelsTitle')}
+                        description={t('enterprise.aiConfig.sections.modelsDesc')}
+                        buttonLabel={t('enterprise.aiConfig.actions.addModel')}
                         onButtonClick={addModel}
                     />
                     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -821,18 +829,18 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{model.name}</h3>
                                         <p className="mt-2 text-[12px] font-bold leading-relaxed text-[#86868b]">{model.bestFor}</p>
                                     </div>
-                                    <Toggle checked={model.enabled} label={`Toggle ${model.name}`} onChange={() => updateModel(model.id, { enabled: !model.enabled })} />
+                                    <Toggle checked={model.enabled} label={toggleLabel(model.name, model.enabled)} onChange={() => updateModel(model.id, { enabled: !model.enabled })} />
                                 </div>
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <TextField label={`Model name for ${model.name}`} value={model.name} onChange={(name) => updateModel(model.id, { name })} />
-                                    <TextField label={`Model code for ${model.name}`} value={model.modelCode} onChange={(modelCode) => updateModel(model.id, { modelCode })} />
-                                    <SelectField label={`Provider for ${model.name}`} value={model.providerId} onChange={(providerId) => updateModel(model.id, { providerId })} options={providerOptions} />
-                                    <TextField label={`Context window for ${model.name}`} value={model.contextWindow} onChange={(contextWindow) => updateModel(model.id, { contextWindow })} />
-                                    <TextField label={`Latency for ${model.name}`} value={model.latency} onChange={(latency) => updateModel(model.id, { latency })} />
-                                    <TextField label={`Cost for ${model.name}`} value={model.cost} onChange={(cost) => updateModel(model.id, { cost })} />
+                                    <TextField label={fieldLabel('modelName', model.name)} value={model.name} onChange={(name) => updateModel(model.id, { name })} />
+                                    <TextField label={fieldLabel('modelCode', model.name)} value={model.modelCode} onChange={(modelCode) => updateModel(model.id, { modelCode })} />
+                                    <SelectField label={fieldLabel('provider', model.name)} value={model.providerId} onChange={(providerId) => updateModel(model.id, { providerId })} options={providerOptions} />
+                                    <TextField label={fieldLabel('contextWindow', model.name)} value={model.contextWindow} onChange={(contextWindow) => updateModel(model.id, { contextWindow })} />
+                                    <TextField label={fieldLabel('latency', model.name)} value={model.latency} onChange={(latency) => updateModel(model.id, { latency })} />
+                                    <TextField label={fieldLabel('cost', model.name)} value={model.cost} onChange={(cost) => updateModel(model.id, { cost })} />
                                 </div>
                                 <div className="mt-3">
-                                    <TextAreaField label={`Best use for ${model.name}`} value={model.bestFor} onChange={(bestFor) => updateModel(model.id, { bestFor })} />
+                                    <TextAreaField label={fieldLabel('bestUse', model.name)} value={model.bestFor} onChange={(bestFor) => updateModel(model.id, { bestFor })} />
                                 </div>
                                 <button
                                     type="button"
@@ -840,7 +848,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                     className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-black/5 bg-white px-3 text-[11px] font-black uppercase tracking-widest text-slate-500 transition hover:text-red-600"
                                 >
                                     <span aria-hidden="true" className="material-symbols-outlined text-[17px]">delete</span>
-                                    Remove model {model.name}
+                                    {t('enterprise.aiConfig.actions.removeModel', { name: model.name })}
                                 </button>
                             </article>
                         ))}
@@ -851,9 +859,9 @@ const EnterpriseAIConfigPage: React.FC = () => {
             {activePanel === 'skills' && (
                 <section className="space-y-5">
                     <SectionHeader
-                        title="Skills Configuration"
-                        description="Create operational skills and assign each one to an owning agent and trigger condition."
-                        buttonLabel="Add skill"
+                        title={t('enterprise.aiConfig.sections.skillsTitle')}
+                        description={t('enterprise.aiConfig.sections.skillsDesc')}
+                        buttonLabel={t('enterprise.aiConfig.actions.addSkill')}
                         onButtonClick={addSkill}
                     />
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -865,16 +873,16 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{skill.name}</h3>
                                         <p className="mt-2 text-[12px] font-bold leading-relaxed text-[#86868b]">{skill.description}</p>
                                     </div>
-                                    <Toggle checked={skill.enabled} label={`Toggle ${skill.name}`} onChange={() => updateSkill(skill.id, { enabled: !skill.enabled })} />
+                                    <Toggle checked={skill.enabled} label={toggleLabel(skill.name, skill.enabled)} onChange={() => updateSkill(skill.id, { enabled: !skill.enabled })} />
                                 </div>
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <TextField label={`Skill name for ${skill.name}`} value={skill.name} onChange={(name) => updateSkill(skill.id, { name })} />
-                                    <SelectField label={`Owner for ${skill.name}`} value={skill.ownerAgentId} onChange={(ownerAgentId) => updateSkill(skill.id, { ownerAgentId })} options={agentOptions} />
-                                    <TextField label={`Trigger for ${skill.name}`} value={skill.trigger} onChange={(trigger) => updateSkill(skill.id, { trigger })} />
-                                    <TextField label={`Input contract for ${skill.name}`} value={skill.inputContract} onChange={(inputContract) => updateSkill(skill.id, { inputContract })} />
+                                    <TextField label={fieldLabel('skillName', skill.name)} value={skill.name} onChange={(name) => updateSkill(skill.id, { name })} />
+                                    <SelectField label={fieldLabel('owner', skill.name)} value={skill.ownerAgentId} onChange={(ownerAgentId) => updateSkill(skill.id, { ownerAgentId })} options={agentOptions} />
+                                    <TextField label={fieldLabel('trigger', skill.name)} value={skill.trigger} onChange={(trigger) => updateSkill(skill.id, { trigger })} />
+                                    <TextField label={fieldLabel('inputContract', skill.name)} value={skill.inputContract} onChange={(inputContract) => updateSkill(skill.id, { inputContract })} />
                                 </div>
                                 <div className="mt-3">
-                                    <TextAreaField label={`Description for ${skill.name}`} value={skill.description} onChange={(description) => updateSkill(skill.id, { description })} />
+                                    <TextAreaField label={fieldLabel('description', skill.name)} value={skill.description} onChange={(description) => updateSkill(skill.id, { description })} />
                                 </div>
                                 <button
                                     type="button"
@@ -882,7 +890,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                     className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-black/5 bg-white px-3 text-[11px] font-black uppercase tracking-widest text-slate-500 transition hover:text-red-600"
                                 >
                                     <span aria-hidden="true" className="material-symbols-outlined text-[17px]">delete</span>
-                                    Remove skill {skill.name}
+                                    {t('enterprise.aiConfig.actions.removeSkill', { name: skill.name })}
                                 </button>
                             </article>
                         ))}
@@ -893,9 +901,9 @@ const EnterpriseAIConfigPage: React.FC = () => {
             {activePanel === 'agents' && (
                 <section className="space-y-5">
                     <SectionHeader
-                        title="Agent Runtime Policy"
-                        description="Create agents, assign models, define prompts, and choose automation boundaries."
-                        buttonLabel="Add agent"
+                        title={t('enterprise.aiConfig.sections.agentsTitle')}
+                        description={t('enterprise.aiConfig.sections.agentsDesc')}
+                        buttonLabel={t('enterprise.aiConfig.actions.addAgent')}
                         onButtonClick={addAgent}
                     />
                     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -907,21 +915,21 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{agent.name}</h3>
                                         <p className="mt-2 text-[12px] font-bold leading-relaxed text-[#86868b]">{agent.description}</p>
                                     </div>
-                                    <Toggle checked={agent.enabled} label={`Toggle runtime for ${agent.name}`} onChange={() => updateAgent(agent.id, { enabled: !agent.enabled })} />
+                                    <Toggle checked={agent.enabled} label={toggleLabel(agent.name, agent.enabled)} onChange={() => updateAgent(agent.id, { enabled: !agent.enabled })} />
                                 </div>
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <TextField label={`Agent name for ${agent.name}`} value={agent.name} onChange={(name) => updateAgent(agent.id, { name })} />
-                                    <TextField label={`Layer for ${agent.name}`} value={agent.layer} onChange={(layer) => updateAgent(agent.id, { layer })} />
-                                    <SelectField label={`Model for ${agent.name}`} value={agent.modelId} onChange={(modelId) => updateAgent(agent.id, { modelId })} options={modelOptions} />
-                                    <SelectField label={`Runtime for ${agent.name}`} value={agent.mode} onChange={(mode) => updateAgent(agent.id, { mode: mode as RuntimeMode })} options={runtimeOptions} />
-                                    <TextField label={`Tool access for ${agent.name}`} value={agent.toolAccess} onChange={(toolAccess) => updateAgent(agent.id, { toolAccess })} />
+                                    <TextField label={fieldLabel('agentName', agent.name)} value={agent.name} onChange={(name) => updateAgent(agent.id, { name })} />
+                                    <TextField label={fieldLabel('layer', agent.name)} value={agent.layer} onChange={(layer) => updateAgent(agent.id, { layer })} />
+                                    <SelectField label={fieldLabel('model', agent.name)} value={agent.modelId} onChange={(modelId) => updateAgent(agent.id, { modelId })} options={modelOptions} />
+                                    <SelectField label={fieldLabel('runtime', agent.name)} value={agent.mode} onChange={(mode) => updateAgent(agent.id, { mode: mode as RuntimeMode })} options={runtimeOptions} />
+                                    <TextField label={fieldLabel('toolAccess', agent.name)} value={agent.toolAccess} onChange={(toolAccess) => updateAgent(agent.id, { toolAccess })} />
                                 </div>
                                 <div className="mt-3 grid grid-cols-1 gap-3">
-                                    <TextAreaField label={`Description for ${agent.name}`} value={agent.description} onChange={(description) => updateAgent(agent.id, { description })} />
-                                    <TextAreaField label={`System prompt for ${agent.name}`} value={agent.systemPrompt} onChange={(systemPrompt) => updateAgent(agent.id, { systemPrompt })} />
+                                    <TextAreaField label={fieldLabel('description', agent.name)} value={agent.description} onChange={(description) => updateAgent(agent.id, { description })} />
+                                    <TextAreaField label={fieldLabel('systemPrompt', agent.name)} value={agent.systemPrompt} onChange={(systemPrompt) => updateAgent(agent.id, { systemPrompt })} />
                                 </div>
                                 <p className="mt-4 rounded-xl bg-black/5 px-4 py-3 text-[12px] font-black text-slate-700">
-                                    {agent.name} routes to {getModelName(agent.modelId)}
+                                    {t('enterprise.aiConfig.routing', { agent: agent.name, model: getModelName(agent.modelId) })}
                                 </p>
                                 <button
                                     type="button"
@@ -929,7 +937,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                     className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-black/5 bg-white px-3 text-[11px] font-black uppercase tracking-widest text-slate-500 transition hover:text-red-600"
                                 >
                                     <span aria-hidden="true" className="material-symbols-outlined text-[17px]">delete</span>
-                                    Remove agent {agent.name}
+                                    {t('enterprise.aiConfig.actions.removeAgent', { name: agent.name })}
                                 </button>
                             </article>
                         ))}
@@ -940,9 +948,9 @@ const EnterpriseAIConfigPage: React.FC = () => {
             {activePanel === 'workflow' && (
                 <section className="space-y-5">
                     <SectionHeader
-                        title="Workflow Configuration"
-                        description="Build workflow steps from intake to learning and attach each gate to the responsible agent."
-                        buttonLabel="Add workflow step"
+                        title={t('enterprise.aiConfig.sections.workflowTitle')}
+                        description={t('enterprise.aiConfig.sections.workflowDesc')}
+                        buttonLabel={t('enterprise.aiConfig.actions.addWorkflow')}
                         onButtonClick={addWorkflowStep}
                     />
                     <div className="space-y-3">
@@ -957,24 +965,24 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                             <h3 className="text-lg font-black tracking-tight text-black">{step.title}</h3>
                                             <p className="mt-1 text-[12px] font-bold leading-relaxed text-[#86868b]">{step.description}</p>
                                         </div>
-                                        <Toggle checked={step.enabled} label={`Toggle ${step.title}`} onChange={() => updateWorkflow(step.id, { enabled: !step.enabled })} />
+                                        <Toggle checked={step.enabled} label={toggleLabel(step.title, step.enabled)} onChange={() => updateWorkflow(step.id, { enabled: !step.enabled })} />
                                     </div>
                                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                        <TextField label={`Step title for ${step.title}`} value={step.title} onChange={(title) => updateWorkflow(step.id, { title })} />
-                                        <TextField label={`Depends on for ${step.title}`} value={step.dependsOn} onChange={(dependsOn) => updateWorkflow(step.id, { dependsOn })} />
+                                        <TextField label={fieldLabel('stepTitle', step.title)} value={step.title} onChange={(title) => updateWorkflow(step.id, { title })} />
+                                        <TextField label={fieldLabel('dependsOn', step.title)} value={step.dependsOn} onChange={(dependsOn) => updateWorkflow(step.id, { dependsOn })} />
                                     </div>
-                                    <TextAreaField label={`Description for ${step.title}`} value={step.description} onChange={(description) => updateWorkflow(step.id, { description })} />
+                                    <TextAreaField label={fieldLabel('description', step.title)} value={step.description} onChange={(description) => updateWorkflow(step.id, { description })} />
                                 </div>
                                 <div className="space-y-3">
-                                    <SelectField label={`Owner for ${step.title}`} value={step.ownerAgentId} onChange={(ownerAgentId) => updateWorkflow(step.id, { ownerAgentId })} options={agentOptions} />
-                                    <SelectField label={`Gate for ${step.title}`} value={step.gate} onChange={(gate) => updateWorkflow(step.id, { gate: gate as WorkflowGate })} options={gateOptions} />
+                                    <SelectField label={fieldLabel('owner', step.title)} value={step.ownerAgentId} onChange={(ownerAgentId) => updateWorkflow(step.id, { ownerAgentId })} options={agentOptions} />
+                                    <SelectField label={fieldLabel('gate', step.title)} value={step.gate} onChange={(gate) => updateWorkflow(step.id, { gate: gate as WorkflowGate })} options={gateOptions} />
                                     <button
                                         type="button"
                                         onClick={() => removeWorkflowStep(step.id)}
                                         className="inline-flex h-10 items-center gap-2 rounded-xl border border-black/5 bg-white px-3 text-[11px] font-black uppercase tracking-widest text-slate-500 transition hover:text-red-600"
                                     >
                                         <span aria-hidden="true" className="material-symbols-outlined text-[17px]">delete</span>
-                                        Remove step {step.title}
+                                        {t('enterprise.aiConfig.actions.removeWorkflow', { name: step.title })}
                                     </button>
                                 </div>
                             </article>
@@ -986,9 +994,9 @@ const EnterpriseAIConfigPage: React.FC = () => {
             {activePanel === 'blueprints' && (
                 <section className="space-y-5">
                     <SectionHeader
-                        title="Creation Blueprint Builder"
-                        description="Build reusable operating plans from the configured models, skills, agents, and workflow steps."
-                        buttonLabel="Add blueprint"
+                        title={t('enterprise.aiConfig.sections.blueprintsTitle')}
+                        description={t('enterprise.aiConfig.sections.blueprintsDesc')}
+                        buttonLabel={t('enterprise.aiConfig.actions.addBlueprint')}
                         onButtonClick={addBlueprint}
                     />
                     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -996,7 +1004,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                             <article key={blueprint.id} className="ent-card bg-white/70 p-5">
                                 <div className="mb-5 flex items-start justify-between gap-4">
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff9500]">{blueprint.status}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff9500]">{t(`enterprise.aiConfig.options.status.${blueprint.status}`)}</p>
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{blueprint.title}</h3>
                                         <p className="mt-2 text-[12px] font-bold leading-relaxed text-[#86868b]">{blueprint.scenario}</p>
                                     </div>
@@ -1005,16 +1013,16 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <TextField label={`Blueprint title for ${blueprint.title}`} value={blueprint.title} onChange={(title) => updateBlueprint(blueprint.id, { title })} />
-                                    <SelectField label={`Primary agent for ${blueprint.title}`} value={blueprint.primaryAgentId} onChange={(primaryAgentId) => updateBlueprint(blueprint.id, { primaryAgentId })} options={agentOptions} />
-                                    <TextField label={`Target user for ${blueprint.title}`} value={blueprint.targetUser} onChange={(targetUser) => updateBlueprint(blueprint.id, { targetUser })} />
-                                    <SelectField label={`Status for ${blueprint.title}`} value={blueprint.status} onChange={(status) => updateBlueprint(blueprint.id, { status: status as BlueprintStatus })} options={blueprintStatusOptions} />
+                                    <TextField label={fieldLabel('blueprintTitle', blueprint.title)} value={blueprint.title} onChange={(title) => updateBlueprint(blueprint.id, { title })} />
+                                    <SelectField label={fieldLabel('primaryAgent', blueprint.title)} value={blueprint.primaryAgentId} onChange={(primaryAgentId) => updateBlueprint(blueprint.id, { primaryAgentId })} options={agentOptions} />
+                                    <TextField label={fieldLabel('targetUser', blueprint.title)} value={blueprint.targetUser} onChange={(targetUser) => updateBlueprint(blueprint.id, { targetUser })} />
+                                    <SelectField label={fieldLabel('status', blueprint.title)} value={blueprint.status} onChange={(status) => updateBlueprint(blueprint.id, { status: status as BlueprintStatus })} options={blueprintStatusOptions} />
                                 </div>
                                 <div className="mt-3 grid grid-cols-1 gap-3">
-                                    <TextAreaField label={`Scenario for ${blueprint.title}`} value={blueprint.scenario} onChange={(scenario) => updateBlueprint(blueprint.id, { scenario })} />
-                                    <TextAreaField label={`Output format for ${blueprint.title}`} value={blueprint.outputFormat} onChange={(outputFormat) => updateBlueprint(blueprint.id, { outputFormat })} />
-                                    <TextField label={`Workflow steps for ${blueprint.title}`} value={blueprint.workflowStepIds} onChange={(workflowStepIds) => updateBlueprint(blueprint.id, { workflowStepIds })} />
-                                    <TextField label={`Skills for ${blueprint.title}`} value={blueprint.skillIds} onChange={(skillIds) => updateBlueprint(blueprint.id, { skillIds })} />
+                                    <TextAreaField label={fieldLabel('scenario', blueprint.title)} value={blueprint.scenario} onChange={(scenario) => updateBlueprint(blueprint.id, { scenario })} />
+                                    <TextAreaField label={fieldLabel('outputFormat', blueprint.title)} value={blueprint.outputFormat} onChange={(outputFormat) => updateBlueprint(blueprint.id, { outputFormat })} />
+                                    <TextField label={fieldLabel('workflowSteps', blueprint.title)} value={blueprint.workflowStepIds} onChange={(workflowStepIds) => updateBlueprint(blueprint.id, { workflowStepIds })} />
+                                    <TextField label={fieldLabel('skills', blueprint.title)} value={blueprint.skillIds} onChange={(skillIds) => updateBlueprint(blueprint.id, { skillIds })} />
                                 </div>
                                 <button
                                     type="button"
@@ -1022,7 +1030,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                                     className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-black/5 bg-white px-3 text-[11px] font-black uppercase tracking-widest text-slate-500 transition hover:text-red-600"
                                 >
                                     <span aria-hidden="true" className="material-symbols-outlined text-[17px]">delete</span>
-                                    Remove blueprint {blueprint.title}
+                                    {t('enterprise.aiConfig.actions.removeBlueprint', { name: blueprint.title })}
                                 </button>
                             </article>
                         ))}

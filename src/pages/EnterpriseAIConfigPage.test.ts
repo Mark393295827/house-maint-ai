@@ -4,8 +4,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import EnterpriseAIConfigPage, { AI_CONFIG_STORAGE_KEY } from './EnterpriseAIConfigPage';
+import { LanguageProvider } from '../i18n/LanguageContext';
 
-const renderPage = () => render(React.createElement(EnterpriseAIConfigPage));
+const renderPage = () => render(
+    React.createElement(LanguageProvider, null, React.createElement(EnterpriseAIConfigPage))
+);
 
 describe('EnterpriseAIConfigPage', () => {
     beforeEach(() => {
@@ -26,6 +29,15 @@ describe('EnterpriseAIConfigPage', () => {
 
         fireEvent.click(screen.getByRole('button', { name: 'Agents' }));
         expect(screen.getByLabelText('Model for PlanningAgent')).toHaveValue('deepseek-r1');
+    });
+
+    it('renders AI config chrome in Chinese when the saved locale is zh', () => {
+        localStorage.setItem('app_locale', 'zh');
+        renderPage();
+
+        expect(screen.getByText('AI 运营配置')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '模型' })).toBeInTheDocument();
+        expect(screen.getAllByRole('switch')[0]).toHaveTextContent('已启用');
     });
 
     it('adds a custom provider and model, then assigns the model to an agent', () => {

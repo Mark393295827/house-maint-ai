@@ -3,6 +3,7 @@ import { APIProvider, Map, AdvancedMarker, InfoWindow, MapControl, ControlPositi
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // ============ Constants & Helpers ============
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -18,31 +19,35 @@ interface WorkerLocation {
     name: string;
     status: 'repairing' | 'idle';
     location: { lat: number, lng: number };
-    currentTask: string;
+    taskKey: 'pipe' | 'standby' | 'electrical';
 }
 
 const mockWorkers: WorkerLocation[] = [
-    { id: 'w1', name: '张师傅 (Zhang)', status: 'repairing', location: { lat: 18.2558, lng: 109.5149 }, currentTask: '管道漏水修复 - 海滨别墅A区' },
-    { id: 'w2', name: '李师傅 (Li)', status: 'idle', location: { lat: 18.2488, lng: 109.5089 }, currentTask: '待命 - 最近完成: 空调清洗' },
-    { id: 'w3', name: '王师傅 (Wang)', status: 'repairing', location: { lat: 18.2588, lng: 109.5029 }, currentTask: '电路查勘 - 阳光小区3栋' },
+    { id: 'w1', name: '张师傅 (Zhang)', status: 'repairing', location: { lat: 18.2558, lng: 109.5149 }, taskKey: 'pipe' },
+    { id: 'w2', name: '李师傅 (Li)', status: 'idle', location: { lat: 18.2488, lng: 109.5089 }, taskKey: 'standby' },
+    { id: 'w3', name: '王师傅 (Wang)', status: 'repairing', location: { lat: 18.2588, lng: 109.5029 }, taskKey: 'electrical' },
 ];
 
 // ============ Sub-components ============
 
-const CustomOverlayPane: React.FC = () => (
-    <div className="m-6 p-4 rounded-xl border border-slate-200 bg-white/95 shadow-lg text-slate-800 space-y-2 pointer-events-auto">
-        <h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">System Distribution</h2>
-        <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-sm" />
-            <span className="text-[14px] font-bold tracking-tight">Sanya Operations View</span>
-        </div>
-        {isDemoMode && (
-            <div className="mt-2 pt-2 border-t border-slate-100">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded">DEMO MODE ACTIVE</span>
+const CustomOverlayPane: React.FC = () => {
+    const { t } = useLanguage();
+
+    return (
+        <div className="m-6 p-4 rounded-xl border border-slate-200 bg-white/95 shadow-lg text-slate-800 space-y-2 pointer-events-auto">
+            <h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('enterprise.map.systemDistribution')}</h2>
+            <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-sm" />
+                <span className="text-[14px] font-bold tracking-tight">{t('enterprise.map.operationsView')}</span>
             </div>
-        )}
-    </div>
-);
+            {isDemoMode && (
+                <div className="mt-2 pt-2 border-t border-slate-100">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded">{t('enterprise.map.demoMode')}</span>
+                </div>
+            )}
+        </div>
+    );
+};
 
 // ============ Main Component ============
 
@@ -150,26 +155,30 @@ const EnterpriseMap: React.FC = () => {
 
 // ============ Specialized Helpers ============
 
-const InfoPanel: React.FC<{ worker: WorkerLocation }> = ({ worker }) => (
-    <div className="p-1 min-w-[200px] text-slate-800">
-        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100">
-            <div className={`w-2.5 h-2.5 rounded-full ${worker.status === 'repairing' ? 'bg-blue-600' : 'bg-slate-400'}`} />
-            <h4 className="text-[13px] font-bold m-0">{worker.name}</h4>
-        </div>
-        <div className="space-y-2">
-            <div>
-                <p className="text-[10px] text-slate-500 font-medium uppercase mb-0.5">Assigned Task</p>
-                <p className="text-[12px] font-normal leading-snug m-0">{worker.currentTask}</p>
+const InfoPanel: React.FC<{ worker: WorkerLocation }> = ({ worker }) => {
+    const { t } = useLanguage();
+
+    return (
+        <div className="p-1 min-w-[200px] text-slate-800">
+            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100">
+                <div className={`w-2.5 h-2.5 rounded-full ${worker.status === 'repairing' ? 'bg-blue-600' : 'bg-slate-400'}`} />
+                <h4 className="text-[13px] font-bold m-0">{worker.name}</h4>
             </div>
-            <div className="flex items-center justify-between pt-1">
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${worker.status === 'repairing' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-500'}`}>
-                    {worker.status.toUpperCase()}
-                </span>
-                <span className="text-[10px] text-slate-400">Pos: {worker.location.lat.toFixed(3)}, {worker.location.lng.toFixed(3)}</span>
+            <div className="space-y-2">
+                <div>
+                    <p className="text-[10px] text-slate-500 font-medium uppercase mb-0.5">{t('enterprise.map.assignedTask')}</p>
+                    <p className="text-[12px] font-normal leading-snug m-0">{t(`enterprise.map.tasks.${worker.taskKey}`)}</p>
+                </div>
+                <div className="flex items-center justify-between gap-3 pt-1">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${worker.status === 'repairing' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-500'}`}>
+                        {t(`enterprise.map.status.${worker.status}`)}
+                    </span>
+                    <span className="text-[10px] text-slate-400">{t('enterprise.map.position')}: {worker.location.lat.toFixed(3)}, {worker.location.lng.toFixed(3)}</span>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const createLeafletIcon = (status: string) => {
     const isRepairing = status === 'repairing';

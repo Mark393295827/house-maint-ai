@@ -49,12 +49,13 @@ const AppleStatCard: React.FC<{ icon: string; label: string; value: string | num
 
 /* ─── Detailed Progress Bar ─── */
 const AppleProgressBar: React.FC<{ label: string; value: number; max: number; gradient: string }> = ({ label, value, max, gradient }) => {
+    const { t } = useLanguage();
     const pct = Math.min((value / max) * 100, 100);
     return (
         <div className="mb-6 last:mb-0">
             <div className="flex justify-between items-end mb-2.5">
                 <span className="text-[11px] font-black text-black uppercase tracking-wider">{label}</span>
-                <span className="text-[11px] font-black text-[#86868b] tabular-nums">{value} UNITS</span>
+                <span className="text-[11px] font-black text-[#86868b] tabular-nums">{t('enterprise.metrics.units', { value })}</span>
             </div>
             <div className="h-2.5 bg-black/5 rounded-full overflow-hidden p-[1px] border border-white/20 shadow-inner">
                 <div 
@@ -98,9 +99,8 @@ const AppleRingGauge: React.FC<{ value: number; max: number; label: string; colo
 
 /* ─── Main Dashboard ─── */
 const MetricsDashboard: React.FC = () => {
-    const { locale } = useLanguage();
+    const { t } = useLanguage();
     const navigate = useNavigate();
-    const isZh = locale === 'zh';
 
     const metrics = useMemo(getMetrics, []);
     const feedback = useMemo(getFeedback, []);
@@ -138,14 +138,14 @@ const MetricsDashboard: React.FC = () => {
                         <span className="material-symbols-outlined text-[20px] text-black">arrow_back</span>
                     </button>
                     <div>
-                        <h1 className="text-[17px] font-black text-black tracking-tight">{isZh ? '运营数据看板' : 'Metrics Dashboard'}</h1>
-                        <p className="text-[10px] font-black text-[#86868b] uppercase tracking-[0.2em]">{isZh ? '实时分析报告' : 'Real-time Analytics'}</p>
+                        <h1 className="text-[17px] font-black text-black tracking-tight">{t('enterprise.metrics.title')}</h1>
+                        <p className="text-[10px] font-black text-[#86868b] uppercase tracking-[0.2em]">{t('enterprise.metrics.subtitle')}</p>
                     </div>
                 </div>
                 <div className="flex gap-2">
                     <div className="px-5 py-2.5 bg-white border border-black/5 rounded-2xl text-[11px] font-black text-black flex items-center gap-2.5 shadow-sm">
                         <div className="w-2 h-2 rounded-full bg-[#28cd41] animate-pulse" />
-                        SYSTEM LIVE
+                        {t('enterprise.metrics.systemLive')}
                     </div>
                 </div>
             </div>
@@ -155,30 +155,30 @@ const MetricsDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <AppleStatCard 
                         icon="analytics" 
-                        label={isZh ? '总咨询' : 'Inquiries'} 
+                        label={t('enterprise.metrics.inquiries')} 
                         value={totalInquiries}
-                        sub={isZh ? '累计对话数量' : 'Total Sessions'} 
+                        sub={t('enterprise.metrics.totalSessions')} 
                         gradient="from-[#007aff] to-[#32ade6]"
                     />
                     <AppleStatCard 
                         icon="published_with_changes" 
-                        label={isZh ? '转化率' : 'Conversion'} 
+                        label={t('enterprise.metrics.conversion')} 
                         value={`${conversionRate}%`}
-                        sub={isZh ? '工单转换效能' : 'Dispatch Logic'} 
+                        sub={t('enterprise.metrics.dispatchLogic')} 
                         gradient="from-[#28cd41] to-[#34c759]"
                     />
                     <AppleStatCard 
                         icon="photo_camera" 
-                        label={isZh ? '拍照率' : 'Photo Rate'} 
+                        label={t('enterprise.metrics.photoRate')} 
                         value={`${photoRate}%`}
-                        sub={isZh ? '视觉诊断占比' : 'Visual Context'} 
+                        sub={t('enterprise.metrics.visualContext')} 
                         gradient="from-[#5856d6] to-[#af52de]"
                     />
                     <AppleStatCard 
                         icon="forum" 
-                        label={isZh ? '反馈数' : 'Feedbacks'} 
+                        label={t('enterprise.metrics.feedbacks')} 
                         value={totalFeedbacks}
-                        sub={isZh ? '用户评价采集' : 'Voice of User'} 
+                        sub={t('enterprise.metrics.voiceOfUser')} 
                         gradient="from-[#ff9500] to-[#ffcc00]"
                     />
                 </div>
@@ -187,16 +187,16 @@ const MetricsDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     {/* Satisfaction Ring */}
                     <div className="ent-card p-10 bg-white/60 ent-glass group flex flex-col items-center justify-center">
-                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em] mb-12 self-start">{isZh ? '用户满意度' : 'Service Quality'}</p>
+                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em] mb-12 self-start">{t('enterprise.metrics.serviceQuality')}</p>
                         {totalFeedbacks > 0 ? (
                             <div className="flex justify-around w-full gap-10">
-                                <AppleRingGauge value={avgRating} max={5} label={isZh ? '满意度' : 'Rating'} colors={["#5856d6", "#007aff"]} />
-                                <AppleRingGauge value={avgAccuracy} max={5} label={isZh ? '准确度' : 'Precision'} colors={["#28cd41", "#34c759"]} />
+                                <AppleRingGauge value={avgRating} max={5} label={t('enterprise.metrics.rating')} colors={["#5856d6", "#007aff"]} />
+                                <AppleRingGauge value={avgAccuracy} max={5} label={t('enterprise.metrics.precision')} colors={["#28cd41", "#34c759"]} />
                             </div>
                         ) : (
                             <div className="text-center py-12 opacity-30">
                                 <span className="material-symbols-outlined text-[56px] mb-5">stars</span>
-                                <p className="text-[13px] font-black uppercase tracking-widest">Waiting for Data</p>
+                                <p className="text-[13px] font-black uppercase tracking-widest">{t('enterprise.metrics.waitingForData')}</p>
                             </div>
                         )}
                     </div>
@@ -205,8 +205,8 @@ const MetricsDashboard: React.FC = () => {
                     <div className="ent-card p-10 bg-white/60 ent-glass lg:col-span-2">
                         <div className="flex justify-between items-start mb-12">
                             <div>
-                                <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em]">{isZh ? '咨询量趋势' : 'Session Velocity'}</p>
-                                <h3 className="text-2xl font-black text-black tracking-tighter mt-1.5">Last 7 Operating Days</h3>
+                                <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em]">{t('enterprise.metrics.sessionVelocity')}</p>
+                                <h3 className="text-2xl font-black text-black tracking-tighter mt-1.5">{t('enterprise.metrics.lastSevenDays')}</h3>
                             </div>
                         </div>
                         <div className="flex items-end gap-4 h-48 lg:h-72">
@@ -233,7 +233,7 @@ const MetricsDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     {/* Distribution Alpha */}
                     <div className="ent-card p-10 bg-white/60 ent-glass">
-                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em] mb-12">{isZh ? '项目类型分布' : 'Workload Categorization'}</p>
+                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em] mb-12">{t('enterprise.metrics.workloadCategorization')}</p>
                         <div className="space-y-6">
                             {Object.entries(typeCounts).sort((a,b) => b[1]-a[1]).map(([key, val]) => (
                                 <AppleProgressBar 
@@ -249,7 +249,7 @@ const MetricsDashboard: React.FC = () => {
 
                     {/* Distribution Beta */}
                     <div className="ent-card p-10 bg-white/60 ent-glass">
-                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em] mb-12">{isZh ? '区域分布' : 'Regional Density'}</p>
+                        <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em] mb-12">{t('enterprise.metrics.regionalDensity')}</p>
                         <div className="space-y-6">
                             {Object.entries(areaCounts).sort((a,b) => b[1]-a[1]).map(([key, val]) => (
                                 <AppleProgressBar 
@@ -270,13 +270,13 @@ const MetricsDashboard: React.FC = () => {
                         <div className="w-28 h-28 rounded-[40px] bg-white flex items-center justify-center mb-10 shadow-xl border border-black/5 ring-1 ring-black/5 transition-transform hover:scale-105">
                             <span className="material-symbols-outlined text-[56px] text-[#86868b] opacity-30">bar_chart_4_bars</span>
                         </div>
-                        <h3 className="text-4xl font-black text-black tracking-tighter mb-5">{isZh ? '暂无分析数据' : 'Intelligence Gap'}</h3>
+                        <h3 className="text-4xl font-black text-black tracking-tighter mb-5">{t('enterprise.metrics.emptyTitle')}</h3>
                         <p className="text-[16px] font-black text-[#86868b] max-w-sm mb-12 leading-relaxed">
-                            {isZh ? '在系统收集到足够的诊断咨询数据后，我们将为您自动生成运营洞察模型。' : 'We require a larger dataset of diagnostic inquiries to generate high-fidelity operational models.'}
+                            {t('enterprise.metrics.emptyDesc')}
                         </p>
                         <button onClick={() => navigate('/diagnosis')}
                             className="px-12 py-5 bg-black text-white rounded-[24px] text-[14px] font-black uppercase tracking-widest hover:bg-zinc-900 transition-all active:scale-95 shadow-2xl shadow-black/20">
-                            {isZh ? '启动诊断采集' : 'Initiate Data Collection'}
+                            {t('enterprise.metrics.emptyAction')}
                         </button>
                     </div>
                 )}

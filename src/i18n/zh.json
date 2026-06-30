@@ -460,6 +460,12 @@
             "subtitle": "AI 物业管理系统",
             "systemOnline": "系统在线",
             "agentsActive": "活跃代理",
+            "searchPlaceholder": "搜索情报、报告、智能体...",
+            "notifications": "通知",
+            "defaultUser": "管理员",
+            "defaultRole": "执行运营",
+            "systemStatus": "系统状态",
+            "operationsNominal": "运营正常",
             "nav": {
                 "missionControl": "任务控制中心",
                 "properties": "房产资产",
@@ -516,7 +522,9 @@
             "metrics": {
                 "totalProps": "房产总数",
                 "totalUnits": "单元总数",
-                "activeAlerts": "活跃警报"
+                "activeAlerts": "活跃警报",
+                "regions": "区域",
+                "activeUnits": "活跃单元"
             },
             "columns": {
                 "id": "编号",
@@ -527,7 +535,229 @@
                 "inspected": "上次检查"
             },
             "warnings": "{{count}} 个警告",
-            "clear": "正常"
+            "clear": "正常",
+            "status": {
+                "active": "运行中",
+                "maintenance": "维护中"
+            },
+            "lastCheck": {
+                "twoHours": "2 小时前",
+                "fiveHours": "5 小时前",
+                "oneDay": "1 天前",
+                "thirtyMins": "30 分钟前"
+            }
+        },
+        "dashboard": {
+            "strategicDimension": "战略维度",
+            "dimensions": {
+                "tam": "已识别 AI 扩展市场天花板。",
+                "tenX": "诊断速度提升 720 倍。",
+                "team": "架构师角色基础扎实。",
+                "financials": "Token 成本控制在 0.15%。"
+            },
+            "map": {
+                "title": "技师部署视图",
+                "subtitle": "实时地理追踪 · 三亚区域 · {{count}} 个活跃节点",
+                "live": "实时"
+            },
+            "systemLoad": {
+                "title": "系统负载集群",
+                "realtime": "实时",
+                "diagnosisCapacity": "诊断容量",
+                "latency": "平均延迟",
+                "success": "成功率"
+            },
+            "agents": {
+                "title": "LLM 智能体集群状态",
+                "online": "在线",
+                "idle": "空闲",
+                "deploy": "部署智能体",
+                "computeCost": "计算成本",
+                "nodesHit": "节点调用"
+            },
+            "alerts": {
+                "title": "战略控制警报",
+                "info": "信息",
+                "warning": "警告",
+                "critical": "严重",
+                "marginHealthy": "本月毛利率 99.7%，单位模型健康。",
+                "hireTianya": "建议在天涯区招募新师傅。"
+            },
+            "research": {
+                "title": "自动化市场情报",
+                "subtitle": "终端研究集群",
+                "validation": "3 智能体交叉验证",
+                "sectorPlaceholder": "目标行业...",
+                "defaultSector": "本地家政物业维修",
+                "defaultFocus": "效率断层",
+                "execute": "执行情报扫描",
+                "executing": "演化执行中...",
+                "verdict": "结论"
+            },
+            "efficiency": {
+                "title": "效率拓扑",
+                "costOptimization": "成本优化",
+                "description": "AI 劳务仲裁与 Token 优化协议已激活。运营开销已压缩至计算底线。"
+            }
+        },
+        "charts": {
+            "load": "负载",
+            "aiCompute": "AI 计算",
+            "agentLatency": "智能体延迟",
+            "systemIdle": "系统空闲",
+            "capacity": "{{value}}% 容量"
+        },
+        "map": {
+            "systemDistribution": "系统分布",
+            "operationsView": "三亚运营视图",
+            "demoMode": "演示模式已启用",
+            "assignedTask": "分配任务",
+            "position": "坐标",
+            "status": {
+                "repairing": "维修中",
+                "idle": "空闲"
+            },
+            "tasks": {
+                "pipe": "管道漏水修复 - 海滨别墅 A 区",
+                "standby": "待命 - 最近完成：空调清洗",
+                "electrical": "电路查勘 - 阳光小区 3 栋"
+            }
+        },
+        "metrics": {
+            "title": "运营数据看板",
+            "subtitle": "实时分析报告",
+            "systemLive": "系统在线",
+            "inquiries": "总咨询",
+            "totalSessions": "累计对话数量",
+            "conversion": "转化率",
+            "dispatchLogic": "工单转换效能",
+            "photoRate": "拍照率",
+            "visualContext": "视觉诊断占比",
+            "feedbacks": "反馈数",
+            "voiceOfUser": "用户评价采集",
+            "serviceQuality": "用户满意度",
+            "rating": "满意度",
+            "precision": "准确度",
+            "waitingForData": "等待数据",
+            "sessionVelocity": "咨询量趋势",
+            "lastSevenDays": "最近 7 个运营日",
+            "workloadCategorization": "项目类型分布",
+            "regionalDensity": "区域分布",
+            "units": "{{value}} 个单位",
+            "emptyTitle": "暂无分析数据",
+            "emptyDesc": "在系统收集到足够的诊断咨询数据后，我们将自动生成运营洞察模型。",
+            "emptyAction": "启动诊断采集"
+        },
+        "aiConfig": {
+            "eyebrow": "企业 AI 控制平面",
+            "title": "AI 运营配置",
+            "subtitle": "为企业维修运营配置 AIP 供应商、多模型路由、技能、智能体、工作流门控和创作蓝图。",
+            "reset": "重置",
+            "save": "保存配置",
+            "saved": "配置已保存到本地",
+            "resetDone": "配置已恢复默认值",
+            "linkedModels": "{{count}} 个关联模型",
+            "enabled": "已启用",
+            "disabled": "已暂停",
+            "toggleOn": "启用 {{name}}",
+            "toggleOff": "停用 {{name}}",
+            "summary": {
+                "providers": "AIP 供应商",
+                "keys": "已配置密钥",
+                "models": "模型档案",
+                "agents": "活跃智能体",
+                "skills": "启用技能",
+                "blueprints": "蓝图方案"
+            },
+            "panels": {
+                "keys": "AIP 密钥",
+                "models": "模型",
+                "skills": "技能",
+                "agents": "智能体",
+                "workflow": "工作流",
+                "blueprints": "蓝图"
+            },
+            "sections": {
+                "keysTitle": "AIP / API 密钥库",
+                "keysDesc": "管理企业 AI 运行时使用的模型供应商和密钥引用。",
+                "modelsTitle": "多模型目录",
+                "modelsDesc": "创建模型档案，并绑定供应商、端点模型代码、成本和最佳用途。",
+                "skillsTitle": "技能配置",
+                "skillsDesc": "创建运营技能，并为每个技能指定所属智能体和触发条件。",
+                "agentsTitle": "智能体运行策略",
+                "agentsDesc": "创建智能体、分配模型、定义提示词，并选择自动化边界。",
+                "workflowTitle": "工作流配置",
+                "workflowDesc": "从报修接入到学习回路搭建工作流步骤，并绑定负责智能体。",
+                "blueprintsTitle": "创作蓝图构建器",
+                "blueprintsDesc": "基于已配置模型、技能、智能体和工作流搭建可复用运营方案。"
+            },
+            "actions": {
+                "addProvider": "添加供应商",
+                "addModel": "添加模型",
+                "addSkill": "添加技能",
+                "addAgent": "添加智能体",
+                "addWorkflow": "添加工作流步骤",
+                "addBlueprint": "添加蓝图",
+                "removeProvider": "移除供应商 {{name}}",
+                "removeModel": "移除模型 {{name}}",
+                "removeSkill": "移除技能 {{name}}",
+                "removeAgent": "移除智能体 {{name}}",
+                "removeWorkflow": "移除步骤 {{name}}",
+                "removeBlueprint": "移除蓝图 {{name}}"
+            },
+            "fields": {
+                "providerName": "{{name}} 的供应商名称",
+                "providerType": "{{name}} 的供应商类型",
+                "baseUrl": "{{name}} 的 Base URL",
+                "apiKey": "{{name}} 的 API 密钥",
+                "modelName": "{{name}} 的模型名称",
+                "modelCode": "{{name}} 的模型代码",
+                "provider": "{{name}} 的供应商",
+                "contextWindow": "{{name}} 的上下文窗口",
+                "latency": "{{name}} 的延迟",
+                "cost": "{{name}} 的成本",
+                "bestUse": "{{name}} 的最佳用途",
+                "skillName": "{{name}} 的技能名称",
+                "owner": "{{name}} 的负责人",
+                "trigger": "{{name}} 的触发条件",
+                "inputContract": "{{name}} 的输入契约",
+                "description": "{{name}} 的描述",
+                "agentName": "{{name}} 的智能体名称",
+                "layer": "{{name}} 的层级",
+                "model": "{{name}} 的模型",
+                "runtime": "{{name}} 的运行模式",
+                "toolAccess": "{{name}} 的工具权限",
+                "systemPrompt": "{{name}} 的系统提示词",
+                "stepTitle": "{{name}} 的步骤标题",
+                "dependsOn": "{{name}} 的依赖步骤",
+                "gate": "{{name}} 的门控",
+                "blueprintTitle": "{{name}} 的蓝图标题",
+                "primaryAgent": "{{name}} 的主智能体",
+                "targetUser": "{{name}} 的目标用户",
+                "status": "{{name}} 的状态",
+                "scenario": "{{name}} 的场景",
+                "outputFormat": "{{name}} 的输出格式",
+                "workflowSteps": "{{name}} 的工作流步骤",
+                "skills": "{{name}} 的技能"
+            },
+            "options": {
+                "runtime": {
+                    "auto": "自动执行",
+                    "approval": "审批门控",
+                    "manual": "仅手动"
+                },
+                "gate": {
+                    "auto": "自动",
+                    "confidence": "置信度门控",
+                    "human": "人工审批"
+                },
+                "status": {
+                    "draft": "草稿",
+                    "ready": "就绪",
+                    "live": "运行中"
+                }
+            },
+            "routing": "{{agent}} 路由到 {{model}}"
         }
     }
 }

@@ -8,7 +8,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 export const TicketsPage: React.FC = () => {
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
 
     useEffect(() => {
         getReports(null, 100, 0).then(res => {
@@ -61,7 +61,7 @@ export const TicketsPage: React.FC = () => {
                                             <div className="text-[11px] text-[#86868b] font-black mt-1 truncate max-w-sm line-clamp-1">{report.description}</div>
                                         </td>
                                         <td className="px-10 py-6">
-                                            <span className="text-[13px] font-bold text-[#424245] capitalize">{report.category || 'Other'}</span>
+                                            <span className="text-[13px] font-bold text-[#424245] capitalize">{report.category || t('enterprise.workers.na')}</span>
                                         </td>
                                         <td className="px-10 py-6">
                                             <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full border ${getStatusColor(report.status)} uppercase tracking-widest shadow-sm`}>
@@ -79,14 +79,14 @@ export const TicketsPage: React.FC = () => {
                                                     <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-[11px] font-black text-blue-600 border border-blue-500/20 shadow-sm">
                                                         <span className="material-symbols-outlined text-[16px]">engineering</span>
                                                     </div>
-                                                    <span className="text-[13px] font-black text-black">{t('enterprise.tickets.workerId').replace('{{id}}', report.matched_worker_id.toString())}</span>
+                                                    <span className="text-[13px] font-black text-black">{t('enterprise.tickets.workerId', { id: report.matched_worker_id })}</span>
                                                 </div>
                                             ) : (
                                                 <span className="text-[13px] font-bold text-[#86868b] italic opacity-60">{t('enterprise.tickets.unassigned')}</span>
                                             )}
                                         </td>
                                         <td className="px-10 py-6 text-right text-[13px] font-bold text-[#86868b] tabular-nums">
-                                            {new Date(report.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            {new Date(report.created_at).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </td>
                                     </tr>
                                 ))}
@@ -158,7 +158,7 @@ export const EnterpriseWorkersPage: React.FC = () => {
                                                 )}
                                                 <div>
                                                     <p className="text-[15px] font-black text-black tracking-tight">{worker.name}</p>
-                                                    <p className="text-[10px] text-[#86868b] font-black uppercase tracking-[0.15em] mt-1">{t('enterprise.workers.id').replace('{{id}}', worker.id.toString())}</p>
+                                                    <p className="text-[10px] text-[#86868b] font-black uppercase tracking-[0.15em] mt-1">{t('enterprise.workers.id', { id: worker.id })}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -201,10 +201,10 @@ export const EnterpriseWorkersPage: React.FC = () => {
 export const PropertiesPage: React.FC = () => {
     const { t } = useLanguage();
     const properties = [
-        { id: 'SY-001', name: 'Yalong Bay Villa 4B', units: 12, status: 'Active', alerts: 0, lastCheck: '2 hrs ago' },
-        { id: 'SY-002', name: 'Sanya Bay Resort Condos', units: 45, status: 'Active', alerts: 2, lastCheck: '5 hrs ago' },
-        { id: 'SY-003', name: 'Haitang Bay Premium Suites', units: 8, status: 'Maintenance', alerts: 1, lastCheck: '1 day ago' },
-        { id: 'SY-004', name: 'Dadonghai Seaview Apts', units: 24, status: 'Active', alerts: 0, lastCheck: '30 mins ago' },
+        { id: 'SY-001', name: 'Yalong Bay Villa 4B', units: 12, status: 'active', alerts: 0, lastCheck: 'twoHours' },
+        { id: 'SY-002', name: 'Sanya Bay Resort Condos', units: 45, status: 'active', alerts: 2, lastCheck: 'fiveHours' },
+        { id: 'SY-003', name: 'Haitang Bay Premium Suites', units: 8, status: 'maintenance', alerts: 1, lastCheck: 'oneDay' },
+        { id: 'SY-004', name: 'Dadonghai Seaview Apts', units: 24, status: 'active', alerts: 0, lastCheck: 'thirtyMins' },
     ];
 
     return (
@@ -225,14 +225,14 @@ export const PropertiesPage: React.FC = () => {
                     <p className="text-[11px] text-[#86868b] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.totalProps')}</p>
                     <div className="flex items-baseline gap-3 mt-4">
                         <p className="text-5xl font-black text-black tracking-tighter">4</p>
-                        <span className="text-[12px] font-black text-[#86868b] uppercase tracking-wider">Regions</span>
+                        <span className="text-[12px] font-black text-[#86868b] uppercase tracking-wider">{t('enterprise.properties.metrics.regions')}</span>
                     </div>
                 </div>
                 <div className="ent-card p-8 bg-white/60 ent-glass">
                     <p className="text-[11px] text-[#86868b] uppercase font-black tracking-[0.2em]">{t('enterprise.properties.metrics.totalUnits')}</p>
                     <div className="flex items-baseline gap-3 mt-4">
                         <p className="text-5xl font-black text-black tracking-tighter">89</p>
-                        <span className="text-[12px] font-black text-[#86868b] uppercase tracking-wider">Active Units</span>
+                        <span className="text-[12px] font-black text-[#86868b] uppercase tracking-wider">{t('enterprise.properties.metrics.activeUnits')}</span>
                     </div>
                 </div>
                 <div className="ent-card p-8 border-[#ff3b30]/10 bg-white/60 ent-glass">
@@ -265,17 +265,17 @@ export const PropertiesPage: React.FC = () => {
                                     <td className="px-10 py-6 font-black text-[14px] text-black tabular-nums tracking-tight">{prop.units}</td>
                                     <td className="px-10 py-6">
                                         <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border border-current/20 shadow-sm ${
-                                            prop.status === 'Active' ? 'bg-white text-[#28cd41]' : 'bg-white text-[#ff9500]'
+                                            prop.status === 'active' ? 'bg-white text-[#28cd41]' : 'bg-white text-[#ff9500]'
                                         }`}>
                                             <div className="w-1.5 h-1.5 rounded-full mr-2 bg-current" />
-                                            {prop.status}
+                                            {t(`enterprise.properties.status.${prop.status}`)}
                                         </span>
                                     </td>
                                     <td className="px-10 py-6">
                                         {prop.alerts > 0 ? (
                                             <div className="inline-flex items-center gap-2 text-[#ff3b30] font-black text-[11px] uppercase tracking-widest bg-white px-3 py-1 rounded-full border border-red-100 shadow-sm">
                                                 <span className="material-symbols-outlined text-[16px]">warning</span>
-                                                {t('enterprise.properties.warnings').replace('{{count}}', prop.alerts.toString())}
+                                                {t('enterprise.properties.warnings', { count: prop.alerts })}
                                             </div>
                                         ) : (
                                             <span className="text-[#86868b] font-black text-[11px] uppercase tracking-widest flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-black/5 shadow-sm">
@@ -284,7 +284,7 @@ export const PropertiesPage: React.FC = () => {
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-10 py-6 text-right text-[12px] font-black text-slate-400 uppercase tracking-widest">{prop.lastCheck}</td>
+                                    <td className="px-10 py-6 text-right text-[12px] font-black text-slate-400 uppercase tracking-widest">{t(`enterprise.properties.lastCheck.${prop.lastCheck}`)}</td>
                                 </tr>
                             ))}
                         </tbody>

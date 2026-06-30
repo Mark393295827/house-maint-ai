@@ -458,6 +458,12 @@
             "subtitle": "Property Management AI",
             "systemOnline": "System Online",
             "agentsActive": "Agents Active",
+            "searchPlaceholder": "Search intelligence, reports, agents...",
+            "notifications": "Notifications",
+            "defaultUser": "Administrator",
+            "defaultRole": "Exec Ops",
+            "systemStatus": "System Status",
+            "operationsNominal": "Operations Nominal",
             "nav": {
                 "missionControl": "Mission Control",
                 "properties": "Properties",
@@ -514,7 +520,9 @@
             "metrics": {
                 "totalProps": "Total Properties",
                 "totalUnits": "Total Units",
-                "activeAlerts": "Active Alerts"
+                "activeAlerts": "Active Alerts",
+                "regions": "Regions",
+                "activeUnits": "Active Units"
             },
             "columns": {
                 "id": "ID",
@@ -525,7 +533,229 @@
                 "inspected": "Last Inspected"
             },
             "warnings": "{{count}} Warnings",
-            "clear": "Clear"
+            "clear": "Clear",
+            "status": {
+                "active": "Active",
+                "maintenance": "Maintenance"
+            },
+            "lastCheck": {
+                "twoHours": "2 hrs ago",
+                "fiveHours": "5 hrs ago",
+                "oneDay": "1 day ago",
+                "thirtyMins": "30 mins ago"
+            }
+        },
+        "dashboard": {
+            "strategicDimension": "Strategic Dimension",
+            "dimensions": {
+                "tam": "AI-expanded TAM identified.",
+                "tenX": "Diagnosis 720x faster.",
+                "team": "Architect role strong.",
+                "financials": "Tokens at 0.15% cost."
+            },
+            "map": {
+                "title": "Global Technician Deployment",
+                "subtitle": "Live geo-tracking · Sanya District · {{count}} Active Nodes",
+                "live": "Live"
+            },
+            "systemLoad": {
+                "title": "System Load Swarm",
+                "realtime": "Realtime",
+                "diagnosisCapacity": "Diagnosis Capacity",
+                "latency": "Latency (Avg)",
+                "success": "Success"
+            },
+            "agents": {
+                "title": "LLM Agent Swarm Status",
+                "online": "Online",
+                "idle": "Idle",
+                "deploy": "Deploy Agent",
+                "computeCost": "Compute Cost",
+                "nodesHit": "Nodes Hit"
+            },
+            "alerts": {
+                "title": "Strategy Control Alerts",
+                "info": "Info",
+                "warning": "Warning",
+                "critical": "Critical",
+                "marginHealthy": "This month's gross margin is 99.7%; the unit model is healthy.",
+                "hireTianya": "Recommend recruiting a new technician in Tianya District."
+            },
+            "research": {
+                "title": "Automated Market Intelligence",
+                "subtitle": "Terminal Research Swarm",
+                "validation": "3 Agent Cross-Validation",
+                "sectorPlaceholder": "Sector target...",
+                "defaultSector": "Local property maintenance",
+                "defaultFocus": "Efficiency gap",
+                "execute": "Execute Intelligence Scan",
+                "executing": "Executing Evolution...",
+                "verdict": "Verdict"
+            },
+            "efficiency": {
+                "title": "Efficiency Topology",
+                "costOptimization": "Cost Optimization",
+                "description": "AI-driven labor arbitration and token optimization protocols active. Overhead minimized to compute floor."
+            }
+        },
+        "charts": {
+            "load": "Load",
+            "aiCompute": "AI Compute",
+            "agentLatency": "Agent Latency",
+            "systemIdle": "System Idle",
+            "capacity": "{{value}}% Capacity"
+        },
+        "map": {
+            "systemDistribution": "System Distribution",
+            "operationsView": "Sanya Operations View",
+            "demoMode": "Demo Mode Active",
+            "assignedTask": "Assigned Task",
+            "position": "Pos",
+            "status": {
+                "repairing": "Repairing",
+                "idle": "Idle"
+            },
+            "tasks": {
+                "pipe": "Pipe leak repair - Beach Villa Area A",
+                "standby": "Standby - Recently completed: AC cleaning",
+                "electrical": "Electrical inspection - Sunshine Community Building 3"
+            }
+        },
+        "metrics": {
+            "title": "Metrics Dashboard",
+            "subtitle": "Real-time Analytics",
+            "systemLive": "System Live",
+            "inquiries": "Inquiries",
+            "totalSessions": "Total Sessions",
+            "conversion": "Conversion",
+            "dispatchLogic": "Dispatch Logic",
+            "photoRate": "Photo Rate",
+            "visualContext": "Visual Context",
+            "feedbacks": "Feedbacks",
+            "voiceOfUser": "Voice of User",
+            "serviceQuality": "Service Quality",
+            "rating": "Rating",
+            "precision": "Precision",
+            "waitingForData": "Waiting for Data",
+            "sessionVelocity": "Session Velocity",
+            "lastSevenDays": "Last 7 Operating Days",
+            "workloadCategorization": "Workload Categorization",
+            "regionalDensity": "Regional Density",
+            "units": "{{value}} units",
+            "emptyTitle": "Intelligence Gap",
+            "emptyDesc": "We require a larger dataset of diagnostic inquiries to generate high-fidelity operational models.",
+            "emptyAction": "Initiate Data Collection"
+        },
+        "aiConfig": {
+            "eyebrow": "Enterprise AI Control Plane",
+            "title": "AI Operations Configuration",
+            "subtitle": "Configure AIP providers, multi-model routing, skills, agents, workflow gates, and creation blueprints for enterprise maintenance operations.",
+            "reset": "Reset",
+            "save": "Save configuration",
+            "saved": "Configuration saved locally",
+            "resetDone": "Configuration reset to defaults",
+            "linkedModels": "{{count}} linked models",
+            "enabled": "Active",
+            "disabled": "Paused",
+            "toggleOn": "Enable {{name}}",
+            "toggleOff": "Disable {{name}}",
+            "summary": {
+                "providers": "AIP Providers",
+                "keys": "Configured Keys",
+                "models": "Model Profiles",
+                "agents": "Active Agents",
+                "skills": "Enabled Skills",
+                "blueprints": "Blueprints"
+            },
+            "panels": {
+                "keys": "AIP Keys",
+                "models": "Models",
+                "skills": "Skills",
+                "agents": "Agents",
+                "workflow": "Workflow",
+                "blueprints": "Blueprints"
+            },
+            "sections": {
+                "keysTitle": "AIP / API Key Vault",
+                "keysDesc": "Manage model providers and key references used by the enterprise AI runtime.",
+                "modelsTitle": "Multi-Model Catalog",
+                "modelsDesc": "Create model profiles and bind each one to a provider, endpoint model code, cost, and best-use case.",
+                "skillsTitle": "Skills Configuration",
+                "skillsDesc": "Create operational skills and assign each one to an owning agent and trigger condition.",
+                "agentsTitle": "Agent Runtime Policy",
+                "agentsDesc": "Create agents, assign models, define prompts, and choose automation boundaries.",
+                "workflowTitle": "Workflow Configuration",
+                "workflowDesc": "Build workflow steps from intake to learning and attach each gate to the responsible agent.",
+                "blueprintsTitle": "Creation Blueprint Builder",
+                "blueprintsDesc": "Build reusable operating plans from the configured models, skills, agents, and workflow steps."
+            },
+            "actions": {
+                "addProvider": "Add provider",
+                "addModel": "Add model",
+                "addSkill": "Add skill",
+                "addAgent": "Add agent",
+                "addWorkflow": "Add workflow step",
+                "addBlueprint": "Add blueprint",
+                "removeProvider": "Remove provider {{name}}",
+                "removeModel": "Remove model {{name}}",
+                "removeSkill": "Remove skill {{name}}",
+                "removeAgent": "Remove agent {{name}}",
+                "removeWorkflow": "Remove step {{name}}",
+                "removeBlueprint": "Remove blueprint {{name}}"
+            },
+            "fields": {
+                "providerName": "Provider name for {{name}}",
+                "providerType": "Provider type for {{name}}",
+                "baseUrl": "Base URL for {{name}}",
+                "apiKey": "API key for {{name}}",
+                "modelName": "Model name for {{name}}",
+                "modelCode": "Model code for {{name}}",
+                "provider": "Provider for {{name}}",
+                "contextWindow": "Context window for {{name}}",
+                "latency": "Latency for {{name}}",
+                "cost": "Cost for {{name}}",
+                "bestUse": "Best use for {{name}}",
+                "skillName": "Skill name for {{name}}",
+                "owner": "Owner for {{name}}",
+                "trigger": "Trigger for {{name}}",
+                "inputContract": "Input contract for {{name}}",
+                "description": "Description for {{name}}",
+                "agentName": "Agent name for {{name}}",
+                "layer": "Layer for {{name}}",
+                "model": "Model for {{name}}",
+                "runtime": "Runtime for {{name}}",
+                "toolAccess": "Tool access for {{name}}",
+                "systemPrompt": "System prompt for {{name}}",
+                "stepTitle": "Step title for {{name}}",
+                "dependsOn": "Depends on for {{name}}",
+                "gate": "Gate for {{name}}",
+                "blueprintTitle": "Blueprint title for {{name}}",
+                "primaryAgent": "Primary agent for {{name}}",
+                "targetUser": "Target user for {{name}}",
+                "status": "Status for {{name}}",
+                "scenario": "Scenario for {{name}}",
+                "outputFormat": "Output format for {{name}}",
+                "workflowSteps": "Workflow steps for {{name}}",
+                "skills": "Skills for {{name}}"
+            },
+            "options": {
+                "runtime": {
+                    "auto": "Auto execute",
+                    "approval": "Approval gate",
+                    "manual": "Manual only"
+                },
+                "gate": {
+                    "auto": "Auto",
+                    "confidence": "Confidence gate",
+                    "human": "Human approval"
+                },
+                "status": {
+                    "draft": "Draft",
+                    "ready": "Ready",
+                    "live": "Live"
+                }
+            },
+            "routing": "{{agent}} routes to {{model}}"
         }
     }
 }

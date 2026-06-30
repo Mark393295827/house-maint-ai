@@ -3,54 +3,59 @@ import en from './en.json';
 import zh from './zh.json';
 
 type Locale = 'en' | 'zh';
+type TranslationParams = Record<string, string | number | undefined>;
 
 interface LanguageContextType {
     locale: Locale;
     setLocale: (locale: Locale) => void;
-    t: (key: string, params?: Record<string, string | number>) => string;
+    t: (key: string, params?: TranslationParams & { defaultValue?: string }) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 // Flatten nested keys for easier access (e.g., "nav.home")
-const getNestedValue = (obj: any, path: string): string => {
-    return path.split('.').reduce((prev, curr) => {
-        return prev ? prev[curr] : null;
+const getNestedValue = (obj: unknown, path: string): unknown => {
+    return path.split('.').reduce<unknown>((prev, curr) => {
+        if (!prev || typeof prev !== 'object') return undefined;
+        return (prev as Record<string, unknown>)[curr];
     }, obj) || path;
 };
 
+const getInitialLocale = (): Locale => {
+    if (typeof window === 'undefined') return 'en';
+
+    const savedLocale = localStorage.getItem('app_locale') as Locale | null;
+    if (savedLocale === 'en' || savedLocale === 'zh') return savedLocale;
+
+    return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+};
+
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [locale, setLocale] = useState<Locale>('en');
+    const [locale, setLocale] = useState<Locale>(() => getInitialLocale());
 
     useEffect(() => {
-        // 1. Check localStorage
-        const savedLocale = localStorage.getItem('app_locale') as Locale;
-        if (savedLocale && (savedLocale === 'en' || savedLocale === 'zh')) {
-            setLocale(savedLocale);
-            return;
-        }
-
-        // 2. Check browser language
-        const browserLang = navigator.language.toLowerCase();
-        if (browserLang.startsWith('zh')) {
-            setLocale('zh');
-        }
-    }, []);
+        document.documentElement.lang = locale;
+    }, [locale]);
 
     const handleSetLocale = (newLocale: Locale) => {
         setLocale(newLocale);
         localStorage.setItem('app_locale', newLocale);
-
-        // Update html lang attribute
-        document.documentElement.lang = newLocale;
     };
 
-    const t = (key: string, params?: Record<string, string | number>): string => {
+    const t = (key: string, params?: TranslationParams & { defaultValue?: string }): string => {
         const translations = locale === 'zh' ? zh : en;
-        let value = getNestedValue(translations, key);
+        const fallbackTranslations = locale === 'zh' ? en : zh;
+        const translatedValue = getNestedValue(translations, key);
+        const fallbackValue = getNestedValue(fallbackTranslations, key);
+        let value = typeof translatedValue === 'string'
+            ? translatedValue
+            : typeof fallbackValue === 'string'
+                ? fallbackValue
+                : params?.defaultValue || key;
 
         if (params && value) {
             Object.entries(params).forEach(([paramKey, paramValue]) => {
+                if (paramKey === 'defaultValue' || paramValue === undefined) return;
                 value = value.replace(new RegExp(`{{${paramKey}}}`, 'g'), String(paramValue));
             });
         }
