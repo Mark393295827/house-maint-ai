@@ -10,6 +10,9 @@
         "community": "社区",
         "profile": "我的"
     },
+    "language": {
+        "switch": "切换语言"
+    },
     "header": {
         "location": "San Francisco, CA",
         "greeting": "早上好, Alex"
@@ -311,6 +314,7 @@
     },
     "workerPortal": {
         "title": "工人工作台",
+        "defaultWorker": "专业师傅",
         "earnings": "收入",
         "completed": "已完成",
         "rating": "评分",
@@ -320,6 +324,104 @@
         "jobsList": "您的工单",
         "noJobs": "暂无分配的工单",
         "editProfile": "编辑资料",
+        "loading": "正在加载工作台...",
+        "customerFallback": "客户",
+        "distanceKm": "{{distance}} 公里",
+        "distanceUnknown": "距离待确认",
+        "priceEstimate": "¥{{amount}}+",
+        "ticketNumber": "工单 #{{id}}",
+        "stats": {
+            "earnings": "收入",
+            "completed": "已完成",
+            "rating": "评分",
+            "active": "进行中"
+        },
+        "status": {
+            "receivingLeads": "正在接收订单",
+            "standby": "待命模式"
+        },
+        "tabs": {
+            "leads": "可接订单",
+            "jobs": "我的工单"
+        },
+        "actions": {
+            "refresh": "刷新工作台",
+            "goOnline": "上线",
+            "goOffline": "下线",
+            "claimLead": "接下此订单",
+            "claimSpecific": "接单：{{title}}",
+            "accepting": "接单中...",
+            "openTicket": "打开工单 #{{id}}"
+        },
+        "notifications": {
+            "refreshSuccess": "工作台已刷新。",
+            "loadFailed": "无法加载工人数据，请重试。",
+            "acceptSuccess": "接单成功，已移入我的工单。",
+            "acceptFailed": "接单失败，请重试。",
+            "availabilityOnline": "您已上线，可以接收新订单。",
+            "availabilityOffline": "您已下线，新订单已暂停推送。",
+            "availabilityFailed": "无法更新在线状态。",
+            "workerMissing": "工人资料尚未准备完成。"
+        },
+        "empty": {
+            "availableTitle": "正在扫描可接订单...",
+            "availableDesc": "附近暂无新的维修请求。有新订单时系统会立即通知您。",
+            "jobsTitle": "暂无进行中的工单"
+        },
+        "categories": {
+            "plumbing": "水工/管道",
+            "electrical": "电工/电路",
+            "hvac": "空调/暖通",
+            "structural": "房屋结构",
+            "appliance": "家电维修",
+            "painting": "墙面/油漆",
+            "carpentry": "木工/家具",
+            "roofing": "屋顶维修",
+            "cleaning": "深度清洁",
+            "other": "其他类型",
+            "default": "通用维修"
+        },
+        "urgency": {
+            "low": "低",
+            "mid": "中",
+            "urgent": "紧急",
+            "critical": "严重"
+        },
+        "time": {
+            "justNow": "刚刚",
+            "minutesAgo": "{{count}} 分钟前",
+            "hoursAgo": "{{count}} 小时前",
+            "daysAgo": "{{count}} 天前"
+        },
+        "jobStatus": {
+            "matched": "已分配",
+            "in_progress": "处理中",
+            "completed": "已完成",
+            "cancelled": "已取消"
+        },
+        "nav": {
+            "label": "工人工作台导航",
+            "leads": "订单",
+            "history": "工单",
+            "alerts": "通知",
+            "profile": "我的",
+            "openLeads": "打开可接订单",
+            "openHistory": "打开工单记录",
+            "openAlerts": "打开通知",
+            "openProfile": "打开个人资料"
+        },
+        "push": {
+            "newRequest": "新的服务请求",
+            "estimatedTravel": "预计路程",
+            "travelTime": "5 分钟",
+            "ignore": "忽略",
+            "accept": "接受工单"
+        },
+        "demoOrder": {
+            "title": "紧急：空调室内机漏水",
+            "description": "出风口持续漏水，已经影响地板，需要尽快处理。",
+            "customer": "李先生"
+        },
         "register": {
             "title": "成为工人",
             "step": "步骤",

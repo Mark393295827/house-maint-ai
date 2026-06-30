@@ -10,6 +10,9 @@
         "community": "Community",
         "profile": "Profile"
     },
+    "language": {
+        "switch": "Switch language"
+    },
     "header": {
         "location": "San Francisco, CA",
         "greeting": "Good morning, Alex"
@@ -309,6 +312,7 @@
     },
     "workerPortal": {
         "title": "Worker Dashboard",
+        "defaultWorker": "Pro Worker",
         "earnings": "Earnings",
         "completed": "Completed",
         "rating": "Rating",
@@ -318,6 +322,104 @@
         "jobsList": "Your Jobs",
         "noJobs": "No jobs assigned yet",
         "editProfile": "Edit Profile",
+        "loading": "Hydrating dashboard...",
+        "customerFallback": "Customer",
+        "distanceKm": "{{distance}} km",
+        "distanceUnknown": "Distance pending",
+        "priceEstimate": "¥{{amount}}+",
+        "ticketNumber": "Ticket #{{id}}",
+        "stats": {
+            "earnings": "Earnings",
+            "completed": "Completed",
+            "rating": "Rating",
+            "active": "Active"
+        },
+        "status": {
+            "receivingLeads": "Receiving leads",
+            "standby": "Standby mode"
+        },
+        "tabs": {
+            "leads": "Leads",
+            "jobs": "Jobs"
+        },
+        "actions": {
+            "refresh": "Refresh dashboard",
+            "goOnline": "Go online",
+            "goOffline": "Go offline",
+            "claimLead": "Claim this lead",
+            "claimSpecific": "Claim lead: {{title}}",
+            "accepting": "Accepting...",
+            "openTicket": "Open ticket #{{id}}"
+        },
+        "notifications": {
+            "refreshSuccess": "Dashboard refreshed.",
+            "loadFailed": "Unable to load worker data. Please try again.",
+            "acceptSuccess": "Order accepted. Moving it to your jobs.",
+            "acceptFailed": "Acceptance failed. Please retry.",
+            "availabilityOnline": "You are online and receiving leads.",
+            "availabilityOffline": "You are offline. New leads are paused.",
+            "availabilityFailed": "Could not update availability.",
+            "workerMissing": "Worker profile is not ready yet."
+        },
+        "empty": {
+            "availableTitle": "Scanning for leads...",
+            "availableDesc": "No new repair requests in your immediate vicinity. We'll notify you when one appears.",
+            "jobsTitle": "No active job tickets"
+        },
+        "categories": {
+            "plumbing": "Plumbing",
+            "electrical": "Electrical",
+            "hvac": "HVAC",
+            "structural": "Structural",
+            "appliance": "Appliance repair",
+            "painting": "Painting",
+            "carpentry": "Carpentry",
+            "roofing": "Roofing",
+            "cleaning": "Deep cleaning",
+            "other": "Other",
+            "default": "General repair"
+        },
+        "urgency": {
+            "low": "Low",
+            "mid": "Mid",
+            "urgent": "Urgent",
+            "critical": "Critical"
+        },
+        "time": {
+            "justNow": "Just now",
+            "minutesAgo": "{{count}}m ago",
+            "hoursAgo": "{{count}}h ago",
+            "daysAgo": "{{count}}d ago"
+        },
+        "jobStatus": {
+            "matched": "Assigned",
+            "in_progress": "Processing",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "nav": {
+            "label": "Worker dashboard navigation",
+            "leads": "Leads",
+            "history": "History",
+            "alerts": "Alerts",
+            "profile": "Profile",
+            "openLeads": "Open leads",
+            "openHistory": "Open job history",
+            "openAlerts": "Open alerts",
+            "openProfile": "Open profile"
+        },
+        "push": {
+            "newRequest": "New service request",
+            "estimatedTravel": "Estimated travel",
+            "travelTime": "5 mins",
+            "ignore": "Ignore",
+            "accept": "Accept job"
+        },
+        "demoOrder": {
+            "title": "Critical: AC unit leaking water",
+            "description": "The unit is leaking significantly from the vent and damaging floors.",
+            "customer": "Mr. Lee"
+        },
         "register": {
             "title": "Become a Worker",
             "step": "Step",

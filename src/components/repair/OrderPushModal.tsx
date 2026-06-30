@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface OrderPushModalProps {
     order: {
@@ -14,6 +15,7 @@ interface OrderPushModalProps {
 }
 
 const OrderPushModal: React.FC<OrderPushModalProps> = ({ order, onAccept, onDecline }) => {
+    const { t } = useLanguage();
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -47,7 +49,7 @@ const OrderPushModal: React.FC<OrderPushModalProps> = ({ order, onAccept, onDecl
                     
                     <div className="absolute top-4 left-4">
                         <span className="px-3 py-1 rounded-full bg-racing-red text-white text-[10px] font-black tracking-widest uppercase shadow-lg">
-                            New Service Request
+                            {t('workerPortal.push.newRequest')}
                         </span>
                     </div>
 
@@ -74,7 +76,7 @@ const OrderPushModal: React.FC<OrderPushModalProps> = ({ order, onAccept, onDecl
                                 {order.title}
                             </h2>
                             <p className="text-xs text-text-sub-dark font-medium">
-                                Estimated Travel: <span className="text-neon-cyan font-bold">5 mins</span>
+                                {t('workerPortal.push.estimatedTravel')}: <span className="text-neon-cyan font-bold">{t('workerPortal.push.travelTime')}</span>
                             </p>
                         </div>
                     </div>
@@ -86,16 +88,18 @@ const OrderPushModal: React.FC<OrderPushModalProps> = ({ order, onAccept, onDecl
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             onClick={handleDecline}
+                            aria-label={t('workerPortal.push.ignore')}
                             className="h-12 rounded-2xl border border-white/5 bg-white/5 text-text-sub-dark font-bold text-sm transition-all hover:bg-white/10 active:scale-95"
                         >
-                            Ignore
+                            {t('workerPortal.push.ignore')}
                         </button>
                         <button
                             onClick={() => onAccept(String(order.id))}
+                            aria-label={t('workerPortal.push.accept')}
                             className="h-12 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-sm shadow-xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                         >
                             <span className="material-symbols-outlined text-lg">touch_app</span>
-                            ACCEPT JOB
+                            {t('workerPortal.push.accept')}
                         </button>
                     </div>
                 </div>
