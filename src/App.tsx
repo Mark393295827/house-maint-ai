@@ -61,6 +61,8 @@ function App() {
                     {/* Public routes */}
                     <Route path="/" element={<OnboardingGate />} />
                     <Route path="/welcome" element={<WelcomePage />} />
+                    <Route path="/landing" element={<ShowcasePage />} />
+                    <Route path="/showcase" element={<ShowcasePage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/repairman/login" element={<RepairmanLoginPage />} />
                     <Route path="/payment/success" element={<PaymentSuccessPage />} />
@@ -70,7 +72,6 @@ function App() {
                     <Route path="/diagnosis" element={<ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}><DiagnosisPage /></ProtectedRoute>} />
                     <Route path="/cases" element={<ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}><MyCasesPage /></ProtectedRoute>} />
                     <Route path="/library" element={<ProtectedRoute><CaseLibraryPage /></ProtectedRoute>} />
-                    <Route path="/showcase" element={<ProtectedRoute><ShowcasePage /></ProtectedRoute>} />
                     <Route path="/omnichannel-sim" element={<ProtectedRoute><OmnichannelSim /></ProtectedRoute>} />
                     <Route path="/metrics" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><MetricsDashboard /></ProtectedRoute>} />
 

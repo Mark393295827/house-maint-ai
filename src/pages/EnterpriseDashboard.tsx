@@ -8,6 +8,7 @@ import EnterpriseMap from '../components/EnterpriseMap';
 import { PerformanceChart, WorkloadDistribution } from '../components/OperationCharts';
 import { post } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
+import { getOperatingStageCopies, getOperationalResults, type OperatingStageCopy } from '../constants/operatingModel';
 // ============ Types ============
 
 interface StrategyAlert {
@@ -183,9 +184,35 @@ const AgentCard: React.FC<{ agent: AgentStatus; costLabel: string; callsLabel: s
     );
 };
 
+const OperatingLoopPanel: React.FC<{ stages: OperatingStageCopy[]; title: string; subtitle: string }> = ({ stages, title, subtitle }) => (
+    <div className="ent-card overflow-hidden bg-white/60 ent-glass">
+        <div className="border-b border-black/5 bg-white/40 p-4 sm:p-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#007aff]">{title}</p>
+            <h2 className="mt-2 text-xl font-black tracking-tight text-black sm:text-2xl">{subtitle}</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-px bg-black/5 sm:grid-cols-2 xl:grid-cols-6">
+            {stages.map((stage, index) => (
+                <div key={stage.id} className="bg-white/80 p-5">
+                    <div className="mb-5 flex items-center justify-between gap-4">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eef7f4] text-[#16745f]">
+                            <span className="material-symbols-outlined text-[20px]">{stage.icon}</span>
+                        </span>
+                        <span className="font-mono text-[10px] font-black text-[#86868b]">S{index + 1}</span>
+                    </div>
+                    <h3 className="text-[13px] font-black leading-tight text-black">{stage.title}</h3>
+                    <p className="mt-2 text-[11px] font-bold leading-5 text-[#86868b]">{stage.metric}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
 const EnterpriseDashboardHome: React.FC = () => {
     const { user } = useAuth();
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
+    const operatingLocale = locale === 'zh' ? 'zh' : 'en';
+    const operatingStages = getOperatingStageCopies(operatingLocale);
+    const resultMetrics = getOperationalResults(operatingLocale);
     const [researchSector, setResearchSector] = useState(() => t('enterprise.dashboard.research.defaultSector'));
     const [researchFocus] = useState(() => t('enterprise.dashboard.research.defaultFocus'));
     const [researchLoading, setResearchLoading] = useState(false);
@@ -204,18 +231,19 @@ const EnterpriseDashboardHome: React.FC = () => {
     };
 
     const dimensions: DimensionScore[] = [
-        { name: 'TAM', label: 'TAM', score: 8.0, maxScore: 10, icon: 'target', color: '#007aff', description: t('enterprise.dashboard.dimensions.tam') },
-        { name: '10X', label: '10X', score: 7.0, maxScore: 10, icon: 'bolt', color: '#00c6ff', description: t('enterprise.dashboard.dimensions.tenX') },
-        { name: 'TEAM', label: 'TEAM', score: 6.0, maxScore: 10, icon: 'foundation', color: '#ff9500', description: t('enterprise.dashboard.dimensions.team') },
-        { name: 'FINANCIALS', label: 'FINANCIALS', score: 8.0, maxScore: 10, icon: 'payments', color: '#28cd41', description: t('enterprise.dashboard.dimensions.financials') },
+        { name: 'INTAKE', label: 'INTAKE', score: 8.8, maxScore: 10, icon: 'forum', color: '#007aff', description: resultMetrics[0].label },
+        { name: 'DIAGNOSIS', label: 'DIAGNOSIS', score: 8.5, maxScore: 10, icon: 'camera_enhance', color: '#00c6ff', description: resultMetrics[1].label },
+        { name: 'DEFLECT', label: 'DEFLECT', score: 7.2, maxScore: 10, icon: 'self_improvement', color: '#ff9500', description: resultMetrics[2].label },
+        { name: 'WECHAT', label: 'WECHAT', score: 9.0, maxScore: 10, icon: 'hub', color: '#28cd41', description: resultMetrics[3].label },
     ];
 
     const compositeScore = dimensions.reduce((sum, d) => sum + d.score, 0) / dimensions.length;
 
     const [agents] = useState<AgentStatus[]>([
+        { name: 'IntakeAgent', status: 'online', lastCall: '1m ago', callsToday: 62, costToday: 0.031, model: 'gateway' },
         { name: 'DiagnosisAgent', status: 'online', lastCall: '2m ago', callsToday: 47, costToday: 0.094, model: 'gemini' },
-        { name: 'PlanningAgent', status: 'online', lastCall: '5m ago', callsToday: 23, costToday: 0.115, model: 'r1' },
-        { name: 'CFO Agent', status: 'online', lastCall: '1h ago', callsToday: 3, costToday: 0.003, model: 'alg' },
+        { name: 'DispatchAgent', status: 'online', lastCall: '5m ago', callsToday: 23, costToday: 0.048, model: 'ranker' },
+        { name: 'VerificationAgent', status: 'idle', lastCall: '18m ago', callsToday: 14, costToday: 0.012, model: 'rules' },
     ]);
 
     const [alerts] = useState<StrategyAlert[]>([
@@ -230,6 +258,12 @@ const EnterpriseDashboardHome: React.FC = () => {
 
     return (
         <div className="space-y-5 lg:space-y-8 page-enter">
+            <OperatingLoopPanel
+                stages={operatingStages}
+                title={locale === 'zh' ? '统一运营模型' : 'Unified operating model'}
+                subtitle={locale === 'zh' ? '报修、分流、派单、验收和业主报表使用同一套状态机。' : 'Intake, deflection, dispatch, verification, and owner reporting now share one state machine.'}
+            />
+
             {/* Row 1: 4D Strategy Health (Key Metics) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-8">
                 {dimensions.map((dim) => (

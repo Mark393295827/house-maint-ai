@@ -6,6 +6,7 @@ import { useReports } from '../hooks/useReports';
 import type { Report as AppReport } from '../types';
 import { getInsights, ProactiveInsight } from '../store/proactive';
 import api from '../services/api';
+import { getOperatingStageCopies, getReportOperatingStageId } from '../constants/operatingModel';
 
 function useCountUp(target: number, duration = 650) {
     const [count, setCount] = useState(0);
@@ -27,6 +28,8 @@ function useCountUp(target: number, duration = 650) {
 const Dashboard = () => {
     const { t, locale } = useLanguage();
     const navigate = useNavigate();
+    const isZh = locale === 'zh';
+    const operatingStages = getOperatingStageCopies(isZh ? 'zh' : 'en');
 
     /* ─── API Data ─── */
     const { data: reportsData, isLoading: loadingReports } = useReports();
@@ -192,6 +195,50 @@ const Dashboard = () => {
                         <span className="material-symbols-outlined text-white/60 text-2xl">arrow_forward</span>
                     </div>
                 </button>
+            </section>
+
+            {/* ─── Product Operating Loop ─── */}
+            <section className="px-5 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base font-bold text-text-main-light dark:text-text-main-dark">
+                        {isZh ? '运营闭环' : 'Operating Loop'}
+                    </h2>
+                    <span className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                        {isZh ? '从报修到业主报表' : 'Report to owner-ready'}
+                    </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                    {operatingStages.map((stage, index) => {
+                        const activeStageIds = new Set(activeReports.map((report: AppReport) => getReportOperatingStageId(report.status)));
+                        const isActive = activeStageIds.has(stage.id) || (activeReports.length === 0 && index === 0);
+                        const path = stage.id === 'dispatch'
+                            ? '/worker/match'
+                            : stage.id === 'verification' || stage.id === 'reporting'
+                                ? '/cases'
+                                : '/diagnosis';
+
+                        return (
+                            <button
+                                key={stage.id}
+                                onClick={() => navigate(path)}
+                                className={`flex min-h-[92px] flex-col items-start justify-between rounded-2xl border p-3 text-left transition-transform active:scale-[0.97] ${
+                                    isActive
+                                        ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20'
+                                        : 'border-gray-100 bg-white dark:border-gray-700 dark:bg-surface-dark'
+                                }`}
+                            >
+                                <div className="flex w-full items-center justify-between gap-2">
+                                    <span className={`material-symbols-outlined text-[20px] ${isActive ? 'text-emerald-600' : 'text-gray-400'}`}>{stage.icon}</span>
+                                    <span className="text-[9px] font-black tabular-nums text-gray-400">0{index + 1}</span>
+                                </div>
+                                <div>
+                                    <p className="text-[12px] font-extrabold leading-tight text-text-main-light dark:text-text-main-dark">{stage.title}</p>
+                                    <p className="mt-1 text-[10px] font-bold leading-snug text-gray-500 line-clamp-2">{stage.metric}</p>
+                                </div>
+                            </button>
+                        );
+                    })}
+                </div>
             </section>
 
             {/* ─── Differentiating Highlights Strip ─── */}

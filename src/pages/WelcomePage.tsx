@@ -2,10 +2,13 @@ import { Link } from 'react-router-dom';
 import { IMAGES } from '../constants/images';
 import { useLanguage } from '../i18n/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
+import { getOperatingStageCopies, getProofMetrics } from '../constants/operatingModel';
 
 const WelcomePage = () => {
     const { t, locale } = useLanguage();
     const isZh = locale === 'zh';
+    const operatingStages = getOperatingStageCopies(isZh ? 'zh' : 'en');
+    const proofMetrics = getProofMetrics(isZh ? 'zh' : 'en');
 
     return (
         <div className="relative min-h-[100dvh] w-full bg-[#fbfbfd] font-sans text-[#1d1d1f] overflow-x-hidden selection:bg-[#0071e3]/10">
@@ -36,13 +39,15 @@ const WelcomePage = () => {
                     <div className="w-full max-w-4xl text-center mb-16 lg:mb-24 page-enter">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f5f5f7] border border-[#d2d2d7]/50 text-[10px] font-black tracking-widest uppercase mb-8 shadow-sm">
                             <span className="flex h-1.5 w-1.5 rounded-full bg-[#28cd41]" />
-                            {isZh ? 'AI 智能诊断已上线' : 'AI-Powered Diagnostics Now Live'}
+                            {isZh ? '微信维修运营闭环已上线' : 'WeChat Maintenance Operating Loop Live'}
                         </div>
                         <h1 className="text-5xl lg:text-7xl font-black leading-[1.05] tracking-[-0.03em] mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                            {t('welcome.title')}
+                            {isZh ? '从报修到验收，一条微信闭环。' : 'From report to verified repair in one WeChat-native loop.'}
                         </h1>
                         <p className="text-xl lg:text-2xl font-bold text-[#86868b] max-w-2xl mx-auto leading-relaxed opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200 fill-mode-forwards">
-                            {t('welcome.subtitle')}
+                            {isZh
+                                ? '拍照、语音或视频提交问题，AI 完成分级、DIY 分流、师傅派单、验收回访和业主报表。'
+                                : 'Submit photos, voice, or video. AI handles triage, DIY deflection, worker dispatch, repair verification, and owner reporting.'}
                         </p>
                     </div>
 
@@ -55,11 +60,11 @@ const WelcomePage = () => {
                                     <div className="w-12 h-12 rounded-2xl bg-[#007aff] flex items-center justify-center shadow-lg shadow-[#007aff]/30 mb-8">
                                         <span className="material-symbols-outlined text-white text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>add_a_photo</span>
                                     </div>
-                                    <h2 className="text-3xl lg:text-4xl font-black tracking-tighter mb-4">{isZh ? '拍照即诊断' : 'Snap & Solve'}</h2>
+                                    <h2 className="text-3xl lg:text-4xl font-black tracking-tighter mb-4">{isZh ? '报修即进入运营闭环' : 'Every report enters the operating loop'}</h2>
                                     <p className="text-[15px] font-medium text-[#86868b] leading-relaxed mb-10">
                                         {isZh 
-                                            ? '利用先进的 Gemini 视觉引擎，只需上传房屋漏水照片。30秒内获得专业分级报告与维修方案。' 
-                                            : 'Leverage the advanced Gemini vision engine. Simply upload a photo of your leak or damage and receive an expert classification report in 30s.'}
+                                            ? '租客不需要下载新 App。通过微信提交上下文后，系统自动判断是否自助解决、是否派单、由谁承担责任。'
+                                            : 'Tenants do not need another app. Once context arrives through WeChat, the system decides whether to deflect, dispatch, and attribute responsibility.'}
                                     </p>
                                     <Link to="/diagnosis" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#1d1d1f] text-white rounded-2xl text-[14px] font-black tracking-tight hover:bg-black transition-all press-scale shadow-xl shadow-black/10">
                                         {t('welcome.getStarted')}
@@ -76,33 +81,14 @@ const WelcomePage = () => {
 
                         {/* Right Detail Cards */}
                         <div className="lg:col-span-6 xl:col-span-5 flex flex-col gap-6">
-                            {[
-                                {
-                                    icon: 'timeline',
-                                    title: isZh ? '全程可追溯' : 'End-to-End Archiving',
-                                    desc: isZh ? '每一条维修记录都被精细化归档。' : 'Every repair detail is meticulously archived for lifelong traceability.',
-                                    color: 'to-[#5856d6]'
-                                },
-                                {
-                                    icon: 'verified_user',
-                                    title: isZh ? '维修质量标准' : 'Standardized Validation',
-                                    desc: isZh ? '强制输出验收标准清单。' : 'Automatic generation of standardized acceptance criteria for every case.',
-                                    color: 'to-[#28cd41]'
-                                },
-                                {
-                                    icon: 'videocam',
-                                    title: isZh ? '远程实时巡检' : 'Live Remote Guard',
-                                    desc: isZh ? '工程师远程接入实时标注。' : 'Connect with experts via live video with real-time AI annotation.',
-                                    color: 'to-[#ff9500]'
-                                }
-                            ].map((item, i) => (
+                            {operatingStages.slice(0, 3).map((item, i) => (
                                 <div key={i} className="aegis-card p-10 bg-white/60 flex items-start gap-8 stagger-item">
-                                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br from-[#f5f5f7] ${item.color} shrink-0 flex items-center justify-center shadow-sm border border-white`}>
+                                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br from-[#f5f5f7] ${i === 0 ? 'to-[#5856d6]' : i === 1 ? 'to-[#28cd41]' : 'to-[#ff9500]'} shrink-0 flex items-center justify-center shadow-sm border border-white`}>
                                         <span className="material-symbols-outlined text-[20px] font-black text-[#1d1d1f]">{item.icon}</span>
                                     </div>
                                     <div>
                                         <h3 className="text-[17px] font-black tracking-tight mb-2">{item.title}</h3>
-                                        <p className="text-[13px] font-medium text-[#86868b] leading-relaxed">{item.desc}</p>
+                                        <p className="text-[13px] font-medium text-[#86868b] leading-relaxed">{item.description}</p>
                                     </div>
                                 </div>
                             ))}
@@ -110,23 +96,20 @@ const WelcomePage = () => {
                     </div>
 
                     {/* Mission Section */}
-                    <div className="w-full text-center py-20 px-6 aegis-card bg-[#1d1d1f] text-white stagger-item overflow-hidden relative">
+                    <div
+                        className="w-full text-center py-20 px-6 rounded-[32px] text-white stagger-item overflow-hidden relative shadow-2xl shadow-black/20"
+                        style={{ background: 'linear-gradient(135deg, #111316 0%, #163d35 58%, #0b2f36 100%)' }}
+                    >
                          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0071e3]/20 to-transparent" />
                          <div className="relative z-10 py-10">
-                            <h2 className="text-2xl lg:text-3xl font-black mb-10 tracking-tight">{isZh ? '一个简单的诊断工具。' : 'One simple diagnostic tool.'}<br/>{isZh ? '无限安心。' : 'Infinite peace of mind.'}</h2>
+                            <h2 className="text-2xl lg:text-3xl font-black mb-10 tracking-tight">{isZh ? '不是单点诊断工具。' : 'Not a single diagnosis tool.'}<br/>{isZh ? '是一套物业运营系统。' : 'A property operating system.'}</h2>
                             <div className="flex flex-wrap justify-center gap-12 lg:gap-24">
-                                <div className="flex flex-col items-center">
-                                    <span className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">30s</span>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{isZh ? '智能分级' : 'Classification'}</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">10X</span>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{isZh ? '效率提升' : 'Efficiency'}</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">0</span>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{isZh ? '神秘维修' : 'Mystery Repairs'}</span>
-                                </div>
+                                {proofMetrics.slice(0, 3).map((metric) => (
+                                    <div key={metric.label} className="flex flex-col items-center max-w-[150px]">
+                                        <span className="text-4xl lg:text-5xl font-black tracking-tighter mb-2">{metric.value}</span>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{metric.label}</span>
+                                    </div>
+                                ))}
                             </div>
                          </div>
                     </div>
@@ -136,7 +119,7 @@ const WelcomePage = () => {
             {/* Footer */}
             <footer className="relative z-10 py-12 px-6 lg:px-12 border-t border-[#d2d2d7]/30 bg-[#f5f5f7]/50">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
-                    <p className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest">© 2026 Aegis. Crafted for Professional Excellence.</p>
+                    <p className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest">© 2026 House Maint AI. WeChat-native maintenance operations.</p>
                     <div className="flex gap-8">
                         <Link to="/showcase" className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest hover:text-[#1d1d1f] transition-colors">{isZh ? '隐私政策' : 'Privacy'}</Link>
                         <Link to="/showcase" className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest hover:text-[#1d1d1f] transition-colors">{isZh ? '服务条款' : 'Terms'}</Link>

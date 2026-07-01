@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { OPERATING_STAGES } from '../constants/operatingModel';
 
 export const AI_CONFIG_STORAGE_KEY = 'enterprise.ai.orchestration.config.v1';
 
@@ -81,6 +82,34 @@ interface EnterpriseAIConfig {
     workflow: WorkflowStep[];
     blueprints: CreationBlueprint[];
 }
+
+const workflowOwnerByStage: Record<string, string> = {
+    intake: 'diagnosis',
+    diagnosis: 'diagnosis',
+    deflection: 'planning',
+    dispatch: 'executive',
+    verification: 'executive',
+    reporting: 'executive',
+};
+
+const workflowGateByStage: Record<string, WorkflowGate> = {
+    intake: 'auto',
+    diagnosis: 'confidence',
+    deflection: 'confidence',
+    dispatch: 'confidence',
+    verification: 'auto',
+    reporting: 'auto',
+};
+
+const defaultOperatingWorkflow: WorkflowStep[] = OPERATING_STAGES.map((stage, index) => ({
+    id: stage.id,
+    title: stage.title.en,
+    description: stage.description.en,
+    ownerAgentId: workflowOwnerByStage[stage.id],
+    gate: workflowGateByStage[stage.id],
+    dependsOn: index === 0 ? 'start' : OPERATING_STAGES[index - 1].id,
+    enabled: true,
+}));
 
 const defaultConfig: EnterpriseAIConfig = {
     modelProviders: [
@@ -213,23 +242,16 @@ const defaultConfig: EnterpriseAIConfig = {
             enabled: false,
         },
     ],
-    workflow: [
-        { id: 'intake', title: 'Omnichannel Intake', description: 'Accept homeowner, manager, or worker reports from web and messaging channels.', ownerAgentId: 'diagnosis', gate: 'auto', dependsOn: 'start', enabled: true },
-        { id: 'diagnosisStep', title: 'AI Diagnosis', description: 'Run perception model, classify issue, and create a structured report.', ownerAgentId: 'diagnosis', gate: 'confidence', dependsOn: 'intake', enabled: true },
-        { id: 'planningStep', title: 'Repair Planning', description: 'Generate repair steps, tools, parts, and urgency protocol.', ownerAgentId: 'planning', gate: 'confidence', dependsOn: 'diagnosisStep', enabled: true },
-        { id: 'humanReview', title: 'Human Review Gate', description: 'Pause automation when confidence, cost, or liability risk is below threshold.', ownerAgentId: 'executive', gate: 'human', dependsOn: 'planningStep', enabled: true },
-        { id: 'dispatch', title: 'Worker Dispatch', description: 'Rank workers by skill, distance, rating, speed, and availability.', ownerAgentId: 'executive', gate: 'confidence', dependsOn: 'humanReview', enabled: true },
-        { id: 'learning', title: 'Learning Loop', description: 'Extract repair patterns, update skills, and feed future model routing.', ownerAgentId: 'research', gate: 'auto', dependsOn: 'dispatch', enabled: true },
-    ],
+    workflow: defaultOperatingWorkflow,
     blueprints: [
         {
             id: 'sanya-beachhead',
             title: 'Sanya Beachhead Repair Workflow',
-            scenario: 'High-frequency rental maintenance from report intake to worker dispatch.',
+            scenario: 'High-frequency rental maintenance from WeChat intake to verified closeout and owner reporting.',
             targetUser: 'Property manager',
             primaryAgentId: 'planning',
             outputFormat: 'Repair plan, BOM, dispatch checklist, owner summary',
-            workflowStepIds: 'intake, diagnosisStep, planningStep, humanReview, dispatch',
+            workflowStepIds: 'intake, diagnosis, deflection, dispatch, verification, reporting',
             skillIds: 'pricingMemory, piplGuard, workerCalibration',
             status: 'ready',
         },
@@ -240,7 +262,7 @@ const defaultConfig: EnterpriseAIConfig = {
             targetUser: 'Short-stay operator',
             primaryAgentId: 'turnover',
             outputFormat: 'Evidence packet, responsibility note, cost estimate',
-            workflowStepIds: 'intake, diagnosisStep, humanReview, learning',
+            workflowStepIds: 'intake, diagnosis, verification, reporting',
             skillIds: 'turnoverEvidence, piplGuard',
             status: 'draft',
         },
