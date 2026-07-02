@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
@@ -26,10 +26,20 @@ const app = express();
 app.use(express.json());
 app.use('/api/reviews', reviewRoutes);
 
+async function clearTestDb() {
+    // Note: Do not delete from worker_ratings as it is a view
+    await db.query("DELETE FROM reviews");
+    await db.query("DELETE FROM matches");
+    await db.query("DELETE FROM reports");
+    await db.query("DELETE FROM workers");
+    await db.query("DELETE FROM users");
+}
+
 describe('Reviews API Integration', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
         try {
             console.log('Seeding review test data...');
+            await clearTestDb();
             // Rely on global tests/setup.ts which sets DB_USE_SQLITE=true
             await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (1, '13800138001', 'hash', 'Alice', 'user')`);
             await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (2, '13800138002', 'hash', 'Bob Worker', 'worker')`);
@@ -61,6 +71,9 @@ describe('Reviews API Integration', () => {
     });
 
     it('should fetch worker reviews with reviewer name', async () => {
+        // Add a review first to ensure it's there
+        await request(app).post('/api/reviews').send({ booking_id: 1, rating: 5, comment: 'Good' });
+
         const res = await request(app).get('/api/reviews/worker/1');
         expect(res.status).toBe(200);
         expect(res.body.reviews).toHaveLength(1);
