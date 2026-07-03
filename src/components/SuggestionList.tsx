@@ -63,9 +63,10 @@ const SuggestionList = () => {
                 )}
 
                 {!isLoading && displayItems.map((item, i) => (
-                    <div
+                    <button
+                        type="button"
                         key={i}
-                        className="snap-start shrink-0 w-[260px] glass dark:glass-dark rounded-3xl p-3 flex flex-col gap-3 group cursor-pointer hover:shadow-lg hover:shadow-primary/10 active:scale-[0.98] transition-all press-scale"
+                        className="snap-start shrink-0 w-[260px] glass dark:glass-dark rounded-3xl p-3 flex flex-col gap-3 group cursor-pointer hover:shadow-lg hover:shadow-primary/10 active:scale-[0.98] transition-all press-scale text-left"
                         onClick={() => navigate('/community')}
                     >
                         <div className="h-32 w-full rounded-2xl bg-gray-100 dark:bg-white/5 overflow-hidden relative">
@@ -85,7 +86,7 @@ const SuggestionList = () => {
                                 <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${item.difficulty.color}`}>{item.difficulty.label}</span>
                             </div>
                         </div>
-                    </div>
+                    </button>
                 ))}
             </div>
         </section>

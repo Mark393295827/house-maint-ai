@@ -135,8 +135,15 @@ app.use(metricsCollector);
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger.js';
 
-// Static files for uploads
-app.use('/uploads', express.static(join(__dirname, 'uploads')));
+// Static files for uploads. Uploaded media is intentionally served with
+// anti-sniffing/sandbox headers so a spoofed upload cannot execute as active
+// same-origin content.
+app.use('/uploads', express.static(join(__dirname, 'uploads'), {
+    setHeaders: (res) => {
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'none'; script-src 'none'; sandbox");
+    }
+}));
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));

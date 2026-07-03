@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, CookieOptions } from 'express';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/secrets.js';
+import { JWT_SECRET, REFRESH_TOKEN_HASH_SECRET } from '../config/secrets.js';
 import crypto from 'crypto';
 
 import { z } from 'zod';
@@ -11,7 +11,7 @@ export const jwtPayloadSchema = z.object({
     phone: z.string().nullish().transform(val => val ?? ''),
     name: z.string().nullish().transform(val => val ?? ''),
     role: z.string().nullish().transform(val => val ?? 'user'),
-    type: z.enum(['access', 'refresh']).optional(),
+    type: z.enum(['access', 'refresh']),
     jti: z.string().optional(),
     nonce: z.string().optional(),
     iat: z.number().optional(),
@@ -23,6 +23,17 @@ export type JwtPayload = z.infer<typeof jwtPayloadSchema>;
 /** Extended Request with typed user */
 export interface AuthRequest extends Request {
     user?: JwtPayload;
+}
+
+function parseTokenPayload(decoded: unknown, expectedType: JwtPayload['type']): JwtPayload {
+    const payload = jwtPayloadSchema.parse(decoded);
+    if (payload.type !== expectedType) {
+        throw new Error(`Expected ${expectedType} token`);
+    }
+    if (expectedType === 'refresh' && !payload.jti) {
+        throw new Error('Refresh token missing identifier');
+    }
+    return payload;
 }
 
 /**
@@ -40,7 +51,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = jwtPayloadSchema.parse(decoded);
+        req.user = parseTokenPayload(decoded, 'access');
         next();
     } catch (error) {
         res.status(401).json({ error: 'Invalid token' });
@@ -60,7 +71,7 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = jwtPayloadSchema.parse(decoded);
+        req.user = parseTokenPayload(decoded, 'access');
     } catch (error) {
         // Ignore invalid token in optional auth
     }
@@ -151,15 +162,14 @@ export function generateCsrfToken(req: Request, res: Response): void {
 /**
  * Generate Access Token (Short-lived: 15m)
  */
-export function generateAccessToken(user: { id: number; phone: string; name: string; role: string }): string {
+export function generateAccessToken(user: { id: number; phone?: string | null; name: string; role: string }): string {
     return jwt.sign(
         {
             id: user.id,
-            phone: user.phone,
             name: user.name,
             role: user.role,
             type: 'access',
-            nonce: Math.random().toString(36).substring(2)
+            nonce: crypto.randomUUID()
         },
         JWT_SECRET,
         { expiresIn: '15m' }
@@ -174,7 +184,7 @@ export function generateRefreshToken(user: { id: number }): string {
         {
             id: user.id,
             type: 'refresh',
-            jti: Math.random().toString(36).substring(2) + Date.now().toString(36)
+            jti: crypto.randomUUID()
         },
         JWT_SECRET,
         { expiresIn: '7d' }
@@ -187,7 +197,7 @@ export function generateRefreshToken(user: { id: number }): string {
 export function verifyToken(token: string): JwtPayload | null {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        return jwtPayloadSchema.parse(decoded);
+        return parseTokenPayload(decoded, 'access');
     } catch (err) {
         return null;
     }
@@ -198,7 +208,18 @@ export function verifyToken(token: string): JwtPayload | null {
  */
 export function verifyRefreshToken(token: string): JwtPayload {
     const decoded = jwt.verify(token, JWT_SECRET);
-    return jwtPayloadSchema.parse(decoded);
+    return parseTokenPayload(decoded, 'refresh');
+}
+
+/**
+ * Hash refresh tokens before database persistence. This preserves the current
+ * refresh_tokens.token column while avoiding raw bearer-token storage.
+ */
+export function hashRefreshToken(token: string): string {
+    return `sha256:${crypto
+        .createHmac('sha256', REFRESH_TOKEN_HASH_SECRET)
+        .update(token)
+        .digest('hex')}`;
 }
 
 /**

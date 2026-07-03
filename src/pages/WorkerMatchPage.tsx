@@ -193,12 +193,17 @@ const WorkerMatchPage = () => {
                         {/* Workers List */}
                         {workers.length > 0 ? (
                             workers.map((worker) => (
-                                <div key={worker.id} onClick={() => handleSelectWorker(worker)} className="cursor-pointer">
+                                <button
+                                    key={worker.id}
+                                    type="button"
+                                    onClick={() => handleSelectWorker(worker)}
+                                    className="cursor-pointer text-left w-full"
+                                >
                                     <MatchScoreCard
                                         worker={worker}
                                         report={activeReport || (isMock ? mockReport : { id: 0, title: '', description: '', user_id: 0, status: 'pending', created_at: new Date().toISOString() })}
                                     />
-                                </div>
+                                </button>
                             ))
                         ) : (
                             <div className="text-center py-12">

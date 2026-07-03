@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Analytics from '../../services/analytics';
+import OperatingLoopProgress from './OperatingLoopProgress';
 
 interface FeedbackModalProps {
     caseId: string;
@@ -71,6 +72,29 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ caseId, locale, onClose }
                     <button onClick={onClose} className="w-9 h-9 bg-white border border-black/5 rounded-full flex items-center justify-center hover:bg-[#f5f5f7] transition-all press-scale">
                         <span className="material-symbols-outlined text-[#1d1d1f] text-[18px]">close</span>
                     </button>
+                </div>
+
+                <OperatingLoopProgress locale={locale} activeStageId="verification" compact className="mx-0 mb-6" />
+
+                <div className="mb-8 grid grid-cols-1 gap-3">
+                    <div className="rounded-2xl bg-white p-4 ring-1 ring-black/5 shadow-sm">
+                        <div className="mb-1 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px] text-[#28cd41]">fact_check</span>
+                            <h3 className="text-[13px] font-black tracking-tight">{isZh ? '验收回访已排队' : 'Repair verification queued'}</h3>
+                        </div>
+                        <p className="text-[12px] font-bold leading-relaxed text-[#86868b]">
+                            {isZh ? '师傅完工后，系统会收集照片并向租客确认是否修好。' : 'After completion, the system collects repair photos and asks the tenant to confirm the fix.'}
+                        </p>
+                    </div>
+                    <div className="rounded-2xl bg-white p-4 ring-1 ring-black/5 shadow-sm">
+                        <div className="mb-1 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px] text-[#0071e3]">analytics</span>
+                            <h3 className="text-[13px] font-black tracking-tight">{isZh ? '业主报表已准备' : 'Owner reporting prepared'}</h3>
+                        </div>
+                        <p className="text-[12px] font-bold leading-relaxed text-[#86868b]">
+                            {isZh ? '费用、响应时间、分流状态和师傅质量会进入业主可读报表。' : 'Cost, response time, deflection status, and worker quality will flow into the owner report.'}
+                        </p>
+                    </div>
                 </div>
 
                 {/* Star Rating (Apple Precision) */}

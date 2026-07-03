@@ -111,6 +111,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const refreshUser = useCallback(async (): Promise<AuthResult> => {
+        try {
+            const data = await api.getCurrentUser();
+            setUser(data.user);
+            connectSocket();
+            return { success: true, user: data.user };
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Refresh failed';
+            setUser(null);
+            return { success: false, error: message };
+        }
+    }, []);
+
     // Clear error
     const clearError = useCallback(() => {
         setError(null);
@@ -125,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateUser,
+        refreshUser,
         clearError,
     };
 

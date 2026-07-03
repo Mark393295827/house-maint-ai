@@ -45,6 +45,8 @@ pnpm-debug.log*
 lerna-debug.log*
 test-results/
 coverage/
+output/
+tmp/pdfs/
 
 # Debug and test output files at root level
 *.txt

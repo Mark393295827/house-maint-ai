@@ -10,8 +10,40 @@ const router = express.Router();
 const MCH_ID = process.env.WECHAT_MCH_ID || '1234567890';
 const APP_ID = process.env.WECHAT_APP_ID || 'wx_test_app_id';
 const API_V3_KEY = process.env.WECHAT_API_V3_KEY || 'test_api_v3_key_1234567890123456';
-const WEBHOOK_VERIFY_REQUIRED = process.env.NODE_ENV === 'production' || process.env.WECHAT_WEBHOOK_VERIFY === 'true';
+const WEBHOOK_VERIFY_REQUIRED = process.env.WECHAT_WEBHOOK_VERIFY !== 'false';
 const WEBHOOK_SECRET = process.env.WECHAT_WEBHOOK_SECRET || API_V3_KEY;
+const CHECKOUT_AMOUNT_CENTS = Number(process.env.REPAIR_CHECKOUT_AMOUNT_CENTS || 9900);
+
+interface WeChatPaymentNotification {
+    out_trade_no?: string;
+    trade_state?: string;
+    attach?: string;
+}
+
+function buildCheckoutResponse(
+    outTradeNo: string,
+    orderId?: number,
+    paymentParams?: {
+        timeStamp: string;
+        nonceStr: string;
+        package: string;
+        signType: 'RSA';
+        paySign: string;
+    },
+    extras: Record<string, unknown> = {}
+) {
+    return {
+        id: outTradeNo,
+        // Mini Program JSAPI payments use payment params, not a browser redirect.
+        // Keep the frontend's URL contract present without sending it to a fake external page.
+        url: '',
+        provider: 'wechat',
+        outTradeNo,
+        orderId,
+        ...(paymentParams ? { paymentParams, ...paymentParams } : {}),
+        ...extras
+    };
+}
 
 /**
  * Helper to generate WeChat Pay JSAPI Signature (Mocked for localized dev)
@@ -76,6 +108,90 @@ function verifyWebhookSignature(req: Request, rawBody: string): { ok: boolean; r
     return { ok: true };
 }
 
+function parseJsonValue(value: unknown): any {
+    if (typeof value !== 'string') {
+        return value;
+    }
+    return JSON.parse(value);
+}
+
+function decryptWeChatResource(resource: any): WeChatPaymentNotification {
+    if (!resource?.ciphertext || !resource?.nonce) {
+        throw new Error('Encrypted WeChat resource is missing ciphertext or nonce');
+    }
+
+    const key = Buffer.from(API_V3_KEY, 'utf8');
+    if (key.length !== 32) {
+        throw new Error('WECHAT_API_V3_KEY must be 32 bytes to decrypt WeChat Pay resources');
+    }
+
+    const ciphertext = Buffer.from(resource.ciphertext, 'base64');
+    if (ciphertext.length <= 16) {
+        throw new Error('Encrypted WeChat resource is too short');
+    }
+
+    const encryptedPayload = ciphertext.subarray(0, ciphertext.length - 16);
+    const authTag = ciphertext.subarray(ciphertext.length - 16);
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(resource.nonce, 'utf8'));
+
+    if (resource.associated_data) {
+        decipher.setAAD(Buffer.from(resource.associated_data, 'utf8'));
+    }
+
+    decipher.setAuthTag(authTag);
+    const plaintext = Buffer.concat([
+        decipher.update(encryptedPayload),
+        decipher.final()
+    ]).toString('utf8');
+
+    return JSON.parse(plaintext);
+}
+
+function extractPaymentNotification(event: any): WeChatPaymentNotification | null {
+    if (event?.resource_type === 'encrypt-resource') {
+        return decryptWeChatResource(event.resource);
+    }
+
+    if (event?.resource?.plaintext) {
+        return parseJsonValue(event.resource.plaintext);
+    }
+
+    if (event?.resource?.out_trade_no || event?.resource?.trade_state) {
+        return event.resource;
+    }
+
+    if (event?.out_trade_no || event?.trade_state) {
+        return event;
+    }
+
+    return null;
+}
+
+async function movePaidReportIntoMatching(reportId: number) {
+    const { rows } = await db.query(`
+        UPDATE reports
+        SET status = 'matching',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+          AND status IN ('pending', 'analyzed', 'planned')
+        RETURNING *
+    `, [reportId]);
+
+    const report = rows[0];
+    if (!report) {
+        return null;
+    }
+
+    emitToWorkers('new_job_available', {
+        reportId: report.id,
+        category: report.category,
+        title: report.title,
+        description: report.description
+    });
+
+    return report;
+}
+
 /**
  * POST /api/v1/payments/checkout
  * Create a WeChat Pay JSAPI order (Native Mini Program Payment)
@@ -83,10 +199,30 @@ function verifyWebhookSignature(req: Request, rawBody: string): { ok: boolean; r
  */
 router.post('/checkout', authenticate, async (req, res, next) => {
     try {
-        const { amount, currency = 'cny', reportId, idempotencyKey } = req.body;
+        const { currency = 'cny', reportId } = req.body;
 
-        if (!amount) {
-            return res.status(400).json({ error: 'Amount is required' });
+        if (!Number.isInteger(CHECKOUT_AMOUNT_CENTS) || CHECKOUT_AMOUNT_CENTS <= 0) {
+            return res.status(500).json({ error: 'Checkout price is not configured' });
+        }
+
+        if (currency !== 'cny') {
+            return res.status(400).json({ error: 'Unsupported currency' });
+        }
+
+        if (!reportId) {
+            return res.status(400).json({ error: 'reportId is required' });
+        }
+
+        const { rows: reports } = await db.query(
+            `SELECT id, status FROM reports WHERE id = $1 AND user_id = $2`,
+            [reportId, req.user.id]
+        );
+        const report = reports[0];
+        if (!report) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+        if (!['pending', 'analyzed', 'planned', 'matching'].includes(report.status)) {
+            return res.status(400).json({ error: `Report is not payable in ${report.status} status` });
         }
 
         // 1. Idempotency Guard
@@ -98,13 +234,10 @@ router.post('/checkout', authenticate, async (req, res, next) => {
 
             if (existing.length > 0) {
                 const existingOrder = existing[0];
-                // Return existing WeChat prepay details if we had stored them
-                // For now, we simulate returning the existing OutTradeNo
-                return res.json({
-                    outTradeNo: existingOrder.wechat_out_trade_no,
+                return res.json(buildCheckoutResponse(existingOrder.wechat_out_trade_no, existingOrder.id, undefined, {
                     message: 'Existing pending order found',
                     deduplicated: true
-                });
+                }));
             }
         }
 
@@ -112,10 +245,11 @@ router.post('/checkout', authenticate, async (req, res, next) => {
         const outTradeNo = `HM_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
         // 3. Create a pending order in our database BEFORE calling WeChat
-        await db.query(
+        const { rows: orders } = await db.query(
             `INSERT INTO orders (user_id, report_id, wechat_out_trade_no, amount, currency, status)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [req.user.id, reportId || null, outTradeNo, amount, currency, 'pending']
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING id`,
+            [req.user.id, reportId, outTradeNo, CHECKOUT_AMOUNT_CENTS, currency, 'pending']
         );
 
         // 4. Call WeChat Pay API v3 (Mocked for localized development)
@@ -129,15 +263,16 @@ router.post('/checkout', authenticate, async (req, res, next) => {
         // Use a dummy key for local dev signature
         const paySign = generateWeChatPaySignature(APP_ID, timeStamp, nonceStr, packageStr, API_V3_KEY);
 
-        // 5. Return JSAPI parameters exactly as the Mini Program requires them
-        res.json({
+        const paymentParams = {
             timeStamp,
             nonceStr,
             package: packageStr,
-            signType: 'RSA',
+            signType: 'RSA' as const,
             paySign,
-            outTradeNo // Keep track for webhook reconciliation
-        });
+        };
+
+        // 5. Return the frontend checkout contract and JSAPI params.
+        res.json(buildCheckoutResponse(outTradeNo, orders[0]?.id, paymentParams));
 
     } catch (error) {
         console.error('WeChat Pay Checkout Error:', error);
@@ -169,15 +304,14 @@ router.post('/webhook', async (req, res) => {
         // Parse the body only after signature validation
         const event = JSON.parse(bodyStr);
 
-        // In production, you MUST decrypt event.resource.ciphertext using API_V3_KEY AEAD_AES_256_GCM
-        // For this localized stub, we simulate the decrypted structure
-        const decryptedData = event.resource_type === 'encrypt-resource' ?
-            { out_trade_no: 'MOCK_OUT_TRADE_NO', trade_state: 'SUCCESS', attach: '' } :
-            event;
+        if (process.env.NODE_ENV === 'production' && event.resource_type !== 'encrypt-resource') {
+            return res.status(400).json({ code: 'FAIL', message: 'Plaintext payment events are not accepted in production' });
+        }
 
-        if (event.event_type === 'TRANSACTION.SUCCESS' || decryptedData.trade_state === 'SUCCESS') {
-            const outTradeNo = decryptedData.out_trade_no;
-            const reportIdStr = decryptedData.attach; // We would pass reportId in 'attach' field during JSAPI call
+        const notification = extractPaymentNotification(event);
+
+        if ((event.event_type === 'TRANSACTION.SUCCESS' || notification?.trade_state === 'SUCCESS') && notification?.out_trade_no) {
+            const outTradeNo = notification.out_trade_no;
 
             console.log(`💰 WeChat Payment succeeded for TradeNo: ${outTradeNo}`);
 
@@ -205,28 +339,13 @@ router.post('/webhook', async (req, res) => {
                 // State Machine Guard
                 if (order.report_id) {
                     try {
-                        const { rows } = await db.query(`
-                            UPDATE reports 
-                            SET status = 'matching', 
-                                updated_at = CURRENT_TIMESTAMP 
-                            WHERE id = $1 AND status = 'pending'
-                            RETURNING *
-                        `, [order.report_id]);
-
-                        const report = rows[0];
-
-                        if (report) {
-                            emitToWorkers('new_job_available', {
-                                reportId: report.id,
-                                category: report.category,
-                                title: report.title,
-                                description: report.description
-                            });
-                        }
+                        await movePaidReportIntoMatching(order.report_id);
                     } catch (dbError) {
                         console.error('Database update failed after WeChat payment:', dbError);
                     }
                 }
+            } else {
+                console.warn(`Ignoring WeChat payment for unknown TradeNo: ${outTradeNo}`);
             }
         }
 

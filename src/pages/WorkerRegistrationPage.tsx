@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { registerWorker } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const SKILL_OPTIONS = [
     'plumbing', 'electrical', 'hvac', 'painting', 'carpentry',
@@ -18,6 +19,7 @@ const SKILL_LABELS: Record<string, string> = {
 const WorkerRegistrationPage: React.FC = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
+    const { refreshUser } = useAuth();
     const [step, setStep] = useState(1);
     const [form, setForm] = useState({
         skills: [] as string[],
@@ -46,6 +48,7 @@ const WorkerRegistrationPage: React.FC = () => {
             await registerWorker({
                 skills: form.skills,
             });
+            await refreshUser();
             navigate('/worker/dashboard');
         } catch (err: any) {
             setSubmitError(err.message || '注册失败，请稍后重试');

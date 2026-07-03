@@ -49,7 +49,7 @@ const DiagnosisWizard: React.FC = () => {
             const result = await createReportMutation.mutateAsync({
                 title: demandData?.scope?.slice(0, 30) || (locale === 'zh' ? '新诊断' : 'New Diagnosis'),
                 description: demandData?.scope || '',
-                category: (['plumbing', 'electrical', 'appliance', 'carpentry', 'painting'].includes(demandData?.projectType || '') ? demandData?.projectType : 'other') as any,
+                category: (['plumbing', 'electrical', 'hvac', 'appliance', 'structural', 'carpentry', 'painting'].includes(demandData?.projectType || '') ? demandData?.projectType : 'other') as any,
                 image_urls: imageUrl ? [imageUrl] : [],
                 urgency_score: urgencyScore,
             });

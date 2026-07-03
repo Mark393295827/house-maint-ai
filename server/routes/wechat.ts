@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import db from '../config/database.js';
-import { users, refreshTokens } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
 import { getAuthCookieOptions, getRefreshCookieOptions } from '../middleware/auth.js';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/secrets.js';
@@ -110,8 +108,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             [user.id, refreshToken, expiresAt]
         );
 
-        res.cookie('auth_token', token, getAuthCookieOptions());
-        res.cookie('refresh_token', refreshToken, getRefreshCookieOptions());
+        res.cookie('accessToken', token, getAuthCookieOptions());
+        res.cookie('refreshToken', refreshToken, getRefreshCookieOptions());
 
         res.json({
             message: 'WeChat login successful',

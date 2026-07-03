@@ -3,6 +3,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { inquiryChat } from '../../services/ai';
 import Analytics from '../../services/analytics';
 import type { DemandData } from './DemandSummary';
+import OperatingLoopProgress from './OperatingLoopProgress';
 
 /* ─── Types ─── */
 interface ChatMessage {
@@ -70,7 +71,8 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
     useEffect(() => {
         if (scrollRef.current) {
             setTimeout(() => {
-                scrollRef.current!.scrollTop = scrollRef.current!.scrollHeight;
+                if (!scrollRef.current) return;
+                scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
             }, 50);
         }
     }, [messages, isThinking]);
@@ -237,6 +239,8 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                     <span className="text-[9px] font-black tabular-nums">{progress}%</span>
                 </div>
             </div>
+
+            <OperatingLoopProgress locale={locale} activeStageId="intake" compact className="mt-4" />
 
             {/* Chat Area */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6 flex flex-col no-scrollbar selection:bg-[#0071e3]/20">

@@ -29,6 +29,14 @@ export const JWT_SECRET = readSecret(
     'house-maint-ai-dev-secret-change-in-production'
 );
 
+// Key used to HMAC refresh tokens before database storage. Defaults to the
+// JWT secret for local compatibility when a dedicated secret is not configured.
+export const REFRESH_TOKEN_HASH_SECRET = readSecret(
+    'refresh_token_hash_secret',
+    'REFRESH_TOKEN_HASH_SECRET',
+    JWT_SECRET
+);
+
 // Database password
 export const DB_PASSWORD = readSecret(
     'db_password',
@@ -50,6 +58,19 @@ export const MIXPANEL_TOKEN = readSecret(
     '' // No default
 );
 
+// Internal image anonymization service used before sending image payloads to LLMs.
+export const PIPL_ANONYMIZER_URL = readSecret(
+    'pipl_anonymizer_url',
+    'PIPL_ANONYMIZER_URL',
+    ''
+);
+
+export const PIPL_ANONYMIZER_TOKEN = readSecret(
+    'pipl_anonymizer_token',
+    'PIPL_ANONYMIZER_TOKEN',
+    ''
+);
+
 // Validate required secrets in production
 if (process.env.NODE_ENV === 'production') {
     if (JWT_SECRET === 'house-maint-ai-dev-secret-change-in-production') {
@@ -63,6 +84,9 @@ if (process.env.NODE_ENV === 'production') {
 
 export default {
     JWT_SECRET,
+    REFRESH_TOKEN_HASH_SECRET,
     DB_PASSWORD,
     DEEPSEEK_API_KEY,
+    PIPL_ANONYMIZER_URL,
+    PIPL_ANONYMIZER_TOKEN,
 };

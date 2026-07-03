@@ -9,6 +9,7 @@
         "dev:all": "npx -y concurrently -n FE,BE -c cyan,green \"npm run dev\" \"npm run dev:server\"",
         "build": "tsc -b && vite build",
         "lint": "eslint .",
+        "check:artifacts": "node scripts/check-generated-artifacts.js",
         "preview": "vite preview",
         "test": "vitest run",
         "test:watch": "vitest",

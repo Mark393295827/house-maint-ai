@@ -143,6 +143,7 @@ export interface AuthContextValue {
     register: (phone: string, password: string, name: string, role?: string) => Promise<AuthResult>;
     logout: () => void;
     updateUser: (data: { name?: string; avatar?: string }) => Promise<AuthResult>;
+    refreshUser: () => Promise<AuthResult>;
     clearError: () => void;
 }
 

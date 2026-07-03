@@ -80,14 +80,18 @@ const WelcomePage = () => {
                         </div>
 
                         {/* Right Detail Cards */}
-                        <div className="lg:col-span-6 xl:col-span-5 flex flex-col gap-6">
-                            {operatingStages.slice(0, 3).map((item, i) => (
-                                <div key={i} className="aegis-card p-10 bg-white/60 flex items-start gap-8 stagger-item">
-                                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br from-[#f5f5f7] ${i === 0 ? 'to-[#5856d6]' : i === 1 ? 'to-[#28cd41]' : 'to-[#ff9500]'} shrink-0 flex items-center justify-center shadow-sm border border-white`}>
+                        <div className="lg:col-span-12 xl:col-span-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
+                            {operatingStages.map((item, i) => (
+                                <div key={item.id} className="aegis-card p-6 bg-white/60 flex items-start gap-5 stagger-item">
+                                    <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br from-[#f5f5f7] ${i % 3 === 0 ? 'to-[#5856d6]' : i % 3 === 1 ? 'to-[#28cd41]' : 'to-[#ff9500]'} shrink-0 flex items-center justify-center shadow-sm border border-white`}>
                                         <span className="material-symbols-outlined text-[20px] font-black text-[#1d1d1f]">{item.icon}</span>
                                     </div>
                                     <div>
-                                        <h3 className="text-[17px] font-black tracking-tight mb-2">{item.title}</h3>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-[10px] font-black text-[#86868b] uppercase tracking-widest">{i + 1}/6</span>
+                                            <span className="h-px flex-1 bg-black/5" />
+                                        </div>
+                                        <h3 className="text-[16px] font-black tracking-tight mb-2">{item.title}</h3>
                                         <p className="text-[13px] font-medium text-[#86868b] leading-relaxed">{item.description}</p>
                                     </div>
                                 </div>

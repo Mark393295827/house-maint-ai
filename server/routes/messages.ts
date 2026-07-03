@@ -7,10 +7,59 @@ import { emitToUser } from '../socket.js';
 const router = express.Router();
 
 const messageSchema = z.object({
-    receiverId: z.number(),
-    content: z.string().min(1).max(2000),
-    reportId: z.number().optional(),
+    receiverId: z.coerce.number().int().positive(),
+    content: z.string().trim().min(1).max(2000),
+    reportId: z.coerce.number().int().positive(),
 });
+
+async function canMessageAboutReport(reportId: number, senderId: number, receiverId: number, senderRole: string): Promise<boolean> {
+    const { rows } = await db.query<{
+        user_id: number;
+        worker_user_id: number | null;
+    }>(`
+        SELECT r.user_id, w.user_id as worker_user_id
+        FROM reports r
+        LEFT JOIN workers w ON r.matched_worker_id = w.id
+        WHERE r.id = $1
+    `, [reportId]);
+
+    const report = rows[0];
+    if (!report?.worker_user_id) {
+        return false;
+    }
+
+    const participants = new Set([report.user_id, report.worker_user_id]);
+    if (senderRole === 'admin' || senderRole === 'manager') {
+        return participants.has(receiverId);
+    }
+
+    return participants.has(senderId) && participants.has(receiverId);
+}
+
+async function canReadConversation(userId: number, partnerId: number): Promise<boolean> {
+    const { rows: existingMessages } = await db.query<{ id: number }>(`
+        SELECT id
+        FROM messages
+        WHERE (sender_id = $1 AND receiver_id = $2)
+           OR (sender_id = $2 AND receiver_id = $1)
+        LIMIT 1
+    `, [userId, partnerId]);
+
+    if (existingMessages.length > 0) {
+        return true;
+    }
+
+    const { rows: assignedReports } = await db.query<{ id: number }>(`
+        SELECT r.id
+        FROM reports r
+        JOIN workers w ON r.matched_worker_id = w.id
+        WHERE (r.user_id = $1 AND w.user_id = $2)
+           OR (r.user_id = $2 AND w.user_id = $1)
+        LIMIT 1
+    `, [userId, partnerId]);
+
+    return assignedReports.length > 0;
+}
 
 /**
  * GET /api/messages/conversations
@@ -67,9 +116,20 @@ router.get('/conversations', authenticate, async (req, res, next) => {
 router.get('/:partnerId', authenticate, async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const partnerId = parseInt(req.params.partnerId);
-        const limit = parseInt(req.query.limit as string) || 50;
+        const partnerIdResult = z.coerce.number().int().positive().safeParse(req.params.partnerId);
+        if (!partnerIdResult.success) {
+            return res.status(404).json({ error: 'Conversation not found' });
+        }
+
+        const partnerId = partnerIdResult.data;
+        const limitResult = z.coerce.number().int().min(1).max(100).default(50).safeParse(req.query.limit);
+        const limit = limitResult.success ? limitResult.data : 50;
         const before = req.query.before as string; // ISO date for pagination
+
+        const authorized = await canReadConversation(userId, partnerId);
+        if (!authorized) {
+            return res.status(404).json({ error: 'Conversation not found' });
+        }
 
         let query = `
             SELECT m.*, 
@@ -84,11 +144,12 @@ router.get('/:partnerId', authenticate, async (req, res, next) => {
         const params: unknown[] = [userId, partnerId];
 
         if (before) {
-            query += ` AND m.created_at < $3`;
             params.push(before);
+            query += ` AND m.created_at < $${params.length}`;
         }
 
-        query += ` ORDER BY m.created_at DESC LIMIT ${limit}`;
+        params.push(limit);
+        query += ` ORDER BY m.created_at DESC LIMIT $${params.length}`;
 
         const { rows: messages } = await db.query(query, params);
 
@@ -123,10 +184,9 @@ router.post('/', authenticate, async (req, res, next) => {
             return res.status(400).json({ error: 'Cannot message yourself' });
         }
 
-        // Verify receiver exists
-        const { rows: users } = await db.query('SELECT id, name FROM users WHERE id = $1', [receiverId]);
-        if (users.length === 0) {
-            return res.status(404).json({ error: 'Recipient not found' });
+        const authorized = await canMessageAboutReport(reportId, senderId, receiverId, req.user.role);
+        if (!authorized) {
+            return res.status(403).json({ error: 'Messaging is only available for assigned report participants' });
         }
 
         // Insert message
@@ -134,7 +194,7 @@ router.post('/', authenticate, async (req, res, next) => {
             INSERT INTO messages (sender_id, receiver_id, report_id, content)
             VALUES ($1, $2, $3, $4)
             RETURNING *
-        `, [senderId, receiverId, reportId || null, content]);
+        `, [senderId, receiverId, reportId, content]);
 
         const message = rows[0] || { id: Date.now(), sender_id: senderId, receiver_id: receiverId, content, created_at: new Date().toISOString() };
 

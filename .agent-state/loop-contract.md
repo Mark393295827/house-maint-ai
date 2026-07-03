@@ -1,0 +1,24 @@
+# Loop Contract
+
+- Objective: Resolve the audited critical and high-impact project issues from the mind map in reviewable batches, then verify with deterministic build, lint, test, and targeted inspection evidence.
+- Mode: Goal.
+- Trigger: Manual user request in this Codex thread.
+- Scope: Authentication, payments, uploads, privacy guards, report state flow, worker flow, routing, test harness, Docker/nginx config, schema/migration alignment, and generated artifact hygiene in this repository.
+- Non-goals: No production deployment, no push, no real payment or external account action, no git history rewrite, and no destructive cleanup outside generated repository artifacts.
+- Owner: Primary Codex agent owns serial integration; delegated agents may work only in assigned territories.
+- Inputs: The previous mind map audit, local repository files, test output, lint output, build output, and subagent handoff notes.
+- Artifacts path: `.agent-state/repair-artifacts/`.
+- State path: `.agent-state/repair-loop.md`.
+- Work clock: Update `.agent-state/work-clock.md` at iteration boundaries.
+- Success metric: Critical security/data leaks are removed from the working tree, high-impact flow and harness defects have code fixes or explicit non-production guards, and selected verification commands exit 0.
+- Evidence: `git diff --check`, targeted unit tests, `npm test`, `npm run build`, `npm run lint`, and targeted source inspections for routes, schema, auth, payments, uploads, and deployment config.
+- Verifier: Deterministic local commands plus a separate QA/security review agent; the builder is not the only verifier.
+- Topology: manager-workers.
+- Max iterations: 5 integration batches.
+- Time limit: 180 minutes.
+- Budget: 80 tool calls.
+- Review budget: Stop and summarize before any single batch exceeds 1000 changed lines or 40 files.
+- Stop condition: Success metric passes, or a cap/stall condition fires with evidence and remaining risks listed.
+- Write-back: Update `.agent-state/repair-loop.md` with completed batches, verification evidence, changed files, and residual risks.
+- Permission boundary: Local repository writes only; no production, deploy, publish, external account, payment, or push actions without explicit approval and rollback plan. Manager-workers integration happens only through the primary agent review.
+- Recovery: If a worker changes outside ownership or verification regresses, reject that integration, isolate the failing batch, and restore only files changed by that batch.

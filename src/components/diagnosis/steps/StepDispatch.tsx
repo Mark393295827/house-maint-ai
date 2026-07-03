@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AgentBubble from '../AgentBubble';
 import type { Worker } from '../../../types';
 import { mockWorkers } from '../../../__mocks__/mockData';
+import OperatingLoopProgress from '../OperatingLoopProgress';
 
 interface StepDispatchProps {
     diagnosis: any;
@@ -59,6 +60,7 @@ const StepDispatch: React.FC<StepDispatchProps> = ({ diagnosis, locale, onDispat
 
             {/* Apple "Setup Assistant" Header */}
             <div className="relative z-10 w-full p-8 pt-24 stagger-item">
+                <OperatingLoopProgress locale={locale} activeStageId="dispatch" compact className="mb-6" />
                 <div className="max-w-md mx-auto">
                     <AgentBubble 
                         text={matchingState === 'searching' 

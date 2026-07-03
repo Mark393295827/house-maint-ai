@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
 import db from '../config/database.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, generateAccessToken, getAuthCookieOptions } from '../middleware/auth.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
@@ -41,8 +41,18 @@ router.post('/register', authenticate, async (req, res, next) => {
 
         // Update user role
         await db.query('UPDATE users SET role = $1 WHERE id = $2', ['worker', userId]);
+        const upgradedUser = {
+            id: userId,
+            phone: req.user.phone,
+            name: req.user.name,
+            role: 'worker'
+        };
+        res.cookie('accessToken', generateAccessToken(upgradedUser), getAuthCookieOptions());
 
-        res.status(201).json(ApiResponse.success({ worker: rows[0] || { user_id: userId, skills } }, 'Worker registered'));
+        res.status(201).json(ApiResponse.success({
+            worker: rows[0] || { user_id: userId, skills },
+            user: upgradedUser
+        }, 'Worker registered'));
     } catch (error) {
         next(error);
     }

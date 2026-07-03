@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import ShowcasePage from './ShowcasePage';
 import { LanguageProvider } from '../i18n/LanguageContext';
+import { getOperatingStageCopies } from '../constants/operatingModel';
 
 const renderShowcase = () =>
     render(
@@ -21,33 +22,25 @@ describe('ShowcasePage', () => {
         localStorage.setItem('app_locale', 'en');
     });
 
-    it('renders the benchmarked landing sections', () => {
+    it('renders the six-stage operating narrative', () => {
         renderShowcase();
 
-        expect(screen.getByText(/Manage 3x more doors/i)).toBeInTheDocument();
-        expect(screen.getByText('From report to verification, AI handles the repetitive coordination.')).toBeInTheDocument();
-        expect(screen.getByText('Not a reminder bot. An agent that keeps pushing the job forward.')).toBeInTheDocument();
-        expect(screen.getByText('Enter portfolio size and estimate the time your team gets back.')).toBeInTheDocument();
-        expect(screen.getByText('Request a Sanya property pilot')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /YourHome.*Maintained/i })).toBeInTheDocument();
+        expect(screen.getByText(/six-stage operating loop/i)).toBeInTheDocument();
+        expect(screen.getByText('Operating loop')).toBeInTheDocument();
+
+        for (const stage of getOperatingStageCopies('en')) {
+            expect(screen.getByText(stage.title)).toBeInTheDocument();
+        }
+
+        expect(screen.queryByText(/8-step|eight-step|step 8/i)).not.toBeInTheDocument();
     });
 
-    it('updates ROI output when portfolio inputs change', () => {
+    it('lets the embedded demo switch to the diagnosis flow', () => {
         renderShowcase();
 
-        const annualValue = screen.getByText('Annual value released').previousElementSibling;
-        const initialValue = annualValue?.textContent;
-        const doorsSlider = screen.getByLabelText(/Doors under management/i);
+        fireEvent.click(screen.getByRole('button', { name: /AI Diagnosis/i }));
 
-        fireEvent.change(doorsSlider, { target: { value: '1000' } });
-
-        expect(annualValue?.textContent).not.toEqual(initialValue);
-    });
-
-    it('confirms pilot interest submission in local demo state', () => {
-        renderShowcase();
-
-        fireEvent.click(screen.getByRole('button', { name: /Submit pilot interest/i }));
-
-        expect(screen.getByText('Pilot interest captured in local demo state.')).toBeInTheDocument();
+        expect(screen.getByTitle('Live Demo')).toHaveAttribute('src', expect.stringContaining('/diagnosis'));
     });
 });

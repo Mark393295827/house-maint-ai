@@ -10,6 +10,26 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 
 const router = express.Router();
 
+function sanitizeWorker<T extends {
+    phone?: unknown;
+    latitude?: unknown;
+    longitude?: unknown;
+    user_id?: unknown;
+}>(worker: T): Omit<T, 'phone' | 'latitude' | 'longitude' | 'user_id'> & { locationAvailable: boolean } {
+    const {
+        phone: _phone,
+        latitude,
+        longitude,
+        user_id: _userId,
+        ...safeWorker
+    } = worker;
+
+    return {
+        ...safeWorker,
+        locationAvailable: latitude !== null && latitude !== undefined && longitude !== null && longitude !== undefined
+    };
+}
+
 /**
  * GET /api/workers
  * Get all available workers
@@ -21,7 +41,7 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
         const fetchAll = all === 'true' && (req.user && (req.user.role === 'admin' || req.user.role === 'manager'));
 
         let query = `
-            SELECT w.*, u.name, u.phone, u.avatar
+            SELECT w.*, u.name, u.avatar
             FROM workers w
             JOIN users u ON w.user_id = u.id
             WHERE 1=1
@@ -45,7 +65,7 @@ router.get('/', optionalAuth, cacheMiddleware(300), async (req, res, next) => {
 
         // Parse skills JSON
         const parsed = workers.map(w => ({
-            ...w,
+            ...sanitizeWorker(w),
             skills: parseJsonColumn<string[]>(w.skills, []),
         }));
 
@@ -68,6 +88,9 @@ router.get('/match', authenticate, async (req, res, next) => {
         if (report_id) {
             const { rows } = await db.query<{ latitude: number | null; longitude: number | null; category: string | null; description: string; user_id: number }>('SELECT * FROM reports WHERE id = $1', [report_id]);
             report = rows[0] ?? null;
+            if (report && report.user_id !== req.user.id && !['admin', 'manager'].includes(req.user.role)) {
+                return res.status(403).json(ApiResponse.fail('Not authorized for this report'));
+            }
         } else {
             report = {
                 latitude: parseFloat(latitude) || null,
@@ -82,10 +105,11 @@ router.get('/match', authenticate, async (req, res, next) => {
             return res.status(404).json(ApiResponse.fail('Report context missing'));
         }
 
-        const topMatches = await matchingService.findTopMatches(report, parseInt(limit));
+        const parsedLimit = Math.min(Math.max(parseInt(limit, 10) || 5, 1), 20);
+        const topMatches = await matchingService.findTopMatches(report, parsedLimit);
 
         res.json(ApiResponse.success({
-            matches: topMatches,
+            matches: topMatches.map(sanitizeWorker),
             total: topMatches.length
         }));
     } catch (error) {
@@ -101,7 +125,7 @@ router.get('/match', authenticate, async (req, res, next) => {
 router.get('/:id', optionalAuth, cacheMiddleware(3600), async (req, res, next) => {
     try {
         const { rows: workers } = await db.query<WorkerWithUser>(`
-            SELECT w.*, u.name, u.phone, u.avatar
+            SELECT w.*, u.name, u.avatar
             FROM workers w
             JOIN users u ON w.user_id = u.id
             WHERE w.id = $1
@@ -114,7 +138,7 @@ router.get('/:id', optionalAuth, cacheMiddleware(3600), async (req, res, next) =
         }
 
         const worker = {
-            ...rawWorker,
+            ...sanitizeWorker(rawWorker),
             skills: parseJsonColumn<string[]>(rawWorker.skills, []),
         };
 

@@ -1,6 +1,6 @@
 import DiagnosisWizard from '../components/diagnosis/DiagnosisWizard';
 
-/** Diagnosis page now renders the full 8-step wizard */
+/** Diagnosis page renders the shared six-stage operating loop. */
 const DiagnosisPage = () => {
     return <DiagnosisWizard />;
 };

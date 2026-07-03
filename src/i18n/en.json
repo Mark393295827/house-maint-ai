@@ -30,7 +30,7 @@
     "activity": {
         "title": "Continue Activity",
         "viewAll": "View All",
-        "step": "Step 2 of 4 • Analyzing damage",
+        "step": "Stage 2 of 6 • AI diagnosis",
         "leakingPipe": "Leaking pipe under sink"
     },
     "suggestions": {
@@ -483,13 +483,13 @@
     "showcase": {
         "badge": "Production-Ready • 9.5/10 Rating",
         "heroTitle": "Your Home, Intelligently Maintained.",
-        "heroSubtitle": "The full-stack AI platform for property management and technician empowerment. Gemini-powered vision, geo-fenced matching, and omnichannel routing.",
+        "heroSubtitle": "A six-stage operating loop for WeChat-native maintenance: intake, AI diagnosis, DIY deflection, worker dispatch, repair verification, and owner reporting.",
         "ctaTryDemo": "Try the Demo",
         "ctaGithub": "View on GitHub",
         "scrollHint": "Scroll to explore",
-        "featuresLabel": "Features",
-        "featuresTitle": "Everything you need,",
-        "featuresTitleHighlight": "nothing you don't.",
+        "featuresLabel": "Operating Model",
+        "featuresTitle": "One six-stage loop,",
+        "featuresTitleHighlight": "not a point diagnosis tool.",
         "feature1Title": "AI Vision Diagnosis",
         "feature1Desc": "Deep Gemini integration — identifying leaks and hazards in milliseconds with automated repair strategies.",
         "feature2Title": "Geo-Fence Matching",
@@ -525,7 +525,7 @@
         "stat4Label": "Pages Built",
         "ctaTitle": "Ready to",
         "ctaTitleHighlight": "explore?",
-        "ctaSubtitle": "Dive into the full experience — AI diagnosis, worker matching, real-time chat, and more.",
+        "ctaSubtitle": "Dive into the full experience — intake, diagnosis, deflection, dispatch, verification, and reporting.",
         "ctaLaunch": "Launch App",
         "ctaPreview": "Device Preview",
         "footer": "Built with ❤️"

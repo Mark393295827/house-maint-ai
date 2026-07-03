@@ -54,8 +54,9 @@ const ActivityCard = ({ hasActivity: _hasActivity = true }: ActivityCardProps) =
                 <h3 className="text-lg font-extrabold font-display">{t('activity.title')}</h3>
                 <a className="text-sm font-semibold gradient-text" href="#" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>{t('activity.viewAll')}</a>
             </div>
-            <div
-                className="glass dark:glass-dark p-4 rounded-3xl flex flex-col gap-4 cursor-pointer press-scale hover:shadow-lg hover:shadow-primary/10 transition-all"
+            <button
+                type="button"
+                className="glass dark:glass-dark p-4 rounded-3xl flex flex-col gap-4 cursor-pointer press-scale hover:shadow-lg hover:shadow-primary/10 transition-all text-left w-full"
                 onClick={() => navigate(activeReport ? `/reports/${activeReport.id}` : '/repair')}
             >
                 <div className="flex gap-4">
@@ -79,7 +80,7 @@ const ActivityCard = ({ hasActivity: _hasActivity = true }: ActivityCardProps) =
                 <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-700" style={{ width: "50%" }} />
                 </div>
-            </div>
+            </button>
         </section>
     );
 };

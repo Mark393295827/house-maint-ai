@@ -542,6 +542,7 @@ export interface WorkerDashboardResponse {
 
 export interface WorkerRegistrationResponse {
     worker: { user_id: number; skills: string[]; id?: number };
+    user?: User;
 }
 
 /**

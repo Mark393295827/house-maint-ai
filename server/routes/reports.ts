@@ -8,6 +8,36 @@ import { parseJsonColumn } from '../utils/parseJson.js';
 
 const router = express.Router();
 
+const reportStatuses = [
+    'pending',
+    'analyzed',
+    'planned',
+    'matching',
+    'broadcasted',
+    'matched',
+    'in_progress',
+    'completed',
+    'cancelled',
+    'failed_analysis',
+    'failed_planning',
+    'flagged_for_review'
+] as const;
+
+const allowedReportTransitions: Record<string, string[]> = {
+    pending: ['analyzed', 'matching', 'cancelled', 'failed_analysis', 'flagged_for_review'],
+    analyzed: ['planned', 'matching', 'cancelled', 'failed_planning', 'flagged_for_review'],
+    planned: ['matching', 'cancelled', 'failed_planning', 'flagged_for_review'],
+    matching: ['broadcasted', 'matched', 'cancelled', 'flagged_for_review'],
+    broadcasted: ['matched', 'in_progress', 'cancelled', 'flagged_for_review'],
+    matched: ['in_progress', 'cancelled'],
+    in_progress: ['completed', 'cancelled'],
+    completed: [],
+    cancelled: [],
+    failed_analysis: ['pending', 'cancelled'],
+    failed_planning: ['analyzed', 'matching', 'cancelled'],
+    flagged_for_review: ['pending', 'analyzed', 'planned', 'matching', 'cancelled']
+};
+
 // Validation schema
 const reportSchema = z.object({
     title: z.string().min(2, 'Title is required'),
@@ -41,8 +71,8 @@ router.post('/', authenticate, async (req, res, next) => {
             data.voice_url || null,
             data.video_url || null,
             data.image_urls ? JSON.stringify(data.image_urls) : null,
-            data.latitude || null,
-            data.longitude || null,
+            data.latitude ?? null,
+            data.longitude ?? null,
             data.urgency_score
         ]);
 
@@ -66,7 +96,7 @@ router.post('/', authenticate, async (req, res, next) => {
 
 /**
  * GET /api/reports/available
- * Get available orders for workers (pending/matching status)
+ * Get available orders for workers after payment has opened matching.
  */
 router.get('/available', authenticate, async (req, res, next) => {
     try {
@@ -78,10 +108,11 @@ router.get('/available', authenticate, async (req, res, next) => {
         const workerLng = parseFloat(req.query.longitude as string) || 116.4074;
 
         const { rows: orders } = await db.query(`
-            SELECT r.*, u.name as user_name, u.phone as user_phone
+            SELECT r.*, u.name as user_name
             FROM reports r
             JOIN users u ON r.user_id = u.id
-            WHERE r.status IN ('pending', 'matching')
+            WHERE r.status IN ('matching', 'broadcasted')
+              AND r.matched_worker_id IS NULL
             ORDER BY r.urgency_score DESC, r.created_at DESC
             LIMIT 50
         `);
@@ -162,6 +193,9 @@ router.get('/', authenticate, async (req, res, next) => {
         }
 
         if (status) {
+            if (!reportStatuses.includes(status as any)) {
+                return res.status(400).json(ApiResponse.fail('Invalid report status'));
+            }
             query += ' AND status = $' + (params.length + 1);
             params.push(status);
         }
@@ -234,13 +268,8 @@ router.put('/:id', authenticate, async (req, res, next) => {
         // State Machine Guard
         if (status && status !== reportData.status) {
             const current = reportData.status;
-            let valid = false;
-            if (current === 'pending' && ['matching', 'cancelled'].includes(status)) valid = true;
-            else if (current === 'matching' && ['matched', 'cancelled', 'broadcasted', 'failed_analysis'].includes(status)) valid = true;
-            else if (current === 'broadcasted' && ['matched', 'cancelled'].includes(status)) valid = true;
-            else if (current === 'matched' && ['in_progress', 'cancelled'].includes(status)) valid = true;
-            else if (current === 'in_progress' && ['completed', 'cancelled'].includes(status)) valid = true;
-            else if (['completed', 'cancelled', 'failed_analysis'].includes(current)) valid = false;
+            const valid = reportStatuses.includes(status as any)
+                && (allowedReportTransitions[current] || []).includes(status);
 
             if (!valid && req.user.role !== 'admin') {
                 return res.status(400).json(ApiResponse.fail(`Illegal state transition from ${current} to ${status}`));
@@ -275,36 +304,33 @@ router.put('/:id/accept', authenticate, async (req, res, next) => {
             return res.status(403).json(ApiResponse.fail('Only workers can accept jobs'));
         }
 
-        const { rows: reports } = await db.query('SELECT * FROM reports WHERE id = $1', [reportId]);
-        if (reports.length === 0) return res.status(404).json({ error: 'Report not found' });
-        const report = reports[0];
-
-        if (!['pending', 'matching', 'matched', 'broadcasted'].includes(report.status)) {
-            return res.status(400).json(ApiResponse.fail(`Cannot accept a job in "${report.status}" status`));
-        }
-
         const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [req.user.id]);
         const worker = workers[0] || null;
 
-        if (req.user.role === 'worker' && !worker) {
+        if (!worker) {
             return res.status(403).json(ApiResponse.fail('Worker profile not found'));
         }
 
-        const isMatchedWorker = !!worker && report.matched_worker_id === worker.id;
-        const isPoolJob = !report.matched_worker_id;
-
-        if (!isMatchedWorker && !isPoolJob && req.user.role !== 'admin') {
-            return res.status(403).json(ApiResponse.fail('Not authorized to accept this job'));
-        }
-
-        const { rows: updated } = await db.query(`
+        const updateResult = await db.query(`
             UPDATE reports
             SET status = 'in_progress',
                 matched_worker_id = COALESCE(matched_worker_id, $2),
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = $1
+              AND status IN ('matching', 'matched', 'broadcasted')
+              AND (matched_worker_id IS NULL OR matched_worker_id = $2)
             RETURNING *
         `, [reportId, worker?.id ?? null]);
+        const updated = updateResult.rows;
+
+        if (!updateResult.rowCount || updated.length === 0) {
+            const { rows: reports } = await db.query('SELECT status FROM reports WHERE id = $1', [reportId]);
+            if (reports.length === 0) return res.status(404).json({ error: 'Report not found' });
+            if (!['matching', 'matched', 'broadcasted'].includes(reports[0].status)) {
+                return res.status(400).json(ApiResponse.fail(`Cannot accept a job in "${reports[0].status}" status`));
+            }
+            return res.status(409).json(ApiResponse.fail('Job is no longer available for this worker'));
+        }
 
         res.json(ApiResponse.success({ report: updated[0] }, 'Job accepted'));
     } catch (error) {
@@ -328,6 +354,10 @@ router.put('/:id/complete', authenticate, async (req, res, next) => {
 
         if (report.matched_worker_id === null) {
             return res.status(400).json(ApiResponse.fail('Report is not assigned to any worker'));
+        }
+
+        if (report.status !== 'in_progress') {
+            return res.status(400).json(ApiResponse.fail(`Cannot complete a job in "${report.status}" status`));
         }
 
         const { rows: workers } = await db.query('SELECT * FROM workers WHERE user_id = $1', [req.user.id]);

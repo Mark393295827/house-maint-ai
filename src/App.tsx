@@ -26,6 +26,11 @@ const ShowcasePage = lazy(() => import('./pages/ShowcasePage'));
 const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const QuickReportPage = lazy(() => import('./pages/QuickReportPage'));
+const CommunityPage = lazy(() => import('./pages/CommunityPage'));
+const OrdersPage = lazy(() => import('./pages/OrdersPage'));
+const ConversationsPage = lazy(() => import('./pages/ConversationsPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
 const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
 const PaymentCancelPage = lazy(() => import('./pages/PaymentCancelPage'));
 const OmnichannelSim = lazy(() => import('./pages/OmnichannelSim'));
@@ -36,9 +41,51 @@ const WorkerMatchPage = lazy(() => import('./pages/WorkerMatchPage'));
 const WorkerRegistrationPage = lazy(() => import('./pages/WorkerRegistrationPage'));
 const WorkerDirectoryPage = lazy(() => import('./pages/WorkerDirectoryPage'));
 const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
+const DevicePreview = lazy(() => import('./pages/DevicePreview'));
+const ReportDetailPage = lazy(() => import('./pages/ReportDetailPage'));
 const JobReviewPage = lazy(() => import('./pages/JobReviewPage'));
 const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
 const AssetsPage = lazy(() => import('./pages/AssetsPage'));
+
+export const APP_ROUTE_PATHS = [
+  '/',
+  '/welcome',
+  '/landing',
+  '/showcase',
+  '/preview',
+  '/login',
+  '/repairman/login',
+  '/payment/success',
+  '/payment/cancel',
+  '/diagnosis',
+  '/quick-report',
+  '/cases',
+  '/reports/:id',
+  '/library',
+  '/community',
+  '/omnichannel-sim',
+  '/metrics',
+  '/calendar',
+  '/profile',
+  '/notifications',
+  '/orders',
+  '/messages',
+  '/conversations',
+  '/chat',
+  '/chat/:userId',
+  '/assets',
+  '/worker/dashboard',
+  '/worker/job/:id',
+  '/worker/match',
+  '/match',
+  '/worker/register',
+  '/workers',
+  '/repair',
+  '/repair/:id',
+  '/review/:id',
+  '/enterprise/*',
+  '/enterpriseUI/*',
+] as const;
 
 function App() {
   useEffect(() => {
@@ -67,11 +114,14 @@ function App() {
                     <Route path="/repairman/login" element={<RepairmanLoginPage />} />
                     <Route path="/payment/success" element={<PaymentSuccessPage />} />
                     <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+                    <Route path="/preview" element={<DevicePreview />} />
 
                     {/* Consumer-only routes */}
                     <Route path="/diagnosis" element={<ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}><DiagnosisPage /></ProtectedRoute>} />
+                    <Route path="/quick-report" element={<ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}><QuickReportPage /></ProtectedRoute>} />
                     <Route path="/cases" element={<ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}><MyCasesPage /></ProtectedRoute>} />
                     <Route path="/library" element={<ProtectedRoute><CaseLibraryPage /></ProtectedRoute>} />
+                    <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
                     <Route path="/omnichannel-sim" element={<ProtectedRoute><OmnichannelSim /></ProtectedRoute>} />
                     <Route path="/metrics" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><MetricsDashboard /></ProtectedRoute>} />
 
@@ -89,6 +139,31 @@ function App() {
                     <Route path="/notifications" element={
                       <ProtectedRoute>
                         <NotificationsPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/orders" element={
+                      <ProtectedRoute>
+                        <OrdersPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/messages" element={
+                      <ProtectedRoute>
+                        <ConversationsPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/chat" element={
+                      <ProtectedRoute>
+                        <ConversationsPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/conversations" element={
+                      <ProtectedRoute>
+                        <ConversationsPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/chat/:userId" element={
+                      <ProtectedRoute>
+                        <ChatPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/assets" element={
@@ -113,6 +188,11 @@ function App() {
                         <WorkerMatchPage />
                       </ProtectedRoute>
                     } />
+                    <Route path="/match" element={
+                      <ProtectedRoute allowedRoles={['user', 'admin', 'manager', 'tenant']}>
+                        <WorkerMatchPage />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/worker/register" element={
                       <ProtectedRoute>
                         <WorkerRegistrationPage />
@@ -124,6 +204,16 @@ function App() {
                       </ProtectedRoute>
                     } />
                     <Route path="/repair/:id" element={
+                      <ProtectedRoute>
+                        <RepairGuidePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/reports/:id" element={
+                      <ProtectedRoute>
+                        <ReportDetailPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/repair" element={
                       <ProtectedRoute>
                         <RepairGuidePage />
                       </ProtectedRoute>

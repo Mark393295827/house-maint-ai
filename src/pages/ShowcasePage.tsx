@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
+import { getOperatingStageCopies } from '../constants/operatingModel';
 
 /* ─── Animated Counter Hook ─── */
 function useCountUp(target: number, duration = 2000, startOnVisible = true) {
@@ -11,6 +12,10 @@ function useCountUp(target: number, duration = 2000, startOnVisible = true) {
 
     useEffect(() => {
         if (!startOnVisible || !ref.current) return;
+        if (typeof IntersectionObserver === 'undefined') {
+            setCount(target);
+            return;
+        }
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting && !started.current) {
@@ -41,6 +46,10 @@ function useReveal() {
 
     useEffect(() => {
         if (!ref.current) return;
+        if (typeof IntersectionObserver === 'undefined') {
+            ref.current.classList.add('visible');
+            return;
+        }
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
@@ -57,13 +66,13 @@ function useReveal() {
 }
 
 /* ─── Feature Data (icon + gradient only, text from i18n) ─── */
-const FEATURE_ICONS = [
-    { icon: 'camera_enhance', gradient: 'from-violet-500 to-purple-600', glow: 'rgba(139, 92, 246, 0.15)' },
-    { icon: 'location_on', gradient: 'from-cyan-500 to-teal-600', glow: 'rgba(6, 182, 212, 0.15)' },
-    { icon: 'construction', gradient: 'from-amber-500 to-orange-600', glow: 'rgba(245, 158, 11, 0.15)' },
-    { icon: 'hub', gradient: 'from-emerald-500 to-green-600', glow: 'rgba(16, 185, 129, 0.15)' },
-    { icon: 'dashboard_customize', gradient: 'from-rose-500 to-pink-600', glow: 'rgba(244, 63, 94, 0.15)' },
-    { icon: 'payments', gradient: 'from-indigo-500 to-blue-600', glow: 'rgba(99, 102, 241, 0.15)' },
+const STAGE_GRADIENTS = [
+    'from-violet-500 to-purple-600',
+    'from-cyan-500 to-teal-600',
+    'from-emerald-500 to-green-600',
+    'from-amber-500 to-orange-600',
+    'from-rose-500 to-pink-600',
+    'from-indigo-500 to-blue-600',
 ];
 
 const TECH_STACK = [
@@ -104,9 +113,10 @@ const DEMO_ROUTES = [
     SHOWCASE PAGE
    ═══════════════════════════════════════════ */
 const ShowcasePage = () => {
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
     const [iframeRoute, setIframeRoute] = useState('/');
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    const operatingStages = getOperatingStageCopies(locale === 'zh' ? 'zh' : 'en');
 
     const featuresReveal = useReveal();
     const demoReveal = useReveal();
@@ -201,21 +211,32 @@ const ShowcasePage = () => {
                         </h2>
                     </div>
 
+                    <div className="mb-8 text-center">
+                        <span className="inline-flex items-center rounded-full bg-[#1d1d1f] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white">
+                            {locale === 'zh' ? '运营闭环' : 'Operating loop'}
+                        </span>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {FEATURE_ICONS.map((feature, i) => (
+                        {operatingStages.map((stage, i) => (
                             <div
-                                key={i}
+                                key={stage.id}
                                 className="aegis-card group p-10 bg-white/60 hover:bg-white transition-all duration-700 stagger-item border-none"
                                 style={{ animationDelay: `${i * 100}ms` }}
                             >
-                                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-xl shadow-black/5 mb-8 transform group-hover:-translate-y-1 transition-transform`}
+                                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${STAGE_GRADIENTS[i]} flex items-center justify-center shadow-xl shadow-black/5 mb-8 transform group-hover:-translate-y-1 transition-transform`}
                                 >
                                     <span className="material-symbols-outlined text-white text-[28px]">
-                                        {feature.icon}
+                                        {stage.icon}
                                     </span>
                                 </div>
-                                <h3 className="text-xl font-black mb-4 text-[#1d1d1f] tracking-tight">{t(`showcase.feature${i + 1}Title`)}</h3>
-                                <p className="text-[15px] text-[#86868b] font-medium leading-relaxed">{t(`showcase.feature${i + 1}Desc`)}</p>
+                                <div className="mb-4 flex items-center gap-3">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#86868b]">{i + 1}/6</span>
+                                    <span className="h-px flex-1 bg-black/5" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#0071e3]">{stage.metric}</span>
+                                </div>
+                                <h3 className="text-xl font-black mb-4 text-[#1d1d1f] tracking-tight">{stage.title}</h3>
+                                <p className="text-[15px] text-[#86868b] font-medium leading-relaxed">{stage.description}</p>
                             </div>
                         ))}
                     </div>

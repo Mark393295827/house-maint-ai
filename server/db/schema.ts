@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 // Users Table
@@ -26,6 +26,8 @@ export const workers = sqliteTable('workers', {
     latitude: real('latitude'),
     longitude: real('longitude'),
     available: integer('available').default(1),
+    bio: text('bio'),
+    hourlyRate: real('hourly_rate'),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
 
@@ -39,16 +41,43 @@ export const reports = sqliteTable('reports', {
     voiceUrl: text('voice_url'),
     videoUrl: text('video_url'),
     imageUrls: text('image_urls'), // JSON array
-    status: text('status', { enum: ['pending', 'matching', 'matched', 'in_progress', 'completed', 'cancelled'] }).default('pending'),
+    diagnosisResult: text('diagnosis_result'),
+    issueType: text('issue_type'),
+    severity: text('severity'),
+    diagnosisSummary: text('diagnosis_summary'),
+    confidenceScore: real('confidence_score'),
+    priorityProtocol: text('priority_protocol'),
+    estimatedArrival: text('estimated_arrival'),
+    resolutionPlan: text('resolution_plan'),
+    status: text('status', {
+        enum: [
+            'pending',
+            'analyzed',
+            'planned',
+            'matching',
+            'broadcasted',
+            'matched',
+            'in_progress',
+            'completed',
+            'cancelled',
+            'failed_analysis',
+            'failed_planning',
+            'flagged_for_review'
+        ]
+    }).default('pending'),
     matchedWorkerId: integer('matched_worker_id').references(() => workers.id, { onDelete: 'set null' }),
+    patternId: integer('pattern_id'),
     latitude: real('latitude'),
     longitude: real('longitude'),
+    urgencyScore: integer('urgency_score').default(0),
+    matchScore: real('match_score'),
     matchedAt: text('matched_at'),
     completedAt: text('completed_at'),
     resolutionDetails: text('resolution_details'), // JSON: { steps, parts, cost, photos }
     severityTag: text('severity_tag', { enum: ['diy', '48h', 'emergency'] }).default('48h'),
     diagnosisCorrect: integer('diagnosis_correct', { mode: 'boolean' }),
     firstTimeFix: integer('first_time_fix', { mode: 'boolean' }),
+    patternExtracted: integer('pattern_extracted', { mode: 'boolean' }).default(false),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),
 });
@@ -76,7 +105,9 @@ export const reviews = sqliteTable('reviews', {
     comment: text('comment'),
     photos: text('photos'), // JSON array of photo URLs
     createdAt: text('created_at').default(sql`(datetime('now'))`),
-});
+}, (table) => [
+    uniqueIndex('reviews_report_id_unique').on(table.reportId)
+]);
 
 // Posts Table
 export const posts = sqliteTable('posts', {
@@ -97,6 +128,11 @@ export const patterns = sqliteTable('patterns', {
     solution: text('solution').notNull(), // JSON
     successRate: real('success_rate').default(1.0),
     usageCount: integer('usage_count').default(1),
+    performanceScore: real('performance_score').default(0),
+    consecutiveHighRatings: integer('consecutive_high_ratings').default(0),
+    status: text('status').default('experimental'),
+    isVariant: integer('is_variant', { mode: 'boolean' }).default(false),
+    generationVersion: integer('generation_version').default(1),
     lastUsed: text('last_used').default(sql`(datetime('now'))`),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
@@ -163,8 +199,11 @@ export const aiSettings = sqliteTable('ai_settings', {
 export const aiFeedback = sqliteTable('ai_feedback', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+    reportId: integer('report_id').references(() => reports.id, { onDelete: 'set null' }),
     diagnosisData: text('diagnosis_data'), // JSON string of the diagnosis result
-    isHelpful: integer('is_helpful', { mode: 'boolean' }).notNull(),
+    isHelpful: integer('is_helpful', { mode: 'boolean' }),
+    rating: integer('rating'),
+    type: text('type', { enum: ['thumbs_up', 'thumbs_down', 'correction'] }),
     comment: text('comment'),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
@@ -174,11 +213,12 @@ export const orders = sqliteTable('orders', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     reportId: integer('report_id').references(() => reports.id, { onDelete: 'set null' }),
+    workerId: integer('worker_id').references(() => workers.id, { onDelete: 'set null' }),
     stripeSessionId: text('stripe_session_id').unique(),
     wechatOutTradeNo: text('wechat_out_trade_no').unique(), // For WeChat Pay
     amount: real('amount').notNull(),
     currency: text('currency').default('cny'), // Changed from usd to cny
-    status: text('status', { enum: ['pending', 'paid', 'refunded', 'failed'] }).default('pending'),
+    status: text('status', { enum: ['pending', 'paid', 'refunded', 'failed', 'cancelled'] }).default('pending'),
     receiptUrl: text('receipt_url'),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),

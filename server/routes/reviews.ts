@@ -13,6 +13,78 @@ const reviewSchema = z.object({
     photos: z.array(z.string()).optional()
 });
 
+async function saveReview(input: {
+    reportId: number | string;
+    userId: number;
+    workerId: number;
+    rating: number;
+    comment?: string;
+    photos?: string[];
+}) {
+    const comment = input.comment || null;
+    const photosJson = input.photos ? JSON.stringify(input.photos) : null;
+
+    const updateAttempts = [
+        {
+            sql: `UPDATE reviews
+                  SET rating = $1,
+                      comment = $2,
+                      photos = $3,
+                      created_at = CURRENT_TIMESTAMP
+                  WHERE report_id = $4
+                  RETURNING *`,
+            params: [input.rating, comment, photosJson, input.reportId]
+        },
+        {
+            sql: `UPDATE reviews
+                  SET rating = $1,
+                      comment = $2,
+                      created_at = CURRENT_TIMESTAMP
+                  WHERE report_id = $3
+                  RETURNING *`,
+            params: [input.rating, comment, input.reportId]
+        }
+    ];
+
+    for (const attempt of updateAttempts) {
+        try {
+            const result = await db.query(attempt.sql, attempt.params);
+            if (result.rowCount && result.rows[0]) {
+                return result.rows[0];
+            }
+        } catch {
+            // Try the older schema shape that does not have photos.
+        }
+    }
+
+    const insertAttempts = [
+        {
+            sql: `INSERT INTO reviews (report_id, user_id, worker_id, rating, comment, photos)
+                  VALUES ($1, $2, $3, $4, $5, $6)
+                  RETURNING *`,
+            params: [input.reportId, input.userId, input.workerId, input.rating, comment, photosJson]
+        },
+        {
+            sql: `INSERT INTO reviews (report_id, user_id, worker_id, rating, comment)
+                  VALUES ($1, $2, $3, $4, $5)
+                  RETURNING *`,
+            params: [input.reportId, input.userId, input.workerId, input.rating, comment]
+        }
+    ];
+
+    let lastError: unknown;
+    for (const attempt of insertAttempts) {
+        try {
+            const { rows } = await db.query(attempt.sql, attempt.params);
+            return rows[0];
+        } catch (error) {
+            lastError = error;
+        }
+    }
+
+    throw lastError;
+}
+
 /**
  * POST /api/reviews
  * Submit a review
@@ -41,24 +113,15 @@ router.post('/', authenticate, async (req, res, next) => {
             return res.status(400).json({ error: 'Job has no assigned worker to review' });
         }
 
-        // 2. Insert review
-        const { rows } = await db.query(`
-            INSERT INTO reviews (report_id, user_id, worker_id, rating, comment, photos)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            ON CONFLICT (report_id) DO UPDATE SET
-                rating = EXCLUDED.rating,
-                comment = EXCLUDED.comment,
-                photos = EXCLUDED.photos,
-                created_at = CURRENT_TIMESTAMP
-            RETURNING *
-        `, [
+        // 2. Insert or update review. Keep this tolerant of older DBs without photos/unique index.
+        const review = await saveReview({
             reportId,
-            req.user.id,
-            report.matched_worker_id,
-            data.rating,
-            data.comment || null,
-            data.photos ? JSON.stringify(data.photos) : null
-        ]);
+            userId: req.user.id,
+            workerId: report.matched_worker_id,
+            rating: data.rating,
+            comment: data.comment,
+            photos: data.photos
+        });
 
         // 3. Update worker's average rating (denormalized for quick access)
         // In a real system, this might be triggered by a hook or view sync
@@ -70,7 +133,7 @@ router.post('/', authenticate, async (req, res, next) => {
 
         res.status(201).json({
             message: 'Review submitted successfully',
-            review: rows[0]
+            review
         });
     } catch (error) {
         next(error);

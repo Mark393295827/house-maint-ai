@@ -5,6 +5,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import BottomNav from '../components/BottomNav';
 import { useReports } from '../hooks/useReports';
 import type { Report as AppReport } from '../types';
+import { getOperatingStageCopies, getReportOperatingStageId } from '../constants/operatingModel';
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; label: string; labelZh: string }> = {
     critical: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', label: 'Critical', labelZh: '严重' },
@@ -26,17 +27,21 @@ const MyCasesPage = () => {
 
     const { data: reportsData, isLoading: loadingReports } = useReports();
     const reports = reportsData?.reports || [];
+    const stageCopies = getOperatingStageCopies(locale === 'zh' ? 'zh' : 'en');
 
     const mappedCases = reports.map((r: AppReport) => {
         const isArchived = r.status === 'completed' || r.status === 'cancelled';
-        const step = r.status === 'pending' ? 1 : r.status === 'matching' ? 2 : r.status === 'matched' ? 3 : r.status === 'in_progress' ? 5 : 8;
+        const stageId = getReportOperatingStageId(r.status);
+        const stageIndex = Math.max(0, stageCopies.findIndex((stage) => stage.id === stageId));
+        const stage = stageCopies[stageIndex] || stageCopies[0];
         return {
             id: r.id,
             title: r.title,
             titleEn: r.title, // Backend might not have separate en title yet
             status: isArchived ? 'archived' : 'active',
             reportStatus: r.status,
-            step,
+            step: stageIndex + 1,
+            stageTitle: stage.title,
             severity: (r as any).severity || 'moderate',
             date: new Date(r.created_at).toISOString().split('T')[0],
             category: r.category,
@@ -129,7 +134,7 @@ const MyCasesPage = () => {
                         {virtualizer.getVirtualItems().map((virtualRow: any) => {
                             const c = filtered[virtualRow.index];
                             const sev = SEVERITY_CONFIG[c.severity] || SEVERITY_CONFIG.moderate;
-                            const totalSteps = 8;
+                            const totalSteps = stageCopies.length;
                             const pct = Math.round((c.step / totalSteps) * 100);
                             return (
                                 <div
@@ -172,7 +177,7 @@ const MyCasesPage = () => {
                                                     <div className="mt-2">
                                                         <div className="flex items-center justify-between mb-1">
                                                             <span className="text-[10px] font-medium text-primary">
-                                                                Step {c.step}/{totalSteps}
+                                                                {zh ? '阶段' : 'Stage'} {c.step}/{totalSteps} · {c.stageTitle}
                                                             </span>
                                                             <span className="text-[10px] text-gray-400">{pct}%</span>
                                                         </div>

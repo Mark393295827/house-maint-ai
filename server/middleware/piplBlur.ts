@@ -1,58 +1,130 @@
 import type { Request, Response, NextFunction } from 'express';
+import { PIPL_ANONYMIZER_TOKEN, PIPL_ANONYMIZER_URL } from '../config/secrets.js';
+
+interface ImageRef {
+    image: string;
+    mimeType?: string;
+    set: (image: string, mimeType?: string) => void;
+}
+
+class PiplAnonymizerError extends Error {
+    constructor(message: string, readonly statusCode: number) {
+        super(message);
+    }
+}
+
+function collectImageRefs(body: Record<string, unknown>): ImageRef[] {
+    const refs: ImageRef[] = [];
+
+    if (typeof body.image === 'string' && body.image.length > 0) {
+        refs.push({
+            image: body.image,
+            mimeType: typeof body.mimeType === 'string' ? body.mimeType : undefined,
+            set: (image, mimeType) => {
+                body.image = image;
+                if (mimeType) body.mimeType = mimeType;
+            }
+        });
+    }
+
+    for (const key of ['beforeImages', 'afterImages']) {
+        const value = body[key];
+        if (!Array.isArray(value)) continue;
+
+        for (const item of value) {
+            if (!item || typeof item !== 'object') continue;
+            const image = item as Record<string, unknown>;
+            if (typeof image.data !== 'string' || image.data.length === 0) continue;
+
+            refs.push({
+                image: image.data,
+                mimeType: typeof image.mimeType === 'string' ? image.mimeType : undefined,
+                set: (anonymizedImage, anonymizedMimeType) => {
+                    image.data = anonymizedImage;
+                    if (anonymizedMimeType) image.mimeType = anonymizedMimeType;
+                }
+            });
+        }
+    }
+
+    return refs;
+}
+
+async function anonymizeImage(image: string, mimeType?: string): Promise<{ image: string; mimeType?: string }> {
+    if (!PIPL_ANONYMIZER_URL) {
+        throw new PiplAnonymizerError('PIPL anonymizer is not configured', 503);
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+
+    try {
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json'
+        };
+
+        if (PIPL_ANONYMIZER_TOKEN) {
+            headers.Authorization = `Bearer ${PIPL_ANONYMIZER_TOKEN}`;
+        }
+
+        const response = await fetch(PIPL_ANONYMIZER_URL, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ image, mimeType }),
+            signal: controller.signal
+        });
+
+        if (!response.ok) {
+            throw new PiplAnonymizerError('PIPL anonymizer rejected the image', 502);
+        }
+
+        const payload = await response.json() as { image?: unknown; mimeType?: unknown };
+        if (typeof payload.image !== 'string' || payload.image.length === 0) {
+            throw new PiplAnonymizerError('PIPL anonymizer returned an invalid payload', 502);
+        }
+
+        return {
+            image: payload.image,
+            mimeType: typeof payload.mimeType === 'string' ? payload.mimeType : mimeType
+        };
+    } catch (error) {
+        if (error instanceof PiplAnonymizerError) {
+            throw error;
+        }
+
+        throw new PiplAnonymizerError('PIPL anonymizer failed', 502);
+    } finally {
+        clearTimeout(timeout);
+    }
+}
 
 /**
- * [PIPL Compliance Strategy]
- * Middleware: anonymizeImagePayload
- * 
- * According to the Personal Information Protection Law of the PRC (PIPL), 
- * users uploading residential photos must not inadvertently share identifiable human faces 
- * to third-party LLMs (even if hosted in mainland China like DeepSeek / Baidu) without explicit facial recognition consent.
- * 
- * This middleware intercepts requests containing base64 images, detects faces, 
- * and applies a Gaussian blur to the face regions before the image is sent to the LLM.
+ * Fail-closed image anonymization middleware.
+ *
+ * Residential images must be anonymized by a configured internal service before
+ * any request body is forwarded to an LLM provider. Text-only AI requests pass
+ * through without calling the anonymizer.
  */
 export const anonymizeImagePayload = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { image, mimeType } = req.body;
-
-        if (!image) {
+        const refs = collectImageRefs(req.body ?? {});
+        if (refs.length === 0) {
             return next();
         }
 
-        // Feature Flag: Skip blurring in pure development test seeds
-        if (process.env.NODE_ENV === 'development' && process.env.SKIP_PIPL_BLUR === 'true') {
-            req.body.piplAnonymized = false;
-            return next();
+        for (const ref of refs) {
+            const anonymized = await anonymizeImage(ref.image, ref.mimeType);
+            ref.set(anonymized.image, anonymized.mimeType);
         }
 
-        /* 
-         * Production Implementation Note:
-         * To avoid adding heavy C++ bindings (OpenCV / face-api.js) to this Node.js API container,
-         * production architecture would typically proxy this base64 string to a lightweight Python/Go microservice
-         * running in the same mainland VPC, which returns the blurred base64.
-         * 
-         * Mocking the operation here to prove out the PIPL architecture requirement.
-         */
-
-        console.log(`[PIPL] Processing ${mimeType || 'image/jpeg'} payload for face blurring...`);
-
-        // Simulating the microservice call latency
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        // Replace the image payload with the anonymized version (Mock: append a header or similar to the base64)
-        // In reality, this replaces req.body.image with the new base64 string from the blurring service.
-        req.body.image = image; // MOCK: Assume image is now blurred.
         req.body.piplAnonymized = true;
-
-        console.log(`[PIPL] Face blurring complete. Payload safe for LLM transmission.`);
-
+        req.body.piplAnonymizedCount = refs.length;
         next();
     } catch (error) {
-        console.error('[PIPL Error] Face blurring failed:', error);
-        // Fail open or fail closed? PIPL demands fail closed. If we can't anonymize, we must reject the request.
-        res.status(500).json({
-            error: 'Privacy Compliance Error',
-            details: 'Failed to anonymize image payload per PIPL requirements.'
+        const statusCode = error instanceof PiplAnonymizerError ? error.statusCode : 500;
+        console.error('[PIPL] Image anonymization failed');
+        res.status(statusCode).json({
+            error: 'Privacy compliance error'
         });
     }
 };

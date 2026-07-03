@@ -6,10 +6,19 @@ import * as Sentry from '@sentry/node';
 import { trackAiCost } from '../middleware/aiCostTracker.js';
 import { trackInferenceValue } from '../middleware/inferenceValue.js';
 import { anonymizeImagePayload } from '../middleware/piplBlur.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Track AI costs and Inference-to-Value Ratio for all routes
+function handleAiError(res: Response, error: unknown, publicMessage: string, logLabel: string) {
+    console.error(`[AI] ${logLabel}`);
+    Sentry.captureException(error);
+    res.status(500).json({ error: publicMessage });
+}
+
+router.use(authenticate);
+
+// Track AI costs and Inference-to-Value Ratio for all authenticated AI routes
 router.use(trackAiCost);
 router.use(trackInferenceValue);
 
@@ -47,12 +56,7 @@ router.post('/diagnose', anonymizeImagePayload, async (req: Request, res: Respon
 
         res.json(result);
     } catch (error) {
-        console.error('AI Diagnosis Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({
-            error: 'Diagnosis failed',
-            details: error instanceof Error ? error.message : String(error)
-        });
+        handleAiError(res, error, 'Diagnosis failed', 'Diagnosis failed');
     }
 });
 
@@ -78,9 +82,7 @@ router.post('/diagnose/chat', anonymizeImagePayload, async (req: Request, res: R
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        console.error('AI Diagnosis Chat Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Diagnosis conversation failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Diagnosis conversation failed', 'Diagnosis chat failed');
     }
 });
 
@@ -109,9 +111,7 @@ router.post('/diagnose/inquiry', anonymizeImagePayload, async (req: Request, res
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        console.error('AI Inquiry Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Inquiry conversation failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Inquiry conversation failed', 'Inquiry failed');
     }
 });
 
@@ -140,8 +140,7 @@ router.post('/diagnose/mece', anonymizeImagePayload, async (req: Request, res: R
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'MECE analysis failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'MECE analysis failed', 'MECE analysis failed');
     }
 });
 
@@ -154,8 +153,7 @@ router.post('/diagnose/hypothesis', anonymizeImagePayload, async (req: Request, 
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Hypothesis generation failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Hypothesis generation failed', 'Hypothesis generation failed');
     }
 });
 
@@ -168,8 +166,7 @@ router.post('/diagnose/checklist', anonymizeImagePayload, async (req: Request, r
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Checklist generation failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Checklist generation failed', 'Checklist generation failed');
     }
 });
 
@@ -183,8 +180,7 @@ router.post('/diagnose/five-why', anonymizeImagePayload, async (req: Request, re
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: '5-Why analysis failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, '5-Why analysis failed', '5-Why analysis failed');
     }
 });
 
@@ -197,8 +193,7 @@ router.post('/diagnose/solution', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Solution generation failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Solution generation failed', 'Solution generation failed');
     }
 });
 
@@ -216,12 +211,7 @@ router.post('/chat', async (req: Request, res: Response) => {
 
         res.json({ role: 'assistant', content: reply });
     } catch (error) {
-        console.error('AI Chat Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({
-            error: 'Chat failed',
-            details: error instanceof Error ? error.message : String(error)
-        });
+        handleAiError(res, error, 'Chat failed', 'Chat failed');
     }
 });
 
@@ -239,12 +229,7 @@ router.post('/plan', async (req: Request, res: Response) => {
 
         res.json({ plan });
     } catch (error) {
-        console.error('AI Plan Error:', error);
-        Sentry.captureException(error);
-        res.status(500).json({
-            error: 'Plan generation failed',
-            details: error instanceof Error ? error.message : String(error)
-        });
+        handleAiError(res, error, 'Plan generation failed', 'Plan generation failed');
     }
 });
 
@@ -264,8 +249,7 @@ router.post('/material-bom', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Material BOM generation failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Material BOM generation failed', 'Material BOM generation failed');
     }
 });
 
@@ -286,8 +270,7 @@ router.post('/fault-attribution', anonymizeImagePayload, async (req: Request, re
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Fault attribution failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Fault attribution failed', 'Fault attribution failed');
     }
 });
 
@@ -306,8 +289,7 @@ router.post('/turnover-compare', anonymizeImagePayload, async (req: Request, res
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Turnover comparison failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Turnover comparison failed', 'Turnover comparison failed');
     }
 });
 
@@ -326,8 +308,7 @@ router.post('/research-market', async (req: Request, res: Response) => {
         (req as any).aiUsage = usage;
         res.json(result);
     } catch (error) {
-        Sentry.captureException(error);
-        res.status(500).json({ error: 'Research swarm failed', details: error instanceof Error ? error.message : String(error) });
+        handleAiError(res, error, 'Research swarm failed', 'Research swarm failed');
     }
 });
 

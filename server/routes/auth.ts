@@ -9,6 +9,7 @@ import {
     generateCsrfToken,
     getAuthCookieOptions,
     getRefreshCookieOptions,
+    hashRefreshToken,
     verifyRefreshToken
 } from '../middleware/auth.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
@@ -135,7 +136,7 @@ router.post('/register', async (req, res, next) => {
         await db.query(`
             INSERT INTO refresh_tokens (user_id, token, expires_at)
             VALUES ($1, $2, $3)
-        `, [user.id, refreshToken, expiresAt]);
+        `, [user.id, hashRefreshToken(refreshToken), expiresAt]);
 
         // Set cookies
         res.cookie('accessToken', accessToken, getAuthCookieOptions());
@@ -214,7 +215,7 @@ router.post('/login', async (req, res, next) => {
         await db.query(`
             INSERT INTO refresh_tokens (user_id, token, expires_at)
             VALUES ($1, $2, $3)
-        `, [user.id, refreshToken, expiresAt]);
+        `, [user.id, hashRefreshToken(refreshToken), expiresAt]);
 
         // Set cookies
         res.cookie('accessToken', accessToken, getAuthCookieOptions());
@@ -258,11 +259,20 @@ router.post('/refresh', async (req, res, next) => {
         }
 
         // Check DB for token validity and revocation
+        const tokenHash = hashRefreshToken(refreshToken);
         const { rows } = await db.query(
             'SELECT * FROM refresh_tokens WHERE token = $1 AND (revoked = 0 OR revoked IS NULL)',
-            [refreshToken]
+            [tokenHash]
         );
-        const storedToken = rows[0];
+        let storedToken = rows[0];
+
+        if (!storedToken) {
+            const { rows: legacyRows } = await db.query(
+                'SELECT * FROM refresh_tokens WHERE token = $1 AND (revoked = 0 OR revoked IS NULL)',
+                [refreshToken]
+            );
+            storedToken = legacyRows[0];
+        }
 
         if (!storedToken) {
             // Token not found or revoked - potentially reused revoked token!
@@ -275,6 +285,12 @@ router.post('/refresh', async (req, res, next) => {
         if (new Date(storedToken.expires_at) < new Date()) {
             clearAuthCookies(res);
             return res.status(401).json({ error: 'Refresh token expired' });
+        }
+
+        if (payload.id !== storedToken.user_id) {
+            await db.query('UPDATE refresh_tokens SET revoked = 1 WHERE id = $1', [storedToken.id]);
+            clearAuthCookies(res);
+            return res.status(401).json({ error: 'Invalid refresh token' });
         }
 
         // Fetch user data for new access token
@@ -297,7 +313,7 @@ router.post('/refresh', async (req, res, next) => {
         await db.query(`
             INSERT INTO refresh_tokens (user_id, token, expires_at)
             VALUES ($1, $2, $3)
-        `, [user.id, newRefreshToken, newExpiresAt]);
+        `, [user.id, hashRefreshToken(newRefreshToken), newExpiresAt]);
 
         // Set cookies
         res.cookie('accessToken', newAccessToken, getAuthCookieOptions());
@@ -328,6 +344,7 @@ router.post('/logout', async (req, res, next) => {
         const refreshToken = req.cookies.refreshToken;
         if (refreshToken) {
             // Revoke in DB
+            await db.query('UPDATE refresh_tokens SET revoked = 1 WHERE token = $1', [hashRefreshToken(refreshToken)]);
             await db.query('UPDATE refresh_tokens SET revoked = 1 WHERE token = $1', [refreshToken]);
         }
 

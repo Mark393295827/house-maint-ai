@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import OperatingLoopProgress from './OperatingLoopProgress';
 
 export interface DemandData {
     projectType: string;
@@ -82,6 +83,7 @@ const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, o
     ];
 
     const shareText = fields.map(f => `${f.label}: ${f.value}`).join('\n');
+    const isDeflectionCandidate = data.severity === 'low';
 
     const handleCopy = () => {
         navigator.clipboard.writeText(shareText).then(() => {
@@ -101,9 +103,11 @@ const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, o
                     {isZh ? '最终确认' : 'Identity Summary'}
                 </h1>
                 <p className="text-[15px] font-bold text-[#86868b] leading-tight max-w-[280px]">
-                    {isZh ? '请核对以下维修需求，确认无误后我们将为您匹配最优服务商' : 'Review your configuration before we match you with the best provider.'}
+                    {isZh ? '先完成责任判断和 DIY 分流检查，再决定是否派单。' : 'Review the diagnosis, liability gate, and DIY deflection check before dispatch.'}
                 </p>
             </div>
+
+            <OperatingLoopProgress locale={locale} activeStageId="deflection" compact className="mb-4" />
 
             {/* Content Scroller */}
             <div className="flex-1 overflow-y-auto px-6 pb-20 space-y-4 no-scrollbar">
@@ -122,6 +126,39 @@ const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, o
                             </div>
                             <span className="text-[14px] font-black uppercase tracking-tight" style={{ color: sevInfo.color }}>{sevLabel}</span>
                         </div>
+                    </div>
+                </div>
+
+                {/* Deflection Gate */}
+                <div className="stagger-item" style={{ animationDelay: '175ms' }}>
+                    <div className="aegis-card bg-white p-5 shadow-sm ring-1 ring-black/5">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#28cd41]/10 text-[#28cd41]">
+                                    <span className="material-symbols-outlined text-[19px]">self_improvement</span>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">
+                                        {isZh ? '分流门控' : 'DEFLECTION GATE'}
+                                    </p>
+                                    <h2 className="text-[15px] font-black tracking-tight">
+                                        {isZh ? 'DIY 分流检查' : 'DIY deflection check'}
+                                    </h2>
+                                </div>
+                            </div>
+                            <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${isDeflectionCandidate ? 'bg-[#28cd41]/10 text-[#28cd41]' : 'bg-[#ff9500]/10 text-[#ff9500]'}`}>
+                                {isDeflectionCandidate ? (isZh ? '可尝试' : 'Eligible') : (isZh ? '需派单' : 'Dispatch')}
+                            </span>
+                        </div>
+                        <p className="text-[13px] font-bold leading-relaxed text-[#86868b]">
+                            {isDeflectionCandidate
+                                ? (isZh
+                                    ? '低风险工单会先进行安全自助检查；若租客无法确认修复，再继续派单。'
+                                    : 'Low-risk cases receive a safe self-serve check before dispatch; failed attempts continue to provider matching.')
+                                : (isZh
+                                    ? '该工单不适合自助关闭，系统会保留诊断证据并进入师傅派单。'
+                                    : 'This case is not suitable for self-serve closure, so the evidence pack moves into provider dispatch.')}
+                        </p>
                     </div>
                 </div>
 

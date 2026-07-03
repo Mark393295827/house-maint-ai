@@ -214,13 +214,13 @@ CREATE TABLE IF NOT EXISTS orders (
 -- AI Feedback Table (P0: Trust Loop)
 CREATE TABLE IF NOT EXISTS ai_feedback (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER,
     report_id INTEGER,
-    rating INTEGER CHECK(rating >= 1 AND rating <= 5),
-    type TEXT NOT NULL CHECK(type IN ('thumbs_up', 'thumbs_down', 'correction')),
+    diagnosis_data TEXT,
+    is_helpful INTEGER NOT NULL,
     comment TEXT,
     created_at TEXT DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE SET NULL
 );
 

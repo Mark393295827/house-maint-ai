@@ -7,6 +7,7 @@
 
 import api from '../services/api';
 import { Report } from '../types';
+import { getOperatingStageCopies, getReportOperatingStageId } from '../constants/operatingModel';
 
 export interface CaseRecord {
     id: string;
@@ -25,12 +26,9 @@ export interface CaseRecord {
 function mapReportToCase(r: Report): CaseRecord {
     const isArchived = r.status === 'completed' || r.status === 'cancelled';
     
-    // Mapping backend progress to UI steps (1-8)
-    const step = r.status === 'pending' ? 1 
-               : r.status === 'matching' ? 2 
-               : r.status === 'matched' ? 3 
-               : r.status === 'in_progress' ? 5 
-               : 8;
+    const operatingStages = getOperatingStageCopies('en');
+    const stageId = getReportOperatingStageId(r.status);
+    const step = Math.max(1, operatingStages.findIndex((stage) => stage.id === stageId) + 1);
 
     // Mapping urgency_score (0-10) to severity
     const severity: 'low' | 'moderate' | 'critical' = 

@@ -193,7 +193,7 @@ export async function chatWithDiagnosis(
     }
 }
 
-// ──── 8-Step Diagnostic Flow API ────
+// ──── Structured diagnostic helper APIs ────
 
 async function callStepAPI(endpoint: string, body: Record<string, any>) {
     const csrfToken = await getCsrfToken();
@@ -208,27 +208,27 @@ async function callStepAPI(endpoint: string, body: Record<string, any>) {
     });
     if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.details || err.error || `Step ${endpoint} failed`);
+        throw new Error(err.details || err.error || `${endpoint} diagnosis helper failed`);
     }
     return response.json();
 }
 
-/** Step 2: MECE Category Analysis */
+/** MECE category analysis */
 export async function callMECE(image: string | null, mimeType: string, text: string, locale: string) {
     return callStepAPI('mece', { image: image || undefined, mimeType: image ? mimeType : undefined, text, locale });
 }
 
-/** Step 3: Hypothesis Generation */
+/** Hypothesis generation */
 export async function callHypothesis(category: string, image: string | null, mimeType: string, locale: string) {
     return callStepAPI('hypothesis', { category, image: image || undefined, mimeType: image ? mimeType : undefined, locale });
 }
 
-/** Step 4: Data Collection Checklist */
+/** Data collection checklist */
 export async function callChecklist(hypothesis: string, image: string | null, mimeType: string, locale: string) {
     return callStepAPI('checklist', { hypothesis, image: image || undefined, mimeType: image ? mimeType : undefined, locale });
 }
 
-/** Step 5: 5-Why Dialog */
+/** 5-Why dialog */
 export async function callFiveWhy(
     history: Array<{ role: 'user' | 'assistant'; content: string }>,
     context: Record<string, any>,
@@ -239,7 +239,7 @@ export async function callFiveWhy(
     return callStepAPI('five-why', { history, context, image: image || undefined, mimeType: image ? mimeType : undefined, locale });
 }
 
-/** Step 6: Solution Generation */
+/** Solution generation */
 export async function callSolution(rootCause: string, context: Record<string, any>, locale: string) {
     return callStepAPI('solution', { rootCause, context, locale });
 }

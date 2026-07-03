@@ -45,7 +45,7 @@
     "activity": {
         "title": "继续活动",
         "viewAll": "查看全部",
-        "step": "第 2 步，共 4 步 • 分析损坏情况",
+        "step": "第 2 阶段，共 6 阶段 • AI 诊断中",
         "leakingPipe": "水槽下漏水"
     },
     "suggestions": {
@@ -485,13 +485,13 @@
     "showcase": {
         "badge": "生产就绪 • 9.5/10 评分",
         "heroTitle": "让你的家，智能维护。",
-        "heroSubtitle": "面向三亚物业管理与技师赋能的全栈 AI 平台。集成 Gemini 视觉辅助、地理围栏匹配及全渠道路由，将维修效率提升 200%。",
+        "heroSubtitle": "面向微信原生维修运营的六阶段闭环：接入、AI 诊断、DIY 分流、师傅派单、维修验收和业主报表。",
         "ctaTryDemo": "立即体验",
         "ctaGithub": "查看源码",
         "scrollHint": "向下滚动探索",
-        "featuresLabel": "核心功能",
-        "featuresTitle": "你需要的一切，",
-        "featuresTitleHighlight": "不多不少。",
+        "featuresLabel": "运营模型",
+        "featuresTitle": "一条六阶段闭环，",
+        "featuresTitleHighlight": "不是单点诊断工具。",
         "feature1Title": "AI 视觉诊断",
         "feature1Desc": "深度集成 Google Gemini — 毫秒级识别破损、漏水及隐患，并自动生成最佳维修策略。",
         "feature2Title": "精准地理匹配",
@@ -527,7 +527,7 @@
         "stat4Label": "页面数量",
         "ctaTitle": "准备好",
         "ctaTitleHighlight": "探索了吗？",
-        "ctaSubtitle": "沉浸式体验 — AI 诊断、工人匹配、实时聊天等功能。",
+        "ctaSubtitle": "沉浸式体验 — 接入、诊断、分流、派单、验收和报表。",
         "ctaLaunch": "启动应用",
         "ctaPreview": "设备预览",
         "footer": "用 ❤️ 构建"

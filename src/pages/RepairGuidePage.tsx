@@ -57,6 +57,7 @@ const RepairGuidePage = () => {
     const [completedSteps, setCompletedSteps] = useState<boolean[]>([]);
     const [executionMode, setExecutionMode] = useState(false);
     const [reportCreated, setReportCreated] = useState(false);
+    const [reportId, setReportId] = useState<string | null>(() => sessionStorage.getItem('lastReportId'));
 
     // Load diagnosis and progress from storage
     useEffect(() => {
@@ -154,24 +155,44 @@ const RepairGuidePage = () => {
     const tools = diagnosis?.raw_response?.solution?.tools_needed || [];
     const parts = diagnosis?.raw_response?.solution?.required_parts || [];
 
+    const ensureReportForDiagnosis = async () => {
+        if (reportId) {
+            return reportId;
+        }
+        if (!diagnosis || !user) {
+            return null;
+        }
+
+        const category = diagnosis.raw_response?.diagnosis?.category || 'other';
+        const categoryMap: Record<string, string> = {
+            plumbing: 'plumbing',
+            electrical: 'electrical',
+            appliance: 'appliance',
+            carpentry: 'carpentry',
+            painting: 'painting',
+            hvac: 'hvac',
+            structural: 'structural',
+        };
+
+        const result = await createReportMutation.mutateAsync({
+            title: diagnosis.issue_name.substring(0, 50),
+            description: `${diagnosis.description}\n\nAI Confidence: ${diagnosis.confidence}%\nSeverity: ${diagnosis.severity}\nUrgency: ${diagnosis.urgency}`,
+            category: categoryMap[category.toLowerCase()] || 'other',
+        });
+        const createdId = String(result.report.id);
+        sessionStorage.setItem('lastReportId', createdId);
+        setReportId(createdId);
+        setReportCreated(true);
+        return createdId;
+    };
+
     /* ─── Start Repair: create report + enter execution mode ─── */
     const handleStartRepair = async () => {
         setExecutionMode(true);
 
         if (!reportCreated && diagnosis && user) {
             try {
-                const category = diagnosis.raw_response?.diagnosis?.category || 'other';
-                const categoryMap: Record<string, string> = {
-                    plumbing: 'plumbing', electrical: 'electrical', appliance: 'appliance',
-                    carpentry: 'carpentry', painting: 'painting',
-                };
-
-                await createReportMutation.mutateAsync({
-                    title: diagnosis.issue_name.substring(0, 50),
-                    description: `${diagnosis.description}\n\nAI Confidence: ${diagnosis.confidence}%\nSeverity: ${diagnosis.severity}\nUrgency: ${diagnosis.urgency}`,
-                    category: categoryMap[category.toLowerCase()] || 'other',
-                });
-                setReportCreated(true);
+                await ensureReportForDiagnosis();
             } catch (err) {
                 console.warn('Report creation failed (non-blocking):', err);
             }
@@ -191,7 +212,7 @@ const RepairGuidePage = () => {
     };
 
     /* ─── Find Worker ─── */
-    const handleFindWorker = () => {
+    const handleFindWorker = async () => {
         if (diagnosis) {
             sessionStorage.setItem('diagnosisForMatch', JSON.stringify({
                 category: diagnosis.raw_response?.diagnosis?.category || 'other',
@@ -199,7 +220,12 @@ const RepairGuidePage = () => {
                 urgency: diagnosis.urgency,
             }));
         }
-        navigate('/match');
+        try {
+            await ensureReportForDiagnosis();
+        } catch (err) {
+            console.warn('Report creation before matching failed:', err);
+        }
+        navigate('/worker/match');
     };
 
     return (
