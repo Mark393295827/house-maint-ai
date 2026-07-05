@@ -38,13 +38,13 @@ describe('AI Repair Planning API', () => {
     beforeAll(async () => {
         const u = await db.query("INSERT INTO users (phone, name, role) VALUES ('100', 'U', 'user') RETURNING id");
         userId = u.rows[0].id;
-        userToken = jwt.sign({ id: userId, role: 'user' }, TEST_SECRET);
+        userToken = jwt.sign({ id: userId, role: 'user', type: 'access' }, TEST_SECRET);
 
         const wu = await db.query("INSERT INTO users (phone, name, role) VALUES ('101', 'W', 'worker') RETURNING id");
         workerUserId = wu.rows[0].id;
         const w = await db.query("INSERT INTO workers (user_id) VALUES ($1) RETURNING id", [workerUserId]);
         workerId = w.rows[0].id;
-        workerToken = jwt.sign({ id: workerUserId, role: 'worker' }, TEST_SECRET);
+        workerToken = jwt.sign({ id: workerUserId, role: 'worker', type: 'access' }, TEST_SECRET);
     });
 
     it('should allow report owner to generate a plan', async () => {

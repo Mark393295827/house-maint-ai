@@ -7,7 +7,7 @@ import { JWT_SECRET } from '../middleware/auth.js';
 describe('RBAC - Role Based Access Control', () => {
     const generateToken = (role: string) => {
         return jwt.sign(
-            { id: Math.floor(Math.random() * 1000), phone: '13812345678', role },
+            { id: Math.floor(Math.random() * 1000), phone: '13812345678', name: 'RBAC Tester', role, type: 'access' },
             JWT_SECRET,
             { expiresIn: '1h' }
         );

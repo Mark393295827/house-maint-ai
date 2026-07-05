@@ -21,9 +21,11 @@ test.describe('Login Flow', () => {
         await expect(loginPage.errorMessage).toContainText('请输入有效的手机号码');
     });
 
-    test('should show validation error for short password', async ({ page }) => {
+    test('should show validation error for weak registration password', async ({ page }) => {
+        await loginPage.switchToRegister();
+        await loginPage.nameInput.fill('测试用户');
         await loginPage.login('13800138000', '123');
-        await expect(loginPage.errorMessage).toContainText('密码至少需要6位');
+        await expect(loginPage.errorMessage).toContainText('密码必须至少8位，包含字母和数字');
     });
 
     test('should toggle between login and register', async ({ page }) => {

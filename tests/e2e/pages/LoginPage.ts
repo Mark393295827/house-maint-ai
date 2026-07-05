@@ -8,18 +8,23 @@ export class LoginPage {
     readonly toggleModeButton: Locator;
     readonly errorMessage: Locator;
     readonly title: Locator;
+    readonly nameInput: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.phoneInput = page.getByPlaceholder('手机号码');
-        this.passwordInput = page.getByPlaceholder('密码');
+        this.phoneInput = page.getByPlaceholder('1xx xxxx xxxx');
+        this.passwordInput = page.getByPlaceholder('Min 8 characters');
         this.submitButton = page.locator('button[type="submit"]');
-        this.toggleModeButton = page.locator('button', { hasText: /立即注册|立即登录/ });
-        this.errorMessage = page.locator('.text-red-600.dark\\:text-red-400');
-        this.title = page.locator('h2');
+        this.toggleModeButton = page.locator('button', { hasText: /没有账号？|已有账号？/ });
+        this.errorMessage = page.locator('form p');
+        this.title = page.locator('h1');
+        this.nameInput = page.getByPlaceholder('Full Name');
     }
 
     async goto() {
+        await this.page.addInitScript(() => {
+            localStorage.setItem('app_locale', 'zh');
+        });
         await this.page.goto('/login');
         await this.page.waitForLoadState('networkidle');
     }
@@ -32,14 +37,14 @@ export class LoginPage {
 
     async switchToRegister() {
         const text = await this.toggleModeButton.innerText();
-        if (text.includes('立即注册')) {
+        if (text.includes('没有账号')) {
             await this.toggleModeButton.click();
         }
     }
 
     async switchToLogin() {
         const text = await this.toggleModeButton.innerText();
-        if (text.includes('立即登录')) {
+        if (text.includes('已有账号')) {
             await this.toggleModeButton.click();
         }
     }

@@ -37,13 +37,13 @@ describe('Data Collection APIs', () => {
         const db = (await import('../server/config/database.js')).default;
         const u = await db.query("INSERT INTO users (name, phone, role) VALUES ('U', '1', 'user') RETURNING id");
         userId = u.rows[0].id;
-        userToken = jwt.sign({ id: userId, role: 'user' }, TEST_SECRET);
+        userToken = jwt.sign({ id: userId, role: 'user', type: 'access' }, TEST_SECRET);
 
         const wu = await db.query("INSERT INTO users (name, phone, role) VALUES ('W', '2', 'worker') RETURNING id");
         workerUserId = wu.rows[0].id;
         const w = await db.query("INSERT INTO workers (user_id) VALUES ($1) RETURNING id", [workerUserId]);
         workerId = w.rows[0].id;
-        workerToken = jwt.sign({ id: workerUserId, role: 'worker' }, TEST_SECRET);
+        workerToken = jwt.sign({ id: workerUserId, role: 'worker', type: 'access' }, TEST_SECRET);
     });
 
     describe('User Assets API', () => {
@@ -76,7 +76,7 @@ describe('Data Collection APIs', () => {
         it('should allow worker to complete a job', async () => {
             const db = (await import('../server/config/database.js')).default;
             const description = 'D'.repeat(10);
-            const r = await db.query("INSERT INTO reports (user_id, status, matched_worker_id, title, description) VALUES ($1, 'matched', $2, 'T', $3) RETURNING id", [userId, workerId, description]);
+            const r = await db.query("INSERT INTO reports (user_id, status, matched_worker_id, title, description) VALUES ($1, 'in_progress', $2, 'T', $3) RETURNING id", [userId, workerId, description]);
             const rId = r.rows[0].id;
 
             const res = await request(app)

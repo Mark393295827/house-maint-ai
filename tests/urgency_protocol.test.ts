@@ -163,7 +163,7 @@ describe('Urgency Protocol API', () => {
             ['urgency_test', 'hash', 'Urgency Tester', 'user']
         );
         userId = userRes.rows[0].id;
-        userToken = jwt.sign({ id: userId, role: 'user' }, TEST_SECRET);
+        userToken = jwt.sign({ id: userId, role: 'user', type: 'access' }, TEST_SECRET);
     });
 
     it('should create a report with default urgency 0', async () => {

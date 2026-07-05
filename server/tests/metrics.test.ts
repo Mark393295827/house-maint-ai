@@ -7,13 +7,13 @@ import { resetMetrics } from '../middleware/metricsCollector.js';
 
 describe('Metrics API', () => {
     const adminToken = jwt.sign(
-        { id: 1, phone: '13800000001', role: 'admin' },
+        { id: 1, phone: '13800000001', name: 'Admin', role: 'admin', type: 'access' },
         JWT_SECRET,
         { expiresIn: '1h' }
     );
 
     const userToken = jwt.sign(
-        { id: 2, phone: '13800000002', role: 'user' },
+        { id: 2, phone: '13800000002', name: 'User', role: 'user', type: 'access' },
         JWT_SECRET,
         { expiresIn: '1h' }
     );

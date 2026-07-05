@@ -52,7 +52,7 @@ describe('Analytics API', () => {
 
     const generateToken = (role: string) => {
         return jwt.sign(
-            { id: 999, phone: '13899999999', role },
+            { id: 999, phone: '13899999999', name: 'Analytics Tester', role, type: 'access' },
             JWT_SECRET,
             { expiresIn: '1h' }
         );

@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Diagnosis and Repair Flow', () => {
     test.beforeEach(async ({ page }) => {
+        await page.addInitScript(() => {
+            localStorage.setItem('app_locale', 'zh');
+        });
         // Login first
         await page.goto('/login');
         await page.fill('input[type="tel"]', '13900000001');
@@ -16,7 +19,7 @@ test.describe('Diagnosis and Repair Flow', () => {
         page.on('pageerror', err => console.log(`BROWSER ERROR: ${err.message}`));
 
         // 1. Start Diagnosis
-        await page.goto('/diagnose');
+        await page.goto('/diagnosis');
 
         // Mock the API response for diagnosis to avoid using real tokens/AI
         await page.route('**/api/diagnose', async route => {
@@ -73,7 +76,7 @@ test.describe('Diagnosis and Repair Flow', () => {
 
         // 3. Test Timer
         // Find the timer start button
-        const startTimerBtn = page.getByRole('button', { name: /Start/i }).first();
+        const startTimerBtn = page.getByRole('button', { name: /开始计时|Start/i }).first();
         await startTimerBtn.click();
 
         // Wait for timer to finish (2 seconds)
@@ -94,10 +97,10 @@ test.describe('Diagnosis and Repair Flow', () => {
             await route.fulfill({ json: { user: { id: 1, name: 'Test User', phone: '13900000001' } } });
         });
 
-        await page.locator('footer').getByRole('button', { name: /Start/i }).click(); // "Start Repair" button at footer
+        await page.locator('footer').getByRole('button', { name: /开始修复|Start/i }).click(); // "Start Repair" button at footer
 
         // Verify mode switch (Toast might be skipped if report creation fails/mocks are tricky, but mode switch is key)
-        await expect(page.getByRole('button', { name: /In Progress/i })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('button', { name: /维修进行中|In Progress/i })).toBeVisible({ timeout: 10000 });
 
         // 5. Complete Steps
         const steps = await page.locator('button.rounded-full.border-2');
@@ -107,7 +110,7 @@ test.describe('Diagnosis and Repair Flow', () => {
         }
 
         // 6. Verify Completion
-        await expect(page.getByText('Repair Complete!')).toBeVisible();
-        await expect(page.getByText('Home')).toBeVisible();
+        await expect(page.getByText(/维修完成|Repair Complete/i)).toBeVisible();
+        await expect(page.getByRole('link', { name: /首页|Home/i })).toBeVisible();
     });
 });

@@ -38,7 +38,13 @@ services:
         condition: service_started
     restart: always
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3001/api/health" ]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -294,7 +294,7 @@ const RepairGuidePage = () => {
                         index={index}
                         isCompleted={completedSteps[index] || false}
                         onToggle={() => toggleStep(index)}
-                        timerState={timers[index]}
+                        timerState={timers[index] || (step.isTimer && step.duration ? { timeLeft: step.duration, isActive: false } : undefined)}
                         onTimerToggle={(duration) => toggleTimer(index, duration)}
                         t={t}
                         formatTime={formatTime}

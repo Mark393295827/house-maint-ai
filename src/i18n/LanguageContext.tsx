@@ -18,7 +18,7 @@ const getNestedValue = (obj: unknown, path: string): unknown => {
     return path.split('.').reduce<unknown>((prev, curr) => {
         if (!prev || typeof prev !== 'object') return undefined;
         return (prev as Record<string, unknown>)[curr];
-    }, obj) || path;
+    }, obj);
 };
 
 const getInitialLocale = (): Locale => {

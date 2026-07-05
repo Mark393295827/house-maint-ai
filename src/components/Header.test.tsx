@@ -6,7 +6,11 @@ import { IMAGES } from '../constants/images';
 import Header from '../components/Header';
 
 vi.mock('../i18n/LanguageContext', () => ({
-    useLanguage: () => ({ t: (k: string) => k, locale: 'en', setLocale: vi.fn() }),
+    useLanguage: () => ({
+        t: (k: string) => ({ 'header.location': 'San Francisco, CA' } as Record<string, string>)[k] || k,
+        locale: 'en',
+        setLocale: vi.fn()
+    }),
     LanguageProvider: ({ children }: any) => children
 }));
 
@@ -37,7 +41,7 @@ describe('Header', () => {
 
     it('has ARIA label for avatar', () => {
         const { container } = renderHeader();
-        const avatar = container.querySelector('[aria-label="User profile portrait smiling"]');
+        const avatar = container.querySelector('[aria-label="User profile portrait"]');
         expect(avatar).toBeInTheDocument();
     });
 });

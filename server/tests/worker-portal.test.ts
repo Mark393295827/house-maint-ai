@@ -24,13 +24,15 @@ vi.mock('../config/database.js', () => ({
 // Mock authentication middleware
 vi.mock('../middleware/auth.js', () => ({
     authenticate: (req: any, res: any, next: any) => {
-        req.user = { id: 1, role: 'worker' };
+        req.user = { id: 1, phone: '13800000000', name: 'Worker', role: 'worker', type: 'access' };
         next();
     },
     optionalAuth: (req: any, res: any, next: any) => {
-        req.user = { id: 1, role: 'worker' };
+        req.user = { id: 1, phone: '13800000000', name: 'Worker', role: 'worker', type: 'access' };
         next();
-    }
+    },
+    generateAccessToken: vi.fn(() => 'new-access-token'),
+    getAuthCookieOptions: vi.fn(() => ({ httpOnly: true, path: '/' }))
 }));
 
 import db from '../config/database.js';

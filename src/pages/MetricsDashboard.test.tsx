@@ -1,48 +1,37 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { BrowserRouter } from 'react-router-dom';
 import MetricsDashboard from './MetricsDashboard';
 import { LanguageProvider } from '../i18n/LanguageContext';
-import * as api from '../services/api';
-
-// Mock the API module
-vi.mock('../services/api', async () => {
-    const actual = await vi.importActual('../services/api');
-    return {
-        ...actual,
-        getMetrics: vi.fn(),
-        getMetricsHealth: vi.fn(),
-    };
-});
-
-const mockMetrics = {
-    system: { uptime_ms: 3600000, uptime_human: '1h 0m 0s' },
-    requests: { total: 1000, success: 950, error: 50, success_rate: '95.0%' },
-    response_time: { avg_ms: '120.5', min_ms: 10.2, max_ms: 500.8 },
-    sda_cycles: { total: 10, simulate_passes: 8, deploys: 5, augments: 3 },
-    agents: { total_invocations: 150, by_agent: { 'Diagnostics': 100, 'Vendor': 50 } },
-};
-
-const mockHealth = {
-    memory: { rss_mb: 256, heap_used_mb: 128, heap_total_mb: 512, external_mb: 32 },
-    cpu: { user_ms: 1000, system_ms: 500 },
-    node_version: 'v20.0.0',
-    platform: 'linux',
-    pid: 1234,
-};
 
 const renderMetricsDashboard = () => {
     return render(
         <LanguageProvider>
-            <MetricsDashboard />
+            <BrowserRouter>
+                <MetricsDashboard />
+            </BrowserRouter>
         </LanguageProvider>
     );
+};
+
+const seedOperationalMetrics = () => {
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem('inquiry_metrics', JSON.stringify([
+        { caseId: 'case-1', projectType: 'Plumbing', area: 'Kitchen', severity: 'high', hasPhoto: true, timestamp: `${today}T08:00:00.000Z` },
+        { caseId: 'case-2', projectType: 'Electrical', area: 'Garage', severity: 'medium', hasPhoto: false, timestamp: `${today}T09:00:00.000Z` },
+        { caseId: 'case-3', projectType: 'Plumbing', area: 'Kitchen', severity: 'low', hasPhoto: true, timestamp: `${today}T10:00:00.000Z` },
+    ]));
+    localStorage.setItem('inquiry_feedback', JSON.stringify([
+        { caseId: 'case-1', rating: 4, demandAccuracy: 5, tags: ['clear'], timestamp: `${today}T11:00:00.000Z` },
+        { caseId: 'case-2', rating: 5, demandAccuracy: null, tags: ['fast'], timestamp: `${today}T12:00:00.000Z` },
+    ]));
 };
 
 describe('MetricsDashboard', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        (api.getMetrics as any).mockResolvedValue(mockMetrics);
-        (api.getMetricsHealth as any).mockResolvedValue(mockHealth);
+        localStorage.clear();
+        localStorage.setItem('app_locale', 'en');
 
         // Mock window.matchMedia
         Object.defineProperty(window, 'matchMedia', {
@@ -64,63 +53,52 @@ describe('MetricsDashboard', () => {
         vi.useRealTimers();
     });
 
-    it('should render metrics data after loading', async () => {
+    it('renders the operational dashboard shell', () => {
         renderMetricsDashboard();
 
-        // Wait for data to load
-        await waitFor(() => {
-            expect(screen.getByText('95.0%')).toBeInTheDocument();
-            expect(screen.getByText('1,000')).toBeInTheDocument();
-        }, { timeout: 10000 });
+        expect(screen.getByText('Metrics Dashboard')).toBeInTheDocument();
+        expect(screen.getByText('Real-time Analytics')).toBeInTheDocument();
+        expect(screen.getByText('System Live')).toBeInTheDocument();
     });
 
-    it('should display SDA cycles', async () => {
+    it('renders empty-state guidance when no inquiry data exists', () => {
         renderMetricsDashboard();
 
-        await waitFor(() => {
-            expect(screen.getByText('8')).toBeInTheDocument(); // simulate_passes
-            expect(screen.getByText('5')).toBeInTheDocument(); // deploys
-            expect(screen.getByText('3')).toBeInTheDocument(); // augments
-        });
+        expect(screen.getByText('Intelligence Gap')).toBeInTheDocument();
+        expect(screen.getByText('Initiate Data Collection')).toBeInTheDocument();
     });
 
-    it('should show error state on fetch failure', async () => {
-        (api.getMetrics as any).mockRejectedValue(new Error('Fetch failed'));
+    it('renders local inquiry and feedback summary metrics', () => {
+        seedOperationalMetrics();
         renderMetricsDashboard();
 
-        await waitFor(() => {
-            expect(screen.getByText(/Connection Error/i)).toBeInTheDocument();
-            expect(screen.getByText('Fetch failed')).toBeInTheDocument();
-        });
+        expect(screen.getByText('Inquiries')).toBeInTheDocument();
+        expect(screen.getByText('Conversion')).toBeInTheDocument();
+        expect(screen.getByText('Photo Rate')).toBeInTheDocument();
+        expect(screen.getByText('Feedbacks')).toBeInTheDocument();
+        expect(screen.getAllByText('67%')).toHaveLength(2);
+        expect(screen.getAllByText('3').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('should refresh data on interval', async () => {
-        vi.useFakeTimers();
+    it('renders service quality gauges from collected feedback', () => {
+        seedOperationalMetrics();
         renderMetricsDashboard();
 
-        // Initial fetch call
-        await vi.waitUntil(() => vi.mocked(api.getMetrics).mock.calls.length > 0);
-
-        expect(api.getMetrics).toHaveBeenCalledTimes(1);
-
-        // Fast-forward 5.1 seconds to trigger the interval
-        await act(async () => {
-            vi.advanceTimersByTime(5100);
-        });
-
-        expect(api.getMetrics).toHaveBeenCalledTimes(2);
-        vi.useRealTimers();
+        expect(screen.getByText('Service Quality')).toBeInTheDocument();
+        expect(screen.getByText('4.5')).toBeInTheDocument();
+        expect(screen.getByText('5.0')).toBeInTheDocument();
     });
 
-    it('should display agent activity', async () => {
+    it('renders workload and regional distributions', () => {
+        seedOperationalMetrics();
         renderMetricsDashboard();
 
-        await waitFor(() => {
-            expect(screen.getByText('Diagnostics')).toBeInTheDocument();
-            expect(screen.getByText('Vendor')).toBeInTheDocument();
-            // Using getAllByText since 50 might appear in other metrics (like errors)
-            const fiftyElements = screen.getAllByText('50');
-            expect(fiftyElements.length).toBeGreaterThanOrEqual(1);
-        });
+        expect(screen.getByText('Workload Categorization')).toBeInTheDocument();
+        expect(screen.getByText('Regional Density')).toBeInTheDocument();
+        expect(screen.getByText('Plumbing')).toBeInTheDocument();
+        expect(screen.getByText('Electrical')).toBeInTheDocument();
+        expect(screen.getByText('Kitchen')).toBeInTheDocument();
+        expect(screen.getByText('Garage')).toBeInTheDocument();
     });
 });

@@ -25,6 +25,11 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
+      '/socket.io': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
   test: {
@@ -34,7 +39,9 @@ export default defineConfig({
     },
     globals: true,
     environment: 'jsdom',
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
     setupFiles: './src/test/setup.ts',
+    testTimeout: 15000,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

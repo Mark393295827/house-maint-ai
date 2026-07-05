@@ -6,6 +6,7 @@ export default [
   {
     ignores: [
       "dist/**",
+      "server/dist/**",
       "coverage/**",
       "node_modules/**",
       "test-results/**",

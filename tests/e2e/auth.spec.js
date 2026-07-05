@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Critical User Flow', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.addInitScript(() => {
+            localStorage.setItem('app_locale', 'zh');
+        });
+    });
 
     test('should verify login page loads', async ({ page }) => {
         await page.goto('/login');
@@ -11,23 +16,22 @@ test.describe('Critical User Flow', () => {
         await page.goto('/login');
 
         // Fill credentials
-        await page.getByPlaceholder('手机号码').fill('13800138001');
-        await page.getByPlaceholder('密码').fill('123456');
+        await page.getByPlaceholder('1xx xxxx xxxx').fill('13800138001');
+        await page.getByPlaceholder('Min 8 characters').fill('123456');
 
         // Click login
         await page.getByRole('button', { name: '登 录' }).click();
 
         // Should navigate to home
         await expect(page).toHaveURL('/');
-        // Expect user name "Demo User" (from init-db)
-        await expect(page.getByText('Hi, Demo User')).toBeVisible();
+        await expect(page.getByRole('heading', { name: /运维指挥中心/ })).toBeVisible();
     });
 
     test('should navigate to quick report', async ({ page }) => {
         // Login first
         await page.goto('/login');
-        await page.getByPlaceholder('手机号码').fill('13800138001');
-        await page.getByPlaceholder('密码').fill('123456');
+        await page.getByPlaceholder('1xx xxxx xxxx').fill('13800138001');
+        await page.getByPlaceholder('Min 8 characters').fill('123456');
         await page.getByRole('button', { name: '登 录' }).click();
         await expect(page).toHaveURL('/');
 
@@ -37,6 +41,6 @@ test.describe('Critical User Flow', () => {
         await page.goto('/quick-report');
 
         // Verify page title
-        await expect(page.getByText('快速报修')).toBeVisible();
+        await expect(page.getByRole('heading', { name: '极速报修' })).toBeVisible();
     });
 });

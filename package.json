@@ -11,7 +11,10 @@
         "lint": "eslint .",
         "check:artifacts": "node scripts/check-generated-artifacts.js",
         "preview": "vite preview",
-        "test": "vitest run",
+        "test": "npm run test:unit:node && npm run test:unit:ui",
+        "test:unit:node": "vitest run --config vitest.config.ts",
+        "test:unit:ui": "vitest run --config vite.config.ts",
+        "test:e2e": "playwright test",
         "test:watch": "vitest",
         "test:ui": "vitest --ui",
         "test:coverage": "vitest run --coverage"

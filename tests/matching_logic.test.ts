@@ -36,7 +36,7 @@ describe('Matching Logic API', () => {
     let userToken: string;
 
     beforeAll(() => {
-        userToken = jwt.sign({ id: 1, role: 'user' }, TEST_SECRET);
+        userToken = jwt.sign({ id: 1, role: 'user', type: 'access' }, TEST_SECRET);
     });
 
     it('should return matched workers for a report', async () => {

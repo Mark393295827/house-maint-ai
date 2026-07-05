@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ProfilePage from './ProfilePage';
 import { LanguageProvider } from '../i18n/LanguageContext';
 import { AuthProvider } from '../contexts/AuthContext';
@@ -46,14 +47,17 @@ const mockReports = [
 ];
 
 const renderProfilePage = () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     return render(
-        <LanguageProvider>
-            <BrowserRouter>
-                <AuthProvider>
-                    <ProfilePage />
-                </AuthProvider>
-            </BrowserRouter>
-        </LanguageProvider>
+        <QueryClientProvider client={queryClient}>
+            <LanguageProvider>
+                <BrowserRouter>
+                    <AuthProvider>
+                        <ProfilePage />
+                    </AuthProvider>
+                </BrowserRouter>
+            </LanguageProvider>
+        </QueryClientProvider>
     );
 };
 
