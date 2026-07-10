@@ -1,5 +1,5 @@
 import { defineConfig } from 'drizzle-kit';
-import path from 'path';
+
 
 // Load .env relative to this file
 // If your .env is in the root (C:\Users\高杰\house-maint-ai\.env)
