@@ -1,13 +1,13 @@
 import Database from 'better-sqlite3';
 import path from 'path';
-import fs from 'fs';
+
 
 const dbPath = path.resolve('server/data/dev.db');
 console.log('Opening database at:', dbPath);
 
 const db = new Database(dbPath);
 
-const migrationSql = `
+const _migrationSql = `
 CREATE TABLE IF NOT EXISTS \`price_guide\` (
 	\`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	\`category\` text NOT NULL,
