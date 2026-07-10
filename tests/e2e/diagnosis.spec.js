@@ -7,8 +7,8 @@ test.describe('Diagnosis and Repair Flow', () => {
         });
         // Login first
         await page.goto('/login');
-        await page.fill('input[type="tel"]', '13900000001');
-        await page.fill('input[type="password"]', 'password123');
+        await page.fill('input[type="tel"]', '13800138001');
+        await page.fill('input[type="password"]', '123456');
         await page.click('button[type="submit"]');
         await page.waitForURL('/');
     });
@@ -94,7 +94,7 @@ test.describe('Diagnosis and Repair Flow', () => {
 
         // Mock user profile to ensure AuthContext has user
         await page.route('**/api/auth/me', async route => {
-            await route.fulfill({ json: { user: { id: 1, name: 'Test User', phone: '13900000001' } } });
+            await route.fulfill({ json: { user: { id: 1, name: 'Test User', phone: '13800138001' } } });
         });
 
         await page.locator('footer').getByRole('button', { name: /开始修复|Start/i }).click(); // "Start Repair" button at footer
