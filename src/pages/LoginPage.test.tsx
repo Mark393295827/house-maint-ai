@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import LoginPage from './LoginPage';
@@ -56,8 +56,8 @@ describe('LoginPage', () => {
         localStorage.setItem('app_locale', 'zh');
     });
 
-    it('should render the login form by default', () => {
-        renderLoginPage();
+    it('should render the login form by default', async () => {
+        await act(async () => { renderLoginPage(); });
 
         expect(screen.getByText('欢迎回来')).toBeInTheDocument();
         expect(screen.getByText('登录以继续')).toBeInTheDocument();
@@ -65,15 +65,15 @@ describe('LoginPage', () => {
         expect(screen.getByPlaceholderText('Min 8 characters')).toBeInTheDocument();
     });
 
-    it('should render the professional portal entry', () => {
-        renderLoginPage();
+    it('should render the professional portal entry', async () => {
+        await act(async () => { renderLoginPage(); });
 
         expect(screen.getByText('专业人员入口')).toBeInTheDocument();
         expect(screen.getByText('师傅端登录')).toBeInTheDocument();
     });
 
-    it('should toggle between login and register modes', () => {
-        renderLoginPage();
+    it('should toggle between login and register modes', async () => {
+        await act(async () => { renderLoginPage(); });
 
         // Initially in login mode
         expect(screen.getByText('欢迎回来')).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('LoginPage', () => {
     });
 
     it('should show error for invalid phone number', async () => {
-        renderLoginPage();
+        await act(async () => { renderLoginPage(); });
 
         const submitButton = await screen.findByRole('button', { name: /登 录/ });
         const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
@@ -111,7 +111,7 @@ describe('LoginPage', () => {
     });
 
     it('should show error for weak password in register mode', async () => {
-        renderLoginPage();
+        await act(async () => { renderLoginPage(); });
 
         await screen.findByRole('button', { name: /登 录/ });
         fireEvent.click(screen.getByText('没有账号？'));
@@ -131,7 +131,7 @@ describe('LoginPage', () => {
     });
 
     it('should show error for missing name in register mode', async () => {
-        renderLoginPage();
+        await act(async () => { renderLoginPage(); });
 
         // Switch to register mode
         await screen.findByRole('button', { name: /登 录/ });
@@ -151,8 +151,8 @@ describe('LoginPage', () => {
         });
     });
 
-    it('should toggle password visibility', () => {
-        renderLoginPage();
+    it('should toggle password visibility', async () => {
+        await act(async () => { renderLoginPage(); });
 
         const passwordInput = screen.getByPlaceholderText('Min 8 characters');
 
@@ -173,21 +173,21 @@ describe('LoginPage', () => {
         }
     });
 
-    it('should have social login buttons', () => {
-        renderLoginPage();
+    it('should have social login buttons', async () => {
+        await act(async () => { renderLoginPage(); });
 
         expect(screen.getByText('WeChat')).toBeInTheDocument();
         expect(screen.getByText('Alipay')).toBeInTheDocument();
     });
 
-    it('should have a repairman login link', () => {
-        renderLoginPage();
+    it('should have a repairman login link', async () => {
+        await act(async () => { renderLoginPage(); });
 
         expect(screen.getByRole('link', { name: /师傅端登录/ })).toHaveAttribute('href', '/repairman/login');
     });
 
-    it('should only allow digits in phone input', () => {
-        renderLoginPage();
+    it('should only allow digits in phone input', async () => {
+        await act(async () => { renderLoginPage(); });
 
         const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
 
@@ -198,8 +198,8 @@ describe('LoginPage', () => {
         expect(phoneInput).toHaveValue('123456');
     });
 
-    it('should limit phone input to 11 digits', () => {
-        renderLoginPage();
+    it('should limit phone input to 11 digits', async () => {
+        await act(async () => { renderLoginPage(); });
 
         const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
 
