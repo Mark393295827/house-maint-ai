@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -129,7 +129,7 @@ describe('ProfilePage', () => {
     });
 
     it('should toggle dark mode', async () => {
-        renderProfilePage();
+        await act(async () => { renderProfilePage(); });
 
         // Find dark mode toggle text
         const darkModeText = await screen.findByText(/Dark Mode/i);
