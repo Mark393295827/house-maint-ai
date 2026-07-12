@@ -1,5 +1,5 @@
 import { DEEPSEEK_API_KEY } from '../../config/secrets.js';
-import { AiProvider, AiResponse, ChatMessage, withRetry } from '../common.js';
+import { AiProvider, AiResponse, ChatMessage } from '../common.js';
 
 // DeepSeek Provider for Reasoning (CLAW 2)
 export class PlanningAgent implements AiProvider {

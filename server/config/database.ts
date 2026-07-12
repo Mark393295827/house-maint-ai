@@ -84,7 +84,6 @@ export class SQLiteFallback {
         let convertedSql = sql;
         
         // Find all $N markers
-        const paramMarkers = sql.match(/\$\d+/g) || [];
         
         // We need to replace them in a way that respects the index but uses ?
         // The most robust way is to use a regex callback
@@ -174,6 +173,7 @@ export class SQLiteFallback {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     on(event: string, callback: (...args: any[]) => void): void {
         // No-op for compatibility
     }
@@ -204,7 +204,7 @@ if (useSQLite) {
     pool = pgPool as unknown as DatabaseAdapter;
 
     // Test connection
-    pgPool.on('error', (err, client) => {
+    pgPool.on('error', (err) => {
         console.error('Unexpected error on idle client', err);
         process.exit(-1);
     });

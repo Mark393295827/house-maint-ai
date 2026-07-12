@@ -43,6 +43,7 @@ class InMemoryRedis extends EventEmitter {
         return 'OK';
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async expire(key: string, seconds: number): Promise<number> {
         // Mock implementation: just return 1 (success)
         // In a real mock we might set a timeout to delete, but setex already does that.

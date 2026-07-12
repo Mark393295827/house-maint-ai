@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/node';
-
 // ============ Retry & Validation Helpers ============
 
 /**
