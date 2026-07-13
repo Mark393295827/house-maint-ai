@@ -131,6 +131,8 @@ describe('ProfilePage', () => {
     it('should toggle dark mode', async () => {
         renderProfilePage();
 
+        await screen.findByText('Test User');
+
         // Find dark mode toggle text
         const darkModeText = await screen.findByText(/Dark Mode/i);
         const toggleContainer = darkModeText.closest('div[class*="flex items-center justify-between"]');
