@@ -64,8 +64,8 @@ export class PlanningClawService {
                 diagnosis = typeof report.diagnosis_result === 'string'
                     ? JSON.parse(report.diagnosis_result)
                     : report.diagnosis_result;
-            } catch {
-                console.warn(`Report #${report.id}: Invalid diagnosis JSON`, e);
+            } catch (_e) {
+                console.warn(`Report #${report.id}: Invalid diagnosis JSON`, _e);
             }
 
             // Call DeepSeek via AI Service (or fallback)
@@ -90,7 +90,7 @@ export class PlanningClawService {
             let plan: any = {};
             try {
                 plan = typeof planString === 'string' ? JSON.parse(planString) : planString;
-            } catch {
+            } catch (_e) {
                 // Fallback if parsing fails
                 plan = { steps: [], priority_protocol: 'batch' };
             }
