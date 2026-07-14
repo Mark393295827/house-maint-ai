@@ -64,7 +64,7 @@ export class PlanningClawService {
                 diagnosis = typeof report.diagnosis_result === 'string'
                     ? JSON.parse(report.diagnosis_result)
                     : report.diagnosis_result;
-            } catch (e) {
+            } catch {
                 console.warn(`Report #${report.id}: Invalid diagnosis JSON`, e);
             }
 
@@ -90,7 +90,7 @@ export class PlanningClawService {
             let plan: any = {};
             try {
                 plan = typeof planString === 'string' ? JSON.parse(planString) : planString;
-            } catch (e) {
+            } catch {
                 // Fallback if parsing fails
                 plan = { steps: [], priority_protocol: 'batch' };
             }

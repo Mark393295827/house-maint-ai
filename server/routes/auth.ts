@@ -254,7 +254,7 @@ router.post('/refresh', async (req, res, next) => {
         let payload;
         try {
             payload = verifyRefreshToken(refreshToken);
-        } catch (e) {
+        } catch {
             return res.status(401).json({ error: 'Invalid refresh token signature' });
         }
 

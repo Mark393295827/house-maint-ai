@@ -1,5 +1,6 @@
 import pool from '../../config/database';
 import { isSQLite } from '../../config/database';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -20,7 +21,7 @@ export const setupTestDb = async () => {
 
         try {
             await pool.query('SELECT count(*) FROM refresh_tokens');
-        } catch (e) {
+        } catch {
             // Ignore error if table check fails, initSchema should handle it
         }
     } catch (err) {
@@ -37,7 +38,7 @@ export const clearTestDb = async () => {
         for (const table of tables) {
             try {
                 await pool.query(`DELETE FROM ${table}`);
-            } catch (e) {
+            } catch {
                 // Ignore if table doesn't exist
             }
         }

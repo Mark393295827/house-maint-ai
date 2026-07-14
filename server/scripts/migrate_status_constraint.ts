@@ -155,7 +155,7 @@ async function migrate() {
         console.log('✅ SQLite tables migrated successfully');
         process.exit(0);
 
-    } catch (e) {
+    } catch {
         console.error('❌ Migration failed:', e);
         process.exit(1);
     }

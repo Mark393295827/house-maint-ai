@@ -58,7 +58,7 @@ class PatternCache {
                 pattern.usage_count || 1
             ]);
 
-        } catch (error) {
+        } catch {
             console.error('Failed to save pattern:', error);
             Sentry.captureException(error);
             // Don't throw, just log. System should be resilient.
@@ -104,7 +104,7 @@ class PatternCache {
                 return pattern;
             }
 
-        } catch (error) {
+        } catch {
             console.error('Failed to get pattern:', error);
             Sentry.captureException(error);
         }
@@ -126,7 +126,7 @@ class PatternCache {
                 'UPDATE patterns SET usage_count = usage_count + 1, last_used = CURRENT_TIMESTAMP WHERE problem_type = $1 AND context_signature = $2',
                 [problemType, contextSignature]
             );
-        } catch (error) {
+        } catch {
             // Ignore errors for stats updates
         }
     }

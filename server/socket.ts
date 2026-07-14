@@ -46,7 +46,7 @@ export const initSocket = (httpServer: HttpServer) => {
 
             socket.data.user = decoded;
             next();
-        } catch (err) {
+        } catch {
             next(new Error('Authentication error'));
         }
     });

@@ -41,7 +41,7 @@ const OrdersPage: React.FC = () => {
             try {
                 const data = await getOrders();
                 setOrders(data.orders || []);
-            } catch (err) {
+            } catch {
                 setError('Failed to load orders');
             } finally {
                 setLoading(false);
