@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import fs from 'fs';
 
 const dbPath = path.resolve('server/data/dev.db');

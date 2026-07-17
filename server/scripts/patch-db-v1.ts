@@ -36,7 +36,7 @@ async function patchDB() {
             try {
                 await pool.query(`ALTER TABLE reports ADD COLUMN ${colDef}`);
                 console.log(`✅ Added ${name} column`);
-            } catch (e) {
+            } catch {
                 // ignore
             }
         }
@@ -69,7 +69,7 @@ async function patchDB() {
             try {
                 await pool.query(`ALTER TABLE patterns ADD COLUMN ${colDef}`);
                 console.log(`✅ Added ${name} to patterns`);
-            } catch (e) { /* ignore */ }
+            } catch { /* ignore */ }
         }
     } else {
         await pool.query(`

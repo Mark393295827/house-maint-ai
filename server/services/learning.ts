@@ -45,7 +45,7 @@ export const learningService = {
                     resolution = typeof report.resolution_details === 'string'
                         ? JSON.parse(report.resolution_details)
                         : report.resolution_details;
-                } catch (e) {
+                } catch {
                     console.warn(`Report ${report.id}: Invalid resolution details JSON`);
                     resolution = { note: report.resolution_details };
                 }

@@ -45,7 +45,7 @@ const OmnichannelSim = () => {
                 text: `${t('omnichannel.received')}: ${diagnosis.diagnosis_summary || 'Analysis complete.'}`
             }]);
 
-        } catch (error) {
+        } catch {
             setChatHistory(prev => [...prev, { role: 'system', text: "Error: AI pipeline failed." }]);
         } finally {
             setIsProcessing(false);

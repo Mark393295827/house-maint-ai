@@ -13,8 +13,8 @@ async function migrate() {
                 CHECK (status IN ('pending', 'matching', 'broadcasted', 'matched', 'in_progress', 'completed', 'cancelled', 'failed_analysis', 'analyzed', 'planned', 'flagged_for_review'))
             `);
             console.log('✅ Postgres constraints updated');
-        } catch (e: any) {
-            console.log('⚠️  Postgres constraint update failed:', e.message);
+        } catch (_e: any) {
+            console.log('⚠️  Postgres constraint update failed:', _e.message);
         }
         return;
     }
@@ -24,14 +24,14 @@ async function migrate() {
 
         // --- 1. REPORTS ---
         console.log('📦 Migrating Reports...');
-        try { await pool.query('DROP TABLE IF EXISTS reports_old'); } catch {
+        try { await pool.query('DROP TABLE IF EXISTS reports_old'); } catch (_e: any) {
             // Old backup table may not exist.
         }
 
         // Check if reports exists
         try {
             await pool.query('ALTER TABLE reports RENAME TO reports_old');
-        } catch (e: any) {
+        } catch (_e: any) {
             console.log('⚠️ Reports table missing or already renamed');
         }
 
@@ -89,16 +89,16 @@ async function migrate() {
                 FROM reports_old
             `);
             await pool.query('DROP TABLE reports_old');
-        } catch (e: any) {
-            console.log('⚠️ Could not copy reports data (source might be missing/empty):', e.message);
+        } catch (_e: any) {
+            console.log('⚠️ Could not copy reports data (source might be missing/empty):', _e.message);
         }
 
         // --- 2. MATCHES ---
         console.log('📦 Migrating Matches (Fixing FK)...');
-        try { await pool.query('DROP TABLE IF EXISTS matches_old'); } catch {
+        try { await pool.query('DROP TABLE IF EXISTS matches_old'); } catch (_e: any) {
             // Old backup table may not exist.
         }
-        try { await pool.query('ALTER TABLE matches RENAME TO matches_old'); } catch {
+        try { await pool.query('ALTER TABLE matches RENAME TO matches_old'); } catch (_e: any) {
             // Matches table may be missing on a fresh database.
         }
 
@@ -121,14 +121,14 @@ async function migrate() {
         try {
             await pool.query('INSERT INTO matches SELECT * FROM matches_old');
             await pool.query('DROP TABLE matches_old');
-        } catch (e: any) { console.log('⚠️ Could not copy matches:', e.message); }
+        } catch (_e: any) { console.log('⚠️ Could not copy matches:', _e.message); }
 
         // --- 3. REVIEWS ---
         console.log('📦 Migrating Reviews (Fixing FK)...');
-        try { await pool.query('DROP TABLE IF EXISTS reviews_old'); } catch {
+        try { await pool.query('DROP TABLE IF EXISTS reviews_old'); } catch (_e: any) {
             // Old backup table may not exist.
         }
-        try { await pool.query('ALTER TABLE reviews RENAME TO reviews_old'); } catch {
+        try { await pool.query('ALTER TABLE reviews RENAME TO reviews_old'); } catch (_e: any) {
             // Reviews table may be missing on a fresh database.
         }
 
@@ -149,14 +149,14 @@ async function migrate() {
         try {
             await pool.query('INSERT INTO reviews SELECT * FROM reviews_old');
             await pool.query('DROP TABLE reviews_old');
-        } catch (e: any) { console.log('⚠️ Could not copy reviews:', e.message); }
+        } catch (_e: any) { console.log('⚠️ Could not copy reviews:', _e.message); }
 
         await pool.query('PRAGMA foreign_keys=ON');
         console.log('✅ SQLite tables migrated successfully');
         process.exit(0);
 
-    } catch (e) {
-        console.error('❌ Migration failed:', e);
+    } catch (_e: any) {
+        console.error('❌ Migration failed:', _e);
         process.exit(1);
     }
 }

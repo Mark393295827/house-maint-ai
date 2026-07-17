@@ -69,7 +69,7 @@ const CalendarPage = () => {
         if (workerData) {
             try {
                 setSelectedWorker(JSON.parse(workerData));
-            } catch (e) {
+            } catch {
                 console.warn('Failed to parse worker data');
             }
         }

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import db, { isSQLite } from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as Sentry from '@sentry/node';
 
 const router = express.Router();
@@ -33,7 +34,7 @@ router.get('/', authenticate, async (req, res, next) => {
         const assets = rows.map(asset => {
             try {
                 asset.specs = JSON.parse(asset.specs || '{}');
-            } catch (e) {
+            } catch {
                 asset.specs = {};
             }
             return asset;

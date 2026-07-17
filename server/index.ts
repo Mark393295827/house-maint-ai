@@ -1,6 +1,7 @@
 import 'dotenv/config';
 // import './instrument.js'; // Sentry initialization must be first
 import express from 'express';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as Sentry from '@sentry/node';
 import cors from 'cors';
 import helmet from 'helmet';

@@ -159,7 +159,7 @@ router.get('/worker/:id', async (req, res, next) => {
             if (r.photos) {
                 try {
                     r.photos = JSON.parse(r.photos);
-                } catch (e) { r.photos = []; }
+                } catch { r.photos = []; }
             } else {
                 r.photos = [];
             }
@@ -196,7 +196,7 @@ router.get('/user/:id', authenticate, async (req, res, next) => {
             if (r.photos) {
                 try {
                     r.photos = JSON.parse(r.photos);
-                } catch (e) { r.photos = []; }
+                } catch { r.photos = []; }
             } else {
                 r.photos = [];
             }

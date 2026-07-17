@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { eq, sql, and, desc, gte } from 'drizzle-orm';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { knowledgeEntries, materialPriceObservations, failurePatterns, workerSkillCalibration } from '../db/ontology.js';
 
 /**

@@ -38,7 +38,7 @@ router.get('/posts', cacheMiddleware(120), async (req, res, next) => {
                     ...post,
                     tags: post.tags ? JSON.parse(post.tags) : []
                 };
-            } catch (e) {
+            } catch {
                 return { ...post, tags: [] };
             }
         });
