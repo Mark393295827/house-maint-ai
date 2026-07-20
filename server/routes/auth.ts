@@ -301,8 +301,16 @@ router.post('/refresh', async (req, res, next) => {
             return res.status(401).json({ error: 'User not found' });
         }
 
-        // Revoke old token (Rotation)
-        await db.query('UPDATE refresh_tokens SET revoked = 1 WHERE id = $1', [storedToken.id]);
+        // Claim this token for rotation. Only the request that revokes it may mint a successor.
+        const { rowCount: revokedCount } = await db.query(
+            'UPDATE refresh_tokens SET revoked = 1 WHERE id = $1 AND (revoked = 0 OR revoked IS NULL)',
+            [storedToken.id]
+        );
+
+        if (revokedCount !== 1) {
+            clearAuthCookies(res);
+            return res.status(401).json({ error: 'Invalid refresh token' });
+        }
 
         // Generate NEW tokens (Rotation)
         const newAccessToken = generateAccessToken(user);

@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS workers (
     latitude REAL,
     longitude REAL,
     available INTEGER DEFAULT 1,
+    bio TEXT,
+    hourly_rate REAL,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -167,6 +169,7 @@ CREATE TABLE IF NOT EXISTS patterns (
     consecutive_high_ratings INTEGER DEFAULT 0,
     status TEXT DEFAULT 'experimental', -- experimental, production, deprecated
     is_variant INTEGER DEFAULT 0,
+    generation_version INTEGER DEFAULT 1,
     last_used TEXT DEFAULT (datetime('now')),
     created_at TEXT DEFAULT (datetime('now')),
     UNIQUE(problem_type, context_signature)

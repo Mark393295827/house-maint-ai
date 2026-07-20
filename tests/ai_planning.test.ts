@@ -79,4 +79,56 @@ describe('AI Repair Planning API', () => {
         expect(res.status).toBe(200);
         expect(res.body.data.plan).toBeDefined();
     });
+
+    it('should deny an unrelated user access to another owner\'s repair plan', async () => {
+        const otherUser = await db.query("INSERT INTO users (phone, name, role) VALUES ('102', 'Other', 'user') RETURNING id");
+        const otherToken = jwt.sign({ id: otherUser.rows[0].id, role: 'user', type: 'access' }, TEST_SECRET);
+        const report = await db.query(
+            "INSERT INTO reports (user_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING id",
+            [userId, 'Private plan', 'Owner-only diagnosis context', 'analyzed']
+        );
+
+        const res = await request(app)
+            .post(`/api/v1/reports/${report.rows[0].id}/plan`)
+            .set('Cookie', [`accessToken=${otherToken}`]);
+
+        expect(res.status).toBe(403);
+    });
+
+    it('prevents an owner from bypassing payment and worker assignment through the generic update route', async () => {
+        const report = await db.query(
+            "INSERT INTO reports (user_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING id",
+            [userId, 'Dispatch guard', 'Owner cannot self-dispatch this report', 'pending']
+        );
+
+        const dispatchResponse = await request(app)
+            .put(`/api/v1/reports/${report.rows[0].id}`)
+            .set('Cookie', [`accessToken=${userToken}`])
+            .send({ status: 'matching' });
+
+        expect(dispatchResponse.status).toBe(403);
+
+        await db.query('UPDATE reports SET status = $1 WHERE id = $2', ['matching', report.rows[0].id]);
+        const assignmentResponse = await request(app)
+            .put(`/api/v1/reports/${report.rows[0].id}`)
+            .set('Cookie', [`accessToken=${userToken}`])
+            .send({ status: 'matched', matched_worker_id: workerId });
+
+        expect(assignmentResponse.status).toBe(403);
+    });
+
+    it('allows an owner to update non-dispatch report metadata', async () => {
+        const report = await db.query(
+            "INSERT INTO reports (user_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING id",
+            [userId, 'Metadata update', 'Owner can still change urgency metadata', 'pending']
+        );
+
+        const response = await request(app)
+            .put(`/api/v1/reports/${report.rows[0].id}`)
+            .set('Cookie', [`accessToken=${userToken}`])
+            .send({ urgency_score: 8 });
+
+        expect(response.status).toBe(200);
+        expect(response.body.data.report.urgency_score).toBe(8);
+    });
 });

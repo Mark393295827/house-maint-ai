@@ -22,6 +22,20 @@
       "when": 1771468646036,
       "tag": "0002_dry_freak",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1784508032313,
+      "tag": "0003_short_dakota_north",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1784508860527,
+      "tag": "0004_complete_silver_samurai",
+      "breakpoints": true
     }
   ]
 }

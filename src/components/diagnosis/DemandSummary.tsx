@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import OperatingLoopProgress from './OperatingLoopProgress';
+import type { ProblemSolvingLoop } from '../../services/ai';
 
 export interface DemandData {
     projectType: string;
@@ -16,6 +17,9 @@ interface DemandSummaryProps {
     data: DemandData;
     locale: string;
     imageUrl?: string | null;
+    problemSolvingPlan?: ProblemSolvingLoop | null;
+    problemSolvingLoading?: boolean;
+    problemSolvingError?: string | null;
     onDispatch: () => void;
     onBack: () => void;
 }
@@ -41,11 +45,26 @@ const SEVERITY_INFO: Record<string, { color: string; bg: string; border: string;
     },
 };
 
-const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, onDispatch, onBack }) => {
+const formatCost = (plan: ProblemSolvingLoop) => {
+    const symbol = plan.dispatch.estimatedCost.currency === 'CNY' ? '¥' : '$';
+    return `${symbol}${plan.dispatch.estimatedCost.min}-${plan.dispatch.estimatedCost.max}`;
+};
+
+const DemandSummary: React.FC<DemandSummaryProps> = ({
+    data,
+    locale,
+    imageUrl,
+    problemSolvingPlan,
+    problemSolvingLoading = false,
+    problemSolvingError = null,
+    onDispatch,
+    onBack,
+}) => {
     const [copied, setCopied] = useState(false);
     const isZh = locale === 'zh';
     
-    const sevInfo = SEVERITY_INFO[data.severity] || SEVERITY_INFO.moderate;
+    const effectiveSeverity = problemSolvingPlan?.diagnosis.severity ?? data.severity;
+    const sevInfo = SEVERITY_INFO[effectiveSeverity] || SEVERITY_INFO.moderate;
     const sevLabel = sevInfo.label[locale] || sevInfo.label.en;
 
     const fields = [
@@ -83,7 +102,7 @@ const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, o
     ];
 
     const shareText = fields.map(f => `${f.label}: ${f.value}`).join('\n');
-    const isDeflectionCandidate = data.severity === 'low';
+    const isDeflectionCandidate = problemSolvingPlan?.deflection.eligible ?? effectiveSeverity === 'low';
 
     const handleCopy = () => {
         navigator.clipboard.writeText(shareText).then(() => {
@@ -151,14 +170,115 @@ const DemandSummary: React.FC<DemandSummaryProps> = ({ data, locale, imageUrl, o
                             </span>
                         </div>
                         <p className="text-[13px] font-bold leading-relaxed text-[#86868b]">
-                            {isDeflectionCandidate
-                                ? (isZh
-                                    ? '低风险工单会先进行安全自助检查；若租客无法确认修复，再继续派单。'
-                                    : 'Low-risk cases receive a safe self-serve check before dispatch; failed attempts continue to provider matching.')
-                                : (isZh
-                                    ? '该工单不适合自助关闭，系统会保留诊断证据并进入师傅派单。'
-                                    : 'This case is not suitable for self-serve closure, so the evidence pack moves into provider dispatch.')}
+                            {problemSolvingPlan?.deflection.safetyGate
+                                || (isDeflectionCandidate
+                                    ? (isZh
+                                        ? '低风险工单会先进行安全自助检查；若租客无法确认修复，再继续派单。'
+                                        : 'Low-risk cases receive a safe self-serve check before dispatch; failed attempts continue to provider matching.')
+                                    : (isZh
+                                        ? '该工单不适合自助关闭，系统会保留诊断证据并进入师傅派单。'
+                                        : 'This case is not suitable for self-serve closure, so the evidence pack moves into provider dispatch.'))}
                         </p>
+                    </div>
+                </div>
+
+                {/* Problem-Solving Loop */}
+                <div className="stagger-item" style={{ animationDelay: '190ms' }}>
+                    <div className="aegis-card bg-white p-5 shadow-sm ring-1 ring-black/5">
+                        <div className="mb-4 flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#0071e3]/10 text-[#0071e3]">
+                                    <span className="material-symbols-outlined text-[19px]">psychology</span>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">
+                                        {isZh ? '问题解决闭环' : 'PROBLEM-SOLVING LOOP'}
+                                    </p>
+                                    <h2 className="text-[15px] font-black tracking-tight">
+                                        {isZh ? '六阶段解决方案' : 'Six-stage solution plan'}
+                                    </h2>
+                                </div>
+                            </div>
+                            {problemSolvingPlan && (
+                                <span className="rounded-full bg-black px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
+                                    {problemSolvingPlan.provider === 'openai-responses' ? 'OPENAI' : 'DEMO'}
+                                </span>
+                            )}
+                        </div>
+
+                        {problemSolvingLoading && (
+                            <div className="flex items-center gap-3 rounded-2xl bg-[#f5f5f7] px-4 py-3">
+                                <span className="material-symbols-outlined animate-spin text-[18px] text-[#0071e3]">progress_activity</span>
+                                <p className="text-[12px] font-black text-[#86868b]">
+                                    {isZh ? '正在生成完整解决方案、造价和验收标准...' : 'Generating the full solution plan, cost range, and verification criteria...'}
+                                </p>
+                            </div>
+                        )}
+
+                        {problemSolvingError && !problemSolvingLoading && (
+                            <div className="rounded-2xl bg-[#ff3b30]/5 px-4 py-3 text-[12px] font-bold text-[#ff3b30]">
+                                {problemSolvingError}
+                            </div>
+                        )}
+
+                        {problemSolvingPlan && !problemSolvingLoading && (
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">
+                                        {isZh ? '根因和风险' : 'ROOT CAUSE & RISK'}
+                                    </p>
+                                    <p className="mt-1 text-[13px] font-bold leading-relaxed text-[#1d1d1f]">
+                                        {problemSolvingPlan.diagnosis.rootCauseSummary}
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <div className="rounded-2xl bg-[#f5f5f7] p-4">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">
+                                            {isZh ? '造价区间' : 'COST RANGE'}
+                                        </p>
+                                        <p className="mt-1 text-xl font-black tracking-tight text-[#0071e3]">{formatCost(problemSolvingPlan)}</p>
+                                        <p className="mt-1 text-[11px] font-bold leading-relaxed text-[#86868b]">{problemSolvingPlan.dispatch.estimatedCost.basis}</p>
+                                    </div>
+                                    <div className="rounded-2xl bg-[#f5f5f7] p-4">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">
+                                            {isZh ? '推荐工种' : 'RECOMMENDED SKILL'}
+                                        </p>
+                                        <p className="mt-1 text-[14px] font-black tracking-tight text-[#1d1d1f]">{problemSolvingPlan.dispatch.recommendedSkill}</p>
+                                        <p className="mt-1 text-[11px] font-bold leading-relaxed text-[#86868b]">{problemSolvingPlan.dispatch.sla}</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-[#86868b]">
+                                            {isZh ? '下一步' : 'NEXT ACTIONS'}
+                                        </p>
+                                        <ul className="space-y-2">
+                                            {problemSolvingPlan.nextActions.slice(0, 3).map((action) => (
+                                                <li key={action} className="flex gap-2 text-[12px] font-bold leading-relaxed text-[#1d1d1f]">
+                                                    <span className="material-symbols-outlined mt-0.5 text-[15px] text-[#28cd41]">check_circle</span>
+                                                    <span>{action}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-[#86868b]">
+                                            {isZh ? '验收/报表' : 'VERIFY & REPORT'}
+                                        </p>
+                                        <ul className="space-y-2">
+                                            {problemSolvingPlan.verification.checklist.slice(0, 3).map((item) => (
+                                                <li key={item} className="flex gap-2 text-[12px] font-bold leading-relaxed text-[#1d1d1f]">
+                                                    <span className="material-symbols-outlined mt-0.5 text-[15px] text-[#0071e3]">fact_check</span>
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

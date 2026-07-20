@@ -56,4 +56,41 @@ describe('AI Service', () => {
         // Without DEEPSEEK_API_KEY, the service returns its own mock response
         expect(response.result).toContain('Mock DeepSeek Response');
     });
+
+    it('should generate the full six-stage problem-solving loop in demo mode', async () => {
+        const response = await aiService.solveProblem({
+            locale: 'en',
+            demand: {
+                projectType: 'painting',
+                area: 'Living room corner',
+                scope: 'Baseboard seam is dirty and wall corner paint is chipped.',
+                budget: 'RMB450-900',
+                timeline: 'This week',
+                severity: 'low',
+                specialRequirements: 'Check cable safety before patching.',
+                hasPhoto: true,
+            },
+            image: 'base64image',
+            mimeType: 'image/jpeg',
+        });
+
+        expect(response.result.loopVersion).toBe('codex-six-stage-v1');
+        expect(response.result.provider).toBe('mock-codex-loop');
+        expect(response.result.stages.map((stage) => stage.stageId)).toEqual([
+            'intake',
+            'diagnosis',
+            'deflection',
+            'dispatch',
+            'verification',
+            'reporting',
+        ]);
+        expect(response.result.deflection.eligible).toBe(true);
+        expect(response.result.dispatch.estimatedCost).toMatchObject({
+            min: 450,
+            max: 900,
+            currency: 'CNY',
+        });
+        expect(response.result.verification.checklist.length).toBeGreaterThan(0);
+        expect(response.result.reporting.metrics).toContain('Final cost');
+    });
 });

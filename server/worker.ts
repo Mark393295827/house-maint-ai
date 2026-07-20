@@ -2,6 +2,7 @@ import 'dotenv/config';
 import * as Sentry from '@sentry/node';
 import './instrument.js'; // Ensure Sentry is configured
 import { diagnosticsClaw } from './services/diagnostics_claw.js';
+import { planningClaw } from './services/planning_claw.js';
 import { vendorClaw } from './services/vendor_claw.js';
 
 // Setup basic error tracking for the worker process
@@ -16,6 +17,9 @@ const startWorkers = async () => {
     try {
         console.log('🤖 Starting Diagnostics Claw...');
         diagnosticsClaw.start();
+
+        console.log('🧠 Starting Planning Claw...');
+        planningClaw.start();
 
         console.log('👷 Starting Vendor Claw...');
         vendorClaw.start();
@@ -32,5 +36,8 @@ startWorkers();
 
 process.on('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down workers quietly...');
+    diagnosticsClaw.stop();
+    planningClaw.stop();
+    vendorClaw.stop();
     process.exit(0);
 });

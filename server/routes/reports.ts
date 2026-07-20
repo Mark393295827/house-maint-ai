@@ -265,6 +265,15 @@ router.put('/:id', authenticate, async (req, res, next) => {
             return res.status(403).json(ApiResponse.fail('Not authorized'));
         }
 
+        if (req.user.role !== 'admin') {
+            const ownerIsChangingStatus = status && status !== reportData.status;
+            if (matched_worker_id !== undefined || (ownerIsChangingStatus && status !== 'cancelled')) {
+                return res.status(403).json(ApiResponse.fail(
+                    'Dispatch and worker assignment are controlled by the payment and worker workflows'
+                ));
+            }
+        }
+
         // State Machine Guard
         if (status && status !== reportData.status) {
             const current = reportData.status;
@@ -438,6 +447,17 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
 
         const report = reports[0];
 
+        const isOwner = report.user_id === req.user.id;
+        const isAdmin = req.user.role === 'admin';
+        let isAssignedWorker = false;
+        if (!isOwner && !isAdmin && req.user.role === 'worker' && report.matched_worker_id) {
+            const { rows: workers } = await db.query('SELECT id FROM workers WHERE user_id = $1', [req.user.id]);
+            isAssignedWorker = workers[0]?.id === report.matched_worker_id;
+        }
+        if (!isOwner && !isAdmin && !isAssignedWorker) {
+            return res.status(403).json(ApiResponse.fail('Not authorized'));
+        }
+
         // Fetch user assets separately (works on both PostgreSQL and SQLite)
         let userAssets: any[] = [];
         try {
@@ -448,18 +468,6 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
             userAssets = assetRows;
         } catch {
             // user_assets table may not exist yet
-        }
-
-        // Authorize
-        if (report.user_id !== req.user.id && req.user.role !== 'admin') {
-            if (req.user.role === 'worker' && report.matched_worker_id) {
-                const { rows: workers } = await db.query('SELECT id FROM workers WHERE user_id = $1', [req.user.id]);
-                if (!workers[0] || workers[0].id !== report.matched_worker_id) {
-                    return res.status(403).json(ApiResponse.fail('Not authorized'));
-                }
-            } else if (req.user.role === 'worker') {
-                return res.status(403).json(ApiResponse.fail('Not authorized'));
-            }
         }
 
         const issueContext = {

@@ -13,7 +13,7 @@ import { Request, Response, NextFunction } from 'express';
  *
  * Model Routing Rules:
  *   - High-frequency, low-value tasks → Gemini Flash (cheapest)
- *   - High-value decision tasks → DeepSeek R1 (reasoning-optimized)
+ *   - High-value decision tasks → OpenAI/Codex or DeepSeek reasoning models
  *   - Batch/offline tasks → queued for off-peak pricing
  */
 
@@ -23,8 +23,12 @@ const MODEL_COSTS: Record<string, { input: number; output: number }> = {
     'gemini-2.0-flash': { input: 0.10, output: 0.40 },
     'gemini-1.5-pro': { input: 1.25, output: 5.00 },
     'deepseek-r1': { input: 0.55, output: 2.19 },
+    'deepseek-reasoner': { input: 0.55, output: 2.19 },
     'deepseek-v3': { input: 0.27, output: 1.10 },
+    'gpt-5.5': { input: 5.00, output: 30.00 },
+    'gpt-5.3-codex': { input: 1.75, output: 14.00 },
     'gemini-mock': { input: 0, output: 0 },
+    'gpt-5.5-mock': { input: 0, output: 0 },
     'algorithmic': { input: 0, output: 0 },
     'research-swarm': { input: 0.225, output: 0.90 }, // 3x Flash calls
 };
@@ -34,6 +38,7 @@ const BUSINESS_VALUE: Record<string, number> = {
     '/api/ai/diagnose': 50,    // Saves 1 wasted trip (¥50 avg)
     '/api/ai/multi-diagnose': 150,   // Batch saves multiple trips
     '/api/ai/generate-scheme': 200,   // Replaces 2h expert consultation (¥200)
+    '/api/ai/problem-solving': 300,    // Full loop avoids wasted dispatch + owner coordination
     '/api/ai/material-bom': 100,   // Prevents wrong-material purchase (¥100 avg)
     '/api/ai/fault-attribution': 500,   // Avoids 2-4 week legal dispute (¥500+)
     '/api/ai/turnover-compare': 300,   // Documents damage, protects deposit (¥300 avg)
@@ -59,12 +64,14 @@ export function calculateInferenceEconomics(
     outputTokens: number,
     usdToCnyRate: number = 7.2
 ): InferenceEconomics {
-    const costs = MODEL_COSTS[modelName] || MODEL_COSTS['gemini-1.5-flash'];
+    const costs = modelName.endsWith('-mock')
+        ? { input: 0, output: 0 }
+        : MODEL_COSTS[modelName] || MODEL_COSTS['gemini-1.5-flash'];
     const tokenCostUsd = (inputTokens * costs.input + outputTokens * costs.output) / 1_000_000;
     const tokenCostCny = tokenCostUsd * usdToCnyRate;
 
     // Normalize endpoint (strip query params)
-    const normalizedEndpoint = endpoint.split('?')[0];
+    const normalizedEndpoint = endpoint.split('?')[0].replace(/^\/api\/v1/, '/api');
     const businessValueCny = BUSINESS_VALUE[normalizedEndpoint] || 10;
 
     const ivr = businessValueCny > 0 ? tokenCostCny / businessValueCny : 1;
@@ -93,11 +100,12 @@ export function calculateInferenceEconomics(
  * VC Pitch: "We spend the cheapest token on the cheapest task."
  */
 export function routeModel(endpoint: string, complexity: 'low' | 'medium' | 'high' = 'low'): string {
-    const highValueEndpoints = ['/api/ai/generate-scheme', '/api/ai/fault-attribution'];
-    const isHighValue = highValueEndpoints.includes(endpoint);
+    const normalizedEndpoint = endpoint.split('?')[0].replace(/^\/api\/v1/, '/api');
+    const highValueEndpoints = ['/api/ai/generate-scheme', '/api/ai/fault-attribution', '/api/ai/problem-solving'];
+    const isHighValue = highValueEndpoints.includes(normalizedEndpoint);
 
     if (isHighValue || complexity === 'high') {
-        return 'deepseek-r1';       // High-value decisions need best reasoning
+        return process.env.OPENAI_CODEX_MODEL || 'deepseek-r1';       // High-value decisions need best reasoning
     }
     return 'gemini-1.5-flash';      // Everything else uses cheapest model
 }

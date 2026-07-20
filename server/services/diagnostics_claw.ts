@@ -46,8 +46,19 @@ export class DiagnosticsClawService {
             const task = tasks[0];
             console.log(`🐜 [${this.agentName}] Found Task #${task.id}: ${task.title}`);
 
-            // 2. Claim Task (Atomic check-and-set technically required, but single poller for now)
-            await db.query(`UPDATE tasks SET status = 'claimed', owner_claw = $1 WHERE id = $2`, [this.agentName, task.id]);
+            // 2. Claim Task
+            const { rowCount: claimedCount } = await db.query(`
+                UPDATE tasks
+                SET status = 'claimed', owner_claw = $1
+                WHERE id = $2
+                  AND status = 'new'
+                RETURNING id
+            `, [this.agentName, task.id]);
+
+            if (claimedCount !== 1) {
+                return;
+            }
+
             await this.logPheromone(task.id, 'claimed', { by: this.agentName });
 
             // 3. Execute
@@ -125,7 +136,7 @@ export class DiagnosticsClawService {
                 status = 'flagged_for_review';
             }
 
-            await db.query(`
+            const { rowCount: reportUpdateCount } = await db.query(`
                 UPDATE reports 
                 SET diagnosis_result = $1,
                     issue_type = $2,
@@ -136,6 +147,8 @@ export class DiagnosticsClawService {
                     status = $7,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = $8
+                  AND status = 'pending'
+                RETURNING id
             `, [
                 JSON.stringify(diagnosis),
                 issue_type || report.title,
@@ -148,7 +161,11 @@ export class DiagnosticsClawService {
             ]);
 
 
-            console.log(`✅ Task #${task.id} Complete. Report #${report.id} updated.`);
+            if (reportUpdateCount === 1) {
+                console.log(`✅ Task #${task.id} Complete. Report #${report.id} updated.`);
+            } else {
+                console.log(`Task #${task.id} complete; report #${report.id} is no longer pending.`);
+            }
 
         } catch (error) {
             console.error(`❌ Task #${task.id} Failed:`, error);

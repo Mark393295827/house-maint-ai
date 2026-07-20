@@ -7,12 +7,36 @@ import crypto from 'crypto';
 const router = express.Router();
 
 // Mock WeChat Pay Credentials
-const MCH_ID = process.env.WECHAT_MCH_ID || '1234567890';
-const APP_ID = process.env.WECHAT_APP_ID || 'wx_test_app_id';
-const API_V3_KEY = process.env.WECHAT_API_V3_KEY || 'test_api_v3_key_1234567890123456';
+const DEFAULT_MCH_ID = '1234567890';
+const DEFAULT_APP_ID = 'wx_test_app_id';
+const DEFAULT_API_V3_KEY = 'test_api_v3_key_1234567890123456';
+const MCH_ID = process.env.WECHAT_MCH_ID || DEFAULT_MCH_ID;
+const APP_ID = process.env.WECHAT_APP_ID || DEFAULT_APP_ID;
+const API_V3_KEY = process.env.WECHAT_API_V3_KEY || DEFAULT_API_V3_KEY;
 const WEBHOOK_VERIFY_REQUIRED = process.env.WECHAT_WEBHOOK_VERIFY !== 'false';
 const WEBHOOK_SECRET = process.env.WECHAT_WEBHOOK_SECRET || API_V3_KEY;
 const CHECKOUT_AMOUNT_CENTS = Number(process.env.REPAIR_CHECKOUT_AMOUNT_CENTS || 9900);
+
+function assertProductionCredentials() {
+    if (process.env.NODE_ENV !== 'production') {
+        return;
+    }
+
+    const unsafeConfiguration = [
+        MCH_ID === DEFAULT_MCH_ID ? 'WECHAT_MCH_ID' : null,
+        APP_ID === DEFAULT_APP_ID ? 'WECHAT_APP_ID' : null,
+        API_V3_KEY === DEFAULT_API_V3_KEY ? 'WECHAT_API_V3_KEY' : null,
+        !WEBHOOK_VERIFY_REQUIRED ? 'WECHAT_WEBHOOK_VERIFY' : null
+    ].filter((name): name is string => name !== null);
+
+    if (unsafeConfiguration.length > 0) {
+        throw new Error(
+            `FATAL: Unsafe WeChat production configuration: ${unsafeConfiguration.join(', ')}`
+        );
+    }
+}
+
+assertProductionCredentials();
 
 interface WeChatPaymentNotification {
     out_trade_no?: string;
@@ -325,24 +349,18 @@ router.post('/webhook', async (req, res) => {
                 const order = orderRows[0];
 
                 if (order.status === 'paid') {
-                    console.log(`⏭️  Order already paid for TradeNo ${outTradeNo}, skipping.`);
-                    // MUST return 200 or WeChat will retry for 24 hours
-                    return res.status(200).json({ code: 'SUCCESS', message: 'OK' });
+                    console.log(`Order already paid for TradeNo ${outTradeNo}; reconciling its report.`);
+                } else {
+                    // Mark order as paid
+                    await db.query(
+                        `UPDATE orders SET status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE wechat_out_trade_no = $1`,
+                        [outTradeNo]
+                    );
                 }
-
-                // Mark order as paid
-                await db.query(
-                    `UPDATE orders SET status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE wechat_out_trade_no = $1`,
-                    [outTradeNo]
-                );
 
                 // State Machine Guard
                 if (order.report_id) {
-                    try {
-                        await movePaidReportIntoMatching(order.report_id);
-                    } catch (dbError) {
-                        console.error('Database update failed after WeChat payment:', dbError);
-                    }
+                    await movePaidReportIntoMatching(order.report_id);
                 }
             } else {
                 console.warn(`Ignoring WeChat payment for unknown TradeNo: ${outTradeNo}`);

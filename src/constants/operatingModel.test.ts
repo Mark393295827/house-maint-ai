@@ -24,10 +24,17 @@ describe('operatingModel', () => {
 
     it('maps report statuses into operating stages', () => {
         expect(getReportOperatingStageId('pending')).toBe('intake');
-        expect(getReportOperatingStageId('matching')).toBe('diagnosis');
+        expect(getReportOperatingStageId('failed_analysis')).toBe('diagnosis');
+        expect(getReportOperatingStageId('flagged_for_review')).toBe('diagnosis');
+        expect(getReportOperatingStageId('analyzed')).toBe('deflection');
+        expect(getReportOperatingStageId('failed_planning')).toBe('deflection');
+        expect(getReportOperatingStageId('planned')).toBe('dispatch');
+        expect(getReportOperatingStageId('matching')).toBe('dispatch');
+        expect(getReportOperatingStageId('broadcasted')).toBe('dispatch');
         expect(getReportOperatingStageId('matched')).toBe('dispatch');
         expect(getReportOperatingStageId('in_progress')).toBe('verification');
         expect(getReportOperatingStageId('completed')).toBe('reporting');
+        expect(getReportOperatingStageId('cancelled')).toBe('reporting');
     });
 
     it('calculates portfolio impact with stable benchmark assumptions', () => {

@@ -8,6 +8,64 @@ import { getCsrfToken } from './api';
 const API_BASE = '/api/v1';
 const API_BASE_URL = `${API_BASE}/ai`;
 
+export type ProblemSolvingStageId = 'intake' | 'diagnosis' | 'deflection' | 'dispatch' | 'verification' | 'reporting';
+
+export interface ProblemSolvingLoop {
+    loopVersion: 'codex-six-stage-v1';
+    provider: 'openai-responses' | 'mock-codex-loop';
+    modelName: string;
+    stages: Array<{
+        stageId: ProblemSolvingStageId;
+        title: string;
+        status: 'complete' | 'ready' | 'blocked';
+        ownerAgentId: string;
+        gate: 'auto' | 'confidence' | 'human';
+        summary: string;
+        touchpoints: string[];
+        evidenceRequired: string[];
+    }>;
+    diagnosis: {
+        issueType: string;
+        category: string;
+        severity: 'critical' | 'moderate' | 'low';
+        confidence: number;
+        responsibility: 'landlord' | 'tenant' | 'shared' | 'undetermined';
+        rootCauseSummary: string;
+        urgencyScore: number;
+        safetyWarnings: string[];
+    };
+    deflection: {
+        eligible: boolean;
+        safetyGate: string;
+        selfServeSteps: string[];
+        escalationTriggers: string[];
+    };
+    dispatch: {
+        recommendedSkill: string;
+        requiredTools: string[];
+        requiredParts: string[];
+        estimatedCost: {
+            min: number;
+            max: number;
+            currency: 'CNY' | 'USD';
+            basis: string;
+        };
+        sla: string;
+        acceptanceCriteria: string[];
+    };
+    verification: {
+        checklist: string[];
+        photoRequirements: string[];
+        followUpWindow: string;
+    };
+    reporting: {
+        ownerSummary: string;
+        metrics: string[];
+        archiveTags: string[];
+    };
+    nextActions: string[];
+}
+
 /**
  * Convert image file to base64
  */
@@ -281,6 +339,43 @@ export async function inquiryChat(
     }
 }
 
+/**
+ * Run the unified six-stage problem-solving loop. The backend uses OpenAI /
+ * Codex-grade reasoning when configured and a deterministic mock locally.
+ */
+export async function solveProblem(
+    demand: Record<string, any>,
+    imageBase64?: string | null,
+    mimeType?: string,
+    locale?: string
+): Promise<ProblemSolvingLoop> {
+    try {
+        const csrfToken = await getCsrfToken();
+        const response = await fetch(`${API_BASE_URL}/problem-solving`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken,
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                demand,
+                image: imageBase64 || undefined,
+                mimeType: imageBase64 ? (mimeType || 'image/jpeg') : undefined,
+                locale: locale || 'zh',
+            }),
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.details || err.error || 'Problem-solving loop failed');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Problem-solving loop error:', error);
+        throw error;
+    }
+}
+
 export { blobUrlToBase64, imageToBase64 };
 
 export default {
@@ -295,4 +390,5 @@ export default {
     callChecklist,
     callFiveWhy,
     callSolution,
+    solveProblem,
 };

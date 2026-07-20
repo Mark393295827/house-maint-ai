@@ -14,9 +14,9 @@ const StepPDCA: React.FC<StepPDCAProps> = ({ tasks, locale, onNext }) => {
         <div className="p-4 space-y-4 pb-24">
             <div className="text-center">
                 <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark">
-                    {locale === 'zh' ? '📋 PDCA 任务分配' : '📋 PDCA Task Assignment'}
+                    {locale === 'zh' ? '📋 执行任务清单' : '📋 Execution Checklist'}
                 </h2>
-                <p className="text-sm text-gray-500 mt-1">{locale === 'zh' ? '按照 Plan→Do→Check→Act 执行' : 'Execute in Plan→Do→Check→Act order'}</p>
+                <p className="text-sm text-gray-500 mt-1">{locale === 'zh' ? '按六阶段闭环完成派单、验收和报表' : 'Complete dispatch, verification, and reporting inside the six-stage loop'}</p>
             </div>
             {tasks.map((phase: any) => (
                 <div key={phase.phase} className="rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 overflow-hidden">

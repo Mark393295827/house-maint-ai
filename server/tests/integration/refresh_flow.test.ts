@@ -28,4 +28,24 @@ describe('Refresh Token Flow Integration', () => {
         expect(refreshRes.body.data.user).toBeDefined();
         expect(refreshRes.get('Set-Cookie')).toBeDefined();
     });
+
+    it('allows only one successor when the same refresh token is used concurrently', async () => {
+        const concurrentUser = {
+            name: 'Concurrent Refresh User',
+            phone: '13777777778',
+            password: 'Password123!'
+        };
+        await request(app).post('/api/v1/auth/register').set('X-CSRF-Token', 'test').send(concurrentUser);
+        const loginRes = await request(app)
+            .post('/api/v1/auth/login')
+            .send({ phone: concurrentUser.phone, password: concurrentUser.password });
+        const cookies = loginRes.get('Set-Cookie') as string[];
+
+        const responses = await Promise.all([
+            request(app).post('/api/v1/auth/refresh').set('Cookie', cookies),
+            request(app).post('/api/v1/auth/refresh').set('Cookie', cookies),
+        ]);
+
+        expect(responses.map(response => response.status).sort()).toEqual([200, 401]);
+    });
 });

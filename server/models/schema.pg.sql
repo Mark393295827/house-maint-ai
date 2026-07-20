@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS workers (
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
     available INTEGER DEFAULT 1,
+    bio TEXT,
+    hourly_rate REAL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -105,15 +107,17 @@ CREATE TABLE IF NOT EXISTS patterns (
     last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     performance_score REAL DEFAULT 0,
+    consecutive_high_ratings INTEGER DEFAULT 0,
     generation_version INTEGER DEFAULT 1,
-    status TEXT,
+    status TEXT DEFAULT 'experimental',
+    is_variant INTEGER DEFAULT 0,
     UNIQUE(problem_type, context_signature)
 );
 
 CREATE TABLE IF NOT EXISTS ai_usage_logs (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    task_type TEXT NOT NULL,
+    model_name TEXT NOT NULL,
     input_tokens INTEGER DEFAULT 0,
     output_tokens INTEGER DEFAULT 0,
     total_tokens INTEGER DEFAULT 0,
@@ -186,9 +190,14 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 CREATE TABLE IF NOT EXISTS user_assets (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    label TEXT NOT NULL,
-    category TEXT,
-    metadata TEXT,
+    type TEXT NOT NULL,
+    name TEXT NOT NULL,
+    brand TEXT,
+    model TEXT,
+    serial_number TEXT,
+    purchase_date TEXT,
+    warranty_expiry TEXT,
+    specs TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -196,12 +205,27 @@ CREATE TABLE IF NOT EXISTS tasks (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     objective TEXT NOT NULL,
-    status TEXT DEFAULT 'new',
-    priority TEXT DEFAULT 'normal',
+    status TEXT DEFAULT 'new' CHECK(status IN ('new', 'claimed', 'running', 'blocked', 'review', 'done', 'failed')),
+    priority TEXT DEFAULT 'medium' CHECK(priority IN ('low', 'medium', 'high', 'critical')),
+    owner_claw TEXT,
     inputs TEXT,
-    result TEXT,
+    outputs TEXT,
+    score REAL DEFAULT 0.0,
+    failure_reason TEXT,
+    retry_count INTEGER DEFAULT 0,
+    max_retries INTEGER DEFAULT 3,
+    parent_task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pheromone_events (
+    id SERIAL PRIMARY KEY,
+    task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
+    actor TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    payload TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_reports_user_id ON reports(user_id);
@@ -213,3 +237,6 @@ CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_usage_user ON ai_usage_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_owner ON tasks(owner_claw);
+CREATE INDEX IF NOT EXISTS idx_pheromone_task_id ON pheromone_events(task_id);

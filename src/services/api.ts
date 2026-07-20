@@ -66,7 +66,15 @@ function onRefreshed(success: boolean) {
 /**
  * Fetch wrapper with credentials, type safety, and auto-refresh
  */
-async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
+interface FetchRetryState {
+    authRefreshAttempted: boolean;
+}
+
+async function fetchAPI<T = unknown>(
+    endpoint: string,
+    options: RequestInit = {},
+    retryState: FetchRetryState = { authRefreshAttempted: false }
+): Promise<T> {
     const url = `${API_BASE}${endpoint}`;
 
     const token = await getCsrfToken();
@@ -124,12 +132,17 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
             throw new Error(data.error || 'Authentication failed');
         }
 
+        if (retryState.authRefreshAttempted) {
+            const data = await response.json().catch(() => ({ error: 'Session expired' }));
+            throw new Error(data.error || 'Session expired');
+        }
+
         if (isRefreshing) {
             // Queue this request
             return new Promise<T>((resolve, reject) => {
                 refreshSubscribers.push((success) => {
                     if (success) {
-                        resolve(fetchAPI<T>(endpoint, options));
+                        resolve(fetchAPI<T>(endpoint, options, { authRefreshAttempted: true }));
                     } else {
                         reject(new Error('Session expired'));
                     }
@@ -140,11 +153,11 @@ async function fetchAPI<T = unknown>(endpoint: string, options: RequestInit = {}
         isRefreshing = true;
         try {
             // Attempt to refresh
-            await fetchAPI('/auth/refresh', { method: 'POST' });
+            await fetchAPI('/auth/refresh', { method: 'POST' }, { authRefreshAttempted: true });
             isRefreshing = false;
             onRefreshed(true);
             // Retry original request
-            return fetchAPI<T>(endpoint, options);
+            return fetchAPI<T>(endpoint, options, { authRefreshAttempted: true });
         } catch (error) {
             isRefreshing = false;
             onRefreshed(false);

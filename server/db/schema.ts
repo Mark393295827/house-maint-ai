@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, uniqueIndex, index, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 // Users Table
@@ -314,4 +314,41 @@ export const turnoverInspections = sqliteTable('turnover_inspections', {
     estimatedDamageCost: real('estimated_damage_cost'),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 });
+
+// Blackboard tables used by the diagnosis, planning, and vendor workers.
+export const tasks = sqliteTable('tasks', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    title: text('title').notNull(),
+    objective: text('objective').notNull(),
+    status: text('status', {
+        enum: ['new', 'claimed', 'running', 'blocked', 'review', 'done', 'failed'],
+    }).default('new'),
+    priority: text('priority', {
+        enum: ['low', 'medium', 'high', 'critical'],
+    }).default('medium'),
+    ownerClaw: text('owner_claw'),
+    inputs: text('inputs'),
+    outputs: text('outputs'),
+    score: real('score').default(0),
+    failureReason: text('failure_reason'),
+    retryCount: integer('retry_count').default(0),
+    maxRetries: integer('max_retries').default(3),
+    parentTaskId: integer('parent_task_id').references((): AnySQLiteColumn => tasks.id, { onDelete: 'cascade' }),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+}, (table) => [
+    index('idx_tasks_status').on(table.status),
+    index('idx_tasks_owner').on(table.ownerClaw),
+]);
+
+export const pheromoneEvents = sqliteTable('pheromone_events', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    taskId: integer('task_id').references(() => tasks.id, { onDelete: 'cascade' }),
+    actor: text('actor').notNull(),
+    eventType: text('event_type').notNull(),
+    payload: text('payload'),
+    createdAt: text('created_at').default(sql`(datetime('now'))`),
+}, (table) => [
+    index('idx_pheromone_task_id').on(table.taskId),
+]);
 

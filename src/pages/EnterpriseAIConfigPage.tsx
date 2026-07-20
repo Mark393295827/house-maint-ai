@@ -85,11 +85,11 @@ interface EnterpriseAIConfig {
 
 const workflowOwnerByStage: Record<string, string> = {
     intake: 'diagnosis',
-    diagnosis: 'diagnosis',
-    deflection: 'planning',
+    diagnosis: 'problemSolving',
+    deflection: 'problemSolving',
     dispatch: 'executive',
-    verification: 'executive',
-    reporting: 'executive',
+    verification: 'problemSolving',
+    reporting: 'problemSolving',
 };
 
 const workflowGateByStage: Record<string, WorkflowGate> = {
@@ -121,6 +121,7 @@ const defaultConfig: EnterpriseAIConfig = {
     modelProfiles: [
         { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', providerId: 'google', modelCode: 'gemini-1.5-flash', contextWindow: '1M', latency: 'Low', cost: '$', bestFor: 'Photo diagnosis and fast JSON output', enabled: true },
         { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', providerId: 'google', modelCode: 'gemini-1.5-pro', contextWindow: '1M', latency: 'Medium', cost: '$$', bestFor: 'Complex multimodal analysis', enabled: true },
+        { id: 'gpt-5.5-codex', name: 'GPT-5.5 Codex', providerId: 'openai', modelCode: 'gpt-5.5', contextWindow: '1M', latency: 'Fast', cost: '$$$', bestFor: 'Six-stage problem-solving orchestration with cost, deflection, verification, and reporting outputs', enabled: true },
         { id: 'deepseek-r1', name: 'DeepSeek R1', providerId: 'deepseek', modelCode: 'deepseek-reasoner', contextWindow: '64K', latency: 'Medium', cost: '$$', bestFor: 'Repair planning and reasoning', enabled: true },
         { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', providerId: 'openai', modelCode: 'gpt-4.1-mini', contextWindow: '128K', latency: 'Low', cost: '$$', bestFor: 'Tool orchestration and bilingual operations', enabled: true },
         { id: 'local-qwen', name: 'Local Qwen Edge', providerId: 'local', modelCode: 'qwen2.5:7b', contextWindow: '32K', latency: 'Very low', cost: 'Fixed', bestFor: 'Private fallback and offline triage', enabled: false },
@@ -146,6 +147,17 @@ const defaultConfig: EnterpriseAIConfig = {
             mode: 'approval',
             systemPrompt: 'Generate repair plans with materials, steps, duration, risk, and escalation gates.',
             toolAccess: 'BOM lookup, task planner, dispatch draft',
+            enabled: true,
+        },
+        {
+            id: 'problemSolving',
+            name: 'ProblemSolvingAgent',
+            layer: 'P0 Orchestration',
+            description: 'OpenAI/Codex-grade six-stage loop for diagnosis, deflection, dispatch, verification, and owner reporting.',
+            modelId: 'gpt-5.5-codex',
+            mode: 'approval',
+            systemPrompt: 'Run the six-stage maintenance problem-solving loop. Output cost ranges, DIY safety gates, dispatch criteria, verification checks, and owner-ready reporting without reverting to stale 8-step framing.',
+            toolAccess: 'Responses API, case context, evidence pack, cost and verification schema',
             enabled: true,
         },
         {
@@ -206,6 +218,15 @@ const defaultConfig: EnterpriseAIConfig = {
     ],
     skills: [
         {
+            id: 'sixStageLoop',
+            name: 'Six-Stage Problem Solving Skill',
+            description: 'Turns an inquiry summary into a complete operating-loop plan with root cause, deflection, cost, dispatch, verification, and reporting outputs.',
+            ownerAgentId: 'problemSolving',
+            trigger: 'After inquiry summary',
+            inputContract: 'demandSummary, optional image, locale',
+            enabled: true,
+        },
+        {
             id: 'pricingMemory',
             name: 'Pricing Memory Skill',
             description: 'Uses completed jobs and BOM deltas to refine local material estimates.',
@@ -249,10 +270,10 @@ const defaultConfig: EnterpriseAIConfig = {
             title: 'Sanya Beachhead Repair Workflow',
             scenario: 'High-frequency rental maintenance from WeChat intake to verified closeout and owner reporting.',
             targetUser: 'Property manager',
-            primaryAgentId: 'planning',
+            primaryAgentId: 'problemSolving',
             outputFormat: 'Repair plan, BOM, dispatch checklist, owner summary',
             workflowStepIds: 'intake, diagnosis, deflection, dispatch, verification, reporting',
-            skillIds: 'pricingMemory, piplGuard, workerCalibration',
+            skillIds: 'sixStageLoop, pricingMemory, piplGuard, workerCalibration',
             status: 'ready',
         },
         {
