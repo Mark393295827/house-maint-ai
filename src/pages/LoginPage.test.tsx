@@ -56,8 +56,9 @@ describe('LoginPage', () => {
         localStorage.setItem('app_locale', 'zh');
     });
 
-    it('should render the login form by default', () => {
+    it('should render the login form by default', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         expect(screen.getByText('欢迎回来')).toBeInTheDocument();
         expect(screen.getByText('登录以继续')).toBeInTheDocument();
@@ -65,15 +66,17 @@ describe('LoginPage', () => {
         expect(screen.getByPlaceholderText('Min 8 characters')).toBeInTheDocument();
     });
 
-    it('should render the professional portal entry', () => {
+    it('should render the professional portal entry', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         expect(screen.getByText('专业人员入口')).toBeInTheDocument();
         expect(screen.getByText('师傅端登录')).toBeInTheDocument();
     });
 
-    it('should toggle between login and register modes', () => {
+    it('should toggle between login and register modes', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         // Initially in login mode
         expect(screen.getByText('欢迎回来')).toBeInTheDocument();
@@ -95,6 +98,7 @@ describe('LoginPage', () => {
 
     it('should show error for invalid phone number', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         const submitButton = await screen.findByRole('button', { name: /登 录/ });
         const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
@@ -112,7 +116,6 @@ describe('LoginPage', () => {
 
     it('should show error for weak password in register mode', async () => {
         renderLoginPage();
-
         await screen.findByRole('button', { name: /登 录/ });
         fireEvent.click(screen.getByText('没有账号？'));
         const submitButton = await screen.findByRole('button', { name: /注 册/ });
@@ -132,6 +135,7 @@ describe('LoginPage', () => {
 
     it('should show error for missing name in register mode', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         // Switch to register mode
         await screen.findByRole('button', { name: /登 录/ });
@@ -151,8 +155,9 @@ describe('LoginPage', () => {
         });
     });
 
-    it('should toggle password visibility', () => {
+    it('should toggle password visibility', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         const passwordInput = screen.getByPlaceholderText('Min 8 characters');
 
@@ -173,21 +178,24 @@ describe('LoginPage', () => {
         }
     });
 
-    it('should have social login buttons', () => {
+    it('should have social login buttons', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         expect(screen.getByText('WeChat')).toBeInTheDocument();
         expect(screen.getByText('Alipay')).toBeInTheDocument();
     });
 
-    it('should have a repairman login link', () => {
+    it('should have a repairman login link', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         expect(screen.getByRole('link', { name: /师傅端登录/ })).toHaveAttribute('href', '/repairman/login');
     });
 
-    it('should only allow digits in phone input', () => {
+    it('should only allow digits in phone input', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
 
@@ -198,8 +206,9 @@ describe('LoginPage', () => {
         expect(phoneInput).toHaveValue('123456');
     });
 
-    it('should limit phone input to 11 digits', () => {
+    it('should limit phone input to 11 digits', async () => {
         renderLoginPage();
+        await screen.findByRole('button', { name: /登 录/ });
 
         const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
 

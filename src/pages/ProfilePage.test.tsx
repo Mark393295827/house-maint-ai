@@ -90,6 +90,7 @@ describe('ProfilePage', () => {
 
     it('should render user profile information', async () => {
         renderProfilePage();
+        await waitFor(() => expect(screen.getByText('Test User')).toBeInTheDocument());
 
         await waitFor(() => {
             expect(screen.getByText('Test User')).toBeInTheDocument();
@@ -99,6 +100,7 @@ describe('ProfilePage', () => {
 
     it('should render recent reports', async () => {
         renderProfilePage();
+        await waitFor(() => expect(screen.getByText('Test User')).toBeInTheDocument());
 
         await waitFor(() => {
             expect(screen.getByText('Leaky Pipe')).toBeInTheDocument();
@@ -109,6 +111,7 @@ describe('ProfilePage', () => {
     it('should enter edit mode and save new name', async () => {
         (api.updateProfile as any).mockResolvedValue({ user: { ...mockUser, name: 'Updated Name' } });
         renderProfilePage();
+        await waitFor(() => expect(screen.getByText('Test User')).toBeInTheDocument());
 
         // Wait for user data to load and click edit button
         const editButton = await screen.findByText(/Edit/i);
@@ -129,7 +132,10 @@ describe('ProfilePage', () => {
     });
 
     it('should toggle dark mode', async () => {
+        // Default user is Test User, so wait for that.
+
         renderProfilePage();
+        await waitFor(() => expect(screen.getByText('Test User')).toBeInTheDocument());
 
         // Find dark mode toggle text
         const darkModeText = await screen.findByText(/Dark Mode/i);
@@ -151,6 +157,7 @@ describe('ProfilePage', () => {
     it('should call logout and navigate to login', async () => {
         (api.logout as any).mockResolvedValue({ success: true });
         renderProfilePage();
+        await waitFor(() => expect(screen.getByText('Test User')).toBeInTheDocument());
 
         const logoutButton = await screen.findByText(/Log Out/i);
         fireEvent.click(logoutButton);
