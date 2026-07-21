@@ -9,6 +9,7 @@ export default [
       "server/dist/**",
       "coverage/**",
       "node_modules/**",
+      "server/node_modules/**",
       "test-results/**",
       "server/data/**",
     ],
