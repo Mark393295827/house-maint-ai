@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AiProvider, AiResponse, DiagnosisResult, normalizeDiagnosisResult, parseAiJson, withRetry, ChatMessage } from '../common.js';
 
-// Gemini Provider for Multimodal (CLAW 1) — 8-Step Diagnostic Methodology
+// Gemini Provider for Multimodal (CLAW 1) — structured helpers inside the six-stage operating loop
 export class DiagnosisAgent implements AiProvider {
     name = 'Diagnosis-Claw-1';
     private genAI: GoogleGenerativeAI;

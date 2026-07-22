@@ -78,7 +78,7 @@ const createCustomIcon = (color: string, shadowColor: string) => {
     });
 };
 
-const repairingIcon = createCustomIcon('linear-gradient(135deg, #007aff, #00c6ff)', 'rgba(0, 122, 255, 0.4)');
+const repairingIcon = createCustomIcon('linear-gradient(135deg, #1a73e8, #00c6ff)', 'rgba(0, 122, 255, 0.4)');
 const idleIcon = createCustomIcon('linear-gradient(135deg, #8e8e93, #c7c7cc)', 'rgba(142, 142, 147, 0.3)');
 
 export interface WorkerLocation {

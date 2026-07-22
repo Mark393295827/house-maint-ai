@@ -19,10 +19,10 @@ export const TicketsPage: React.FC = () => {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'pending': return 'bg-white text-[#ff9500] border-[#ff9500]/20';
-            case 'matching': return 'bg-white text-[#007aff] border-[#007aff]/20';
-            case 'matched': return 'bg-white text-[#5856d6] border-[#5856d6]/20';
+            case 'matching': return 'bg-white text-[#1a73e8] border-[#1a73e8]/20';
+            case 'matched': return 'bg-white text-[#a142f4] border-[#a142f4]/20';
             case 'in_progress': return 'bg-white text-[#32ade6] border-[#32ade6]/20';
-            case 'completed': return 'bg-white text-[#28cd41] border-[#28cd41]/20';
+            case 'completed': return 'bg-white text-[#34a853] border-[#34a853]/20';
             default: return 'bg-white text-slate-500 border-slate-200';
         }
     };
@@ -57,7 +57,7 @@ export const TicketsPage: React.FC = () => {
                                     <tr key={report.id} className="hover:bg-white/60 transition-all duration-300 group">
                                         <td className="px-10 py-6 font-mono text-[12px] text-[#86868b]">#{report.id}</td>
                                         <td className="px-10 py-6">
-                                            <div className="text-[15px] font-black text-black group-hover:text-[#007aff] transition-colors tracking-tight">{report.title}</div>
+                                            <div className="text-[15px] font-black text-black group-hover:text-[#1a73e8] transition-colors tracking-tight">{report.title}</div>
                                             <div className="text-[11px] text-[#86868b] font-black mt-1 truncate max-w-sm line-clamp-1">{report.description}</div>
                                         </td>
                                         <td className="px-10 py-6">
@@ -66,7 +66,7 @@ export const TicketsPage: React.FC = () => {
                                         <td className="px-10 py-6">
                                             <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full border ${getStatusColor(report.status)} uppercase tracking-widest shadow-sm`}>
                                                 <div className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                                                    report.status === 'completed' ? 'bg-[#28cd41]' : 
+                                                    report.status === 'completed' ? 'bg-[#34a853]' : 
                                                     report.status === 'in_progress' ? 'bg-[#32ade6]' : 
                                                     'bg-current'
                                                 }`} />
@@ -152,7 +152,7 @@ export const EnterpriseWorkersPage: React.FC = () => {
                                                         <img src={worker.avatar} alt={worker.name} className="w-full h-full object-cover" />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f5f5f7] to-white border-2 border-white shadow-xl shadow-black/5 ring-1 ring-black/5 flex items-center justify-center text-[15px] font-black text-[#86868b] transition-transform group-hover:scale-105">
+                                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f8f9fa] to-white border-2 border-white shadow-xl shadow-black/5 ring-1 ring-black/5 flex items-center justify-center text-[15px] font-black text-[#86868b] transition-transform group-hover:scale-105">
                                                         {worker.name?.charAt(0) || 'W'}
                                                     </div>
                                                 )}
@@ -177,12 +177,12 @@ export const EnterpriseWorkersPage: React.FC = () => {
                                                 <span className="text-[14px] font-black text-black tabular-nums">{worker.rating?.toFixed(1) || '5.0'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6 text-right text-[14px] font-black text-[#1d1d1f] tabular-nums">{worker.total_jobs || 0}</td>
+                                        <td className="px-10 py-6 text-right text-[14px] font-black text-[#202124] tabular-nums">{worker.total_jobs || 0}</td>
                                         <td className="px-10 py-6 text-right">
                                             <span className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors shadow-sm ${
-                                                worker.available ? 'bg-white text-[#28cd41] border-[#28cd41]/20' : 'bg-white text-slate-400 border-slate-100'
+                                                worker.available ? 'bg-white text-[#34a853] border-[#34a853]/20' : 'bg-white text-slate-400 border-slate-100'
                                             }`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${worker.available ? 'bg-[#28cd41]' : 'bg-slate-300'}`} />
+                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${worker.available ? 'bg-[#34a853]' : 'bg-slate-300'}`} />
                                                 {worker.available ? t('enterprise.workers.available') : t('enterprise.workers.offline')}
                                             </span>
                                         </td>
@@ -214,7 +214,7 @@ export const PropertiesPage: React.FC = () => {
                     <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.properties.title')}</h1>
                     <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.properties.subtitle')}</p>
                 </div>
-                <button className="px-8 py-3.5 bg-[#007aff] text-white rounded-2xl text-[13px] font-black uppercase tracking-[0.15em] hover:bg-blue-600 transition-all duration-400 active:scale-95 flex items-center gap-2.5 shadow-xl shadow-blue-500/25">
+                <button className="px-8 py-3.5 bg-[#1a73e8] text-white rounded-2xl text-[13px] font-black uppercase tracking-[0.15em] hover:bg-blue-600 transition-all duration-400 active:scale-95 flex items-center gap-2.5 shadow-xl shadow-blue-500/25">
                     <span className="material-symbols-outlined text-[20px] font-light">add_circle</span>
                     {t('enterprise.properties.add')}
                 </button>
@@ -261,11 +261,11 @@ export const PropertiesPage: React.FC = () => {
                             {properties.map((prop) => (
                                 <tr key={prop.id} className="hover:bg-white/60 transition-all duration-400 group">
                                     <td className="px-10 py-6 font-mono text-[12px] text-[#86868b]">#{prop.id}</td>
-                                    <td className="px-10 py-6 font-black text-[15px] text-black group-hover:text-[#007aff] transition-colors tracking-tight">{prop.name}</td>
+                                    <td className="px-10 py-6 font-black text-[15px] text-black group-hover:text-[#1a73e8] transition-colors tracking-tight">{prop.name}</td>
                                     <td className="px-10 py-6 font-black text-[14px] text-black tabular-nums tracking-tight">{prop.units}</td>
                                     <td className="px-10 py-6">
                                         <span className={`inline-flex items-center px-3.5 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border border-current/20 shadow-sm ${
-                                            prop.status === 'active' ? 'bg-white text-[#28cd41]' : 'bg-white text-[#ff9500]'
+                                            prop.status === 'active' ? 'bg-white text-[#34a853]' : 'bg-white text-[#ff9500]'
                                         }`}>
                                             <div className="w-1.5 h-1.5 rounded-full mr-2 bg-current" />
                                             {t(`enterprise.properties.status.${prop.status}`)}
@@ -279,7 +279,7 @@ export const PropertiesPage: React.FC = () => {
                                             </div>
                                         ) : (
                                             <span className="text-[#86868b] font-black text-[11px] uppercase tracking-widest flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-black/5 shadow-sm">
-                                                <span className="material-symbols-outlined text-[16px] text-[#28cd41]">check_circle</span>
+                                                <span className="material-symbols-outlined text-[16px] text-[#34a853]">check_circle</span>
                                                 {t('enterprise.properties.clear')}
                                             </span>
                                         )}

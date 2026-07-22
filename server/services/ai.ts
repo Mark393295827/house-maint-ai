@@ -4,6 +4,7 @@ import { materialAgent } from '../agents/material/agent.js';
 import { faultAgent } from '../agents/fault/agent.js';
 import { turnoverAgent } from '../agents/turnover/agent.js';
 import { researchOrchestrator } from '../agents/research/swarm.js';
+import { problemSolvingAgent, ProblemSolvingInput, ProblemSolvingLoopResult } from '../agents/problemSolving/agent.js';
 import { DiagnosisResult, RepairPattern, ChatMessage, MaterialBOM, FaultAttribution, TurnoverReport, IndustryResearchReport, withRetry, AiResponse } from '../agents/common.js';
 import * as Sentry from '@sentry/node';
 
@@ -113,6 +114,19 @@ class AiService {
             console.error('DIAGNOSIS AGENT ERROR:', error);
             Sentry.captureException(error);
             throw new Error('Inquiry conversation failed');
+        }
+    }
+
+    /**
+     * Run the full six-stage problem-solving loop with an OpenAI/Codex-grade
+     * planner when configured, or a deterministic mock loop for local demos.
+     */
+    async solveProblem(input: ProblemSolvingInput): Promise<AiResponse<ProblemSolvingLoopResult>> {
+        try {
+            return await problemSolvingAgent.solve(input);
+        } catch (error) {
+            Sentry.captureException(error);
+            throw new Error('Problem-solving loop failed');
         }
     }
 

@@ -144,7 +144,7 @@ const MetricsDashboard: React.FC = () => {
                 </div>
                 <div className="flex gap-2">
                     <div className="px-5 py-2.5 bg-white border border-black/5 rounded-2xl text-[11px] font-black text-black flex items-center gap-2.5 shadow-sm">
-                        <div className="w-2 h-2 rounded-full bg-[#28cd41] animate-pulse" />
+                        <div className="w-2 h-2 rounded-full bg-[#34a853] animate-pulse" />
                         {t('enterprise.metrics.systemLive')}
                     </div>
                 </div>
@@ -158,21 +158,21 @@ const MetricsDashboard: React.FC = () => {
                         label={t('enterprise.metrics.inquiries')} 
                         value={totalInquiries}
                         sub={t('enterprise.metrics.totalSessions')} 
-                        gradient="from-[#007aff] to-[#32ade6]"
+                        gradient="from-[#1a73e8] to-[#32ade6]"
                     />
                     <AppleStatCard 
                         icon="published_with_changes" 
                         label={t('enterprise.metrics.conversion')} 
                         value={`${conversionRate}%`}
                         sub={t('enterprise.metrics.dispatchLogic')} 
-                        gradient="from-[#28cd41] to-[#34c759]"
+                        gradient="from-[#34a853] to-[#34c759]"
                     />
                     <AppleStatCard 
                         icon="photo_camera" 
                         label={t('enterprise.metrics.photoRate')} 
                         value={`${photoRate}%`}
                         sub={t('enterprise.metrics.visualContext')} 
-                        gradient="from-[#5856d6] to-[#af52de]"
+                        gradient="from-[#a142f4] to-[#af52de]"
                     />
                     <AppleStatCard 
                         icon="forum" 
@@ -190,8 +190,8 @@ const MetricsDashboard: React.FC = () => {
                         <p className="text-[11px] font-black text-[#86868b] uppercase tracking-[0.25em] mb-12 self-start">{t('enterprise.metrics.serviceQuality')}</p>
                         {totalFeedbacks > 0 ? (
                             <div className="flex justify-around w-full gap-10">
-                                <AppleRingGauge value={avgRating} max={5} label={t('enterprise.metrics.rating')} colors={["#5856d6", "#007aff"]} />
-                                <AppleRingGauge value={avgAccuracy} max={5} label={t('enterprise.metrics.precision')} colors={["#28cd41", "#34c759"]} />
+                                <AppleRingGauge value={avgRating} max={5} label={t('enterprise.metrics.rating')} colors={["#a142f4", "#1a73e8"]} />
+                                <AppleRingGauge value={avgAccuracy} max={5} label={t('enterprise.metrics.precision')} colors={["#34a853", "#34c759"]} />
                             </div>
                         ) : (
                             <div className="text-center py-12 opacity-30">
@@ -214,7 +214,7 @@ const MetricsDashboard: React.FC = () => {
                                 <div key={i} className="flex-1 flex flex-col items-center gap-4">
                                     <div className="w-full bg-black/5 rounded-2xl relative overflow-hidden flex flex-col justify-end" style={{ height: '100%' }}>
                                         <div 
-                                            className="w-full bg-gradient-to-t from-[#007aff] to-[#32ade6] rounded-xl transition-all duration-1000 shadow-xl shadow-blue-500/10"
+                                            className="w-full bg-gradient-to-t from-[#1a73e8] to-[#32ade6] rounded-xl transition-all duration-1000 shadow-xl shadow-blue-500/10"
                                             style={{ height: `${Math.max((day.count / maxDaily) * 100, 3)}%` }}
                                         >
                                             <div className="absolute top-3 left-0 right-0 text-center">
@@ -241,7 +241,7 @@ const MetricsDashboard: React.FC = () => {
                                     label={key} 
                                     value={val} 
                                     max={totalInquiries} 
-                                    gradient="from-[#5856d6] to-[#007aff]" 
+                                    gradient="from-[#a142f4] to-[#1a73e8]" 
                                 />
                             ))}
                         </div>
@@ -257,7 +257,7 @@ const MetricsDashboard: React.FC = () => {
                                     label={key} 
                                     value={val} 
                                     max={totalInquiries} 
-                                    gradient="from-[#28cd41] to-[#007aff]" 
+                                    gradient="from-[#34a853] to-[#1a73e8]" 
                                 />
                             ))}
                         </div>

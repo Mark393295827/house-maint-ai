@@ -26,9 +26,11 @@ describe('EnterpriseAIConfigPage', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Models' }));
         expect(screen.getByText('Multi-Model Catalog')).toBeInTheDocument();
         expect(screen.getByLabelText('Model code for Gemini 1.5 Flash')).toHaveValue('gemini-1.5-flash');
+        expect(screen.getByLabelText('Model code for GPT-5.5 Codex')).toHaveValue('gpt-5.5');
 
         fireEvent.click(screen.getByRole('button', { name: 'Agents' }));
         expect(screen.getByLabelText('Model for PlanningAgent')).toHaveValue('deepseek-r1');
+        expect(screen.getByLabelText('Model for ProblemSolvingAgent')).toHaveValue('gpt-5.5-codex');
     });
 
     it('renders AI config chrome in Chinese when the saved locale is zh', () => {
@@ -62,10 +64,10 @@ describe('EnterpriseAIConfigPage', () => {
 
         fireEvent.click(screen.getByRole('button', { name: 'Agents' }));
         fireEvent.change(screen.getByLabelText('Model for PlanningAgent'), {
-            target: { value: 'model-6' },
+            target: { value: 'model-7' },
         });
 
-        expect(screen.getByLabelText('Model for PlanningAgent')).toHaveValue('model-6');
+        expect(screen.getByLabelText('Model for PlanningAgent')).toHaveValue('model-7');
         expect(screen.getByText('PlanningAgent routes to Moonshot Kimi K2')).toBeInTheDocument();
     });
 
@@ -96,7 +98,7 @@ describe('EnterpriseAIConfigPage', () => {
             target: { value: 'Proposal Draft' },
         });
         fireEvent.change(screen.getByLabelText('Owner for Proposal Draft'), {
-            target: { value: 'agent-8' },
+            target: { value: 'agent-9' },
         });
 
         fireEvent.click(screen.getByRole('button', { name: 'Blueprints' }));
@@ -105,7 +107,7 @@ describe('EnterpriseAIConfigPage', () => {
             target: { value: 'Sanya Rental Maintenance Proposal' },
         });
         fireEvent.change(screen.getByLabelText('Primary agent for Sanya Rental Maintenance Proposal'), {
-            target: { value: 'agent-8' },
+            target: { value: 'agent-9' },
         });
         fireEvent.change(screen.getByLabelText('Scenario for Sanya Rental Maintenance Proposal'), {
             target: { value: 'Vacation rental air-conditioner repair proposal' },
@@ -115,8 +117,8 @@ describe('EnterpriseAIConfigPage', () => {
         const stored = JSON.parse(localStorage.getItem(AI_CONFIG_STORAGE_KEY) || '{}');
         expect(stored.skills.some((skill: { name: string }) => skill.name === 'Proposal Generator Skill')).toBe(true);
         expect(stored.agents.some((agent: { name: string; systemPrompt: string }) => agent.name === 'ProposalAgent' && agent.systemPrompt.includes('owner-ready'))).toBe(true);
-        expect(stored.workflow.some((step: { title: string; ownerAgentId: string }) => step.title === 'Proposal Draft' && step.ownerAgentId === 'agent-8')).toBe(true);
-        expect(stored.blueprints.some((blueprint: { title: string; primaryAgentId: string }) => blueprint.title === 'Sanya Rental Maintenance Proposal' && blueprint.primaryAgentId === 'agent-8')).toBe(true);
+        expect(stored.workflow.some((step: { title: string; ownerAgentId: string }) => step.title === 'Proposal Draft' && step.ownerAgentId === 'agent-9')).toBe(true);
+        expect(stored.blueprints.some((blueprint: { title: string; primaryAgentId: string }) => blueprint.title === 'Sanya Rental Maintenance Proposal' && blueprint.primaryAgentId === 'agent-9')).toBe(true);
         expect(screen.getByText('Configuration saved locally')).toBeInTheDocument();
     });
 });

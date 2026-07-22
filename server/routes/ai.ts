@@ -115,7 +115,48 @@ router.post('/diagnose/inquiry', anonymizeImagePayload, async (req: Request, res
     }
 });
 
-// ──────── 8-Step Diagnostic Flow Endpoints ────────
+// ──────── Six-Stage Problem-Solving Loop Endpoint ────────
+
+const problemSolvingSchema = z.object({
+    image: z.string().optional(),
+    mimeType: z.string().optional(),
+    locale: z.string().optional(),
+    demand: z.object({
+        projectType: z.string().optional(),
+        area: z.string().optional(),
+        scope: z.string().optional(),
+        budget: z.string().optional(),
+        timeline: z.string().optional(),
+        severity: z.enum(['critical', 'moderate', 'low']).optional(),
+        specialRequirements: z.string().optional(),
+        hasPhoto: z.boolean().optional(),
+    }).passthrough(),
+    context: z.record(z.any()).optional(),
+});
+
+/**
+ * POST /api/ai/problem-solving
+ * OpenAI/Codex-grade six-stage maintenance problem-solving loop.
+ * [PIPL]: Image payload anonymized before hitting LLM.
+ */
+router.post('/problem-solving', anonymizeImagePayload, async (req: Request, res: Response) => {
+    try {
+        const { image, mimeType, locale, demand, context } = problemSolvingSchema.parse(req.body);
+        const { result, usage } = await aiService.solveProblem({
+            image,
+            mimeType,
+            locale,
+            demand,
+            context,
+        });
+        (req as any).aiUsage = usage;
+        res.json(result);
+    } catch (error) {
+        handleAiError(res, error, 'Problem-solving loop failed', 'Problem-solving loop failed');
+    }
+});
+
+// ──────── Structured Diagnostic Helper Endpoints ────────
 
 const stepSchema = z.object({
     image: z.string().optional(),

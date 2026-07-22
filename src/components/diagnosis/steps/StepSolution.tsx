@@ -96,7 +96,7 @@ const StepSolution: React.FC<StepSolutionProps> = ({ solution, loading, locale, 
                     )}
                     <button onClick={onNext} className="flex-1 h-12 bg-gradient-to-r from-primary to-accent text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all">
                         <span className="material-symbols-outlined">assignment</span>
-                        {locale === 'zh' ? 'PDCA 任务分配 →' : 'PDCA Tasks →'}
+                        {locale === 'zh' ? '执行清单 →' : 'Execution Checklist →'}
                     </button>
                 </div>
             </>

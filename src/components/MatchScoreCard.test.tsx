@@ -8,7 +8,7 @@ vi.mock('../utils/matchScore', () => ({
     getMatchLevel: vi.fn(() => ({
         level: 'good',
         label: '良好',
-        color: '#007AFF'
+        color: '#1a73e8'
     })),
 }));
 
@@ -142,7 +142,7 @@ describe('MatchScoreCard', () => {
         render(<MatchScoreCard worker={mockWorker} report={mockReport} />);
 
         const scoreElement = screen.getByText('85');
-        expect(scoreElement).toHaveStyle({ color: '#007AFF' });
+        expect(scoreElement).toHaveStyle({ color: '#1a73e8' });
     });
 
     it('should render with different match levels', () => {

@@ -182,13 +182,21 @@ export const getReportOperatingStageId = (status: string): OperatingStage['id'] 
     switch (status) {
         case 'pending':
             return 'intake';
-        case 'matching':
+        case 'failed_analysis':
+        case 'flagged_for_review':
             return 'diagnosis';
+        case 'analyzed':
+        case 'failed_planning':
+            return 'deflection';
+        case 'planned':
+        case 'matching':
+        case 'broadcasted':
         case 'matched':
             return 'dispatch';
         case 'in_progress':
             return 'verification';
         case 'completed':
+        case 'cancelled':
             return 'reporting';
         default:
             return 'intake';

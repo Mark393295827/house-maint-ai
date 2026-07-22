@@ -1,10 +1,21 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import {
+    useState,
+    useEffect,
+    useRef,
+    useCallback,
+    type ComponentProps,
+    type CSSProperties,
+    type KeyboardEvent as ReactKeyboardEvent,
+    type MouseEvent as ReactMouseEvent,
+} from 'react';
+import { flushSync } from 'react-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
-import { getOperatingStageCopies } from '../constants/operatingModel';
+import { getOperatingStageCopies, type OperatingStageCopy } from '../constants/operatingModel';
+import MeteorShower from '../components/MeteorShower';
+import '../showcase-antigravity.css';
 
-/* ─── Animated Counter Hook ─── */
 function useCountUp(target: number, duration = 2000, startOnVisible = true) {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
@@ -12,35 +23,44 @@ function useCountUp(target: number, duration = 2000, startOnVisible = true) {
 
     useEffect(() => {
         if (!startOnVisible || !ref.current) return;
+        if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            setCount(target);
+            return;
+        }
         if (typeof IntersectionObserver === 'undefined') {
             setCount(target);
             return;
         }
+
+        let frameId = 0;
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting && !started.current) {
-                    started.current = true;
-                    const startTime = performance.now();
-                    const tick = (now: number) => {
-                        const elapsed = now - startTime;
-                        const progress = Math.min(elapsed / duration, 1);
-                        const eased = 1 - Math.pow(1 - progress, 3);
-                        setCount(Math.round(eased * target));
-                        if (progress < 1) requestAnimationFrame(tick);
-                    };
-                    requestAnimationFrame(tick);
-                }
+                if (!entry.isIntersecting || started.current) return;
+
+                started.current = true;
+                const startTime = performance.now();
+                const tick = (now: number) => {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    setCount(Math.round(eased * target));
+                    if (progress < 1) frameId = requestAnimationFrame(tick);
+                };
+                frameId = requestAnimationFrame(tick);
             },
             { threshold: 0.3 }
         );
+
         observer.observe(ref.current);
-        return () => observer.disconnect();
+        return () => {
+            observer.disconnect();
+            cancelAnimationFrame(frameId);
+        };
     }, [target, duration, startOnVisible]);
 
     return { count, ref };
 }
 
-/* ─── Scroll Reveal Hook ─── */
 function useReveal() {
     const ref = useRef<HTMLDivElement>(null);
 
@@ -50,14 +70,14 @@ function useReveal() {
             ref.current.classList.add('visible');
             return;
         }
+
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('visible');
             },
-            { threshold: 0.15 }
+            { threshold: 0.08 }
         );
+
         observer.observe(ref.current);
         return () => observer.disconnect();
     }, []);
@@ -65,29 +85,144 @@ function useReveal() {
     return ref;
 }
 
-/* ─── Feature Data (icon + gradient only, text from i18n) ─── */
-const STAGE_GRADIENTS = [
-    'from-violet-500 to-purple-600',
-    'from-cyan-500 to-teal-600',
-    'from-emerald-500 to-green-600',
-    'from-amber-500 to-orange-600',
-    'from-rose-500 to-pink-600',
-    'from-indigo-500 to-blue-600',
-];
+const STAGE_ICONS: Record<OperatingStageCopy['id'], string> = {
+    intake: 'chat_bubble',
+    diagnosis: 'saved_search',
+    deflection: 'library_books',
+    dispatch: 'explore',
+    verification: 'verified',
+    reporting: 'monitoring',
+};
+
+const ReactLogo = () => (
+    <svg viewBox="-11.5 -10.23174 23 20.46348" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="0" cy="0" r="2.05" fill="#61dafb"/>
+        <g stroke="#61dafb" strokeWidth="1" fill="none">
+            <ellipse rx="11" ry="4.2"/>
+            <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+            <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+        </g>
+    </svg>
+);
+
+const TypeScriptLogo = () => (
+    <svg viewBox="0 0 100 100" width="24" height="24">
+        <rect width="100" height="100" fill="#3178c6" rx="10"/>
+        <text x="52" y="80" fill="#ffffff" fontFamily="'Inter', sans-serif" fontSize="42" fontWeight="bold">TS</text>
+    </svg>
+);
+
+const NodeLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="#339933">
+        <path d="M12 1L2 6.8v11.4L12 23l10-5.8V6.8L12 1zm8.3 16.3l-8.3 4.8-8.3-4.8V7.8l8.3-4.8 8.3 4.8v9.5z"/>
+        <path d="M12 6.5l-5.2 3v6l5.2 3 5.2-3v-6l-5.2-3z"/>
+    </svg>
+);
+
+const GeminiLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path d="M12 2a1 1 0 0 1 1 1v2a7 7 0 0 0 7 7h2a1 1 0 0 1 0 2h-2a7 7 0 0 0-7 7v2a1 1 0 0 1-2 0v-2a7 7 0 0 0-7-7H2a1 1 0 0 1 0-2h2a7 7 0 0 0 7-7V3a1 1 0 0 1 1-1z" fill="url(#gemini-grad)"/>
+        <defs>
+            <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#1a73e8" />
+                <stop offset="50%" stopColor="#ea4335" />
+                <stop offset="100%" stopColor="#FBBC05" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
+
+const PostgreSqlLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#336791" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3" fill="#336791" fillOpacity="0.2"/>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+        <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+    </svg>
+);
+
+const RedisLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#d82c20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#d82c20" fillOpacity="0.2"/>
+        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+);
+
+const StripeLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="#635bff">
+        <path d="M20.21 10.3c0-4.78-2.47-7.3-6.85-7.3-4.53 0-7.38 2.69-7.38 7.37 0 4.96 2.76 7.19 7.42 7.19.88 0 1.63-.07 2.47-.23 1.89-.36 3.01-1.29 3.01-1.29l-.81-2.92s-1 .39-2.07.61c-.71.14-1.63.15-2.28-.1-.65-.25-.89-.78-.89-1.58h6.98c.18-1.28.4-2.25.4-2.25zm-6.66-1.62c0-.79.46-1.22 1.25-1.22.81 0 1.23.43 1.23 1.22v.94h-2.48v-.94z"/>
+    </svg>
+);
+
+const DockerLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="#2496ed">
+        <path d="M13.983 8.871h-2.274V6.597h2.274v2.274zM11.39 8.871H9.128V6.597H11.39v2.274zm-2.274 0H6.843V6.597h2.272v2.274zm-2.272 0H4.57V6.597h2.274v2.274zm8.683-2.528h-2.274V4.07h2.274v2.273zm-2.274 0H11.39V4.07h2.274v2.273zm-2.274 0H9.128V4.07H11.39v2.273zm4.548 5.056h-2.274v-2.274h2.274v2.274zm-2.274 0H11.39V8.871h2.274v2.274zm8.618 1.139c-.068-.078-.585-.634-1.89-.634-1.312 0-2.316.897-2.61 1.229V9.377h-2.274v6.822h2.274v-1.745c.345-.19.922-.44 1.48-.44.757 0 1.218.423 1.342.923.123.5.123 1.262.123 1.262h2.274s-.044-1.127-.29-2.029a2.532 2.532 0 0 0-1.729-1.9zm-9.068 3.654H1.5v2.274h12.484v-2.274z"/>
+    </svg>
+);
+
+const SentryLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#362d59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#362d59" fillOpacity="0.2"/>
+    </svg>
+);
+
+const MixpanelLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="#4e5ba6">
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="12" cy="12" r="4.5" />
+        <circle cx="18.5" cy="12" r="2.5" />
+    </svg>
+);
+
+const ViteLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <polygon points="12,2 22,8 20,20 4,20 2,8" fill="url(#vite-bg)"/>
+        <polygon points="12,4 17,11 13,11 15,18 9,11 12,11" fill="#ffb900"/>
+        <defs>
+            <linearGradient id="vite-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#bd34fe" />
+                <stop offset="100%" stopColor="#41d1ff" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
+
+const TailwindLogo = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 9h-9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5h9c.83 0 1.5 6.7 1.5 1.5s-.67 1.5-1.5 1.5z" fill="#38bdf8" fillOpacity="0.2"/>
+    </svg>
+);
+
+const renderTechIcon = (key: string) => {
+    switch (key) {
+        case 'R19': return <ReactLogo />;
+        case 'TS': return <TypeScriptLogo />;
+        case 'JS': return <NodeLogo />;
+        case 'GA': return <GeminiLogo />;
+        case 'PG': return <PostgreSqlLogo />;
+        case 'RD': return <RedisLogo />;
+        case 'ST': return <StripeLogo />;
+        case 'DK': return <DockerLogo />;
+        case 'SE': return <SentryLogo />;
+        case 'MX': return <MixpanelLogo />;
+        case 'VT': return <ViteLogo />;
+        case 'TW': return <TailwindLogo />;
+        default: return key;
+    }
+};
 
 const TECH_STACK = [
-    { name: 'React 19', icon: '⚛️' },
-    { name: 'TypeScript', icon: '🔷' },
-    { name: 'Node.js', icon: '🟢' },
-    { name: 'Gemini AI', icon: '🤖' },
-    { name: 'PostgreSQL', icon: '🐘' },
-    { name: 'Redis', icon: '🔴' },
-    { name: 'Stripe', icon: '💳' },
-    { name: 'Docker', icon: '🐳' },
-    { name: 'Sentry', icon: '🔍' },
-    { name: 'Mixpanel', icon: '📊' },
-    { name: 'Vite', icon: '⚡' },
-    { name: 'TailwindCSS', icon: '🎨' },
+    { name: 'React 19', icon: 'R19' },
+    { name: 'TypeScript', icon: 'TS' },
+    { name: 'Node.js', icon: 'JS' },
+    { name: 'Gemini AI', icon: 'GA' },
+    { name: 'PostgreSQL', icon: 'PG' },
+    { name: 'Redis', icon: 'RD' },
+    { name: 'Stripe', icon: 'ST' },
+    { name: 'Docker', icon: 'DK' },
+    { name: 'Sentry', icon: 'SE' },
+    { name: 'Mixpanel', icon: 'MX' },
+    { name: 'Vite', icon: 'VT' },
+    { name: 'TailwindCSS', icon: 'TW' },
 ];
 
 const STATS_CONFIG = [
@@ -109,12 +244,145 @@ const DEMO_ROUTES = [
     { path: '/enterprise', key: 'enterprise' },
 ];
 
-/* ═══════════════════════════════════════════
-    SHOWCASE PAGE
-   ═══════════════════════════════════════════ */
+const ROUTE_PRELOADERS: Record<string, () => Promise<unknown>> = {
+    '/': () => import('../components/OnboardingGate'),
+    '/welcome': () => import('./WelcomePage'),
+    '/login': () => import('./LoginPage'),
+    '/diagnosis': () => import('./DiagnosisPage'),
+    '/worker/dashboard': () => import('./WorkerDashboardPage'),
+    '/worker/register': () => import('./WorkerRegistrationPage'),
+    '/community': () => import('./CommunityPage'),
+    '/calendar': () => import('./CalendarPage'),
+    '/enterprise': () => import('./EnterpriseDashboard'),
+    '/preview': () => import('./DevicePreview'),
+};
+
+const SIGNAL_POSITIONS = [
+    { left: '8%', top: '69%' },
+    { left: '24%', top: '43%' },
+    { left: '41%', top: '27%' },
+    { left: '59%', top: '27%' },
+    { left: '76%', top: '43%' },
+    { left: '92%', top: '69%' },
+];
+
+const PARTICLES = Array.from({ length: 104 }, (_, index) => ({
+    left: `${(index * 47 + (index % 9) * 3) % 100}%`,
+    top: `${(index * 31 + (index % 7) * 9) % 100}%`,
+    size: index % 11 === 0 ? 3 : index % 4 === 0 ? 2 : 1,
+    delay: `${-((index % 19) * 0.42)}s`,
+    duration: `${8 + (index % 8)}s`,
+}));
+
+const preloadRoute = (route: string) => {
+    void ROUTE_PRELOADERS[route]?.();
+};
+
+type ViewTransitionDocument = Document & {
+    startViewTransition?: (callback: () => void) => { finished: Promise<void> };
+};
+
+type SeamlessLinkProps = Omit<ComponentProps<typeof Link>, 'to' | 'viewTransition'> & {
+    to: string;
+};
+
+const SeamlessLink = ({ to, onClick, ...props }: SeamlessLinkProps) => {
+    const navigate = useNavigate();
+
+    const handleClick = useCallback(async (event: ReactMouseEvent<HTMLAnchorElement>) => {
+        onClick?.(event);
+        if (
+            event.defaultPrevented
+            || event.button !== 0
+            || event.metaKey
+            || event.ctrlKey
+            || event.shiftKey
+            || event.altKey
+            || props.target === '_blank'
+        ) return;
+
+        event.preventDefault();
+        await ROUTE_PRELOADERS[to]?.().catch(() => undefined);
+
+        const transitionDocument = document as ViewTransitionDocument;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const commitNavigation = () => flushSync(() => navigate(to));
+
+        if (transitionDocument.startViewTransition && !reduceMotion) {
+            transitionDocument.startViewTransition(commitNavigation);
+            return;
+        }
+
+        commitNavigation();
+    }, [navigate, onClick, props.target, to]);
+
+    return <Link {...props} to={to} onClick={handleClick} />;
+};
+
+const ParticleField = ({ tone = 'light', density = 'full' }: { tone?: 'light' | 'dark'; density?: 'full' | 'sparse' }) => (
+    <div className={`gravity-particles is-${tone} is-${density}`} aria-hidden="true">
+        {PARTICLES.map((particle, index) => (
+            <span
+                key={index}
+                className={`gravity-particle-tone-${(index % 4) + 1}`}
+                style={{
+                    left: particle.left,
+                    top: particle.top,
+                    width: particle.size,
+                    height: particle.size,
+                    animationDelay: particle.delay,
+                    animationDuration: particle.duration,
+                }}
+            />
+        ))}
+    </div>
+);
+
+const StageVisual = ({
+    stage,
+    index,
+    stages,
+}: {
+    stage: OperatingStageCopy;
+    index: number;
+    stages: OperatingStageCopy[];
+}) => {
+    const iconName = STAGE_ICONS[stage.id];
+
+    return (
+        <div className={`gravity-stage-visual stage-${stage.id}`} aria-hidden="true">
+            <div className="gravity-stage-visual-top">
+                <span className="gravity-stage-visual-icon">
+                    <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>{iconName}</span>
+                </span>
+                <span>{stage.metric}</span>
+            </div>
+            <div className="gravity-stage-visual-center">
+                <span className="gravity-stage-signal-ring">
+                    <span className="material-symbols-outlined text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>{iconName}</span>
+                </span>
+                <div className="gravity-stage-route">
+                    {stages.map((item, routeIndex) => (
+                        <span
+                            key={item.id}
+                            className={routeIndex <= index ? 'is-complete' : ''}
+                        />
+                    ))}
+                </div>
+            </div>
+            <div className="gravity-stage-visual-bottom">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <strong>{stage.title}</strong>
+            </div>
+        </div>
+    );
+};
+
 const ShowcasePage = () => {
     const { t, locale } = useLanguage();
     const [iframeRoute, setIframeRoute] = useState('/');
+    const [isDemoSwitching, setIsDemoSwitching] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const operatingStages = getOperatingStageCopies(locale === 'zh' ? 'zh' : 'en');
 
@@ -124,307 +392,389 @@ const ShowcasePage = () => {
     const statsReveal = useReveal();
     const ctaReveal = useReveal();
 
+    const selectedDemo = DEMO_ROUTES.find((route) => route.path === iframeRoute) || DEMO_ROUTES[0];
+
     const handleDemoRoute = useCallback((route: string) => {
+        if (route === iframeRoute) return;
+        preloadRoute(route);
+        setIsDemoSwitching(true);
         setIframeRoute(route);
+    }, [iframeRoute]);
+
+    const handleDemoLoad = useCallback(() => {
+        setIsDemoSwitching(false);
     }, []);
 
+    const handleDemoKeyDown = useCallback((event: ReactKeyboardEvent<HTMLButtonElement>, index: number) => {
+        let nextIndex: number | null = null;
+
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % DEMO_ROUTES.length;
+        if (event.key === 'ArrowLeft') nextIndex = (index - 1 + DEMO_ROUTES.length) % DEMO_ROUTES.length;
+        if (event.key === 'Home') nextIndex = 0;
+        if (event.key === 'End') nextIndex = DEMO_ROUTES.length - 1;
+        if (nextIndex === null) return;
+
+        event.preventDefault();
+        const nextRoute = DEMO_ROUTES[nextIndex];
+        handleDemoRoute(nextRoute.path);
+        requestAnimationFrame(() => document.getElementById(`showcase-demo-tab-${nextRoute.key}`)?.focus());
+    }, [handleDemoRoute]);
+
+    const scrollToOperatingModel = useCallback(() => {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.getElementById('showcase-operating-model')?.scrollIntoView({
+            behavior: reduceMotion ? 'auto' : 'smooth',
+            block: 'start',
+        });
+    }, []);
+
+    const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+
+    useEffect(() => {
+        if (!isMenuOpen) return;
+
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key !== 'Escape') return;
+            setIsMenuOpen(false);
+            document.querySelector<HTMLButtonElement>('.gravity-menu-button')?.focus();
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [isMenuOpen]);
+
     return (
-        <div className="min-h-screen bg-[#fbfbfd] text-[#1d1d1f] overflow-x-hidden font-sans">
-            {/* Language toggle — fixed top-right */}
-            <div className="fixed top-5 right-5 z-50">
-                <LanguageToggle />
-            </div>
+        <div className="showcase-gravity">
+            <MeteorShower />
+            <header className="gravity-header showcase-glass-bar" aria-label="House Maint AI">
+                <a className="gravity-brand" href="#showcase-top" aria-label="House Maint AI home">
+                    <span className="gravity-brand-mark">
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+                            <path d="M10 3.5L4 8.5H6.5V14.5H13.5V8.5H16L10 3.5Z" fill="currentColor" />
+                            <rect x="12.5" y="5.5" width="2" height="4.2" fill="currentColor" />
+                            <rect x="8.5" y="11" width="3" height="3.5" fill="var(--color-showcase-canvas)" />
+                        </svg>
+                    </span>
+                    <span>House Maint AI</span>
+                </a>
 
-            {/* ═══════════════════════════════════════════
-                SECTION 1: HERO
-               ═══════════════════════════════════════════ */}
-            <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
-                {/* Background blobs (Lightened for Apple palette) */}
-                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#0071e3]/5 morph-blob opacity-60" />
-                <div className="absolute bottom-[-15%] right-[-10%] w-[500px] h-[500px] bg-[#5e5ce6]/5 morph-blob-fast opacity-60" />
-                <div className="absolute top-[30%] right-[20%] w-[300px] h-[300px] bg-[#af52de]/3 morph-blob opacity-60" style={{ animationDelay: '-4s' }} />
+                <nav className="gravity-nav" aria-label={locale === 'zh' ? '展示页面导航' : 'Showcase sections'}>
+                    <a href="#showcase-operating-model">{t('showcase.featuresLabel')}</a>
+                    <a href="#showcase-live-demo">{t('showcase.demoLabel')}</a>
+                    <a href="#showcase-tech">{t('showcase.techLabel')}</a>
+                </nav>
 
-                {/* Precise light grid overlay */}
-                <div className="absolute inset-0 opacity-[0.4]" style={{
-                    backgroundImage: 'linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)',
-                    backgroundSize: '60px 60px'
-                }} />
-
-                {/* Content */}
-                <div className="relative z-10 max-w-4xl mx-auto text-center">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full apple-glass bg-white/40 ring-1 ring-black/5 mb-8 page-enter backdrop-blur-3xl shadow-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#28cd41] animate-pulse" />
-                        <span className="text-[10px] font-black text-[#1d1d1f]/60 tracking-widest uppercase">{t('showcase.badge')}</span>
-                    </div>
-
-                    {/* Title — high contrast slate */}
-                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.05] tracking-tighter mb-8 font-display text-[#1d1d1f]">
-                         {t('showcase.heroTitle').split(' ').map((word, i) => (
-                             <span key={i} className="inline-block stagger-item" style={{ animationDelay: `${i * 100}ms` }}>{word}&nbsp;</span>
-                         ))}
-                    </h1>
-
-                    {/* Subtitle */}
-                    <p className="text-xl sm:text-2xl text-[#86868b] max-w-2xl mx-auto mb-12 font-medium leading-relaxed page-enter" style={{ animationDelay: '600ms' }}>
-                        {t('showcase.heroSubtitle')}
-                    </p>
-
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-5 page-enter" style={{ animationDelay: '950ms' }}>
-                        <Link
-                            to="/welcome"
-                            className="relative inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#1d1d1f] text-white font-black text-lg shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:bg-black hover:shadow-[0_25px_50px_rgba(0,0,0,0.15)] transition-all active:scale-[0.97] press-scale"
-                        >
-                            {t('showcase.ctaTryDemo')}
-                            <span className="material-symbols-outlined text-xl">arrow_forward</span>
-                        </Link>
-                        <a
-                            href="https://github.com/Mark393295827/house-maint-ai"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-3 px-10 py-5 rounded-[22px] apple-glass bg-white/40 ring-1 ring-black/5 text-[#1d1d1f] font-black tracking-tight hover:bg-white/60 transition-all shadow-sm active:scale-[0.97]"
-                        >
-                            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" /></svg>
-                            {t('showcase.ctaGithub')}
-                        </a>
-                    </div>
+                <div className="gravity-header-actions">
+                    <LanguageToggle />
+                    <SeamlessLink
+                        to="/welcome"
+                        onPointerEnter={() => preloadRoute('/welcome')}
+                        onFocus={() => preloadRoute('/welcome')}
+                        className="gravity-header-cta"
+                    >
+                        {t('showcase.ctaLaunch')}
+                        <span className="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
+                    </SeamlessLink>
+                    <button
+                        type="button"
+                        className="gravity-menu-button"
+                        aria-label={locale === 'zh'
+                            ? (isMenuOpen ? '关闭导航' : '打开导航')
+                            : (isMenuOpen ? 'Close navigation' : 'Open navigation')}
+                        aria-expanded={isMenuOpen}
+                        aria-controls="gravity-mobile-nav"
+                        onClick={() => setIsMenuOpen((open) => !open)}
+                    >
+                        {isMenuOpen ? <span className="material-symbols-outlined text-[20px]">close</span> : <span className="material-symbols-outlined text-[20px]">menu</span>}
+                    </button>
                 </div>
 
-                {/* Scroll hint — refined for light theme */}
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
-                    <span className="text-[10px] font-black tracking-widest uppercase text-[#1d1d1f]">{t('showcase.scrollHint')}</span>
-                    <div className="w-[1px] h-10 bg-gradient-to-b from-[#1d1d1f] to-transparent animate-pulse" />
-                </div>
-            </section>
+                <nav
+                    id="gravity-mobile-nav"
+                    className={`gravity-mobile-nav ${isMenuOpen ? 'is-open' : ''}`}
+                    aria-label={locale === 'zh' ? '移动端展示页面导航' : 'Mobile showcase sections'}
+                    aria-hidden={!isMenuOpen}
+                >
+                    <a href="#showcase-operating-model" tabIndex={isMenuOpen ? 0 : -1} onClick={closeMenu}>{t('showcase.featuresLabel')}</a>
+                    <a href="#showcase-live-demo" tabIndex={isMenuOpen ? 0 : -1} onClick={closeMenu}>{t('showcase.demoLabel')}</a>
+                    <a href="#showcase-tech" tabIndex={isMenuOpen ? 0 : -1} onClick={closeMenu}>{t('showcase.techLabel')}</a>
+                </nav>
+            </header>
 
-            {/* ═══════════════════════════════════════════
-                SECTION 2: FEATURES
-               ═══════════════════════════════════════════ */}
-            <section ref={featuresReveal} className="reveal py-32 px-6">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-20 max-w-3xl mx-auto">
-                        <span className="text-[11px] font-black tracking-[0.25em] uppercase text-[#0071e3] mb-6 block stagger-item">{t('showcase.featuresLabel')}</span>
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-[#1d1d1f] mb-8 stagger-item">
+            <main>
+                <section id="showcase-top" className="gravity-hero">
+                    <ParticleField />
+                    <div className="gravity-hero-content">
+                        <div className="gravity-hero-product page-enter">
+                            <span className="material-symbols-outlined text-[22px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>home</span>
+                            <span>House Maint AI</span>
+                        </div>
+                        <p className="gravity-hero-status page-enter">
+                            <span aria-hidden="true" />
+                            {t('showcase.badge')}
+                        </p>
+                        <h1 className="page-enter">{t('showcase.heroTitle')}</h1>
+                        <p className="gravity-hero-subtitle page-enter">{t('showcase.heroSubtitle')}</p>
+                        <div className="gravity-actions page-enter">
+                            <SeamlessLink
+                                to="/welcome"
+                                onPointerEnter={() => preloadRoute('/welcome')}
+                                onFocus={() => preloadRoute('/welcome')}
+                                className="gravity-button is-dark"
+                            >
+                                {t('showcase.ctaTryDemo')}
+                                <span className="material-symbols-outlined text-[18px] ml-1">arrow_forward</span>
+                            </SeamlessLink>
+                            <a
+                                href="https://github.com/Mark393295827/house-maint-ai"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="gravity-button is-light"
+                            >
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
+                                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                                </svg>
+                                {t('showcase.ctaGithub')}
+                            </a>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="gravity-scroll-cue"
+                        onClick={scrollToOperatingModel}
+                        aria-controls="showcase-operating-model"
+                    >
+                        <span>{t('showcase.scrollHint')}</span>
+                        <span className="material-symbols-outlined text-[17px] ml-1">arrow_downward</span>
+                    </button>
+                </section>
+
+                <section id="showcase-operating-model" ref={featuresReveal} className="gravity-section gravity-operating reveal">
+                    <div className="gravity-media-stage showcase-dark-stage">
+                        <ParticleField tone="dark" />
+                        <div className="gravity-media-stage-label">
+                            <span>{locale === 'zh' ? '运营闭环' : 'Operating loop'}</span>
+                            <strong>01-06</strong>
+                        </div>
+                        <div className="gravity-signal-map" aria-label={locale === 'zh' ? '六阶段运营闭环' : 'Six-stage operating loop'}>
+                            <span className="gravity-signal-core">
+                                <span className="material-symbols-outlined text-[60px]" style={{ fontVariationSettings: "'FILL' 1" }}>home</span>
+                            </span>
+                            {operatingStages.map((stage, index) => {
+                                const iconName = STAGE_ICONS[stage.id];
+                                return (
+                                    <span
+                                        key={stage.id}
+                                        className={`gravity-signal-node stage-${stage.id}`}
+                                        style={SIGNAL_POSITIONS[index] as CSSProperties}
+                                    >
+                                        <span className="material-symbols-outlined text-[34px]" style={{ fontVariationSettings: "'FILL' 1" }}>{iconName}</span>
+                                        <small>{String(index + 1).padStart(2, '0')}</small>
+                                    </span>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="gravity-stage-rail" aria-label={locale === 'zh' ? '六阶段运营闭环' : 'Six-stage operating loop'}>
+                        <div className="gravity-stage-track">
+                            {[...operatingStages, ...operatingStages].map((stage, index) => {
+                                const iconName = STAGE_ICONS[stage.id];
+                                const duplicate = index >= operatingStages.length;
+                                return (
+                                    <div key={`${stage.id}-${index}`} className="gravity-stage-rail-item" aria-hidden={duplicate || undefined}>
+                                        <span>
+                                            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>{iconName}</span>
+                                        </span>
+                                        <small>{stage.title}</small>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="gravity-editorial-heading">
+                        <p>{t('showcase.featuresLabel')}</p>
+                        <h2>
                             {t('showcase.featuresTitle')}{' '}
-                            <span className="text-[#86868b]">{t('showcase.featuresTitleHighlight')}</span>
+                            <span>{t('showcase.featuresTitleHighlight')}</span>
                         </h2>
                     </div>
 
-                    <div className="mb-8 text-center">
-                        <span className="inline-flex items-center rounded-full bg-[#1d1d1f] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white">
-                            {locale === 'zh' ? '运营闭环' : 'Operating loop'}
-                        </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {operatingStages.map((stage, i) => (
-                            <div
-                                key={stage.id}
-                                className="aegis-card group p-10 bg-white/60 hover:bg-white transition-all duration-700 stagger-item border-none"
-                                style={{ animationDelay: `${i * 100}ms` }}
-                            >
-                                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${STAGE_GRADIENTS[i]} flex items-center justify-center shadow-xl shadow-black/5 mb-8 transform group-hover:-translate-y-1 transition-transform`}
-                                >
-                                    <span className="material-symbols-outlined text-white text-[28px]">
-                                        {stage.icon}
-                                    </span>
+                    <div className="gravity-stage-list">
+                        {operatingStages.map((stage, index) => (
+                            <article key={stage.id} className={`gravity-stage-row ${index % 2 ? 'is-reversed' : ''}`}>
+                                <div className="gravity-stage-copy">
+                                    <div className="gravity-stage-meta">
+                                        <span>{String(index + 1).padStart(2, '0')} / 06</span>
+                                        <span>{stage.metric}</span>
+                                    </div>
+                                    <h3>{stage.title}</h3>
+                                    <p>{stage.description}</p>
                                 </div>
-                                <div className="mb-4 flex items-center gap-3">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#86868b]">{i + 1}/6</span>
-                                    <span className="h-px flex-1 bg-black/5" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#0071e3]">{stage.metric}</span>
-                                </div>
-                                <h3 className="text-xl font-black mb-4 text-[#1d1d1f] tracking-tight">{stage.title}</h3>
-                                <p className="text-[15px] text-[#86868b] font-medium leading-relaxed">{stage.description}</p>
-                            </div>
+                                <StageVisual stage={stage} index={index} stages={operatingStages} />
+                            </article>
                         ))}
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* ═══════════════════════════════════════════
-                SECTION 3: LIVE DEMO
-               ═══════════════════════════════════════════ */}
-            <section ref={demoReveal} className="reveal py-32 px-6 bg-[#f5f5f7]">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-20">
-                        <span className="text-[11px] font-black tracking-[0.25em] uppercase text-[#5e5ce6] mb-6 block">{t('showcase.demoLabel')}</span>
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-[#1d1d1f]">
-                            {t('showcase.demoTitle')} <span className="text-[#86868b]">{t('showcase.demoTitleHighlight')}</span>
-                        </h2>
+                <section id="showcase-live-demo" ref={demoReveal} className="gravity-section gravity-demo reveal">
+                    <div className="gravity-section-heading">
+                        <p>{t('showcase.demoLabel')}</p>
+                        <h2>{t('showcase.demoTitle')} <span>{t('showcase.demoTitleHighlight')}</span></h2>
                     </div>
 
-                    {/* Apple-style Route Chips */}
-                    <div className="flex flex-wrap items-center justify-center gap-3 mb-16 max-w-4xl mx-auto">
-                        {DEMO_ROUTES.map(route => (
+                    <div className="gravity-route-selector" role="tablist" aria-label={t('showcase.demoLabel')}>
+                        {DEMO_ROUTES.map((route, index) => (
                             <button
                                 key={route.path}
+                                id={`showcase-demo-tab-${route.key}`}
+                                type="button"
+                                role="tab"
+                                aria-selected={iframeRoute === route.path}
+                                aria-controls="showcase-demo-panel"
+                                tabIndex={iframeRoute === route.path ? 0 : -1}
                                 onClick={() => handleDemoRoute(route.path)}
-                                className={`px-6 py-3 rounded-full text-[13px] font-black transition-all duration-300 ${iframeRoute === route.path
-                                        ? 'bg-[#1d1d1f] text-white shadow-xl shadow-black/10'
-                                        : 'bg-white/40 text-[#1d1d1f]/60 border border-black/5 hover:bg-white/80 hover:text-[#1d1d1f]'
-                                    }`}
+                                onKeyDown={(event) => handleDemoKeyDown(event, index)}
+                                onPointerEnter={() => preloadRoute(route.path)}
+                                onFocus={() => preloadRoute(route.path)}
+                                className={iframeRoute === route.path ? 'is-active' : ''}
                             >
                                 {t(`showcase.demoRoutes.${route.key}`)}
                             </button>
                         ))}
                     </div>
 
-                    {/* Precision Device Preview */}
-                    <div className="flex justify-center">
-                        <div className="relative group perspective-1000">
-                            {/* Ambient Glow */}
-                            <div className="absolute inset-x-0 -bottom-20 bg-gradient-to-t from-black/5 to-transparent h-60 blur-3xl rounded-[100px] opacity-60" />
+                    <div
+                        id="showcase-demo-panel"
+                        className="gravity-demo-stage showcase-dark-stage"
+                        role="tabpanel"
+                        aria-labelledby={`showcase-demo-tab-${selectedDemo.key}`}
+                        aria-busy={isDemoSwitching}
+                    >
+                        <ParticleField tone="dark" density="sparse" />
+                        <div className="gravity-demo-copy">
+                            <span>{t('showcase.demoLabel')}</span>
+                            <strong aria-live="polite">{t(`showcase.demoRoutes.${selectedDemo.key}`)}</strong>
+                            <p>House Maint AI / {String(DEMO_ROUTES.indexOf(selectedDemo) + 1).padStart(2, '0')}</p>
+                        </div>
 
-                            {/* Apple Device Frame */}
-                            <div className="relative bg-[#000] rounded-[52px] p-[10px] shadow-[0_50px_100px_rgba(0,0,0,0.12)] ring-1 ring-black/10 transform transition-transform duration-1000">
-                                {/* Dynamic Island */}
-                                <div className="absolute top-[18px] left-1/2 -translate-x-1/2 w-[110px] h-[34px] bg-black rounded-[20px] z-20 flex items-center justify-center gap-1.5 px-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#1d1d1f] shadow-inner" />
-                                    <div className="flex-1" />
-                                    <div className="w-4 h-4 rounded-full bg-[#1d1d1f] shadow-inner opacity-20" />
+                        <div className="gravity-device">
+                            <div className="gravity-device-sensor" aria-hidden="true" />
+                            <div className={`gravity-device-screen ${isDemoSwitching ? 'is-switching' : ''}`}>
+                                <div className="gravity-device-screen-mask" aria-hidden="true" />
+                                <div className="gravity-demo-progress" aria-hidden="true"><span /></div>
+                                <iframe
+                                    ref={iframeRef}
+                                    src={`${window.location.host === 'localhost:5173' ? 'http://localhost:5173' : window.location.origin}${iframeRoute}`}
+                                    title="Live Demo"
+                                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                                    onLoad={handleDemoLoad}
+                                />
+                            </div>
+                            <div className="gravity-device-home-indicator" aria-hidden="true" />
+                        </div>
+                    </div>
+                </section>
+
+                <section id="showcase-tech" ref={techReveal} className="gravity-section gravity-tech reveal">
+                    <div className="gravity-section-heading is-compact">
+                        <p>{t('showcase.techLabel')}</p>
+                        <h2>{t('showcase.techTitle')} <span>{t('showcase.techTitleHighlight')}</span></h2>
+                    </div>
+
+                    <div className="gravity-tech-rail">
+                        <div className="gravity-tech-track">
+                            {[...TECH_STACK, ...TECH_STACK].map((tech, index) => (
+                                <article key={`${tech.name}-${index}`} className="gravity-tech-item" aria-hidden={index >= TECH_STACK.length || undefined}>
+                                    <span>{renderTechIcon(tech.icon)}</span>
+                                    <strong>{tech.name}</strong>
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section ref={statsReveal} className="gravity-section gravity-stats reveal">
+                    <ParticleField density="sparse" />
+                    <div className="gravity-stats-grid">
+                        {STATS_CONFIG.map((stat) => (
+                            <article key={stat.key} className="gravity-stat">
+                                <div>
+                                    <StatValue value={stat.value} decimals={stat.decimals} />
+                                    <span>{stat.suffix}</span>
                                 </div>
+                                <p>{t(`showcase.${stat.key}`)}</p>
+                            </article>
+                        ))}
+                    </div>
+                </section>
 
-                                {/* Precision Screen */}
-                                <div className="w-[375px] h-[780px] sm:w-[393px] sm:h-[820px] rounded-[44px] overflow-hidden bg-white relative">
-                                    {/* Glass Overlay on Iframe (Optional) */}
-                                    <div className="absolute inset-0 pointer-events-none rounded-[44px] ring-1 ring-inset ring-white/10 z-10" />
-                                    
-                                    <iframe
-                                        ref={iframeRef}
-                                        src={`${window.location.host === 'localhost:5173' ? 'http://localhost:5173' : window.location.origin}${iframeRoute}`}
-                                        title="Live Demo"
-                                        className="w-full h-full border-none"
-                                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                                    />
-                                </div>
-
-                                {/* Bottom Indicator */}
-                                <div className="absolute bottom-[20px] left-1/2 -translate-x-1/2 w-[120px] h-1 bg-white/20 rounded-full z-20" />
+                <section ref={ctaReveal} className="gravity-section gravity-cta reveal">
+                    <div className="gravity-cta-panel showcase-dark-stage">
+                        <ParticleField tone="dark" />
+                        <div className="gravity-cta-content">
+                            <h2>{t('showcase.ctaTitle')} <span>{t('showcase.ctaTitleHighlight')}</span></h2>
+                            <p>{t('showcase.ctaSubtitle')}</p>
+                            <div className="gravity-actions">
+                                <SeamlessLink
+                                    to="/welcome"
+                                    onPointerEnter={() => preloadRoute('/welcome')}
+                                    onFocus={() => preloadRoute('/welcome')}
+                                    className="gravity-button is-white"
+                                >
+                                    <span className="material-symbols-outlined text-[18px] mr-1" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                                    {t('showcase.ctaLaunch')}
+                                </SeamlessLink>
+                                <SeamlessLink
+                                    to="/preview"
+                                    onPointerEnter={() => preloadRoute('/preview')}
+                                    onFocus={() => preloadRoute('/preview')}
+                                    className="gravity-button is-charcoal"
+                                >
+                                    <span className="material-symbols-outlined text-[18px] mr-1">devices</span>
+                                    {t('showcase.ctaPreview')}
+                                </SeamlessLink>
                             </div>
                         </div>
                     </div>
+                </section>
+            </main>
+
+            <footer className="gravity-footer">
+                <div className="gravity-footer-top">
+                    <div>
+                        <p>{t('showcase.footer')}</p>
+                        <strong>House Maint AI</strong>
+                    </div>
+                    <nav aria-label="Product links">
+                        {['dashboard', 'welcome', 'community'].map((key) => {
+                            const path = DEMO_ROUTES.find((route) => route.key === key)?.path || '/';
+                            return (
+                                <SeamlessLink
+                                    key={key}
+                                    to={path}
+                                    onPointerEnter={() => preloadRoute(path)}
+                                    onFocus={() => preloadRoute(path)}
+                                >
+                                    {t(`showcase.demoRoutes.${key}`)}
+                                </SeamlessLink>
+                            );
+                        })}
+                    </nav>
                 </div>
-            </section>
-
-            {/* ═══════════════════════════════════════════
-                SECTION 4: TECH STACK
-               ═══════════════════════════════════════════ */}
-            <section ref={techReveal} className="reveal py-32 px-6">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-16">
-                        <span className="text-[11px] font-black tracking-[0.25em] uppercase text-[#ff9500] mb-6 block">{t('showcase.techLabel')}</span>
-                        <h2 className="text-4xl sm:text-5xl font-black tracking-tighter text-[#1d1d1f]">
-                            {t('showcase.techTitle')} <span className="text-[#86868b]">{t('showcase.techTitleHighlight')}</span>
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-6">
-                        {TECH_STACK.map((tech, i) => (
-                            <div
-                                key={i}
-                                className="aegis-card flex flex-col items-center gap-4 p-8 bg-[#fbfbfd] hover:bg-white transition-all duration-500 hover:shadow-xl hover:shadow-black/5 transform hover:-translate-y-1 stagger-item"
-                            >
-                                <span className="text-3xl filter grayscale group-hover:grayscale-0 transition-all">{tech.icon}</span>
-                                <span className="text-[11px] font-black text-[#86868b] uppercase tracking-widest">{tech.name}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ═══════════════════════════════════════════
-                SECTION 5: STATS
-               ═══════════════════════════════════════════ */}
-            <section ref={statsReveal} className="reveal py-32 px-6 bg-[#1d1d1f]">
-                <div className="max-w-6xl mx-auto">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 lg:gap-20">
-                        {STATS_CONFIG.map((stat, i) => (
-                            <div key={i} className="text-center group stagger-item">
-                                <div className="flex justify-center items-baseline gap-1 mb-4">
-                                     <StatValue value={stat.value} decimals={stat.decimals} />
-                                     <span className="text-2xl font-black text-white/40">{stat.suffix}</span>
-                                </div>
-                                <p className="text-[11px] font-black text-white/60 uppercase tracking-[0.25em]">{t(`showcase.${stat.key}`)}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ═══════════════════════════════════════════
-                SECTION 6: CTA FOOTER
-               ═══════════════════════════════════════════ */}
-            <section ref={ctaReveal} className="reveal py-40 px-6 relative overflow-hidden flex flex-col items-center text-center">
-                {/* Visual Finish */}
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#0071e3]/20 to-transparent" />
-                <div className="absolute -bottom-[20%] w-[1200px] h-[600px] bg-[#0071e3]/5 rounded-[100%] blur-[120px]" />
-
-                <div className="relative z-10 max-w-4xl mx-auto">
-                    <h2 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter text-[#1d1d1f] mb-8 leading-[1.05]">
-                        {t('showcase.ctaTitle')} <br/>
-                        <span className="text-[#0071e3]">{t('showcase.ctaTitleHighlight')}</span>
-                    </h2>
-                    <p className="text-xl sm:text-2xl text-[#86868b] mb-16 max-w-2xl mx-auto font-medium">
-                        {t('showcase.ctaSubtitle')}
-                    </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-                        <Link
-                            to="/welcome"
-                            className="inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#0071e3] text-white font-black text-lg shadow-[0_20px_40px_rgba(0,113,227,0.2)] hover:bg-[#0077ed] hover:shadow-[0_25px_50px_rgba(0,113,227,0.3)] transition-all transform active:scale-[0.97]"
-                        >
-                            <span className="material-symbols-outlined font-black">play_arrow</span>
-                            {t('showcase.ctaLaunch')}
-                        </Link>
-                        <Link
-                            to="/preview"
-                            className="inline-flex items-center gap-3 px-10 py-5 rounded-[22px] bg-[#1d1d1f] text-white font-black text-lg hover:bg-black transition-all transform active:scale-[0.97]"
-                        >
-                            <span className="material-symbols-outlined font-light">devices</span>
-                            {t('showcase.ctaPreview')}
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
-            {/* Global Footer */}
-            <footer className="py-12 px-8 border-t border-black/5 bg-white/40">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-[12px] bg-[#1d1d1f] flex items-center justify-center shadow-lg">
-                            <span className="material-symbols-outlined text-white text-[20px]">home</span>
-                        </div>
-                        <div>
-                            <p className="text-[14px] font-black text-[#1d1d1f]">House Maint AI</p>
-                            <p className="text-[11px] font-black text-[#86868b] uppercase tracking-widest">{t('showcase.footer')}</p>
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-10">
-                        {['dashboard', 'welcome', 'community'].map(key => (
-                            <Link 
-                                key={key} 
-                                to={DEMO_ROUTES.find(r => r.key === key)?.path || '/'} 
-                                className="text-[12px] font-black text-[#86868b] hover:text-[#1d1d1f] uppercase tracking-widest transition-colors"
-                            >
-                                {t(`showcase.demoRoutes.${key}`)}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
+                <p className="gravity-footer-wordmark">House Maint AI</p>
             </footer>
         </div>
     );
 };
 
-/* ─── Helper Stat Component ─── */
 const StatValue = ({ value, decimals }: { value: number; decimals?: number }) => {
     const counter = useCountUp(decimals ? value * 10 : value);
     return (
-        <span ref={counter.ref} className="text-6xl md:text-7xl font-black text-white tracking-tighter tabular-nums stagger-item">
+        <strong ref={counter.ref} className="gravity-stat-value">
             {decimals ? (counter.count / 10).toFixed(1) : counter.count}
-        </span>
+        </strong>
     );
 };
 

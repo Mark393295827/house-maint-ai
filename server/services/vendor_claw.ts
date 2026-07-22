@@ -1,7 +1,7 @@
 import db from '../config/database.js';
 import { matchingService } from './matching.js';
 import * as Sentry from '@sentry/node';
-import { emitToUser, emitToWorkers } from '../socket.js';
+import { emitToUser } from '../socket.js';
 
 export class VendorSourcingClawService {
     private interval: NodeJS.Timeout | null = null;
@@ -27,10 +27,11 @@ export class VendorSourcingClawService {
         this.isProcessing = true;
 
         try {
-            // Find reports ready for worker sourcing. Keep "matching" for legacy reports.
+            // Payment advances eligible reports into matching before vendor sourcing.
             const { rows: matchingReports } = await db.query(`
                 SELECT * FROM reports 
-                WHERE status IN ('planned', 'matching')
+                WHERE status = 'matching'
+                AND matched_worker_id IS NULL
                 ORDER BY created_at ASC 
                 LIMIT 5
             `);
@@ -55,6 +56,10 @@ export class VendorSourcingClawService {
 
     private async matchReport(report: any) {
         try {
+            if (report.status !== 'matching' || report.matched_worker_id != null) {
+                return;
+            }
+
             console.log(`🔗 Matching workers for report #${report.id}: ${report.title}`);
 
             const topMatches = await matchingService.findTopMatches(report, 5);
@@ -67,6 +72,20 @@ export class VendorSourcingClawService {
             // High Urgency -> Broadcast (urgency_score >= 8)
             if (report.urgency_score >= 8) {
                 console.log(`🔥 High Urgency Detected (${report.urgency_score}). Broadcasting to ${topMatches.length} workers...`);
+
+                const { rowCount: broadcastedCount } = await db.query(`
+                    UPDATE reports
+                    SET status = 'broadcasted',
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = $1
+                      AND status = 'matching'
+                      AND matched_worker_id IS NULL
+                    RETURNING id
+                `, [report.id]);
+
+                if (broadcastedCount !== 1) {
+                    return;
+                }
 
                 for (const match of topMatches) {
                     await db.query(`
@@ -89,13 +108,6 @@ export class VendorSourcingClawService {
                     });
                 }
 
-                await db.query(`
-                    UPDATE reports 
-                    SET status = 'broadcasted', 
-                        updated_at = CURRENT_TIMESTAMP 
-                    WHERE id = $1
-                `, [report.id]);
-
                 console.log(`✅ Report #${report.id} broadcasted.`);
 
                 // Notify Owner
@@ -112,17 +124,24 @@ export class VendorSourcingClawService {
                 // OpenClaw v1.0 Constraint: If match_score < 65 (0.65), mandatory human review
                 if (matchScore < 65) {
                     console.warn(`🛑 Match Score ${matchScore} < 65. Stopping auto-assignment.`);
-                    await db.query(`
+                    const { rowCount: flaggedCount } = await db.query(`
                         UPDATE reports 
                         SET status = 'flagged_for_review', 
                             match_score = $1,
                             updated_at = CURRENT_TIMESTAMP 
                         WHERE id = $2
+                          AND status = 'matching'
+                          AND matched_worker_id IS NULL
+                        RETURNING id
                     `, [matchScore, report.id]);
+
+                    if (flaggedCount !== 1) {
+                        return;
+                    }
                 } else {
                     console.log(`📍 Assigning top worker #${bestWorker.id} (${bestWorker.name}) Score: ${matchScore}`);
 
-                    await db.query(`
+                    const { rowCount: matchedCount } = await db.query(`
                         UPDATE reports 
                         SET matched_worker_id = $1, 
                             status = 'matched', 
@@ -130,7 +149,14 @@ export class VendorSourcingClawService {
                             matched_at = CURRENT_TIMESTAMP,
                             updated_at = CURRENT_TIMESTAMP 
                         WHERE id = $3
+                          AND status = 'matching'
+                          AND matched_worker_id IS NULL
+                        RETURNING id
                     `, [bestWorker.id, matchScore, report.id]);
+
+                    if (matchedCount !== 1) {
+                        return;
+                    }
 
                     console.log(`✅ Report #${report.id} matched.`);
 

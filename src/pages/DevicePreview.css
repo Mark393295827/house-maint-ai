@@ -284,6 +284,8 @@
     border-radius: 34px;
     overflow: hidden;
     background: #000;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: -webkit-radial-gradient(white, black);
 }
 
 .device-screen iframe {
@@ -292,6 +294,8 @@
     width: 100%;
     height: 100%;
     background: #fff;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: -webkit-radial-gradient(white, black);
 }
 
 /* Home Indicator */

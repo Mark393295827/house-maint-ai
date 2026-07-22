@@ -18,7 +18,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ isHardDIY, onFindWo
                         className="confetti-piece"
                         style={{
                             left: `${10 + Math.random() * 80}%`,
-                            backgroundColor: ['#2bb673', '#007AFF', '#FF9500', '#FF3B30', '#34C759', '#AF52DE'][i % 6],
+                            backgroundColor: ['#1a73e8', '#1a73e8', '#FF9500', '#FF3B30', '#34C759', '#AF52DE'][i % 6],
                             animationDelay: `${i * 0.15}s`,
                             animationDuration: `${2 + Math.random() * 1.5}s`,
                         }}

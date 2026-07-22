@@ -38,7 +38,7 @@ const OperatingLoopProgress: React.FC<OperatingLoopProgressProps> = ({
                     <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#86868b]">
                         {isZh ? '运营闭环' : 'Operating loop'}
                     </p>
-                    <h3 className="mt-1 text-[15px] font-black tracking-tight text-[#1d1d1f]">
+                    <h3 className="mt-1 text-[15px] font-black tracking-tight text-[#202124]">
                         {activeStage.title}
                     </h3>
                     {!compact && (
@@ -47,7 +47,7 @@ const OperatingLoopProgress: React.FC<OperatingLoopProgressProps> = ({
                         </p>
                     )}
                 </div>
-                <div className="shrink-0 rounded-full bg-[#1d1d1f] px-3 py-1 text-[11px] font-black text-white">
+                <div className="shrink-0 rounded-full bg-[#202124] px-3 py-1 text-[11px] font-black text-white">
                     {activeIndex + 1}/{stages.length}
                 </div>
             </div>
@@ -64,10 +64,10 @@ const OperatingLoopProgress: React.FC<OperatingLoopProgressProps> = ({
                                 data-testid={`operating-stage-${stage.id}`}
                                 className={`flex h-full min-h-[70px] flex-col items-center justify-center gap-1 rounded-2xl border px-2 py-3 text-center transition-colors ${
                                     isActive
-                                        ? 'border-[#1d1d1f] bg-[#1d1d1f] text-white shadow-lg shadow-black/10'
+                                        ? 'border-[#202124] bg-[#202124] text-white shadow-lg shadow-black/10'
                                         : isComplete
-                                            ? 'border-[#28cd41]/20 bg-[#28cd41]/10 text-[#1d1d1f]'
-                                            : 'border-black/5 bg-[#f5f5f7] text-[#86868b]'
+                                            ? 'border-[#34a853]/20 bg-[#34a853]/10 text-[#202124]'
+                                            : 'border-black/5 bg-[#f8f9fa] text-[#86868b]'
                                 }`}
                             >
                                 <span className="material-symbols-outlined text-[18px]">{isComplete ? 'check' : stage.icon}</span>

@@ -51,6 +51,26 @@ export const DEEPSEEK_API_KEY = readSecret(
     '' // No default in production/dev, must be provided for feature to work
 );
 
+// OpenAI / Codex-grade problem-solving model. The concrete model stays
+// configurable because Codex model availability changes over time.
+export const OPENAI_API_KEY = readSecret(
+    'openai_api_key',
+    'OPENAI_API_KEY',
+    ''
+);
+
+export const OPENAI_BASE_URL = readSecret(
+    'openai_base_url',
+    'OPENAI_BASE_URL',
+    'https://api.openai.com/v1'
+);
+
+export const OPENAI_CODEX_MODEL = readSecret(
+    'openai_codex_model',
+    'OPENAI_CODEX_MODEL',
+    'gpt-5.5'
+);
+
 // Mixpanel Token - for analytics
 export const MIXPANEL_TOKEN = readSecret(
     'mixpanel_token',
@@ -87,6 +107,9 @@ export default {
     REFRESH_TOKEN_HASH_SECRET,
     DB_PASSWORD,
     DEEPSEEK_API_KEY,
+    OPENAI_API_KEY,
+    OPENAI_BASE_URL,
+    OPENAI_CODEX_MODEL,
     PIPL_ANONYMIZER_URL,
     PIPL_ANONYMIZER_TOKEN,
 };

@@ -100,28 +100,44 @@ export class PlanningClawService {
             const priorityProtocol = plan.priority_protocol || 'batch';
 
             // Update report
-            await db.query(`
+            const { rowCount: plannedCount } = await db.query(`
                 UPDATE reports 
                 SET resolution_plan = $1,
                     priority_protocol = $2,
                     status = 'planned',
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = $3
+                  AND status = 'analyzed'
+                  AND (resolution_plan IS NULL OR resolution_plan = '')
+                RETURNING id
             `, [
                 JSON.stringify(plan),
                 priorityProtocol,
                 report.id
             ]);
 
-            console.log(`✅ Report #${report.id} planned. Protocol: ${priorityProtocol}`);
+            if (plannedCount === 1) {
+                console.log(`✅ Report #${report.id} planned. Protocol: ${priorityProtocol}`);
+            } else {
+                console.log(`Report #${report.id} is no longer eligible for planning.`);
+            }
 
         } catch (error) {
             console.error(`❌ Failed to plan report #${report.id}:`, error);
 
             // Mark as failed_planning to avoid loop
-            await db.query(`
-                UPDATE reports SET status = 'failed_planning', updated_at = CURRENT_TIMESTAMP WHERE id = $1
+            const { rowCount: failedCount } = await db.query(`
+                UPDATE reports
+                SET status = 'failed_planning', updated_at = CURRENT_TIMESTAMP
+                WHERE id = $1
+                  AND status = 'analyzed'
+                  AND (resolution_plan IS NULL OR resolution_plan = '')
+                RETURNING id
             `, [report.id]);
+
+            if (failedCount !== 1) {
+                console.log(`Report #${report.id} is no longer eligible for a planning failure transition.`);
+            }
 
             Sentry.captureException(error);
         }

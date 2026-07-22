@@ -1,437 +1,705 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, Route, Routes } from 'react-router-dom';
 import EnterpriseLayout from '../components/EnterpriseLayout';
-import { useAuth } from '../contexts/AuthContext';
-import { PropertiesPage, TicketsPage, EnterpriseWorkersPage, AnalyticsPage } from './EnterprisePlaceholders';
-import EnterpriseAIConfigPage from './EnterpriseAIConfigPage';
-import EnterpriseMap from '../components/EnterpriseMap';
-import { PerformanceChart, WorkloadDistribution } from '../components/OperationCharts';
-import { post } from '../services/api';
+import EnterpriseMap, { type WorkerStatusSummary } from '../components/EnterpriseMap';
+import { getOperatingStageCopies, type OperatingStageCopy } from '../constants/operatingModel';
 import { useLanguage } from '../i18n/LanguageContext';
-import { getOperatingStageCopies, getOperationalResults, type OperatingStageCopy } from '../constants/operatingModel';
-// ============ Types ============
+import EnterpriseAIConfigPage from './EnterpriseAIConfigPage';
+import { AnalyticsPage, EnterpriseWorkersPage, PropertiesPage, TicketsPage } from './EnterprisePlaceholders';
 
-interface StrategyAlert {
-    severity: 'info' | 'warning' | 'critical';
-    dimension: string;
-    rule_triggered: string;
-    metric_name: string;
-    metric_value: number;
-    threshold: number;
-    recommended_action: string;
-    requires_human_approval: boolean;
+type TimeRange = 'today' | 'week' | 'month';
+type Region = 'all' | 'haitang' | 'jiyang' | 'tianya' | 'yazhou';
+type PropertyType = 'all' | 'residential' | 'resort' | 'commercial';
+type TicketStatus = 'all' | 'open' | 'in_progress' | 'overdue' | 'completed';
+type StageId = OperatingStageCopy['id'];
+type Category = 'all' | 'plumbing' | 'electrical' | 'hvac' | 'appliance' | 'structural';
+type LocalizedText = { zh: string; en: string };
+
+interface TrendPoint {
+    label: LocalizedText;
+    current: number;
+    previous: number;
 }
 
-interface AgentStatus {
-    name: string;
-    status: 'online' | 'idle' | 'error';
-    lastCall: string;
-    callsToday: number;
-    costToday: number;
-    model: string;
+interface WorkOrder {
+    id: string;
+    title: LocalizedText;
+    property: LocalizedText;
+    propertyType: Exclude<PropertyType, 'all'>;
+    region: Exclude<Region, 'all'>;
+    category: Exclude<Category, 'all'>;
+    stage: StageId;
+    priority: 'critical' | 'high' | 'medium';
+    slaMinutes: number;
+    assignee: LocalizedText;
+    status: Exclude<TicketStatus, 'all'>;
 }
 
-interface DimensionScore {
-    name: string;
+interface RegionPerformance {
+    id: Exclude<Region, 'all'>;
+    name: LocalizedText;
+    tickets: number;
+    sla: number;
+    deflection: number;
+    cycle: number;
+}
+
+interface KpiMetric {
     label: string;
-    score: number;
-    maxScore: number;
+    value: string;
+    unit?: string;
+    change: string;
+    context: string;
+    direction: 'up' | 'down';
+    favorable: boolean;
     icon: string;
-    color: string;
-    description: string;
+    tone: 'blue' | 'teal' | 'amber' | 'violet' | 'red';
 }
 
-// ============ Sub-components ============
+const COPY = {
+    zh: {
+        eyebrow: '三亚资产组合 · 运营指挥台',
+        title: '物业运营总览',
+        subtitle: '聚合报修、诊断、分流、派单、验收与业主报表的实时经营视图',
+        live: '实时数据',
+        demo: '演示数据集',
+        refreshed: '更新于',
+        refresh: '刷新数据',
+        export: '导出当前视图',
+        filters: '全局筛选',
+        region: '区域',
+        property: '物业类型',
+        status: '工单状态',
+        reset: '重置筛选',
+        ranges: { today: '今日', week: '近 7 天', month: '近 30 天' },
+        regions: { all: '全部区域', haitang: '海棠区', jiyang: '吉阳区', tianya: '天涯区', yazhou: '崖州区' },
+        properties: { all: '全部物业', residential: '住宅社区', resort: '酒店度假', commercial: '商业物业' },
+        statuses: { all: '全部状态', open: '待处理', in_progress: '处理中', overdue: '已超时', completed: '已完成' },
+        kpis: {
+            intake: '接入工单', intakeContext: '所有渠道新建工单',
+            sla: 'SLA 达成率', slaContext: '目标 92.0%',
+            accuracy: 'AI 诊断准确率', accuracyContext: 'Top 10 故障品类',
+            deflection: 'DIY 分流率', deflectionContext: '目标 20.0%',
+            cycle: '平均维修周期', cycleContext: '从接入到验收',
+        },
+        versus: '较上一周期',
+        trendTitle: '工单流入与完成趋势',
+        trendSubtitle: '按所选范围汇总；虚线为上一周期',
+        incoming: '流入工单',
+        completed: '完成工单',
+        previous: '上一周期',
+        aiTitle: 'AI 运营洞察',
+        aiSubtitle: '基于当前筛选范围自动识别',
+        aiBadge: '3 项待关注',
+        insights: [
+            { title: '天涯区派单等待时间上升', detail: '水暖类平均等待 18 分钟，较组合均值高 31%。', tone: 'warning' },
+            { title: 'DIY 分流超过目标', detail: '低风险电路问题分流率达到 24.8%，预计节省 ¥12,640。', tone: 'positive' },
+            { title: '7 个工单需要人工复核', detail: '诊断置信度低于 78%，已进入责任判断队列。', tone: 'neutral' },
+        ],
+        viewTickets: '查看相关工单',
+        workflowTitle: '六阶段运营闭环',
+        workflowSubtitle: '点击阶段筛选下方工单；数量表示当前范围内进入该阶段的工单',
+        mapTitle: '实时运维地图',
+        mapSubtitle: '技师位置、服务状态与当前派单区域',
+        mapLive: '实时',
+        mapRepairing: '维修中',
+        mapIdle: '待命',
+        mapExpand: '展开地图',
+        mapCollapse: '收起地图',
+        stageCount: '工单',
+        selected: '已筛选',
+        clearStage: '清除阶段筛选',
+        categoryTitle: '报修品类构成',
+        categorySubtitle: '点击品类联动异常工单队列',
+        categories: { all: '全部品类', plumbing: '水暖', electrical: '电路', hvac: '暖通空调', appliance: '家电', structural: '结构' },
+        regionTitle: '区域服务表现',
+        regionSubtitle: 'SLA、分流率与平均维修周期对比',
+        tableRegion: '区域',
+        tableTickets: '工单量',
+        tableSla: 'SLA',
+        tableDeflection: '分流率',
+        tableCycle: '维修周期',
+        queueTitle: 'SLA 异常工单',
+        queueSubtitle: '按风险与剩余响应时间排序',
+        queueCount: '条记录',
+        columns: { id: '工单', issue: '问题 / 物业', stage: '当前阶段', priority: '优先级', sla: 'SLA 剩余', assignee: '负责人', status: '状态' },
+        priority: { critical: '紧急', high: '高', medium: '中' },
+        overdue: '已超时',
+        minutes: '分钟',
+        empty: '当前筛选范围内没有异常工单',
+        activeFilters: '当前筛选',
+    },
+    en: {
+        eyebrow: 'Sanya portfolio · Operations command',
+        title: 'Property Operations Overview',
+        subtitle: 'A live operating view across intake, diagnosis, deflection, dispatch, verification, and owner reporting',
+        live: 'Live data',
+        demo: 'Demo dataset',
+        refreshed: 'Updated',
+        refresh: 'Refresh data',
+        export: 'Export current view',
+        filters: 'Global filters',
+        region: 'Region',
+        property: 'Property type',
+        status: 'Ticket status',
+        reset: 'Reset filters',
+        ranges: { today: 'Today', week: 'Last 7 days', month: 'Last 30 days' },
+        regions: { all: 'All regions', haitang: 'Haitang', jiyang: 'Jiyang', tianya: 'Tianya', yazhou: 'Yazhou' },
+        properties: { all: 'All properties', residential: 'Residential', resort: 'Resort', commercial: 'Commercial' },
+        statuses: { all: 'All statuses', open: 'Open', in_progress: 'In progress', overdue: 'Overdue', completed: 'Completed' },
+        kpis: {
+            intake: 'Tickets received', intakeContext: 'New tickets across channels',
+            sla: 'SLA attainment', slaContext: 'Target 92.0%',
+            accuracy: 'AI diagnosis accuracy', accuracyContext: 'Top 10 issue categories',
+            deflection: 'DIY deflection', deflectionContext: 'Target 20.0%',
+            cycle: 'Average repair cycle', cycleContext: 'Intake to verification',
+        },
+        versus: 'vs previous period',
+        trendTitle: 'Ticket intake and completion trend',
+        trendSubtitle: 'Aggregated for the selected window; dashed line is the prior period',
+        incoming: 'Tickets received',
+        completed: 'Tickets completed',
+        previous: 'Previous period',
+        aiTitle: 'AI operating insights',
+        aiSubtitle: 'Automatically detected in the current scope',
+        aiBadge: '3 items to review',
+        insights: [
+            { title: 'Dispatch wait is rising in Tianya', detail: 'Plumbing wait time is 18 minutes, 31% above the portfolio average.', tone: 'warning' },
+            { title: 'DIY deflection is above target', detail: 'Low-risk electrical issues reached 24.8%, saving an estimated RMB12,640.', tone: 'positive' },
+            { title: '7 tickets require human review', detail: 'Diagnosis confidence is below 78% and queued for liability review.', tone: 'neutral' },
+        ],
+        viewTickets: 'View related tickets',
+        workflowTitle: 'Six-stage operating loop',
+        workflowSubtitle: 'Select a stage to filter the queue below; counts show tickets entering each stage',
+        mapTitle: 'Live operations map',
+        mapSubtitle: 'Technician locations, service status, and active dispatch areas',
+        mapLive: 'Live',
+        mapRepairing: 'Repairing',
+        mapIdle: 'Standby',
+        mapExpand: 'Expand map',
+        mapCollapse: 'Collapse map',
+        stageCount: 'tickets',
+        selected: 'Filtered',
+        clearStage: 'Clear stage filter',
+        categoryTitle: 'Issue category mix',
+        categorySubtitle: 'Select a category to update the exception queue',
+        categories: { all: 'All categories', plumbing: 'Plumbing', electrical: 'Electrical', hvac: 'HVAC', appliance: 'Appliance', structural: 'Structural' },
+        regionTitle: 'Regional service performance',
+        regionSubtitle: 'Compare SLA, deflection, and average repair cycle',
+        tableRegion: 'Region',
+        tableTickets: 'Tickets',
+        tableSla: 'SLA',
+        tableDeflection: 'Deflection',
+        tableCycle: 'Repair cycle',
+        queueTitle: 'SLA exception queue',
+        queueSubtitle: 'Sorted by risk and remaining response time',
+        queueCount: 'records',
+        columns: { id: 'Ticket', issue: 'Issue / property', stage: 'Current stage', priority: 'Priority', sla: 'SLA remaining', assignee: 'Owner', status: 'Status' },
+        priority: { critical: 'Critical', high: 'High', medium: 'Medium' },
+        overdue: 'overdue',
+        minutes: 'min',
+        empty: 'No exception tickets match the current filters',
+        activeFilters: 'Active filters',
+    },
+} as const;
 
-const ScoreRing: React.FC<{ score: number; max: number; color: string; size?: number; stroke?: number }> = ({ score, max, color, size = 80, stroke = 3 }) => {
-    const pct = (score / max) * 100;
-    const radius = (size - 8) / 2;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (pct / 100) * circumference;
-
-    const gradientId = `ring-gradient-${color.replace('#', '')}`;
-    return (
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90 drop-shadow-sm">
-            <defs>
-                <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor={color} />
-                    <stop offset="100%" stopColor={color} stopOpacity={0.4} />
-                </linearGradient>
-            </defs>
-            <circle
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="transparent"
-                stroke="rgba(0,0,0,0.03)"
-                strokeWidth={stroke}
-            />
-            <circle
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="transparent"
-                stroke={`url(#${gradientId})`}
-                strokeWidth={stroke}
-                strokeDasharray={circumference}
-                strokeDashoffset={offset}
-                strokeLinecap="round"
-                className="transition-all duration-1000 ease-out"
-            />
-        </svg>
-    );
+const TREND_SERIES: Record<TimeRange, TrendPoint[]> = {
+    today: [
+        { label: { zh: '08时', en: '08:00' }, current: 32, previous: 28 },
+        { label: { zh: '10时', en: '10:00' }, current: 48, previous: 36 },
+        { label: { zh: '12时', en: '12:00' }, current: 41, previous: 44 },
+        { label: { zh: '14时', en: '14:00' }, current: 67, previous: 52 },
+        { label: { zh: '16时', en: '16:00' }, current: 58, previous: 56 },
+        { label: { zh: '18时', en: '18:00' }, current: 74, previous: 63 },
+        { label: { zh: '20时', en: '20:00' }, current: 69, previous: 61 },
+        { label: { zh: '22时', en: '22:00' }, current: 86, previous: 72 },
+    ],
+    week: [
+        { label: { zh: '周一', en: 'Mon' }, current: 318, previous: 294 },
+        { label: { zh: '周二', en: 'Tue' }, current: 342, previous: 326 },
+        { label: { zh: '周三', en: 'Wed' }, current: 386, previous: 354 },
+        { label: { zh: '周四', en: 'Thu' }, current: 401, previous: 372 },
+        { label: { zh: '周五', en: 'Fri' }, current: 428, previous: 405 },
+        { label: { zh: '周六', en: 'Sat' }, current: 447, previous: 414 },
+        { label: { zh: '周日', en: 'Sun' }, current: 463, previous: 426 },
+    ],
+    month: [
+        { label: { zh: '第 1 周', en: 'Week 1' }, current: 1380, previous: 1260 },
+        { label: { zh: '第 2 周', en: 'Week 2' }, current: 1510, previous: 1390 },
+        { label: { zh: '第 3 周', en: 'Week 3' }, current: 1470, previous: 1435 },
+        { label: { zh: '第 4 周', en: 'Week 4' }, current: 1690, previous: 1510 },
+    ],
 };
 
-const DimensionCard: React.FC<{ dim: DimensionScore; label: string }> = ({ dim, label }) => (
-    <div className="ent-card p-4 sm:p-5 lg:p-7 group hover:-translate-y-1.5 transition-all duration-500 bg-white/60">
-        <div className="flex items-center justify-between gap-4 mb-6 lg:mb-8">
-            <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#86868b]">{label}</span>
-                <h3 className="text-base font-black text-[#1d1d1f] tracking-tight">{dim.name}</h3>
+const REGION_FACTORS: Record<Region, number> = { all: 1, haitang: 0.34, jiyang: 0.29, tianya: 0.22, yazhou: 0.15 };
+const PROPERTY_FACTORS: Record<PropertyType, number> = { all: 1, residential: 0.44, resort: 0.36, commercial: 0.2 };
+const STATUS_FACTORS: Record<TicketStatus, number> = { all: 1, open: 0.31, in_progress: 0.26, overdue: 0.08, completed: 0.35 };
+
+const WORKFLOW_COUNTS: Record<StageId, number> = {
+    intake: 2785,
+    diagnosis: 2634,
+    deflection: 596,
+    dispatch: 1831,
+    verification: 1654,
+    reporting: 1518,
+};
+
+const CATEGORY_COUNTS: Record<Exclude<Category, 'all'>, number> = {
+    plumbing: 914,
+    electrical: 627,
+    hvac: 512,
+    appliance: 438,
+    structural: 294,
+};
+
+const REGION_PERFORMANCE: RegionPerformance[] = [
+    { id: 'haitang', name: { zh: '海棠区', en: 'Haitang' }, tickets: 948, sla: 96.2, deflection: 23.1, cycle: 3.4 },
+    { id: 'jiyang', name: { zh: '吉阳区', en: 'Jiyang' }, tickets: 808, sla: 94.7, deflection: 21.8, cycle: 3.7 },
+    { id: 'tianya', name: { zh: '天涯区', en: 'Tianya' }, tickets: 613, sla: 88.9, deflection: 17.4, cycle: 4.6 },
+    { id: 'yazhou', name: { zh: '崖州区', en: 'Yazhou' }, tickets: 416, sla: 92.8, deflection: 20.2, cycle: 4.1 },
+];
+
+const WORK_ORDERS: WorkOrder[] = [
+    { id: 'HM-240718', title: { zh: '主卫天花板持续渗水', en: 'Persistent ceiling leak in main bathroom' }, property: { zh: '海棠湾壹号 · 2-1803', en: 'Haitang Bay One · 2-1803' }, propertyType: 'residential', region: 'haitang', category: 'plumbing', stage: 'dispatch', priority: 'critical', slaMinutes: -12, assignee: { zh: '张师傅', en: 'Zhang' }, status: 'overdue' },
+    { id: 'HM-240721', title: { zh: '配电箱反复跳闸', en: 'Distribution board repeatedly tripping' }, property: { zh: '亚龙湾悦榕庄 · B12', en: 'Yalong Bay Resort · B12' }, propertyType: 'resort', region: 'jiyang', category: 'electrical', stage: 'diagnosis', priority: 'critical', slaMinutes: 8, assignee: { zh: '责任复核队列', en: 'Liability review queue' }, status: 'open' },
+    { id: 'HM-240704', title: { zh: '中央空调制冷不足', en: 'Central HVAC cooling below target' }, property: { zh: '三亚中心广场 · 17F', en: 'Sanya Central Plaza · 17F' }, propertyType: 'commercial', region: 'tianya', category: 'hvac', stage: 'dispatch', priority: 'high', slaMinutes: 18, assignee: { zh: '李师傅', en: 'Li' }, status: 'in_progress' },
+    { id: 'HM-240699', title: { zh: '洗衣机排水异常', en: 'Washing machine drainage fault' }, property: { zh: '半山半岛 · 5-903', en: 'Banshan Peninsula · 5-903' }, propertyType: 'residential', region: 'jiyang', category: 'appliance', stage: 'deflection', priority: 'medium', slaMinutes: 24, assignee: { zh: 'DIY 分流代理', en: 'DIY deflection agent' }, status: 'open' },
+    { id: 'HM-240688', title: { zh: '阳台墙面出现裂纹', en: 'Crack developing along balcony wall' }, property: { zh: '崖州湾科技城 · A6', en: 'Yazhou Bay Science City · A6' }, propertyType: 'commercial', region: 'yazhou', category: 'structural', stage: 'verification', priority: 'high', slaMinutes: 31, assignee: { zh: '王工', en: 'Wang' }, status: 'in_progress' },
+    { id: 'HM-240681', title: { zh: '厨房水槽下方漏水', en: 'Leak below kitchen sink' }, property: { zh: '红塘湾 · 8-1102', en: 'Hongtang Bay · 8-1102' }, propertyType: 'residential', region: 'tianya', category: 'plumbing', stage: 'verification', priority: 'high', slaMinutes: -6, assignee: { zh: '陈师傅', en: 'Chen' }, status: 'overdue' },
+    { id: 'HM-240673', title: { zh: '客房门锁无法供电', en: 'Guest-room lock has no power' }, property: { zh: '海棠湾康莱德 · 708', en: 'Haitang Bay Conrad · 708' }, propertyType: 'resort', region: 'haitang', category: 'electrical', stage: 'reporting', priority: 'medium', slaMinutes: 42, assignee: { zh: '赵师傅', en: 'Zhao' }, status: 'completed' },
+    { id: 'HM-240665', title: { zh: '热水器出水温度波动', en: 'Water-heater temperature fluctuating' }, property: { zh: '南山花园 · 3-602', en: 'Nanshan Garden · 3-602' }, propertyType: 'residential', region: 'yazhou', category: 'appliance', stage: 'intake', priority: 'medium', slaMinutes: 51, assignee: { zh: '接入代理', en: 'Intake agent' }, status: 'open' },
+];
+
+const localize = (value: LocalizedText, locale: 'zh' | 'en') => value[locale];
+
+const formatCompact = (value: number, locale: 'zh' | 'en') => new Intl.NumberFormat(locale === 'zh' ? 'zh-CN' : 'en-US', {
+    notation: value >= 10000 ? 'compact' : 'standard',
+    maximumFractionDigits: 1,
+}).format(value);
+
+const scaleValue = (value: number, factor: number) => Math.max(0, Math.round(value * factor));
+
+const PanelHeader: React.FC<{
+    title: string;
+    subtitle: string;
+    action?: React.ReactNode;
+}> = ({ title, subtitle, action }) => (
+    <header className="tableau-panel-header">
+        <div>
+            <h2>{title}</h2>
+            <p>{subtitle}</p>
+        </div>
+        {action}
+    </header>
+);
+
+const KpiCard: React.FC<{ metric: KpiMetric; versus: string }> = ({ metric, versus }) => {
+    return (
+        <article className={`tableau-kpi-card is-${metric.tone}`}>
+            <div className="tableau-kpi-heading">
+                <span>{metric.label}</span>
+                <span className="material-symbols-outlined text-[18px]" aria-hidden="true" style={{ fontVariationSettings: "'FILL' 1" }}>{metric.icon}</span>
             </div>
-            <div className="relative flex items-center justify-center p-2 bg-white/40 rounded-full border border-white/40 shadow-sm">
-                <ScoreRing score={dim.score} max={dim.maxScore} color={dim.color} size={56} stroke={5} />
-                <span className="absolute font-sans text-xs font-black text-black">
-                    {(dim.score / dim.maxScore * 100).toFixed(0)}%
+            <div className="tableau-kpi-value">
+                <strong>{metric.value}</strong>
+                {metric.unit && <span>{metric.unit}</span>}
+            </div>
+            <div className="tableau-kpi-footer">
+                <span className={metric.favorable ? 'is-positive' : 'is-negative'}>
+                    <span className="material-symbols-outlined text-[14px]" aria-hidden="true">{metric.direction === 'up' ? 'north_east' : 'south_east'}</span> {metric.change}
                 </span>
+                <small>{versus}</small>
             </div>
-        </div>
-        <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-4xl font-black text-black tracking-tighter tabular-nums">{dim.score.toFixed(1)}</span>
-            <span className="text-xs font-black text-[#86868b] uppercase tracking-wider">/ {dim.maxScore}</span>
-        </div>
-        <p className="text-[12px] text-[#86868b] font-medium leading-relaxed max-w-[95%]">{dim.description}</p>
-        <div className="mt-6 lg:mt-8 h-1.5 bg-black/5 rounded-full overflow-hidden">
-            <div 
-                className="h-full transition-all duration-[1.5s] ease-out rounded-full" 
-                style={{ 
-                    width: `${(dim.score / dim.maxScore) * 100}%`,
-                    background: `linear-gradient(90deg, ${dim.color}, ${dim.color}dd)`,
-                    boxShadow: `0 0 20px ${dim.color}33`
-                }} 
-            />
-        </div>
-    </div>
-);
-
-const AlertBadge: React.FC<{ alert: StrategyAlert; severityLabel: string }> = ({ alert, severityLabel }) => {
-    const colors = {
-        info: { bg: 'bg-white', text: 'text-blue-600', border: 'border-blue-100', dot: 'bg-blue-600' },
-        warning: { bg: 'bg-white', text: 'text-amber-700', border: 'border-amber-100', dot: 'bg-amber-600' },
-        critical: { bg: 'bg-white', text: 'text-red-700', border: 'border-red-100', dot: 'bg-red-600 animate-pulse' },
-    };
-    const c = colors[alert.severity];
-
-    return (
-        <div className={`ent-card p-4 mb-3 border ${c.border} ${c.bg} group/alert`}>
-            <div className="flex items-start gap-4">
-                <div className={`w-2.5 h-2.5 rounded-full mt-1 ${c.dot}`} />
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5">
-                        <span className={`text-[10px] font-black tracking-widest uppercase ${c.text}`}>
-                            {severityLabel}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono font-bold">[{alert.rule_triggered}]</span>
-                    </div>
-                    <p className="text-[13px] text-black font-black leading-tight mb-2.5">{alert.recommended_action}</p>
-                    <div className="flex items-center justify-between pt-2 border-t border-black/5">
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                            {alert.metric_name}: <span className={c.text}>{alert.metric_value.toFixed(1)}</span>
-                        </span>
-                        <span className="material-symbols-outlined text-[16px] text-slate-300 group-hover/alert:text-blue-600 transition-colors">arrow_forward</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <p>{metric.context}</p>
+        </article>
     );
 };
 
-const AgentCard: React.FC<{ agent: AgentStatus; costLabel: string; callsLabel: string }> = ({ agent, costLabel, callsLabel }) => {
-    const statusColors = {
-        online: 'bg-[#28cd41]',
-        idle: 'bg-[#ff9500]',
-        error: 'bg-[#ff3b30] animate-pulse shadow-[0_0_8px_#ff3b3088]',
-    };
+const TrendChart: React.FC<{
+    points: TrendPoint[];
+    factor: number;
+    locale: 'zh' | 'en';
+    incomingLabel: string;
+    completedLabel: string;
+}> = ({ points, factor, locale, incomingLabel, completedLabel }) => {
+    const width = 820;
+    const height = 260;
+    const padding = { top: 18, right: 22, bottom: 38, left: 48 };
+    const current = points.map((point) => scaleValue(point.current, factor));
+    const completed = current.map((value, index) => Math.round(value * (0.78 + index * 0.018)));
+    const previous = points.map((point) => scaleValue(point.previous, factor));
+    const maxValue = Math.max(...current, ...previous, 10);
+    const chartMax = Math.ceil(maxValue / 50) * 50 || 50;
+    const xFor = (index: number) => padding.left + index * ((width - padding.left - padding.right) / Math.max(1, points.length - 1));
+    const yFor = (value: number) => padding.top + (height - padding.top - padding.bottom) * (1 - value / chartMax);
+    const toPath = (values: number[]) => values.map((value, index) => `${index === 0 ? 'M' : 'L'} ${xFor(index)} ${yFor(value)}`).join(' ');
+    const ticks = [0, 0.25, 0.5, 0.75, 1];
 
     return (
-        <div className="ent-card p-5 lg:p-6 border-white/20 group hover:border-[#007aff]/30 transition-all duration-500 bg-white/40">
-            <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full ${statusColors[agent.status]}`} />
-                    <h4 className="text-[13px] font-black text-[#1d1d1f] tracking-tight uppercase">{agent.name}</h4>
-                </div>
-                <div className="px-2 py-0.5 bg-black/5 rounded-md border border-black/5">
-                   <span className="text-[9px] text-[#86868b] font-black uppercase tracking-widest">{agent.model}</span>
-                </div>
+        <div className="tableau-trend-chart">
+            <div className="tableau-chart-legend" aria-hidden="true">
+                <span><i className="legend-current" />{incomingLabel}</span>
+                <span><i className="legend-completed" />{completedLabel}</span>
+                <span><i className="legend-previous" />{locale === 'zh' ? '上一周期' : 'Previous period'}</span>
             </div>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                   <p className="text-[9px] text-[#86868b] uppercase font-black tracking-[0.15em] mb-1.5">{costLabel}</p>
-                   <p className="font-sans text-sm font-black text-black tracking-tight">${agent.costToday.toFixed(4)}</p>
-                </div>
-                <div className="text-right">
-                    <p className="text-[9px] text-[#86868b] uppercase font-black tracking-[0.15em] mb-1.5">{callsLabel}</p>
-                    <p className="font-sans text-sm font-black text-black tracking-tight">{agent.callsToday.toLocaleString()}</p>
-                </div>
-            </div>
-            <div className="h-1 bg-black/5 rounded-full overflow-hidden">
-                <div 
-                    className="h-full bg-gradient-to-r from-[#007aff] to-[#00c6ff] transition-all duration-1000 rounded-full" 
-                    style={{ width: `${Math.min(100, agent.callsToday * 2)}%` }} 
-                />
-            </div>
+            <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${incomingLabel}, ${completedLabel}`}>
+                {ticks.map((tick) => {
+                    const value = Math.round(chartMax * tick);
+                    const y = yFor(value);
+                    return (
+                        <g key={tick}>
+                            <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} className="tableau-grid-line" />
+                            <text x={padding.left - 10} y={y + 4} textAnchor="end" className="tableau-axis-label">{formatCompact(value, locale)}</text>
+                        </g>
+                    );
+                })}
+                <path d={toPath(previous)} className="tableau-line-previous" />
+                <path d={toPath(completed)} className="tableau-line-completed" />
+                <path d={toPath(current)} className="tableau-line-current" />
+                {current.map((value, index) => (
+                    <g key={points[index].label.en}>
+                        <circle cx={xFor(index)} cy={yFor(value)} r="4" className="tableau-point-current">
+                            <title>{`${localize(points[index].label, locale)}: ${value}`}</title>
+                        </circle>
+                        <text x={xFor(index)} y={height - 12} textAnchor="middle" className="tableau-axis-label">{localize(points[index].label, locale)}</text>
+                    </g>
+                ))}
+            </svg>
         </div>
     );
 };
-
-const OperatingLoopPanel: React.FC<{ stages: OperatingStageCopy[]; title: string; subtitle: string }> = ({ stages, title, subtitle }) => (
-    <div className="ent-card overflow-hidden bg-white/60 ent-glass">
-        <div className="border-b border-black/5 bg-white/40 p-4 sm:p-6">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#007aff]">{title}</p>
-            <h2 className="mt-2 text-xl font-black tracking-tight text-black sm:text-2xl">{subtitle}</h2>
-        </div>
-        <div className="grid grid-cols-1 gap-px bg-black/5 sm:grid-cols-2 xl:grid-cols-6">
-            {stages.map((stage, index) => (
-                <div key={stage.id} className="bg-white/80 p-5">
-                    <div className="mb-5 flex items-center justify-between gap-4">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eef7f4] text-[#16745f]">
-                            <span className="material-symbols-outlined text-[20px]">{stage.icon}</span>
-                        </span>
-                        <span className="font-mono text-[10px] font-black text-[#86868b]">S{index + 1}</span>
-                    </div>
-                    <h3 className="text-[13px] font-black leading-tight text-black">{stage.title}</h3>
-                    <p className="mt-2 text-[11px] font-bold leading-5 text-[#86868b]">{stage.metric}</p>
-                </div>
-            ))}
-        </div>
-    </div>
-);
 
 const EnterpriseDashboardHome: React.FC = () => {
-    const { user } = useAuth();
-    const { t, locale } = useLanguage();
-    const operatingLocale = locale === 'zh' ? 'zh' : 'en';
-    const operatingStages = getOperatingStageCopies(operatingLocale);
-    const resultMetrics = getOperationalResults(operatingLocale);
-    const [researchSector, setResearchSector] = useState(() => t('enterprise.dashboard.research.defaultSector'));
-    const [researchFocus] = useState(() => t('enterprise.dashboard.research.defaultFocus'));
-    const [researchLoading, setResearchLoading] = useState(false);
-    const [researchResult, setResearchResult] = useState<any>(null);
+    const { locale: languageLocale } = useLanguage();
+    const locale: 'zh' | 'en' = languageLocale === 'zh' ? 'zh' : 'en';
+    const copy = COPY[locale];
+    const stages = getOperatingStageCopies(locale);
+    const [timeRange, setTimeRange] = useState<TimeRange>('week');
+    const [region, setRegion] = useState<Region>('all');
+    const [propertyType, setPropertyType] = useState<PropertyType>('all');
+    const [ticketStatus, setTicketStatus] = useState<TicketStatus>('all');
+    const [selectedStage, setSelectedStage] = useState<StageId | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<Category>('all');
+    const [mapExpanded, setMapExpanded] = useState(false);
+    const [mapStatus, setMapStatus] = useState<WorkerStatusSummary>({ total: 3, repairing: 2, idle: 1 });
+    const [lastUpdated, setLastUpdated] = useState(() => new Date());
+    const [refreshing, setRefreshing] = useState(false);
 
-    const handleResearch = async () => {
-        setResearchLoading(true);
-        try {
-            const data = await post('/ai/research-market', { sector: researchSector, focusArea: researchFocus });
-            setResearchResult(data);
-        } catch (e) {
-            console.error('Research failed:', e);
-        } finally {
-            setResearchLoading(false);
-        }
+    const scopeFactor = REGION_FACTORS[region] * PROPERTY_FACTORS[propertyType] * STATUS_FACTORS[ticketStatus];
+    const trendPoints = TREND_SERIES[timeRange];
+    const intakeTotal = trendPoints.reduce((sum, point) => sum + scaleValue(point.current, scopeFactor), 0);
+
+    const metrics = useMemo<KpiMetric[]>(() => {
+        const regionPenalty = region === 'tianya' ? 3.1 : region === 'yazhou' ? 1.2 : 0;
+        const statusPenalty = ticketStatus === 'overdue' ? 8.4 : 0;
+        const sla = Math.max(72, 94.8 - regionPenalty - statusPenalty);
+        const accuracy = 87.6 - (propertyType === 'commercial' ? 1.4 : 0);
+        const deflection = 21.4 - (region === 'tianya' ? 2.7 : 0);
+        const cycle = 3.8 + (region === 'tianya' ? 0.8 : region === 'yazhou' ? 0.3 : 0);
+        return [
+            { label: copy.kpis.intake, value: formatCompact(intakeTotal, locale), change: '+8.6%', context: copy.kpis.intakeContext, direction: 'up', favorable: true, icon: 'fact_check', tone: 'blue' },
+            { label: copy.kpis.sla, value: sla.toFixed(1), unit: '%', change: region === 'tianya' ? '-1.7pp' : '+2.4pp', context: copy.kpis.slaContext, direction: region === 'tianya' ? 'down' : 'up', favorable: region !== 'tianya', icon: 'track_changes', tone: region === 'tianya' ? 'red' : 'teal' },
+            { label: copy.kpis.accuracy, value: accuracy.toFixed(1), unit: '%', change: '+1.8pp', context: copy.kpis.accuracyContext, direction: 'up', favorable: true, icon: 'smart_toy', tone: 'violet' },
+            { label: copy.kpis.deflection, value: deflection.toFixed(1), unit: '%', change: '+3.2pp', context: copy.kpis.deflectionContext, direction: 'up', favorable: true, icon: 'auto_awesome', tone: 'amber' },
+            { label: copy.kpis.cycle, value: cycle.toFixed(1), unit: locale === 'zh' ? '小时' : 'h', change: '-0.6h', context: copy.kpis.cycleContext, direction: 'down', favorable: true, icon: 'schedule', tone: 'blue' },
+        ];
+    }, [copy, intakeTotal, locale, propertyType, region, ticketStatus]);
+
+    const workflowCounts = useMemo(() => stages.map((stage) => ({
+        stage,
+        count: scaleValue(WORKFLOW_COUNTS[stage.id], scopeFactor),
+    })), [scopeFactor, stages]);
+
+    const categoryCounts = useMemo(() => (Object.entries(CATEGORY_COUNTS) as [Exclude<Category, 'all'>, number][]).map(([id, value]) => ({
+        id,
+        value: scaleValue(value, scopeFactor),
+    })), [scopeFactor]);
+
+    const visibleOrders = useMemo(() => WORK_ORDERS.filter((order) => {
+        if (region !== 'all' && order.region !== region) return false;
+        if (propertyType !== 'all' && order.propertyType !== propertyType) return false;
+        if (ticketStatus !== 'all' && order.status !== ticketStatus) return false;
+        if (selectedStage && order.stage !== selectedStage) return false;
+        if (selectedCategory !== 'all' && order.category !== selectedCategory) return false;
+        return true;
+    }).sort((a, b) => a.slaMinutes - b.slaMinutes), [propertyType, region, selectedCategory, selectedStage, ticketStatus]);
+
+    const activeFilterCount = [region !== 'all', propertyType !== 'all', ticketStatus !== 'all', selectedStage !== null, selectedCategory !== 'all'].filter(Boolean).length;
+    const maxCategoryValue = Math.max(...categoryCounts.map((item) => item.value), 1);
+    const updatedTime = new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' }).format(lastUpdated);
+
+    useEffect(() => {
+        const resizeTimer = window.setTimeout(() => window.dispatchEvent(new Event('resize')), 180);
+        return () => window.clearTimeout(resizeTimer);
+    }, [mapExpanded]);
+
+    const resetFilters = () => {
+        setTimeRange('week');
+        setRegion('all');
+        setPropertyType('all');
+        setTicketStatus('all');
+        setSelectedStage(null);
+        setSelectedCategory('all');
     };
 
-    const dimensions: DimensionScore[] = [
-        { name: 'INTAKE', label: 'INTAKE', score: 8.8, maxScore: 10, icon: 'forum', color: '#007aff', description: resultMetrics[0].label },
-        { name: 'DIAGNOSIS', label: 'DIAGNOSIS', score: 8.5, maxScore: 10, icon: 'camera_enhance', color: '#00c6ff', description: resultMetrics[1].label },
-        { name: 'DEFLECT', label: 'DEFLECT', score: 7.2, maxScore: 10, icon: 'self_improvement', color: '#ff9500', description: resultMetrics[2].label },
-        { name: 'WECHAT', label: 'WECHAT', score: 9.0, maxScore: 10, icon: 'hub', color: '#28cd41', description: resultMetrics[3].label },
-    ];
+    const handleRefresh = () => {
+        setRefreshing(true);
+        setLastUpdated(new Date());
+        window.setTimeout(() => setRefreshing(false), 650);
+    };
 
-    const compositeScore = dimensions.reduce((sum, d) => sum + d.score, 0) / dimensions.length;
-
-    const [agents] = useState<AgentStatus[]>([
-        { name: 'IntakeAgent', status: 'online', lastCall: '1m ago', callsToday: 62, costToday: 0.031, model: 'gateway' },
-        { name: 'DiagnosisAgent', status: 'online', lastCall: '2m ago', callsToday: 47, costToday: 0.094, model: 'gemini' },
-        { name: 'DispatchAgent', status: 'online', lastCall: '5m ago', callsToday: 23, costToday: 0.048, model: 'ranker' },
-        { name: 'VerificationAgent', status: 'idle', lastCall: '18m ago', callsToday: 14, costToday: 0.012, model: 'rules' },
-    ]);
-
-    const [alerts] = useState<StrategyAlert[]>([
-        { severity: 'info', dimension: 'fin', rule_triggered: 'Rule 4', metric_name: 'margin', metric_value: 99.7, threshold: 50, recommended_action: 'enterprise.dashboard.alerts.marginHealthy', requires_human_approval: false },
-        { severity: 'warning', dimension: 'team', rule_triggered: 'Rule 2', metric_name: 'ratio', metric_value: 3.0, threshold: 5, recommended_action: 'enterprise.dashboard.alerts.hireTianya', requires_human_approval: false },
-    ]);
-
-    // Added to resolve lint error for user if needed (proactive check)
-    useEffect(() => {
-        if (user) console.log('Aegis Terminal Active for:', user.name);
-    }, [user]);
+    const handleExport = () => {
+        const header = ['ticket_id', 'issue', 'property', 'stage', 'priority', 'sla_minutes', 'assignee', 'status'];
+        const rows = visibleOrders.map((order) => [
+            order.id,
+            localize(order.title, locale),
+            localize(order.property, locale),
+            order.stage,
+            order.priority,
+            order.slaMinutes,
+            localize(order.assignee, locale),
+            order.status,
+        ]);
+        const csv = [header, ...rows].map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `enterprise-operations-${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
 
     return (
-        <div className="space-y-5 lg:space-y-8 page-enter">
-            <OperatingLoopPanel
-                stages={operatingStages}
-                title={locale === 'zh' ? '统一运营模型' : 'Unified operating model'}
-                subtitle={locale === 'zh' ? '报修、分流、派单、验收和业主报表使用同一套状态机。' : 'Intake, deflection, dispatch, verification, and owner reporting now share one state machine.'}
-            />
-
-            {/* Row 1: 4D Strategy Health (Key Metics) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-8">
-                {dimensions.map((dim) => (
-                    <DimensionCard key={dim.name} dim={dim} label={t('enterprise.dashboard.strategicDimension')} />
-                ))}
-            </div>
-
-            {/* Row 2: Main Visualization (Map + Performance) */}
-            <div className="grid grid-cols-1 xl:grid-cols-10 gap-5 lg:gap-8">
-                <div className="xl:col-span-7 ent-card overflow-hidden bg-white/50 ent-glass">
-                    <div className="p-4 sm:p-6 border-b border-black/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white/40">
-                        <div>
-                            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-2">{t('enterprise.dashboard.map.title')}</h3>
-                            <p className="text-[10px] text-[#007aff] font-black uppercase tracking-widest font-mono">{t('enterprise.dashboard.map.subtitle', { count: 12 })}</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
-                                <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse shadow-[0_0_8px_#2563eb]" /> 
-                                <span className="text-[10px] text-blue-600 font-black font-mono tracking-widest">{t('enterprise.dashboard.map.live')}</span>
-                            </div>
-                            <span className="material-symbols-outlined text-slate-400 text-sm cursor-pointer hover:text-blue-600 transition-colors">fullscreen</span>
-                        </div>
+        <div className="tableau-dashboard page-enter">
+            <header className="tableau-dashboard-header">
+                <div>
+                    <p className="tableau-eyebrow">{copy.eyebrow}</p>
+                    <div className="tableau-title-row">
+                        <h1>{copy.title}</h1>
+                        <span className="tableau-live-status"><i />{copy.live}</span>
                     </div>
-                    <div className="h-[340px] sm:h-[420px] lg:h-[500px] relative">
-                         <EnterpriseMap />
-                    </div>
+                    <p className="tableau-dashboard-subtitle">{copy.subtitle}</p>
                 </div>
-
-                <div className="xl:col-span-3 ent-card p-4 sm:p-6 bg-white/80 ent-glass">
-                    <div className="flex items-center justify-between gap-4 mb-6 lg:mb-8">
-                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('enterprise.dashboard.systemLoad.title')}</h3>
-                        <div className="flex items-center gap-2 bg-black/5 px-2.5 py-1.5 rounded-lg text-[10px] text-slate-500 font-black uppercase tracking-widest">
-                            {t('enterprise.dashboard.systemLoad.realtime')} <span className="material-symbols-outlined text-[14px]">expand_more</span>
-                        </div>
-                    </div>
-                    <div className="space-y-8">
-                        <div>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{t('enterprise.dashboard.systemLoad.diagnosisCapacity')}</span>
-                                <span className="text-[11px] text-[#28cd41] font-black font-mono">{(compositeScore * 10).toFixed(1)}%</span>
-                            </div>
-                            <div className="h-1.5 bg-black/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-gradient-to-r from-[#28cd41] to-[#00f260] rounded-full transition-all duration-1000 shadow-[0_0_10px_#28cd41]" style={{ width: `${compositeScore * 10}%` }} />
-                            </div>
-                        </div>
-                        <PerformanceChart />
-                        <div className="grid grid-cols-2 gap-4 mt-4 py-6 border-t border-black/5">
-                            <div>
-                                <p className="text-[9px] text-[#86868b] uppercase font-black mb-1.5 tracking-widest">{t('enterprise.dashboard.systemLoad.latency')}</p>
-                                <p className="text-2xl font-black text-black tracking-tighter font-display">1.2<span className="text-xs text-slate-400 ml-1">ms</span></p>
-                            </div>
-                            <div>
-                                <p className="text-[9px] text-[#86868b] uppercase font-black mb-1.5 tracking-widest">{t('enterprise.dashboard.systemLoad.success')}</p>
-                                <p className="text-2xl font-black text-[#007aff] tracking-tighter font-display">99.9<span className="text-xs text-slate-400 ml-1">%</span></p>
-                            </div>
-                        </div>
-                    </div>
+                <div className="tableau-dashboard-actions">
+                    <span className="tableau-data-freshness"><strong>{copy.demo}</strong>{copy.refreshed} {updatedTime}</span>
+                    <button type="button" className="tableau-icon-button" onClick={handleRefresh} aria-label={copy.refresh} title={copy.refresh}>
+                        <span className={`material-symbols-outlined text-[17px] ${refreshing ? 'is-spinning' : ''}`} aria-hidden="true">refresh</span>
+                    </button>
+                    <button type="button" className="tableau-icon-button" onClick={handleExport} aria-label={copy.export} title={copy.export}>
+                        <span className="material-symbols-outlined text-[17px]" aria-hidden="true">download</span>
+                    </button>
                 </div>
-            </div>
+            </header>
 
-            {/* Row 3: Agent Swarm & Strategy Alerts */}
-            <div className="grid grid-cols-1 xl:grid-cols-10 gap-5 lg:gap-8">
-                <div className="xl:col-span-6 ent-card overflow-hidden bg-white/50 ent-glass">
-                    <div className="p-4 sm:p-6 border-b border-black/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white/40">
-                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('enterprise.dashboard.agents.title')}</h3>
-                        <div className="flex items-center gap-4 text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#28cd41]" /> {t('enterprise.dashboard.agents.online')}</div>
-                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#ff9500]" /> {t('enterprise.dashboard.agents.idle')}</div>
-                        </div>
-                    </div>
-                    <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4">
-                        {agents.map((agent) => (
-                            <AgentCard key={agent.name} agent={agent} costLabel={t('enterprise.dashboard.agents.computeCost')} callsLabel={t('enterprise.dashboard.agents.nodesHit')} />
-                        ))}
-                        <div className="ent-card p-4 border-dashed border-black/10 flex flex-col items-center justify-center opacity-40 hover:opacity-100 cursor-pointer transition-all hover:bg-white bg-transparent">
-                            <span className="material-symbols-outlined text-slate-400 text-2xl">add_circle</span>
-                            <span className="text-[10px] font-black text-slate-400 uppercase mt-2 tracking-widest">{t('enterprise.dashboard.agents.deploy')}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="xl:col-span-4 ent-card overflow-hidden bg-white/80 ent-glass">
-                    <div className="p-4 sm:p-6 border-b border-black/5 flex items-center justify-between gap-4">
-                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('enterprise.dashboard.alerts.title')}</h3>
-                        <span className="material-symbols-outlined text-slate-400 text-sm">notifications_active</span>
-                    </div>
-                    <div className="p-4 sm:p-6 max-h-[400px] overflow-y-auto ent-scrollbar">
-                        {alerts.map((alert, i) => (
-                            <AlertBadge key={i} alert={{ ...alert, recommended_action: t(alert.recommended_action) }} severityLabel={t(`enterprise.dashboard.alerts.${alert.severity}`)} />
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Row 4: Research Swarm & Efficiency */}
-            <div className="grid grid-cols-1 xl:grid-cols-10 gap-5 lg:gap-8">
-                <div className="xl:col-span-7 ent-card p-4 sm:p-6 lg:p-8 bg-white/60 ent-glass">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-                        <div>
-                            <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{t('enterprise.dashboard.research.title')}</h2>
-                            <p className="text-[14px] text-slate-900 font-black tracking-tight uppercase">{t('enterprise.dashboard.research.subtitle')}</p>
-                        </div>
-                        <div className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-widest">
-                           {t('enterprise.dashboard.research.validation')}
-                        </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                        <div className="flex-1">
-                            <input 
-                                type="text" 
-                                value={researchSector} 
-                                onChange={(e) => setResearchSector(e.target.value)}
-                                placeholder={t('enterprise.dashboard.research.sectorPlaceholder')} 
-                                className="w-full bg-white border border-black/5 rounded-2xl px-5 py-4 text-sm text-black font-black focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all"
-                            />
-                        </div>
-                        <button onClick={handleResearch} disabled={researchLoading}
-                            className="px-6 sm:px-8 py-4 bg-[#007aff] hover:bg-blue-600 text-white rounded-2xl text-[12px] font-black transition-all disabled:opacity-50 uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-blue-500/20 active:scale-95">
-                             {researchLoading ? t('enterprise.dashboard.research.executing') : t('enterprise.dashboard.research.execute')} <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
+            <section className="tableau-filter-bar" aria-label={copy.filters}>
+                <div className="tableau-range-control" aria-label={copy.filters}>
+                    {(Object.keys(copy.ranges) as TimeRange[]).map((range) => (
+                        <button key={range} type="button" className={timeRange === range ? 'is-active' : ''} aria-pressed={timeRange === range} onClick={() => setTimeRange(range)}>
+                            {copy.ranges[range]}
                         </button>
+                    ))}
+                </div>
+                <label className="tableau-select-field">
+                    <span>{copy.region}</span>
+                    <select value={region} onChange={(event) => setRegion(event.target.value as Region)}>
+                        {(Object.keys(copy.regions) as Region[]).map((id) => <option key={id} value={id}>{copy.regions[id]}</option>)}
+                    </select>
+                </label>
+                <label className="tableau-select-field">
+                    <span>{copy.property}</span>
+                    <select value={propertyType} onChange={(event) => setPropertyType(event.target.value as PropertyType)}>
+                        {(Object.keys(copy.properties) as PropertyType[]).map((id) => <option key={id} value={id}>{copy.properties[id]}</option>)}
+                    </select>
+                </label>
+                <label className="tableau-select-field">
+                    <span>{copy.status}</span>
+                    <select value={ticketStatus} onChange={(event) => setTicketStatus(event.target.value as TicketStatus)}>
+                        {(Object.keys(copy.statuses) as TicketStatus[]).map((id) => <option key={id} value={id}>{copy.statuses[id]}</option>)}
+                    </select>
+                </label>
+                <button type="button" className="tableau-reset-button" onClick={resetFilters} disabled={activeFilterCount === 0 && timeRange === 'week'}>
+                    <span className="material-symbols-outlined text-[15px]" aria-hidden="true">restart_alt</span>
+                    {copy.reset}
+                    {activeFilterCount > 0 && <span>{activeFilterCount}</span>}
+                </button>
+            </section>
+
+            <section className="tableau-kpi-grid" aria-label={copy.title}>
+                {metrics.map((metric) => <KpiCard key={metric.label} metric={metric} versus={copy.versus} />)}
+            </section>
+
+            <div className="tableau-primary-grid">
+                <section className="tableau-panel tableau-trend-panel">
+                    <PanelHeader title={copy.trendTitle} subtitle={copy.trendSubtitle} />
+                    <TrendChart points={trendPoints} factor={scopeFactor} locale={locale} incomingLabel={copy.incoming} completedLabel={copy.completed} />
+                </section>
+
+                <section className="tableau-panel tableau-insights-panel">
+                    <PanelHeader
+                        title={copy.aiTitle}
+                        subtitle={copy.aiSubtitle}
+                        action={<span className="tableau-insight-count"><span className="material-symbols-outlined text-[13px]" aria-hidden="true" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>{copy.aiBadge}</span>}
+                    />
+                    <div className="tableau-insight-list">
+                        {copy.insights.map((insight, index) => (
+                            <article key={insight.title} className={`tableau-insight is-${insight.tone}`}>
+                                <span className="tableau-insight-icon">
+                                    {index === 0 ? <span className="material-symbols-outlined text-[17px] text-amber-500" aria-hidden="true">warning</span> : index === 1 ? <span className="material-symbols-outlined text-[17px] text-success" aria-hidden="true" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> : <span className="material-symbols-outlined text-[17px]" aria-hidden="true">speed</span>}
+                                </span>
+                                <div>
+                                    <h3>{insight.title}</h3>
+                                    <p>{insight.detail}</p>
+                                </div>
+                            </article>
+                        ))}
                     </div>
-                    
-                    {researchResult && (
-                        <div className="mt-6 p-6 bg-white rounded-2xl border border-black/5 shadow-sm">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#28cd41] shadow-[0_0_8px_#28cd41]" />
-                                <span className="text-[11px] font-black text-[#28cd41] uppercase tracking-[0.15em]">{t('enterprise.dashboard.research.verdict')}: {researchResult.go_no_go?.overall_verdict}</span>
-                            </div>
-                            <p className="text-[14px] text-slate-600 font-medium leading-relaxed italic">"{researchResult.executive_summary}"</p>
+                    <Link to="tickets" className="tableau-panel-link">{copy.viewTickets}<span className="material-symbols-outlined text-[15px] ml-1" aria-hidden="true">arrow_forward</span></Link>
+                </section>
+            </div>
+
+            <section className="tableau-panel tableau-workflow-panel">
+                <PanelHeader
+                    title={copy.workflowTitle}
+                    subtitle={copy.workflowSubtitle}
+                    action={selectedStage ? (
+                        <button type="button" className="tableau-clear-filter" onClick={() => setSelectedStage(null)}>
+                            <span className="material-symbols-outlined text-[14px]" aria-hidden="true">restart_alt</span>{copy.clearStage}
+                        </button>
+                    ) : undefined}
+                />
+                <div className="tableau-workflow">
+                    {workflowCounts.map(({ stage, count }, index) => (
+                        <button
+                            key={stage.id}
+                            type="button"
+                            className={`tableau-stage${selectedStage === stage.id ? ' is-selected' : ''}`}
+                            aria-pressed={selectedStage === stage.id}
+                            onClick={() => setSelectedStage((current) => current === stage.id ? null : stage.id)}
+                        >
+                            <span className="tableau-stage-index">0{index + 1}</span>
+                            <span className="tableau-stage-copy">
+                                <strong>{stage.title}</strong>
+                                <small>{stage.metric}</small>
+                            </span>
+                            <span className="tableau-stage-value">{formatCompact(count, locale)}<small>{copy.stageCount}</small></span>
+                            {index < workflowCounts.length - 1 && <span className="material-symbols-outlined tableau-stage-arrow text-[15px]" aria-hidden="true">arrow_forward</span>}
+                        </button>
+                    ))}
+                </div>
+            </section>
+
+            <section className={`tableau-panel tableau-map-panel${mapExpanded ? ' is-expanded' : ''}`} data-testid="operations-map-panel">
+                <PanelHeader
+                    title={copy.mapTitle}
+                    subtitle={copy.mapSubtitle}
+                    action={(
+                        <div className="tableau-map-toolbar" aria-label={copy.mapTitle}>
+                            <span className="tableau-map-live"><i />{copy.mapLive}</span>
+                            <span className="tableau-map-status"><i className="is-repairing" />{copy.mapRepairing}<strong>{mapStatus.repairing}</strong></span>
+                            <span className="tableau-map-status"><i className="is-idle" />{copy.mapIdle}<strong>{mapStatus.idle}</strong></span>
+                            <button
+                                type="button"
+                                className="tableau-icon-button"
+                                onClick={() => setMapExpanded((current) => !current)}
+                                aria-label={mapExpanded ? copy.mapCollapse : copy.mapExpand}
+                                title={mapExpanded ? copy.mapCollapse : copy.mapExpand}
+                            >
+                                {mapExpanded ? <span className="material-symbols-outlined text-[16px]" aria-hidden="true">fullscreen_exit</span> : <span className="material-symbols-outlined text-[16px]" aria-hidden="true">fullscreen</span>}
+                            </button>
                         </div>
                     )}
+                />
+                <div className="tableau-map-frame">
+                    <EnterpriseMap onStatusChange={setMapStatus} />
                 </div>
+            </section>
 
-                <div className="xl:col-span-3 ent-card p-4 sm:p-6 lg:p-8 relative overflow-hidden group bg-white/80 ent-glass">
-                    <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 lg:mb-8">{t('enterprise.dashboard.efficiency.title')}</h3>
-                    <WorkloadDistribution />
-                    <div className="mt-8 pt-6 border-t border-black/5">
-                        <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3">
-                            <span>{t('enterprise.dashboard.efficiency.costOptimization')}</span>
-                            <span className="text-[#28cd41] font-mono">-98.6%</span>
-                        </div>
-                        <div className="h-1.5 bg-black/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-[#28cd41] to-[#00f260] w-[98.6%] rounded-full shadow-[0_0_10px_rgba(40,205,65,0.3)]" />
-                        </div>
-                        <p className="text-[10px] text-slate-500 font-bold mt-4 leading-relaxed tracking-tight">{t('enterprise.dashboard.efficiency.description')}</p>
+            <div className="tableau-secondary-grid">
+                <section className="tableau-panel tableau-category-panel">
+                    <PanelHeader title={copy.categoryTitle} subtitle={copy.categorySubtitle} />
+                    <div className="tableau-category-list">
+                        {categoryCounts.map((item) => (
+                            <button
+                                key={item.id}
+                                type="button"
+                                className={selectedCategory === item.id ? 'is-selected' : ''}
+                                aria-pressed={selectedCategory === item.id}
+                                onClick={() => setSelectedCategory((current) => current === item.id ? 'all' : item.id)}
+                            >
+                                <span>{copy.categories[item.id]}</span>
+                                <span className="tableau-category-track"><i style={{ width: `${item.value / maxCategoryValue * 100}%` }} /></span>
+                                <strong>{formatCompact(item.value, locale)}</strong>
+                            </button>
+                        ))}
                     </div>
-                    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/10 transition-colors" />
-                </div>
+                </section>
+
+                <section className="tableau-panel tableau-region-panel">
+                    <PanelHeader title={copy.regionTitle} subtitle={copy.regionSubtitle} />
+                    <div className="tableau-table-scroll">
+                        <table className="tableau-region-table">
+                            <thead><tr><th>{copy.tableRegion}</th><th>{copy.tableTickets}</th><th>{copy.tableSla}</th><th>{copy.tableDeflection}</th><th>{copy.tableCycle}</th></tr></thead>
+                            <tbody>
+                                {REGION_PERFORMANCE.filter((item) => region === 'all' || item.id === region).map((item) => (
+                                    <tr key={item.id}>
+                                        <td><button type="button" onClick={() => setRegion(item.id)}>{localize(item.name, locale)}</button></td>
+                                        <td>{formatCompact(scaleValue(item.tickets, PROPERTY_FACTORS[propertyType] * STATUS_FACTORS[ticketStatus]), locale)}</td>
+                                        <td><span className={`tableau-score${item.sla < 92 ? ' is-risk' : ''}`}>{item.sla.toFixed(1)}%</span></td>
+                                        <td>{item.deflection.toFixed(1)}%</td>
+                                        <td>{item.cycle.toFixed(1)}{locale === 'zh' ? ' 小时' : 'h'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
+
+            <section className="tableau-panel tableau-queue-panel">
+                <PanelHeader
+                    title={copy.queueTitle}
+                    subtitle={copy.queueSubtitle}
+                    action={<span className="tableau-record-count">{visibleOrders.length} {copy.queueCount}</span>}
+                />
+                <div className="tableau-table-scroll">
+                    <table className="tableau-queue-table">
+                        <thead><tr><th>{copy.columns.id}</th><th>{copy.columns.issue}</th><th>{copy.columns.stage}</th><th>{copy.columns.priority}</th><th>{copy.columns.sla}</th><th>{copy.columns.assignee}</th><th>{copy.columns.status}</th></tr></thead>
+                        <tbody>
+                            {visibleOrders.map((order) => {
+                                const stage = stages.find((item) => item.id === order.stage);
+                                return (
+                                    <tr key={order.id}>
+                                        <td><Link to="tickets">{order.id}</Link></td>
+                                        <td><strong>{localize(order.title, locale)}</strong><small>{localize(order.property, locale)}</small></td>
+                                        <td><span className="tableau-stage-cell"><span className="material-symbols-outlined text-[14px]" aria-hidden="true">insights</span>{stage?.title}</span></td>
+                                        <td><span className={`tableau-priority is-${order.priority}`}>{copy.priority[order.priority]}</span></td>
+                                        <td><span className={order.slaMinutes < 0 ? 'tableau-sla is-overdue' : 'tableau-sla'}>{order.slaMinutes < 0 ? `${Math.abs(order.slaMinutes)} ${copy.minutes} ${copy.overdue}` : `${order.slaMinutes} ${copy.minutes}`}</span></td>
+                                        <td>{localize(order.assignee, locale)}</td>
+                                        <td><span className={`tableau-ticket-status is-${order.status}`}>{copy.statuses[order.status]}</span></td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                    {visibleOrders.length === 0 && <div className="tableau-empty-state"><span className="material-symbols-outlined text-[20px]" aria-hidden="true">build</span><span>{copy.empty}</span></div>}
+                </div>
+            </section>
         </div>
     );
 };
 
-// ============ Enterprise Dashboard Router ============
+const EnterpriseDashboard: React.FC = () => (
+    <EnterpriseLayout>
+        <Routes>
+            <Route index element={<EnterpriseDashboardHome />} />
+            <Route path="properties" element={<PropertiesPage />} />
+            <Route path="tickets" element={<TicketsPage />} />
+            <Route path="workers" element={<EnterpriseWorkersPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="ai-config" element={<EnterpriseAIConfigPage />} />
+        </Routes>
+    </EnterpriseLayout>
+);
 
-const EnterpriseDashboard: React.FC = () => {
-    return (
-        <EnterpriseLayout>
-            <Routes>
-                <Route index element={<EnterpriseDashboardHome />} />
-                <Route path="properties" element={<PropertiesPage />} />
-                <Route path="tickets" element={<TicketsPage />} />
-                <Route path="workers" element={<EnterpriseWorkersPage />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
-                <Route path="ai-config" element={<EnterpriseAIConfigPage />} />
-            </Routes>
-        </EnterpriseLayout>
-    );
-};
-
+export { EnterpriseDashboardHome };
 export default EnterpriseDashboard;

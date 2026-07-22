@@ -147,6 +147,9 @@ export class SQLiteFallback {
 
                 // Handle RETURNING clause
                 if (text.toUpperCase().includes('RETURNING')) {
+                    if (result.changes === 0) {
+                        return { rows: [], rowCount: 0 };
+                    }
                     const tableMatch = text.match(/UPDATE\s+(\w+)/i);
                     const whereMatch = text.match(/WHERE\s+id\s*=\s*\$(\d+)/i);
                     if (tableMatch && whereMatch && params) {

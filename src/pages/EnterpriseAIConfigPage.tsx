@@ -85,11 +85,11 @@ interface EnterpriseAIConfig {
 
 const workflowOwnerByStage: Record<string, string> = {
     intake: 'diagnosis',
-    diagnosis: 'diagnosis',
-    deflection: 'planning',
+    diagnosis: 'problemSolving',
+    deflection: 'problemSolving',
     dispatch: 'executive',
-    verification: 'executive',
-    reporting: 'executive',
+    verification: 'problemSolving',
+    reporting: 'problemSolving',
 };
 
 const workflowGateByStage: Record<string, WorkflowGate> = {
@@ -121,6 +121,7 @@ const defaultConfig: EnterpriseAIConfig = {
     modelProfiles: [
         { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', providerId: 'google', modelCode: 'gemini-1.5-flash', contextWindow: '1M', latency: 'Low', cost: '$', bestFor: 'Photo diagnosis and fast JSON output', enabled: true },
         { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', providerId: 'google', modelCode: 'gemini-1.5-pro', contextWindow: '1M', latency: 'Medium', cost: '$$', bestFor: 'Complex multimodal analysis', enabled: true },
+        { id: 'gpt-5.5-codex', name: 'GPT-5.5 Codex', providerId: 'openai', modelCode: 'gpt-5.5', contextWindow: '1M', latency: 'Fast', cost: '$$$', bestFor: 'Six-stage problem-solving orchestration with cost, deflection, verification, and reporting outputs', enabled: true },
         { id: 'deepseek-r1', name: 'DeepSeek R1', providerId: 'deepseek', modelCode: 'deepseek-reasoner', contextWindow: '64K', latency: 'Medium', cost: '$$', bestFor: 'Repair planning and reasoning', enabled: true },
         { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', providerId: 'openai', modelCode: 'gpt-4.1-mini', contextWindow: '128K', latency: 'Low', cost: '$$', bestFor: 'Tool orchestration and bilingual operations', enabled: true },
         { id: 'local-qwen', name: 'Local Qwen Edge', providerId: 'local', modelCode: 'qwen2.5:7b', contextWindow: '32K', latency: 'Very low', cost: 'Fixed', bestFor: 'Private fallback and offline triage', enabled: false },
@@ -146,6 +147,17 @@ const defaultConfig: EnterpriseAIConfig = {
             mode: 'approval',
             systemPrompt: 'Generate repair plans with materials, steps, duration, risk, and escalation gates.',
             toolAccess: 'BOM lookup, task planner, dispatch draft',
+            enabled: true,
+        },
+        {
+            id: 'problemSolving',
+            name: 'ProblemSolvingAgent',
+            layer: 'P0 Orchestration',
+            description: 'OpenAI/Codex-grade six-stage loop for diagnosis, deflection, dispatch, verification, and owner reporting.',
+            modelId: 'gpt-5.5-codex',
+            mode: 'approval',
+            systemPrompt: 'Run the six-stage maintenance problem-solving loop. Output cost ranges, DIY safety gates, dispatch criteria, verification checks, and owner-ready reporting without reverting to stale 8-step framing.',
+            toolAccess: 'Responses API, case context, evidence pack, cost and verification schema',
             enabled: true,
         },
         {
@@ -206,6 +218,15 @@ const defaultConfig: EnterpriseAIConfig = {
     ],
     skills: [
         {
+            id: 'sixStageLoop',
+            name: 'Six-Stage Problem Solving Skill',
+            description: 'Turns an inquiry summary into a complete operating-loop plan with root cause, deflection, cost, dispatch, verification, and reporting outputs.',
+            ownerAgentId: 'problemSolving',
+            trigger: 'After inquiry summary',
+            inputContract: 'demandSummary, optional image, locale',
+            enabled: true,
+        },
+        {
             id: 'pricingMemory',
             name: 'Pricing Memory Skill',
             description: 'Uses completed jobs and BOM deltas to refine local material estimates.',
@@ -249,10 +270,10 @@ const defaultConfig: EnterpriseAIConfig = {
             title: 'Sanya Beachhead Repair Workflow',
             scenario: 'High-frequency rental maintenance from WeChat intake to verified closeout and owner reporting.',
             targetUser: 'Property manager',
-            primaryAgentId: 'planning',
+            primaryAgentId: 'problemSolving',
             outputFormat: 'Repair plan, BOM, dispatch checklist, owner summary',
             workflowStepIds: 'intake, diagnosis, deflection, dispatch, verification, reporting',
-            skillIds: 'pricingMemory, piplGuard, workerCalibration',
+            skillIds: 'sixStageLoop, pricingMemory, piplGuard, workerCalibration',
             status: 'ready',
         },
         {
@@ -330,15 +351,15 @@ const Toggle: React.FC<{
             aria-label={label}
             aria-checked={checked}
             onClick={onChange}
-            className={`group inline-flex h-9 w-[118px] shrink-0 items-center rounded-full border px-1.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#007aff]/15 ${
+            className={`group inline-flex h-9 w-[118px] shrink-0 items-center rounded-full border px-1.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/15 ${
                 checked
-                    ? 'border-[#007aff]/30 bg-[#007aff] text-white shadow-lg shadow-blue-500/20'
+                    ? 'border-[#1a73e8]/30 bg-[#1a73e8] text-white shadow-lg shadow-blue-500/20'
                     : 'border-black/10 bg-white text-slate-500 shadow-sm hover:border-slate-300'
             }`}
         >
             <span
                 className={`flex h-6 w-6 items-center justify-center rounded-full bg-white text-[14px] shadow-sm transition-transform duration-300 ${
-                    checked ? 'translate-x-[76px] text-[#007aff]' : 'translate-x-0 text-slate-400'
+                    checked ? 'translate-x-[76px] text-[#1a73e8]' : 'translate-x-0 text-slate-400'
                 }`}
             >
                 <span className="material-symbols-outlined text-[16px]">{checked ? 'check' : 'pause'}</span>
@@ -366,7 +387,7 @@ const SelectField: React.FC<{
             aria-label={label}
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="h-11 w-full rounded-xl border border-black/5 bg-white px-3 text-[13px] font-black text-black outline-none transition focus:border-[#007aff]/30 focus:ring-4 focus:ring-[#007aff]/10"
+            className="h-11 w-full rounded-xl border border-black/5 bg-white px-3 text-[13px] font-black text-black outline-none transition focus:border-[#1a73e8]/30 focus:ring-4 focus:ring-[#1a73e8]/10"
         >
             {options.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -390,7 +411,7 @@ const TextField: React.FC<{
             type={type}
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="h-11 w-full rounded-xl border border-black/5 bg-white px-3 text-[13px] font-black text-black outline-none transition focus:border-[#007aff]/30 focus:ring-4 focus:ring-[#007aff]/10"
+            className="h-11 w-full rounded-xl border border-black/5 bg-white px-3 text-[13px] font-black text-black outline-none transition focus:border-[#1a73e8]/30 focus:ring-4 focus:ring-[#1a73e8]/10"
         />
     </label>
 );
@@ -407,7 +428,7 @@ const TextAreaField: React.FC<{
             value={value}
             onChange={(event) => onChange(event.target.value)}
             rows={3}
-            className="w-full resize-none rounded-xl border border-black/5 bg-white px-3 py-3 text-[13px] font-black leading-relaxed text-black outline-none transition focus:border-[#007aff]/30 focus:ring-4 focus:ring-[#007aff]/10"
+            className="w-full resize-none rounded-xl border border-black/5 bg-white px-3 py-3 text-[13px] font-black leading-relaxed text-black outline-none transition focus:border-[#1a73e8]/30 focus:ring-4 focus:ring-[#1a73e8]/10"
         />
     </label>
 );
@@ -427,7 +448,7 @@ const SectionHeader: React.FC<{
             <button
                 type="button"
                 onClick={onButtonClick}
-                className="inline-flex h-11 w-fit items-center gap-2 rounded-xl border border-black/5 bg-white px-4 text-[11px] font-black uppercase tracking-widest text-black shadow-sm transition hover:border-[#007aff]/30 hover:text-[#007aff]"
+                className="inline-flex h-11 w-fit items-center gap-2 rounded-xl border border-black/5 bg-white px-4 text-[11px] font-black uppercase tracking-widest text-black shadow-sm transition hover:border-[#1a73e8]/30 hover:text-[#1a73e8]"
             >
                 <span aria-hidden="true" className="material-symbols-outlined text-[18px]">add</span>
                 {buttonLabel}
@@ -728,7 +749,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
         <div className="page-enter space-y-6 lg:space-y-8">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div className="max-w-3xl">
-                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#007aff]">{t('enterprise.aiConfig.eyebrow')}</p>
+                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#1a73e8]">{t('enterprise.aiConfig.eyebrow')}</p>
                     <h1 className="text-3xl font-black tracking-tight text-black sm:text-4xl">{t('enterprise.aiConfig.title')}</h1>
                     <p className="mt-3 text-[13px] font-bold leading-relaxed text-[#86868b]">
                         {t('enterprise.aiConfig.subtitle')}
@@ -736,7 +757,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     {saveMessage && (
-                        <span className="rounded-full border border-[#28cd41]/20 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-widest text-[#28cd41] shadow-sm">
+                        <span className="rounded-full border border-[#34a853]/20 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-widest text-[#34a853] shadow-sm">
                             {t(`enterprise.aiConfig.${saveMessage}`)}
                         </span>
                     )}
@@ -751,7 +772,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                     <button
                         type="button"
                         onClick={saveConfig}
-                        className="inline-flex h-11 items-center gap-2 rounded-xl border border-[#007aff] bg-[#007aff] px-5 text-[11px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-500/20 transition hover:bg-blue-600"
+                        className="inline-flex h-11 items-center gap-2 rounded-xl border border-[#1a73e8] bg-[#1a73e8] px-5 text-[11px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-500/20 transition hover:bg-blue-600"
                     >
                         <span aria-hidden="true" className="material-symbols-outlined text-[18px]">save</span>
                         {t('enterprise.aiConfig.save')}
@@ -762,10 +783,10 @@ const EnterpriseAIConfigPage: React.FC = () => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
                 {[
                     { label: t('enterprise.aiConfig.summary.providers'), value: summary.activeProviders, tone: 'text-black' },
-                    { label: t('enterprise.aiConfig.summary.keys'), value: summary.configuredKeys, tone: 'text-[#007aff]' },
-                    { label: t('enterprise.aiConfig.summary.models'), value: summary.activeModels, tone: 'text-[#5856d6]' },
+                    { label: t('enterprise.aiConfig.summary.keys'), value: summary.configuredKeys, tone: 'text-[#1a73e8]' },
+                    { label: t('enterprise.aiConfig.summary.models'), value: summary.activeModels, tone: 'text-[#a142f4]' },
                     { label: t('enterprise.aiConfig.summary.agents'), value: summary.activeAgents, tone: 'text-black' },
-                    { label: t('enterprise.aiConfig.summary.skills'), value: summary.activeSkills, tone: 'text-[#28cd41]' },
+                    { label: t('enterprise.aiConfig.summary.skills'), value: summary.activeSkills, tone: 'text-[#34a853]' },
                     { label: t('enterprise.aiConfig.summary.blueprints'), value: summary.blueprints, tone: 'text-[#ff9500]' },
                 ].map((item) => (
                     <div key={item.label} className="ent-card bg-white/70 p-5">
@@ -806,7 +827,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                             <article key={provider.id} className="ent-card bg-white/70 p-5">
                                 <div className="mb-5 flex items-start justify-between gap-4">
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#007aff]">{provider.providerType}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a73e8]">{provider.providerType}</p>
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{provider.name}</h3>
                                         <p className="mt-2 text-[12px] font-bold text-[#86868b]">
                                             {t('enterprise.aiConfig.linkedModels', { count: config.modelProfiles.filter((model) => model.providerId === provider.id).length })}
@@ -847,7 +868,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                             <article key={model.id} className="ent-card bg-white/70 p-5">
                                 <div className="mb-5 flex items-start justify-between gap-4">
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5856d6]">{getProviderName(model.providerId)}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#a142f4]">{getProviderName(model.providerId)}</p>
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{model.name}</h3>
                                         <p className="mt-2 text-[12px] font-bold leading-relaxed text-[#86868b]">{model.bestFor}</p>
                                     </div>
@@ -891,7 +912,7 @@ const EnterpriseAIConfigPage: React.FC = () => {
                             <article key={skill.id} className="ent-card bg-white/70 p-5">
                                 <div className="mb-5 flex items-start justify-between gap-4">
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#007aff]">{getAgentName(skill.ownerAgentId)}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a73e8]">{getAgentName(skill.ownerAgentId)}</p>
                                         <h3 className="mt-1 text-lg font-black tracking-tight text-black">{skill.name}</h3>
                                         <p className="mt-2 text-[12px] font-bold leading-relaxed text-[#86868b]">{skill.description}</p>
                                     </div>

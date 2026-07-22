@@ -20,7 +20,7 @@ const variantClasses: Record<ButtonVariant, string> = {
  * 位于屏幕底部的主要报修入口，符合 UI/UX 标准。
  * - 位置: 底部 33% 区域 (fixed bottom-8)
  * - 尺寸: 48dp 高度, 20px 圆角
- * - 颜色: action-primary (#007AFF)
+ * - 颜色: action-primary (#1a73e8)
  * - 反馈: Haptic Light Impact
  */
 export default function QuickReportButton({
