@@ -140,12 +140,12 @@ describe('ProfilePage', () => {
         fireEvent.click(toggleContainer);
 
         // Verify class was added to documentElement
-        expect(document.documentElement.classList.contains('dark')).toBe(true);
-        expect(localStorage.getItem('theme')).toBe('dark');
+        await waitFor(() => expect(document.documentElement.classList.contains('dark')).toBe(true));
+        await waitFor(() => expect(localStorage.getItem('theme')).toBe('dark'));
 
         fireEvent.click(toggleContainer);
-        expect(document.documentElement.classList.contains('dark')).toBe(false);
-        expect(localStorage.getItem('theme')).toBe('light');
+        await waitFor(() => expect(document.documentElement.classList.contains('dark')).toBe(false));
+        await waitFor(() => expect(localStorage.getItem('theme')).toBe('light'));
     });
 
     it('should call logout and navigate to login', async () => {
