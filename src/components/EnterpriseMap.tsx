@@ -22,6 +22,16 @@ interface WorkerLocation {
     taskKey: 'pipe' | 'standby' | 'electrical';
 }
 
+export interface WorkerStatusSummary {
+    total: number;
+    repairing: number;
+    idle: number;
+}
+
+interface EnterpriseMapProps {
+    onStatusChange?: (summary: WorkerStatusSummary) => void;
+}
+
 const mockWorkers: WorkerLocation[] = [
     { id: 'w1', name: '张师傅 (Zhang)', status: 'repairing', location: { lat: 18.2558, lng: 109.5149 }, taskKey: 'pipe' },
     { id: 'w2', name: '李师傅 (Li)', status: 'idle', location: { lat: 18.2488, lng: 109.5089 }, taskKey: 'standby' },
@@ -30,15 +40,19 @@ const mockWorkers: WorkerLocation[] = [
 
 // ============ Sub-components ============
 
-const CustomOverlayPane: React.FC = () => {
+const CustomOverlayPane: React.FC<{ status: WorkerStatusSummary }> = ({ status }) => {
     const { t } = useLanguage();
 
     return (
-        <div className="m-6 p-4 rounded-xl border border-slate-200 bg-white/95 shadow-lg text-slate-800 space-y-2 pointer-events-auto">
+        <div className="enterprise-map-overlay m-6 p-4 rounded-xl border border-slate-200 bg-white/95 shadow-lg text-slate-800 space-y-2 pointer-events-auto">
             <h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('enterprise.map.systemDistribution')}</h2>
             <div className="flex items-center gap-3">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-sm" />
                 <span className="text-[14px] font-bold tracking-tight">{t('enterprise.map.operationsView')}</span>
+            </div>
+            <div className="enterprise-map-overlay-status">
+                <span><i className="is-repairing" />{t('enterprise.map.status.repairing')} <strong>{status.repairing}</strong></span>
+                <span><i className="is-idle" />{t('enterprise.map.status.idle')} <strong>{status.idle}</strong></span>
             </div>
             {isDemoMode && (
                 <div className="mt-2 pt-2 border-t border-slate-100">
@@ -51,9 +65,12 @@ const CustomOverlayPane: React.FC = () => {
 
 // ============ Main Component ============
 
-const EnterpriseMap: React.FC = () => {
+const EnterpriseMap: React.FC<EnterpriseMapProps> = ({ onStatusChange }) => {
     const [workers, setWorkers] = useState<WorkerLocation[]>(mockWorkers);
     const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
+    const repairingCount = workers.filter((worker) => worker.status === 'repairing').length;
+    const idleCount = workers.filter((worker) => worker.status === 'idle').length;
+    const statusSummary = { total: workers.length, repairing: repairingCount, idle: idleCount };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -68,12 +85,16 @@ const EnterpriseMap: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        onStatusChange?.({ total: workers.length, repairing: repairingCount, idle: idleCount });
+    }, [idleCount, onStatusChange, repairingCount, workers.length]);
+
     const selectedWorker = workers.find(w => w.id === selectedWorkerId);
 
     // ─── Google Maps View (Standard) ──────────────────────────
     if (!isDemoMode) {
         return (
-            <div className="w-full h-full rounded-2xl overflow-hidden relative border border-slate-200 shadow-xl bg-slate-50">
+            <div className="enterprise-map-root w-full h-full overflow-hidden relative bg-slate-50" data-testid="enterprise-map">
                 <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
                     <Map
                         defaultCenter={CENTER}
@@ -84,7 +105,7 @@ const EnterpriseMap: React.FC = () => {
                         className="w-full h-full"
                     >
                         <MapControl position={ControlPosition.TOP_LEFT}>
-                            <CustomOverlayPane />
+                            <CustomOverlayPane status={statusSummary} />
                         </MapControl>
 
                         {workers.map(worker => (
@@ -93,7 +114,7 @@ const EnterpriseMap: React.FC = () => {
                                 position={worker.location}
                                 onClick={() => setSelectedWorkerId(worker.id)}
                             >
-                                <div className="relative group cursor-pointer">
+                                <div className="relative group cursor-pointer" title={`${worker.name} - ${worker.status}`}>
                                     <div className={`w-4 h-4 rounded-full border-2 border-white shadow transition-transform group-hover:scale-110 ${worker.status === 'repairing' ? 'bg-blue-600 strategic-flash' : 'bg-slate-400'}`} />
                                     <div className="absolute top-1/2 left-full ml-2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-slate-800 px-2 py-1 rounded border border-slate-200 whitespace-nowrap shadow-md">
                                         <span className="text-[11px] font-medium">{worker.name}</span>
@@ -119,7 +140,7 @@ const EnterpriseMap: React.FC = () => {
 
     // ─── Demo Mode View (Leaflet Fallback) ─────────────────────────────
     return (
-        <div className="w-full h-full rounded-2xl overflow-hidden relative border border-slate-200 shadow-xl bg-slate-50">
+        <div className="enterprise-map-root w-full h-full overflow-hidden relative bg-slate-50" data-testid="enterprise-map">
             <MapContainer 
                 center={LEAFLET_CENTER} 
                 zoom={15} 
@@ -135,6 +156,7 @@ const EnterpriseMap: React.FC = () => {
                         key={worker.id} 
                         position={[worker.location.lat, worker.location.lng]}
                         icon={createLeafletIcon(worker.status)}
+                        title={`${worker.name} - ${worker.status}`}
                         eventHandlers={{ click: () => setSelectedWorkerId(worker.id) }}
                     >
                         <Popup closeButton={true}>
@@ -146,7 +168,7 @@ const EnterpriseMap: React.FC = () => {
 
             {/* Float Overlay for Demo Mode */}
             <div className="absolute top-0 left-0 z-[1000] pointer-events-none">
-                <CustomOverlayPane />
+                <CustomOverlayPane status={statusSummary} />
             </div>
             <StyleSheet />
         </div>

@@ -4,35 +4,107 @@
 @import "tailwindcss";
 
 @theme {
-  /* ─── Apple FinTech Aesthetic (San Francisco / Minimalist) ─── */
-  --color-aegis-bg: #fbfbfd;
-  --color-aegis-surface: rgba(255, 255, 255, 0.7);
-  --color-aegis-border: rgba(0, 0, 0, 0.05);
-  --color-aegis-text-main: #1d1d1f;
-  --color-aegis-text-sub: #86868b;
-  --color-aegis-accent: #0071e3;
+  /* ─── Google Material Design 3 Aesthetic (Clean Sans-Serif) ─── */
+  --color-aegis-bg: #ffffff;
+  --color-aegis-surface: #ffffff;
+  --color-aegis-border: #dadce0;
+  --color-aegis-text-main: #202124;
+  --color-aegis-text-sub: #5f6368;
+  --color-aegis-accent: #1a73e8;
   
-  /* ─── Apple Visual Tokens ─── */
-  --shadow-apple-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-apple-modal: 0 20px 40px rgba(0, 0, 0, 0.08);
-  --shadow-apple-floating: 0 8px 30px rgba(0, 0, 0, 0.02), 0 20px 80px rgba(0, 0, 0, 0.01);
+  /* ─── Google Visual Tokens ─── */
+  --shadow-apple-soft: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+  --shadow-apple-modal: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px 0 rgba(0,0,0,0.3);
+  --shadow-apple-floating: 0 12px 16px 4px rgba(0,0,0,0.15), 0 4px 4px 0 rgba(0,0,0,0.3);
+
+  /* Showcase editorial system (Tailwind v4 semantic tokens) */
+  --color-showcase-canvas: #ffffff;
+  --color-showcase-ink: #121317;
+  --color-showcase-text: #2f3034;
+  --color-showcase-muted: #45474d;
+  --color-showcase-subtle: #5f6368;
+  --color-showcase-surface: #ffffff;
+  --color-showcase-surface-soft: #f8f9fc;
+  --color-showcase-surface-raised: #f1f3f4;
+  --color-showcase-border: rgba(33, 34, 38, 0.08);
+  --color-showcase-border-strong: rgba(33, 34, 38, 0.16);
+  --color-showcase-glass: rgba(255, 255, 255, 0.8);
+  --color-showcase-stage: #121317;
+  --color-showcase-stage-raised: #18191d;
+  --color-showcase-stage-line: rgba(255, 255, 255, 0.08);
+  --color-showcase-on-stage: #ffffff;
+  --color-showcase-on-stage-muted: rgba(255, 255, 255, 0.7);
+  --color-showcase-on-stage-secondary: rgba(255, 255, 255, 0.54);
+  --color-showcase-on-stage-faint: rgba(255, 255, 255, 0.42);
+  --color-showcase-on-stage-subtle: rgba(255, 255, 255, 0.36);
+  --color-showcase-on-stage-halo: rgba(50, 121, 249, 0.12);
+  --color-showcase-accent: #3279f9;
+  --color-showcase-accent-bright: #1a73e8;
+  --color-showcase-accent-line: rgba(50, 121, 249, 0.12);
+  --color-showcase-accent-line-soft: rgba(50, 121, 249, 0.06);
+  --color-showcase-accent-line-strong: rgba(50, 121, 249, 0.4);
+  --color-showcase-accent-breathe: rgba(50, 121, 249, 0.12);
+  --color-showcase-accent-breathe-faint: rgba(50, 121, 249, 0.04);
+  --color-showcase-success: #137333;
+  --color-showcase-signal-violet: #a142f4;
+  --color-showcase-signal-rose: #e0605a;
+  --color-showcase-signal-coral: #ea4335;
+  --color-showcase-signal-green: #34a853;
+  --color-showcase-signal-amber: #f9ab00;
+  --color-showcase-signal-teal: #007b83;
+  --color-showcase-signal-surface: rgba(255, 255, 255, 0.04);
+  --color-showcase-signal-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-showcase-signal-text: #ffffff;
+  --color-showcase-neutral-icon: #5f6368;
+  --color-showcase-route-line: rgba(33, 34, 38, 0.08);
+  --color-showcase-route-marker: rgba(33, 34, 38, 0.15);
+  --color-showcase-route-marker-ring: rgba(33, 34, 38, 0.04);
+  --color-showcase-device-sensor: #000000;
+  --color-showcase-device-line: rgba(255, 255, 255, 0.08);
+  --color-showcase-device-mask: rgba(0, 0, 0, 0.85);
+  --color-showcase-device-sheen: rgba(255, 255, 255, 0.06);
+  --color-showcase-device-indicator: rgba(255, 255, 255, 0.3);
+
+  --font-showcase-sans: "Inter", "Noto Sans SC", Arial, sans-serif;
+  --text-showcase-hero: 5rem;
+  --text-showcase-hero--line-height: 0.98;
+  --text-showcase-section: 4rem;
+  --text-showcase-section--line-height: 1.02;
+  --text-showcase-stage: 3rem;
+  --text-showcase-stage--line-height: 1.04;
+  --text-showcase-body: 1.0625rem;
+  --text-showcase-body--line-height: 1.62;
+  --text-showcase-hero-mobile: 2.75rem;
+  --text-showcase-section-mobile: 2.375rem;
+
+  --spacing-showcase-gutter: 2.5rem;
+  --spacing-showcase-gutter-mobile: 1.125rem;
+  --spacing-showcase-section: 10rem;
+  --radius-showcase-control: 1.5rem;
+  --radius-showcase-media: 2.375rem;
+  --radius-showcase-media-mobile: 1.5rem;
+  --radius-showcase-device: 3.25rem;
+  --radius-showcase-device-screen: 2.6875rem;
+  --shadow-showcase-nav: 0 1px 0 rgb(18 19 23 / 0.08);
+  --shadow-showcase-menu: 0 16px 36px rgb(18 19 23 / 0.1);
+  --ease-showcase-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* ─── Custom Gradients (Apple Palette) ─── */
-  --gradient-apple-blue: linear-gradient(135deg, #007aff 0%, #00c6ff 100%);
-  --gradient-apple-green: linear-gradient(135deg, #28cd41 0%, #4cd964 100%);
+  --gradient-apple-blue: linear-gradient(135deg, #1a73e8 0%, #00c6ff 100%);
+  --gradient-apple-green: linear-gradient(135deg, #34a853 0%, #4cd964 100%);
   --gradient-apple-orange: linear-gradient(135deg, #ff9500 0%, #ffcc00 100%);
   --gradient-apple-red: linear-gradient(135deg, #ff3b30 0%, #ff2d55 100%);
   --gradient-apple-silver: linear-gradient(135deg, #8e8e93 0%, #c7c7cc 100%);
 
   /* ─── Typography ─── */
-  --font-family-sans: "SF Pro Display", "SF Pro Text", "Inter", -apple-system, system-ui, sans-serif;
-  --font-family-display: "Outfit", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-family-sans: "Inter", "Inter", "Inter", -apple-system, system-ui, sans-serif;
+  --font-family-display: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
   --font-family-mono: "JetBrains Mono", "Menlo", "Consolas", monospace;
 
   /* ─── Tailwind v4 Colors ─── */
-  --color-primary: #2bb673;
+  --color-primary: #1a73e8;
   --color-primary-dark: #23945d;
-  --color-background-light: #f6f8f7;
+  --color-background-light: #f8f9fa;
   --color-background-dark: #131f19;
   --color-surface-light: #ffffff;
   --color-surface-dark: #1c2e25;
@@ -42,7 +114,7 @@
   --color-text-sub-dark: #8abfab;
 
   /* ─── Action Colors ─── */
-  --color-action-primary: #007AFF;
+  --color-action-primary: #1a73e8;
   --color-action-primary-dark: #0056B3;
   --color-action-warning: #FF9500;
   --color-action-warning-dark: #CC7700;
@@ -52,6 +124,12 @@
   /* ─── Border Radius ─── */
   --radius-xl: 1.5rem;
   --radius-2xl: 1.25rem;
+}
+
+:root {
+  --duration-showcase-fast: 180ms;
+  --duration-showcase-switch: 280ms;
+  --duration-showcase-enter: 700ms;
 }
 
 @layer base {
@@ -111,12 +189,12 @@
     border: 0.5px solid var(--color-aegis-border);
     border-radius: 24px;
     box-shadow: var(--shadow-apple-floating);
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
   }
 
   .aegis-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.3), 0 8px 12px 6px rgba(0, 0, 0, 0.15);
     border-color: rgba(0, 0, 0, 0.1);
   }
 
@@ -157,7 +235,7 @@
 }
 
 .btn-gradient {
-  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  background: var(--color-showcase-canvas);
   color: white;
   border: none;
   position: relative;
@@ -206,7 +284,7 @@
 }
 
 .page-enter {
-  animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeSlideIn 0.5s cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 /* ─── F1 Live Pulse (for status indicators) ─── */
@@ -257,7 +335,7 @@
 }
 
 .stagger-item {
-  animation: staggerFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: staggerFadeIn 0.5s cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 .stagger-item:nth-child(1) {
@@ -301,7 +379,7 @@
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
   }
 
   50% {
@@ -427,13 +505,13 @@
 }
 
 .count-up {
-  animation: countUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: countUp 0.8s cubic-bezier(0.2, 0, 0, 1) both;
   animation-delay: 0.3s;
 }
 
 /* ─── Gradient text utility ─── */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  background: var(--color-showcase-canvas);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -448,7 +526,7 @@
   }
 
   50% {
-    box-shadow: 0 0 16px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -520,7 +598,7 @@
 }
 
 .text-shimmer {
-  background: linear-gradient(90deg, #6366f1 0%, #06b6d4 25%, #a78bfa 50%, #06b6d4 75%, #6366f1 100%);
+  background: var(--color-showcase-canvas);
   background-size: 200% auto;
   background-clip: text;
   -webkit-background-clip: text;
@@ -537,14 +615,14 @@
 
 .card-3d:hover {
   transform: rotateY(-3deg) rotateX(2deg) translateY(-4px);
-  box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15), 0 0 80px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.3), 0 6px 10px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* ─── Fade-up on scroll (IntersectionObserver driven) ─── */
 .reveal {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.8s cubic-bezier(0.2, 0, 0, 1), transform 0.8s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .reveal.visible {
@@ -574,7 +652,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 1px;
+  padding: 0px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(6, 182, 212, 0.4));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -636,4 +714,21 @@
 
 .step-slide-back {
   animation: slideInFromLeft 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@layer components {
+  .showcase-glass-bar {
+    border-bottom: 1px solid var(--color-showcase-border);
+    background-color: var(--color-showcase-glass);
+    box-shadow: 0 1px 12px rgba(33, 34, 38, 0.04);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  .showcase-dark-stage {
+    background-color: var(--color-showcase-stage);
+    color: var(--color-showcase-on-stage);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+  }
 }

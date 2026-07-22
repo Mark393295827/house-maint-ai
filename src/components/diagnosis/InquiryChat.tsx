@@ -23,18 +23,18 @@ interface InquiryChatProps {
 
 /* ─── Category Cards (Apple Style) ─── */
 const CATEGORIES_ZH = [
-    { id: 'plumbing', icon: 'plumbing', label: '水管/管道', gradient: 'from-[#007aff] to-[#32ade6]' },
+    { id: 'plumbing', icon: 'plumbing', label: '水管/管道', gradient: 'from-[#1a73e8] to-[#32ade6]' },
     { id: 'electrical', icon: 'bolt', label: '电气/线路', gradient: 'from-[#ff9500] to-[#ffcc00]' },
-    { id: 'hvac', icon: 'ac_unit', label: '暖通空调', gradient: 'from-[#28cd41] to-[#34c759]' },
-    { id: 'structural', icon: 'home_work', label: '墙面/结构', gradient: 'from-[#5856d6] to-[#af52de]' },
+    { id: 'hvac', icon: 'ac_unit', label: '暖通空调', gradient: 'from-[#34a853] to-[#34c759]' },
+    { id: 'structural', icon: 'home_work', label: '墙面/结构', gradient: 'from-[#a142f4] to-[#af52de]' },
     { id: 'painting', icon: 'format_paint', label: '粉刷/装饰', gradient: 'from-[#ff2d55] to-[#ff375f]' },
     { id: 'other', icon: 'handyman', label: '其他/通用', gradient: 'from-[#86868b] to-[#d2d2d7]' },
 ];
 const CATEGORIES_EN = [
-    { id: 'plumbing', icon: 'plumbing', label: 'Plumbing', gradient: 'from-[#007aff] to-[#32ade6]' },
+    { id: 'plumbing', icon: 'plumbing', label: 'Plumbing', gradient: 'from-[#1a73e8] to-[#32ade6]' },
     { id: 'electrical', icon: 'bolt', label: 'Electrical', gradient: 'from-[#ff9500] to-[#ffcc00]' },
-    { id: 'hvac', icon: 'ac_unit', label: 'HVAC', gradient: 'from-[#28cd41] to-[#34c759]' },
-    { id: 'structural', icon: 'home_work', label: 'Structural', gradient: 'from-[#5856d6] to-[#af52de]' },
+    { id: 'hvac', icon: 'ac_unit', label: 'HVAC', gradient: 'from-[#34a853] to-[#34c759]' },
+    { id: 'structural', icon: 'home_work', label: 'Structural', gradient: 'from-[#a142f4] to-[#af52de]' },
     { id: 'painting', icon: 'format_paint', label: 'Painting', gradient: 'from-[#ff2d55] to-[#ff375f]' },
     { id: 'other', icon: 'handyman', label: 'General', gradient: 'from-[#86868b] to-[#d2d2d7]' },
 ];
@@ -211,7 +211,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
     const handleQuickReply = useCallback((reply: string) => handleSend(reply), [handleSend]);
 
     return (
-        <div className="flex flex-col h-full bg-[#fbfbfd] text-[#1d1d1f] relative overflow-hidden">
+        <div className="flex flex-col h-full bg-[#ffffff] text-[#202124] relative overflow-hidden">
             <canvas ref={canvasRef} className="hidden" />
             <input ref={fileRef} type="file" accept="image/*" onChange={handleFileImport} className="hidden" />
 
@@ -224,7 +224,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                     <div>
                         <h2 className="text-[14px] font-black tracking-tight">{isZh ? '需求诊断' : 'Diagnosis Assistant'}</h2>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                             <div className={`w-1.5 h-1.5 rounded-full ${isThinking ? 'bg-[#ff9500] animate-pulse' : 'bg-[#28cd41]'}`} />
+                             <div className={`w-1.5 h-1.5 rounded-full ${isThinking ? 'bg-[#ff9500] animate-pulse' : 'bg-[#34a853]'}`} />
                              <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest">{isThinking ? (isZh ? '正在诊断' : 'Analyzing') : (isZh ? '专家在线' : 'Advisor Online')}</span>
                         </div>
                     </div>
@@ -234,7 +234,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                 <div className="relative w-10 h-10 flex items-center justify-center">
                     <svg className="absolute inset-0 w-full h-full -rotate-90">
                         <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(0,0,0,0.04)" strokeWidth="3" />
-                        <circle cx="20" cy="20" r="16" fill="none" stroke="#1d1d1f" strokeWidth="3" strokeDasharray="100" strokeDashoffset={100 - progress} strokeLinecap="round" className="transition-all duration-700" />
+                        <circle cx="20" cy="20" r="16" fill="none" stroke="#202124" strokeWidth="3" strokeDasharray="100" strokeDashoffset={100 - progress} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <span className="text-[9px] font-black tabular-nums">{progress}%</span>
                 </div>
@@ -243,7 +243,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
             <OperatingLoopProgress locale={locale} activeStageId="intake" compact className="mt-4" />
 
             {/* Chat Area */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6 flex flex-col no-scrollbar selection:bg-[#0071e3]/20">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6 flex flex-col no-scrollbar selection:bg-[#1a73e8]/20">
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} stagger-item`}>
                          <div className={`max-w-[85%] lg:max-w-[60%] flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
@@ -252,7 +252,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                                     <img src={msg.imageUrl} alt="Context" className="w-[280px] h-[210px] object-cover" />
                                 </div>
                             )}
-                            <div className={`p-5 rounded-[22px] ${msg.role === 'user' ? 'bg-[#1d1d1f] text-white rounded-tr-sm shadow-xl shadow-black/10' : 'bg-white apple-glass rounded-tl-sm shadow-sm border border-black/5'}`}>
+                            <div className={`p-5 rounded-[22px] ${msg.role === 'user' ? 'bg-[#202124] text-white rounded-tr-sm shadow-xl shadow-black/10' : 'bg-white apple-glass rounded-tl-sm shadow-sm border border-black/5'}`}>
                                 <p className="text-[14px] font-medium leading-[1.5] whitespace-pre-wrap">{msg.content}</p>
                             </div>
                             <span className="mt-1.5 text-[10px] font-black text-[#86868b] uppercase tracking-wide opacity-40 px-2">{msg.timestamp}</span>
@@ -263,7 +263,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                             <div className="flex flex-wrap gap-2 mt-4 stagger-item">
                                 {msg.quickReplies.map((reply, ri) => (
                                     <button key={ri} onClick={() => handleQuickReply(reply)}
-                                        className="px-5 py-2.5 bg-white border border-black/5 rounded-full text-[12px] font-bold text-[#1d1d1f] shadow-sm hover:shadow-md hover:bg-[#f5f5f7] transition-all press-scale">
+                                        className="px-5 py-2.5 bg-white border border-black/5 rounded-full text-[12px] font-bold text-[#202124] shadow-sm hover:shadow-md hover:bg-[#f8f9fa] transition-all press-scale">
                                         {reply}
                                     </button>
                                 ))}
@@ -277,11 +277,11 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-2xl stagger-item">
                         {categories.map(cat => (
                             <button key={cat.id} onClick={() => handleCategoryPick(cat.label)}
-                                className="aegis-card p-5 bg-white hover:bg-[#f5f5f7] flex flex-col items-center gap-3 transition-all">
+                                className="aegis-card p-5 bg-white hover:bg-[#f8f9fa] flex flex-col items-center gap-3 transition-all">
                                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center shadow-lg`}>
                                     <span className="material-symbols-outlined text-white text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>{cat.icon}</span>
                                 </div>
-                                <span className="text-[11px] font-black text-[#1d1d1f] uppercase tracking-wider">{cat.label}</span>
+                                <span className="text-[11px] font-black text-[#202124] uppercase tracking-wider">{cat.label}</span>
                             </button>
                         ))}
                     </div>
@@ -290,9 +290,9 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                 {isThinking && (
                     <div className="flex gap-2.5 items-center px-2">
                         <div className="flex gap-1.5">
-                            <div className="w-2 h-2 rounded-full bg-[#1d1d1f] animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <div className="w-2 h-2 rounded-full bg-[#1d1d1f] animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <div className="w-2 h-2 rounded-full bg-[#1d1d1f] animate-bounce" style={{ animationDelay: '300ms' }} />
+                            <div className="w-2 h-2 rounded-full bg-[#202124] animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <div className="w-2 h-2 rounded-full bg-[#202124] animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <div className="w-2 h-2 rounded-full bg-[#202124] animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
                     </div>
                 )}
@@ -301,7 +301,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
             {/* Input Bar: Floating Style */}
             <div className="relative z-30 p-6 flex flex-col items-center">
                 <div className="w-full max-w-3xl apple-glass shadow-2xl p-2 rounded-3xl flex items-center gap-2 border border-black/5 ring-1 ring-white/20">
-                    <button onClick={() => setShowInputMenu(!showInputMenu)} className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all ${showInputMenu ? 'bg-[#1d1d1f] text-white rotate-45' : 'bg-black/5 hover:bg-black/10 text-[#86868b]'}`}>
+                    <button onClick={() => setShowInputMenu(!showInputMenu)} className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all ${showInputMenu ? 'bg-[#202124] text-white rotate-45' : 'bg-black/5 hover:bg-black/10 text-[#86868b]'}`}>
                         <span className="material-symbols-outlined text-[20px] font-black">add</span>
                     </button>
 
@@ -317,7 +317,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                     <button 
                         onClick={() => handleSend(inputValue)} 
                         disabled={!inputValue.trim() || isThinking}
-                        className="w-12 h-12 flex items-center justify-center bg-[#0071e3] disabled:opacity-30 text-white rounded-2xl shadow-lg shadow-[#0071e3]/30 transition-all press-scale">
+                        className="w-12 h-12 flex items-center justify-center bg-[#1a73e8] disabled:opacity-30 text-white rounded-2xl shadow-lg shadow-[#1a73e8]/30 transition-all press-scale">
                         <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
                     </button>
                 </div>
@@ -325,10 +325,10 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                 {/* Sub Menu */}
                 {showInputMenu && (
                     <div className="flex gap-3 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                         <button onClick={() => { openCamera(); setShowInputMenu(false); }} className="px-6 py-2.5 bg-white border border-black/5 rounded-2xl text-[12px] font-black text-[#1d1d1f] flex items-center gap-2 shadow-sm hover:shadow-md transition-all">
+                         <button onClick={() => { openCamera(); setShowInputMenu(false); }} className="px-6 py-2.5 bg-white border border-black/5 rounded-2xl text-[12px] font-black text-[#202124] flex items-center gap-2 shadow-sm hover:shadow-md transition-all">
                              <span className="material-symbols-outlined text-lg">photo_camera</span> CAMERA
                          </button>
-                         <button onClick={() => { fileRef.current?.click(); setShowInputMenu(false); }} className="px-6 py-2.5 bg-white border border-black/5 rounded-2xl text-[12px] font-black text-[#1d1d1f] flex items-center gap-2 shadow-sm hover:shadow-md transition-all">
+                         <button onClick={() => { fileRef.current?.click(); setShowInputMenu(false); }} className="px-6 py-2.5 bg-white border border-black/5 rounded-2xl text-[12px] font-black text-[#202124] flex items-center gap-2 shadow-sm hover:shadow-md transition-all">
                              <span className="material-symbols-outlined text-lg">image</span> GALLERY
                          </button>
                     </div>

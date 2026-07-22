@@ -92,11 +92,11 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-[#f5f5f7] flex flex-col font-sans text-[#1d1d1f] page-enter relative overflow-hidden">
+        <div className="min-h-[100dvh] bg-[#f8f9fa] flex flex-col font-sans text-[#202124] page-enter relative overflow-hidden">
             {/* Apple Background Gradients */}
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[100vw] h-[100vw] rounded-full bg-[#0071e3]/5 blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[80vw] h-[80vw] rounded-full bg-[#5856d6]/5 blur-[120px]" />
+                <div className="absolute top-[-20%] left-[-10%] w-[100vw] h-[100vw] rounded-full bg-[#1a73e8]/5 blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[80vw] h-[80vw] rounded-full bg-[#a142f4]/5 blur-[120px]" />
             </div>
 
             {/* Language toggle — top right */}
@@ -116,7 +116,7 @@ const LoginPage = () => {
                 <div className="w-full max-w-sm">
                     {/* Branding */}
                     <div className="flex flex-col items-center mb-12 stagger-item">
-                        <div className="w-16 h-16 bg-[#1d1d1f] rounded-[22px] flex items-center justify-center shadow-2xl shadow-black/10 mb-6">
+                        <div className="w-16 h-16 bg-[#202124] rounded-[22px] flex items-center justify-center shadow-2xl shadow-black/10 mb-6">
                             <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>shield_with_heart</span>
                         </div>
                         <h1 className="text-3xl font-black tracking-tighter mb-2">
@@ -137,7 +137,7 @@ const LoginPage = () => {
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full h-12 px-4 bg-white/50 border border-black/5 rounded-xl text-[14px] font-bold focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10 transition-all placeholder:font-medium"
+                                        className="w-full h-12 px-4 bg-white/50 border border-black/5 rounded-xl text-[14px] font-bold focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/10 transition-all placeholder:font-medium"
                                         placeholder="Full Name"
                                     />
                                 </div>
@@ -151,7 +151,7 @@ const LoginPage = () => {
                                         type="tel"
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, phoneMaxLength))}
-                                        className={`w-full h-12 ${isZh ? 'pl-14' : 'px-4'} bg-white/50 border border-black/5 rounded-xl text-[14px] font-bold focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10 transition-all`}
+                                        className={`w-full h-12 ${isZh ? 'pl-14' : 'px-4'} bg-white/50 border border-black/5 rounded-xl text-[14px] font-bold focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/10 transition-all`}
                                         placeholder={isZh ? '1xx xxxx xxxx' : 'Phone'}
                                     />
                                 </div>
@@ -164,14 +164,14 @@ const LoginPage = () => {
                                         type={showPassword ? 'text' : 'password'}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full h-12 pl-4 pr-12 bg-white/50 border border-black/5 rounded-xl text-[14px] font-bold focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10 transition-all"
+                                        className="w-full h-12 pl-4 pr-12 bg-white/50 border border-black/5 rounded-xl text-[14px] font-bold focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1a73e8]/10 transition-all"
                                         placeholder="Min 8 characters"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         aria-label={showPassword ? (isZh ? '隐藏密码' : 'Hide password') : (isZh ? '显示密码' : 'Show password')}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[#86868b] hover:text-[#1d1d1f] transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[#86868b] hover:text-[#202124] transition-colors"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility_off' : 'visibility'}</span>
                                     </button>
@@ -188,7 +188,7 @@ const LoginPage = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full h-12 bg-[#1d1d1f] disabled:opacity-40 text-white rounded-xl text-[13px] font-black uppercase tracking-widest hover:bg-black transition-all press-scale shadow-xl shadow-black/10 flex items-center justify-center gap-2 mt-4"
+                                className="w-full h-12 bg-[#202124] disabled:opacity-40 text-white rounded-xl text-[13px] font-black uppercase tracking-widest hover:bg-black transition-all press-scale shadow-xl shadow-black/10 flex items-center justify-center gap-2 mt-4"
                             >
                                 {isLoading ? (
                                     <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -206,7 +206,7 @@ const LoginPage = () => {
                     <div className="flex flex-col items-center gap-6 stagger-item">
                         <button
                             onClick={toggleMode}
-                            className="text-[13px] font-bold text-[#0066cc] hover:underline"
+                            className="text-[13px] font-bold text-[#1557b0] hover:underline"
                         >
                             {isLoginMode ? t('login.switchToRegister') : t('login.switchToLogin')}
                         </button>
@@ -225,14 +225,14 @@ const LoginPage = () => {
                                             <span className="material-symbols-outlined text-white text-[14px]">chat</span>
                                          </div>
                                          <span className="text-[12px] font-bold">WeChat</span>
-                                         <span className="absolute top-1 right-1 text-[8px] font-bold text-[#86868b] bg-[#f5f5f7] px-1 rounded">即将</span>
+                                         <span className="absolute top-1 right-1 text-[8px] font-bold text-[#86868b] bg-[#f8f9fa] px-1 rounded">即将</span>
                                     </button>
                                     <button type="button" onClick={() => handleSocialLogin('alipay')} className="h-12 bg-white border border-black/5 rounded-xl flex items-center justify-center gap-3 hover:shadow-md transition-all press-scale relative">
                                          <div className="w-6 h-6 bg-[#1677FF] rounded-md flex items-center justify-center">
                                             <span className="material-symbols-outlined text-white text-[14px]">account_balance_wallet</span>
                                          </div>
                                          <span className="text-[12px] font-bold">Alipay</span>
-                                         <span className="absolute top-1 right-1 text-[8px] font-bold text-[#86868b] bg-[#f5f5f7] px-1 rounded">即将</span>
+                                         <span className="absolute top-1 right-1 text-[8px] font-bold text-[#86868b] bg-[#f8f9fa] px-1 rounded">即将</span>
                                     </button>
                                 </>
                              ) : (
@@ -240,7 +240,7 @@ const LoginPage = () => {
                                     <button type="button" onClick={() => handleSocialLogin('google')} className="h-12 bg-white border border-black/5 rounded-xl flex items-center justify-center gap-3 hover:shadow-md transition-all press-scale relative">
                                          <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" /><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" /><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" /></svg>
                                          <span className="text-[12px] font-bold">Google</span>
-                                         <span className="absolute top-1 right-1 text-[8px] font-bold text-[#86868b] bg-[#f5f5f7] px-1 rounded">Soon</span>
+                                         <span className="absolute top-1 right-1 text-[8px] font-bold text-[#86868b] bg-[#f8f9fa] px-1 rounded">Soon</span>
                                     </button>
                                     <button type="button" onClick={() => handleSocialLogin('apple')} className="h-12 bg-black rounded-xl flex items-center justify-center gap-3 hover:shadow-xl transition-all press-scale relative">
                                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.32-1.66 4.26-3.74 4.25z" /></svg>
@@ -254,7 +254,7 @@ const LoginPage = () => {
                         <div className="pt-8 w-full border-t border-[#d2d2d7]/40 flex flex-col items-center gap-4">
                              <p className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest">{isZh ? '专业人员入口' : 'PRO PORTAL'}</p>
                              <Link to="/repairman/login" className="flex items-center gap-2 group">
-                                <span className="material-symbols-outlined text-[18px] text-[#86868b] group-hover:text-[#1d1d1f]">engineering</span>
+                                <span className="material-symbols-outlined text-[18px] text-[#86868b] group-hover:text-[#202124]">engineering</span>
                                 <span className="text-[13px] font-black tracking-tight group-hover:underline">{isZh ? '师傅端登录' : 'Repairman Sign In'}</span>
                                 <span className="material-symbols-outlined text-sm text-[#86868b] group-hover:translate-x-1 transition-transform">chevron_right</span>
                              </Link>

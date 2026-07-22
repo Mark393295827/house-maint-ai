@@ -95,7 +95,7 @@ export function calculateMatchScore(
  */
 export function getMatchLevel(score: number) {
     if (score >= 90) return { level: 'excellent', label: '极佳', color: '#34C759' };
-    if (score >= 70) return { level: 'good', label: '良好', color: '#007AFF' };
+    if (score >= 70) return { level: 'good', label: '良好', color: '#1a73e8' };
     if (score >= 50) return { level: 'fair', label: '一般', color: '#FF9500' };
     return { level: 'poor', label: '较差', color: '#FF3B30' };
 }

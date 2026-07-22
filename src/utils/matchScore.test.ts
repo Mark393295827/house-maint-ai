@@ -206,12 +206,12 @@ describe('matchScore utilities', () => {
             expect(getMatchLevel(70)).toEqual({
                 level: 'good',
                 label: '良好',
-                color: '#007AFF',
+                color: '#1a73e8',
             });
             expect(getMatchLevel(89)).toEqual({
                 level: 'good',
                 label: '良好',
-                color: '#007AFF',
+                color: '#1a73e8',
             });
         });
 
