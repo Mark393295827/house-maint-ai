@@ -56,27 +56,27 @@ describe('LoginPage', () => {
         localStorage.setItem('app_locale', 'zh');
     });
 
-    it('should render the login form by default', () => {
+    it('should render the login form by default', async () => {
         renderLoginPage();
 
-        expect(screen.getByText('欢迎回来')).toBeInTheDocument();
+        expect(await screen.findByText('欢迎回来')).toBeInTheDocument();
         expect(screen.getByText('登录以继续')).toBeInTheDocument();
         expect(screen.getByPlaceholderText('1xx xxxx xxxx')).toBeInTheDocument();
         expect(screen.getByPlaceholderText('Min 8 characters')).toBeInTheDocument();
     });
 
-    it('should render the professional portal entry', () => {
+    it('should render the professional portal entry', async () => {
         renderLoginPage();
 
-        expect(screen.getByText('专业人员入口')).toBeInTheDocument();
+        expect(await screen.findByText('专业人员入口')).toBeInTheDocument();
         expect(screen.getByText('师傅端登录')).toBeInTheDocument();
     });
 
-    it('should toggle between login and register modes', () => {
+    it('should toggle between login and register modes', async () => {
         renderLoginPage();
 
         // Initially in login mode
-        expect(screen.getByText('欢迎回来')).toBeInTheDocument();
+        expect(await screen.findByText('欢迎回来')).toBeInTheDocument();
 
         // Click to switch to register mode
         fireEvent.click(screen.getByText('没有账号？'));
@@ -90,15 +90,15 @@ describe('LoginPage', () => {
         fireEvent.click(screen.getByText('已有账号？'));
 
         // Should now show login mode again
-        expect(screen.getByText('欢迎回来')).toBeInTheDocument();
+        expect(await screen.findByText('欢迎回来')).toBeInTheDocument();
     });
 
     it('should show error for invalid phone number', async () => {
         renderLoginPage();
 
         const submitButton = await screen.findByRole('button', { name: /登 录/ });
-        const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
-        const passwordInput = screen.getByPlaceholderText('Min 8 characters');
+        const phoneInput = await screen.findByPlaceholderText('1xx xxxx xxxx');
+        const passwordInput = await screen.findByPlaceholderText('Min 8 characters');
 
         // Enter invalid phone (not matching Chinese format)
         fireEvent.change(phoneInput, { target: { value: '12345' } });
@@ -116,8 +116,8 @@ describe('LoginPage', () => {
         await screen.findByRole('button', { name: /登 录/ });
         fireEvent.click(screen.getByText('没有账号？'));
         const submitButton = await screen.findByRole('button', { name: /注 册/ });
-        const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
-        const passwordInput = screen.getByPlaceholderText('Min 8 characters');
+        const phoneInput = await screen.findByPlaceholderText('1xx xxxx xxxx');
+        const passwordInput = await screen.findByPlaceholderText('Min 8 characters');
         const nameInput = screen.getByPlaceholderText('Full Name');
 
         fireEvent.change(phoneInput, { target: { value: '13812345678' } });
@@ -138,8 +138,8 @@ describe('LoginPage', () => {
         fireEvent.click(screen.getByText('没有账号？'));
 
         const submitButton = await screen.findByRole('button', { name: /注 册/ });
-        const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
-        const passwordInput = screen.getByPlaceholderText('Min 8 characters');
+        const phoneInput = await screen.findByPlaceholderText('1xx xxxx xxxx');
+        const passwordInput = await screen.findByPlaceholderText('Min 8 characters');
 
         // Enter valid phone and password but no name
         fireEvent.change(phoneInput, { target: { value: '13812345678' } });
@@ -151,10 +151,10 @@ describe('LoginPage', () => {
         });
     });
 
-    it('should toggle password visibility', () => {
+    it('should toggle password visibility', async () => {
         renderLoginPage();
 
-        const passwordInput = screen.getByPlaceholderText('Min 8 characters');
+        const passwordInput = await screen.findByPlaceholderText('Min 8 characters');
 
         // Initially password is hidden
         expect(passwordInput).toHaveAttribute('type', 'password');
@@ -173,23 +173,23 @@ describe('LoginPage', () => {
         }
     });
 
-    it('should have social login buttons', () => {
+    it('should have social login buttons', async () => {
         renderLoginPage();
 
-        expect(screen.getByText('WeChat')).toBeInTheDocument();
+        expect(await screen.findByText('WeChat')).toBeInTheDocument();
         expect(screen.getByText('Alipay')).toBeInTheDocument();
     });
 
-    it('should have a repairman login link', () => {
+    it('should have a repairman login link', async () => {
         renderLoginPage();
 
-        expect(screen.getByRole('link', { name: /师傅端登录/ })).toHaveAttribute('href', '/repairman/login');
+        expect(await screen.findByRole('link', { name: /师傅端登录/ })).toHaveAttribute('href', '/repairman/login');
     });
 
-    it('should only allow digits in phone input', () => {
+    it('should only allow digits in phone input', async () => {
         renderLoginPage();
 
-        const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
+        const phoneInput = await screen.findByPlaceholderText('1xx xxxx xxxx');
 
         // Try to enter letters - they should be filtered out
         fireEvent.change(phoneInput, { target: { value: 'abc123def456' } });
@@ -198,10 +198,10 @@ describe('LoginPage', () => {
         expect(phoneInput).toHaveValue('123456');
     });
 
-    it('should limit phone input to 11 digits', () => {
+    it('should limit phone input to 11 digits', async () => {
         renderLoginPage();
 
-        const phoneInput = screen.getByPlaceholderText('1xx xxxx xxxx');
+        const phoneInput = await screen.findByPlaceholderText('1xx xxxx xxxx');
 
         // Try to enter more than 11 digits
         fireEvent.change(phoneInput, { target: { value: '138123456789999' } });
