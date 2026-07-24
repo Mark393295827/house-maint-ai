@@ -247,6 +247,7 @@ describe('DiagnosisPage operating loop', () => {
     });
 
     it('does not duplicate a created report when local metrics are malformed', async () => {
+        const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         localStorage.setItem('inquiry_metrics', '{malformed');
         await completeInquiry();
 
@@ -256,9 +257,11 @@ describe('DiagnosisPage operating loop', () => {
         await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(1));
         expect(await screen.findByText('Repair verification queued')).toBeInTheDocument();
         expect(mocks.showToast).not.toHaveBeenCalled();
+        spy.mockRestore();
     });
 
     it('persists verification feedback through the API even when local feedback storage is malformed', async () => {
+        const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         localStorage.setItem('inquiry_feedback', '{malformed');
         await completeInquiry();
 
@@ -277,5 +280,6 @@ describe('DiagnosisPage operating loop', () => {
             comment: 'The repair plan was clear.',
         })));
         expect(screen.getByText('Feedback Received')).toBeInTheDocument();
+        spy.mockRestore();
     });
 });
