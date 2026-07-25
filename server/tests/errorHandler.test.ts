@@ -92,6 +92,7 @@ describe('Error Handler Middleware', () => {
 
     it('should handle generic errors by masking them in PRODUCTION', () => {
         vi.stubEnv('NODE_ENV', 'production');
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
         const error = new Error('Sensitive database failure detail');
 
@@ -103,11 +104,13 @@ describe('Error Handler Middleware', () => {
             error: 'Something went wrong!'
         });
 
+        spy.mockRestore();
         vi.unstubAllEnvs();
     });
 
     it('should show error details in DEVELOPMENT', () => {
         vi.stubEnv('NODE_ENV', 'development');
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
         const error = new Error('Dev failure detail');
 
@@ -119,6 +122,7 @@ describe('Error Handler Middleware', () => {
             error: 'Dev failure detail'
         }));
 
+        spy.mockRestore();
         vi.unstubAllEnvs();
     });
 });
