@@ -53,6 +53,7 @@ export class SQLiteFallback {
             if (fs.existsSync(schemaPath)) {
                 const schema = fs.readFileSync(schemaPath, 'utf-8');
                 this.db.exec(schema);
+                this.ensureAnalyticsReportColumns();
                 console.log('✅ SQLite schema initialized');
             } else {
                 console.error('❌ Schema file not found at:', schemaPath);
@@ -69,6 +70,29 @@ export class SQLiteFallback {
         } catch (err) {
             console.error('❌ SQLiteFallback initSchema FAILED:', err);
             throw err;
+        }
+    }
+
+    private ensureAnalyticsReportColumns(): void {
+        const columns = new Set(
+            (this.db.prepare('PRAGMA table_info(reports)').all() as Array<{ name: string }>)
+                .map((column) => column.name),
+        );
+        const additions = [
+            {
+                name: 'severity_tag',
+                definition: "TEXT DEFAULT '48h' CHECK(severity_tag IN ('diy', '48h', 'emergency'))",
+            },
+            { name: 'diagnosis_correct', definition: 'INTEGER' },
+            { name: 'first_time_fix', definition: 'INTEGER' },
+        ];
+
+        for (const column of additions) {
+            if (!columns.has(column.name)) {
+                this.db.exec(
+                    `ALTER TABLE reports ADD COLUMN ${column.name} ${column.definition}`,
+                );
+            }
         }
     }
 

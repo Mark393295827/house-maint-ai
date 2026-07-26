@@ -26,7 +26,7 @@ describe('SQLite migration convergence', () => {
             expect(sqlite.prepare(`
                 SELECT COUNT(*) AS count
                 FROM __drizzle_migrations
-            `).get()).toEqual({ count: 5 });
+            `).get()).toEqual({ count: 6 });
 
             const tables = (sqlite.prepare(`
                 SELECT name
@@ -55,6 +55,7 @@ describe('SQLite migration convergence', () => {
                 'price_guide',
                 'refresh_tokens',
                 'reports',
+                'research_budget_reservations',
                 'reviews',
                 'tasks',
                 'turnover_inspections',
@@ -93,6 +94,13 @@ describe('SQLite migration convergence', () => {
                 'first_time_fix',
                 'pattern_extracted',
             ]));
+            expect(columns(sqlite, 'research_budget_reservations')).toEqual([
+                'period_key',
+                'budget_cny',
+                'reserved_cny',
+                'spent_cny',
+                'updated_at',
+            ]);
             expect(columns(sqlite, 'reviews')).toContain('photos');
             expect(columns(sqlite, 'patterns')).toEqual(expect.arrayContaining([
                 'performance_score',

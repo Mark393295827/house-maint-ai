@@ -197,6 +197,14 @@ CREATE TABLE IF NOT EXISTS ai_settings (
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS research_budget_reservations (
+    period_key TEXT PRIMARY KEY,
+    budget_cny REAL NOT NULL,
+    reserved_cny REAL NOT NULL DEFAULT 0,
+    spent_cny REAL NOT NULL DEFAULT 0,
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
 -- Orders Table (P0: Payment Lifecycle)
 CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -4,6 +4,7 @@ import EnterpriseLayout from '../components/EnterpriseLayout';
 import EnterpriseMap, { type WorkerStatusSummary } from '../components/EnterpriseMap';
 import { getOperatingStageCopies, type OperatingStageCopy } from '../constants/operatingModel';
 import { useLanguage } from '../i18n/LanguageContext';
+import { getReports, getWorkers } from '../services/api';
 import EnterpriseAIConfigPage from './EnterpriseAIConfigPage';
 import { AnalyticsPage, EnterpriseWorkersPage, PropertiesPage, TicketsPage } from './EnterprisePlaceholders';
 
@@ -14,6 +15,15 @@ type TicketStatus = 'all' | 'open' | 'in_progress' | 'overdue' | 'completed';
 type StageId = OperatingStageCopy['id'];
 type Category = 'all' | 'plumbing' | 'electrical' | 'hvac' | 'appliance' | 'structural';
 type LocalizedText = { zh: string; en: string };
+
+export type DispatchAction = 'force_dispatch' | 'reassign' | 'override_ai' | 'approve_diy';
+
+export interface DispatchTech {
+    id: string | number;
+    name: string;
+    skill?: string;
+    available?: boolean;
+}
 
 interface TrendPoint {
     label: LocalizedText;
@@ -55,6 +65,20 @@ interface KpiMetric {
     icon: string;
     tone: 'blue' | 'teal' | 'amber' | 'violet' | 'red';
 }
+
+interface ToastInfo {
+    id: string;
+    message: string;
+    type: 'success' | 'info';
+}
+
+const DEFAULT_TECHNICIANS: DispatchTech[] = [
+    { id: 'w1', name: '张师傅', skill: '水暖高级专家', available: true },
+    { id: 'w2', name: '李师傅', skill: '电路 / 暖通专家', available: true },
+    { id: 'w3', name: '王师傅', skill: '综合维修工程师', available: true },
+    { id: 'w4', name: '陈师傅', skill: '水暖工', available: true },
+    { id: 'w5', name: '赵师傅', skill: '智能家居技师', available: true },
+];
 
 const COPY = {
     zh: {
@@ -369,6 +393,214 @@ const TrendChart: React.FC<{
     );
 };
 
+interface CommanderDispatchModalProps {
+    isOpen: boolean;
+    order: WorkOrder | null;
+    workersList: DispatchTech[];
+    locale: 'zh' | 'en';
+    onClose: () => void;
+    onConfirmDispatch: (orderId: string, techName: string, action: DispatchAction, note?: string) => void;
+}
+
+const CommanderDispatchModal: React.FC<CommanderDispatchModalProps> = ({
+    isOpen,
+    order,
+    workersList,
+    locale,
+    onClose,
+    onConfirmDispatch,
+}) => {
+    const [selectedTech, setSelectedTech] = useState<string>('');
+    const [selectedAction, setSelectedAction] = useState<DispatchAction>('force_dispatch');
+    const [directiveNote, setDirectiveNote] = useState<string>('');
+
+    const availableTechs = useMemo(() => {
+        return workersList && workersList.length > 0 ? workersList : DEFAULT_TECHNICIANS;
+    }, [workersList]);
+
+    useEffect(() => {
+        if (isOpen && order) {
+            const currentAssigneeName = typeof order.assignee === 'object' ? order.assignee[locale] : String(order.assignee);
+            const initialTech = availableTechs.find((w) => w.name === currentAssigneeName)?.name || availableTechs[0]?.name || '张师傅';
+            setSelectedTech(initialTech);
+            setSelectedAction(order.priority === 'critical' || order.slaMinutes < 0 ? 'force_dispatch' : 'reassign');
+            setDirectiveNote('');
+        }
+    }, [isOpen, order, availableTechs, locale]);
+
+    if (!isOpen || !order) return null;
+
+    const actionsConfig: { id: DispatchAction; label: LocalizedText; desc: LocalizedText; icon: string }[] = [
+        {
+            id: 'force_dispatch',
+            label: { zh: '紧急调配 (Force Dispatch)', en: 'Force Dispatch' },
+            desc: { zh: '跳过诊断队列，以最高优先级强制派单', en: 'Bypass diagnosis queue to force rush dispatch' },
+            icon: 'bolt',
+        },
+        {
+            id: 'reassign',
+            label: { zh: '改派队伍 (Reassign Unit)', en: 'Reassign Unit' },
+            desc: { zh: '重新指定负责区域网格技师与责任人', en: 'Reassign grid technician and unit owner' },
+            icon: 'swap_horiz',
+        },
+        {
+            id: 'override_ai',
+            label: { zh: '覆盖 AI 诊断 (Override AI)', en: 'Override AI Diagnosis' },
+            desc: { zh: '人工覆盖 AI 判定的工单品类与故障定位', en: 'Manually override AI category and diagnosis' },
+            icon: 'edit_note',
+        },
+        {
+            id: 'approve_diy',
+            label: { zh: '批准 DIY 分流 (Approve DIY)', en: 'Approve DIY Deflection' },
+            desc: { zh: '审核通过自助修复方案并下发工具包', en: 'Approve self-service repair kit & guidance' },
+            icon: 'handyman',
+        },
+    ];
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedTech) return;
+        onConfirmDispatch(order.id, selectedTech, selectedAction, directiveNote);
+        onClose();
+    };
+
+    const modalTitle = locale === 'zh' ? '指挥干预与派单控制台' : 'Commander Dispatch Console';
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-w-lg w-[90%] md:w-full overflow-hidden text-slate-100 flex flex-col max-h-[90vh]">
+                {/* Modal Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+                    <div className="flex items-center gap-2.5">
+                        <span className="material-symbols-outlined text-amber-400 text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                            published_with_changes
+                        </span>
+                        <div>
+                            <h3 className="text-base font-semibold text-white leading-snug">{modalTitle}</h3>
+                            <p className="text-xs text-slate-400">
+                                {locale === 'zh' ? `工单编号: ${order.id}` : `Ticket ID: ${order.id}`}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-colors"
+                        aria-label="Close"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">close</span>
+                    </button>
+                </div>
+
+                {/* Modal Body */}
+                <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
+                    {/* Work Order Info Box */}
+                    <div className="bg-slate-950/70 border border-slate-800 rounded-lg p-3.5 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                            <span className="font-mono text-cyan-400 font-bold">{order.id}</span>
+                            <div className="flex items-center gap-2">
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider ${order.priority === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : order.priority === 'high' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-blue-500/20 text-blue-400 border border-blue-500/40'}`}>
+                                    {order.priority.toUpperCase()}
+                                </span>
+                                <span className={`px-2 py-0.5 rounded text-[11px] font-mono ${order.slaMinutes < 0 ? 'bg-red-950 text-red-300 font-bold border border-red-800' : 'bg-slate-800 text-slate-300'}`}>
+                                    SLA: {order.slaMinutes < 0 ? `${Math.abs(order.slaMinutes)} ${locale === 'zh' ? '分钟 (已超时)' : 'min (Overdue)'}` : `${order.slaMinutes} ${locale === 'zh' ? '分钟剩余' : 'min left'}`}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="text-sm font-semibold text-slate-100">{localize(order.title, locale)}</div>
+                        <div className="text-xs text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[13px] text-slate-500">location_on</span>
+                                {localize(order.property, locale)}
+                            </span>
+                            <span className="text-slate-600">•</span>
+                            <span>{locale === 'zh' ? '当前负责人' : 'Assignee'}: <strong className="text-slate-300">{localize(order.assignee, locale)}</strong></span>
+                        </div>
+                    </div>
+
+                    {/* 1. Technician Selector */}
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                            {locale === 'zh' ? '1. 选择派单技师' : '1. Select Technician'}
+                        </label>
+                        <select
+                            value={selectedTech}
+                            onChange={(e) => setSelectedTech(e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors"
+                        >
+                            {availableTechs.map((tech) => (
+                                <option key={tech.id} value={tech.name}>
+                                    {tech.name} {tech.skill ? `— ${tech.skill}` : ''} {tech.available !== false ? `(${locale === 'zh' ? '空闲' : 'Available'})` : `(${locale === 'zh' ? '忙碌' : 'Busy'})`}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* 2. Action Selector */}
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                            {locale === 'zh' ? '2. 选择干预动作' : '2. Commander Action'}
+                        </label>
+                        <div className="grid grid-cols-1 gap-2">
+                            {actionsConfig.map((act) => {
+                                const isSelected = selectedAction === act.id;
+                                return (
+                                    <button
+                                        type="button"
+                                        key={act.id}
+                                        onClick={() => setSelectedAction(act.id)}
+                                        className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${isSelected ? 'bg-cyan-950/50 border-cyan-500/80 text-cyan-100 shadow-sm ring-1 ring-cyan-500/30' : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300'}`}
+                                    >
+                                        <span className={`material-symbols-outlined text-[20px] mt-0.5 ${isSelected ? 'text-cyan-400' : 'text-slate-500'}`}>
+                                            {act.icon}
+                                        </span>
+                                        <div className="flex-1">
+                                            <div className="text-xs font-semibold text-slate-200">{localize(act.label, locale)}</div>
+                                            <div className="text-[11px] text-slate-400 mt-0.5">{localize(act.desc, locale)}</div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* 3. Directive Note */}
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                            {locale === 'zh' ? '3. 指挥批示 (选填)' : '3. Directive Note (Optional)'}
+                        </label>
+                        <input
+                            type="text"
+                            value={directiveNote}
+                            onChange={(e) => setDirectiveNote(e.target.value)}
+                            placeholder={locale === 'zh' ? '输入现场注意事项或优先调度指令...' : 'Enter field notes or special dispatch instructions...'}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors"
+                        />
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"
+                        >
+                            {locale === 'zh' ? '取消' : 'Cancel'}
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-full shadow-lg shadow-cyan-900/30 transition-all flex items-center gap-1.5"
+                        >
+                            <span className="material-symbols-outlined text-[16px]">send</span>
+                            {locale === 'zh' ? '确认下达干预指令' : 'Confirm Dispatch Directive'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 const EnterpriseDashboardHome: React.FC = () => {
     const { locale: languageLocale } = useLanguage();
     const locale: 'zh' | 'en' = languageLocale === 'zh' ? 'zh' : 'en';
@@ -384,6 +616,117 @@ const EnterpriseDashboardHome: React.FC = () => {
     const [mapStatus, setMapStatus] = useState<WorkerStatusSummary>({ total: 3, repairing: 2, idle: 1 });
     const [lastUpdated, setLastUpdated] = useState(() => new Date());
     const [refreshing, setRefreshing] = useState(false);
+
+    // Live API & Dispatch Modal state
+    const [orders, setOrders] = useState<WorkOrder[]>(WORK_ORDERS);
+    const [workersList, setWorkersList] = useState<DispatchTech[]>(DEFAULT_TECHNICIANS);
+    const [dispatchModalOrder, setDispatchModalOrder] = useState<WorkOrder | null>(null);
+    const [toast, setToast] = useState<ToastInfo | null>(null);
+
+    const showToast = (message: string, type: 'success' | 'info' = 'success') => {
+        const id = String(Date.now());
+        setToast({ id, message, type });
+        setTimeout(() => {
+            setToast((current) => (current?.id === id ? null : current));
+        }, 4000);
+    };
+
+    const fetchLiveData = async () => {
+        setRefreshing(true);
+        try {
+            const [reportsRes, workersRes] = await Promise.allSettled([
+                getReports(null, 50, 0),
+                getWorkers(undefined, true),
+            ]);
+
+            if (reportsRes.status === 'fulfilled' && reportsRes.value?.reports && Array.isArray(reportsRes.value.reports) && reportsRes.value.reports.length > 0) {
+                const apiOrders: WorkOrder[] = reportsRes.value.reports.map((r) => {
+                    const category = (r.category as Exclude<Category, 'all'>) || 'plumbing';
+                    const priority: 'critical' | 'high' | 'medium' = r.urgency_score && r.urgency_score > 80 ? 'critical' : r.urgency_score && r.urgency_score > 50 ? 'high' : 'medium';
+                    const status: Exclude<TicketStatus, 'all'> = r.status === 'completed' ? 'completed' : r.status === 'in_progress' ? 'in_progress' : r.status === 'matched' ? 'in_progress' : 'open';
+
+                    return {
+                        id: `HM-API-${r.id}`,
+                        title: { zh: r.title, en: r.title },
+                        property: { zh: `物业区域 (ID: ${r.user_id})`, en: `Property Zone (ID: ${r.user_id})` },
+                        propertyType: 'residential',
+                        region: 'haitang',
+                        category,
+                        stage: r.status === 'completed' ? 'reporting' : r.status === 'in_progress' ? 'dispatch' : 'diagnosis',
+                        priority,
+                        slaMinutes: r.status === 'completed' ? 0 : 15,
+                        assignee: { zh: '待指派', en: 'Unassigned' },
+                        status,
+                    };
+                });
+
+                setOrders((prev) => {
+                    const existingIds = new Set(prev.map((o) => o.id));
+                    const uniqueNew = apiOrders.filter((o) => !existingIds.has(o.id));
+                    return uniqueNew.length > 0 ? [...uniqueNew, ...prev] : prev;
+                });
+            }
+
+            if (workersRes.status === 'fulfilled' && workersRes.value?.workers && Array.isArray(workersRes.value.workers) && workersRes.value.workers.length > 0) {
+                const mappedWorkers: DispatchTech[] = workersRes.value.workers.map((w) => ({
+                    id: w.id,
+                    name: w.name,
+                    skill: w.skills?.join(', ') || '综合维保',
+                    available: w.available,
+                }));
+                setWorkersList(mappedWorkers);
+            }
+            setLastUpdated(new Date());
+        } catch (err) {
+            console.error('Failed to fetch live API data:', err);
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchLiveData();
+    }, []);
+
+    const handleConfirmDispatch = (
+        orderId: string,
+        techName: string,
+        action: DispatchAction,
+        _note?: string
+    ) => {
+        const actionLabels: Record<DispatchAction, LocalizedText> = {
+            force_dispatch: { zh: '强制调配', en: 'Force Dispatch' },
+            reassign: { zh: '改派队伍', en: 'Reassign Unit' },
+            override_ai: { zh: '覆盖 AI 诊断', en: 'Override AI Diagnosis' },
+            approve_diy: { zh: '批准 DIY 分流', en: 'Approve DIY' },
+        };
+
+        const actionText = actionLabels[action][locale];
+
+        setOrders((prevOrders) =>
+            prevOrders.map((ord) => {
+                if (ord.id === orderId) {
+                    const nextStage: StageId =
+                        action === 'approve_diy' ? 'deflection' : action === 'force_dispatch' ? 'dispatch' : ord.stage;
+                    const nextStatus: Exclude<TicketStatus, 'all'> =
+                        action === 'force_dispatch' || action === 'reassign' ? 'in_progress' : ord.status;
+                    return {
+                        ...ord,
+                        assignee: { zh: techName, en: techName },
+                        stage: nextStage,
+                        status: nextStatus,
+                    };
+                }
+                return ord;
+            })
+        );
+
+        const message = locale === 'zh'
+            ? `[${actionText}] 指令已成功下达至 ${techName} (工单: ${orderId})`
+            : `[${actionText}] Directive dispatched to ${techName} (Ticket: ${orderId})`;
+
+        showToast(message, 'success');
+    };
 
     const scopeFactor = REGION_FACTORS[region] * PROPERTY_FACTORS[propertyType] * STATUS_FACTORS[ticketStatus];
     const trendPoints = TREND_SERIES[timeRange];
@@ -415,14 +758,14 @@ const EnterpriseDashboardHome: React.FC = () => {
         value: scaleValue(value, scopeFactor),
     })), [scopeFactor]);
 
-    const visibleOrders = useMemo(() => WORK_ORDERS.filter((order) => {
+    const visibleOrders = useMemo(() => orders.filter((order) => {
         if (region !== 'all' && order.region !== region) return false;
         if (propertyType !== 'all' && order.propertyType !== propertyType) return false;
         if (ticketStatus !== 'all' && order.status !== ticketStatus) return false;
         if (selectedStage && order.stage !== selectedStage) return false;
         if (selectedCategory !== 'all' && order.category !== selectedCategory) return false;
         return true;
-    }).sort((a, b) => a.slaMinutes - b.slaMinutes), [propertyType, region, selectedCategory, selectedStage, ticketStatus]);
+    }).sort((a, b) => a.slaMinutes - b.slaMinutes), [orders, propertyType, region, selectedCategory, selectedStage, ticketStatus]);
 
     const activeFilterCount = [region !== 'all', propertyType !== 'all', ticketStatus !== 'all', selectedStage !== null, selectedCategory !== 'all'].filter(Boolean).length;
     const maxCategoryValue = Math.max(...categoryCounts.map((item) => item.value), 1);
@@ -443,9 +786,7 @@ const EnterpriseDashboardHome: React.FC = () => {
     };
 
     const handleRefresh = () => {
-        setRefreshing(true);
-        setLastUpdated(new Date());
-        window.setTimeout(() => setRefreshing(false), 650);
+        fetchLiveData();
     };
 
     const handleExport = () => {
@@ -470,7 +811,8 @@ const EnterpriseDashboardHome: React.FC = () => {
     };
 
     return (
-        <div className="tableau-dashboard page-enter">
+        <div className="tableau-dashboard page-enter relative">
+            {/* 1. Ender Strategic Command Header */}
             <header className="tableau-dashboard-header">
                 <div>
                     <p className="tableau-eyebrow">{copy.eyebrow}</p>
@@ -491,6 +833,7 @@ const EnterpriseDashboardHome: React.FC = () => {
                 </div>
             </header>
 
+            {/* 2. Strategic Filter Bar */}
             <section className="tableau-filter-bar" aria-label={copy.filters}>
                 <div className="tableau-range-control" aria-label={copy.filters}>
                     {(Object.keys(copy.ranges) as TimeRange[]).map((range) => (
@@ -524,11 +867,72 @@ const EnterpriseDashboardHome: React.FC = () => {
                 </button>
             </section>
 
-            <section className="tableau-kpi-grid" aria-label={copy.title}>
+            {/* 3. Palantir Field Operations Map Centerpiece */}
+            <section className={`tableau-panel tableau-map-panel cmd-map-container${mapExpanded ? ' is-expanded' : ''}`} data-testid="operations-map-panel">
+                <PanelHeader
+                    title={copy.mapTitle}
+                    subtitle={copy.mapSubtitle}
+                    action={(
+                        <div className="tableau-map-toolbar" aria-label={copy.mapTitle}>
+                            <span className="tableau-map-live"><i />{copy.mapLive}</span>
+                            <span className="tableau-map-status"><i className="is-repairing" />{copy.mapRepairing}<strong>{mapStatus.repairing}</strong></span>
+                            <span className="tableau-map-status"><i className="is-idle" />{copy.mapIdle}<strong>{mapStatus.idle}</strong></span>
+                            <button
+                                type="button"
+                                className="tableau-icon-button"
+                                onClick={() => setMapExpanded((current) => !current)}
+                                aria-label={mapExpanded ? copy.mapCollapse : copy.mapExpand}
+                                title={mapExpanded ? copy.mapCollapse : copy.mapExpand}
+                            >
+                                {mapExpanded ? <span className="material-symbols-outlined text-[16px]" aria-hidden="true">fullscreen_exit</span> : <span className="material-symbols-outlined text-[16px]" aria-hidden="true">fullscreen</span>}
+                            </button>
+                        </div>
+                    )}
+                />
+                <div className="tableau-map-frame">
+                    <EnterpriseMap onStatusChange={setMapStatus} />
+                </div>
+            </section>
+
+            {/* 4. von Neumann 6-Stage Process Pipeline */}
+            <section className="tableau-panel tableau-workflow-panel">
+                <PanelHeader
+                    title={copy.workflowTitle}
+                    subtitle={copy.workflowSubtitle}
+                    action={selectedStage ? (
+                        <button type="button" className="tableau-clear-filter" onClick={() => setSelectedStage(null)}>
+                            <span className="material-symbols-outlined text-[14px]" aria-hidden="true">restart_alt</span>{copy.clearStage}
+                        </button>
+                    ) : undefined}
+                />
+                <div className="tableau-workflow grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {workflowCounts.map(({ stage, count }, index) => (
+                        <button
+                            key={stage.id}
+                            type="button"
+                            className={`tableau-stage${selectedStage === stage.id ? ' is-selected' : ''}`}
+                            aria-pressed={selectedStage === stage.id}
+                            onClick={() => setSelectedStage((current) => current === stage.id ? null : stage.id)}
+                        >
+                            <span className="tableau-stage-index">0{index + 1}</span>
+                            <span className="tableau-stage-copy">
+                                <strong>{stage.title}</strong>
+                                <small>{stage.metric}</small>
+                            </span>
+                            <span className="tableau-stage-value">{formatCompact(count, locale)}<small>{copy.stageCount}</small></span>
+                            {index < workflowCounts.length - 1 && <span className="material-symbols-outlined tableau-stage-arrow text-[15px]" aria-hidden="true">arrow_forward</span>}
+                        </button>
+                    ))}
+                </div>
+            </section>
+
+            {/* 5. Strategic KPI Grid */}
+            <section className="tableau-kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" aria-label={copy.title}>
                 {metrics.map((metric) => <KpiCard key={metric.label} metric={metric} versus={copy.versus} />)}
             </section>
 
-            <div className="tableau-primary-grid">
+            {/* 6. Primary Operations Trend & AI Insight Grid */}
+            <div className="tableau-primary-grid grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <section className="tableau-panel tableau-trend-panel">
                     <PanelHeader title={copy.trendTitle} subtitle={copy.trendSubtitle} />
                     <TrendChart points={trendPoints} factor={scopeFactor} locale={locale} incomingLabel={copy.incoming} completedLabel={copy.completed} />
@@ -557,64 +961,8 @@ const EnterpriseDashboardHome: React.FC = () => {
                 </section>
             </div>
 
-            <section className="tableau-panel tableau-workflow-panel">
-                <PanelHeader
-                    title={copy.workflowTitle}
-                    subtitle={copy.workflowSubtitle}
-                    action={selectedStage ? (
-                        <button type="button" className="tableau-clear-filter" onClick={() => setSelectedStage(null)}>
-                            <span className="material-symbols-outlined text-[14px]" aria-hidden="true">restart_alt</span>{copy.clearStage}
-                        </button>
-                    ) : undefined}
-                />
-                <div className="tableau-workflow">
-                    {workflowCounts.map(({ stage, count }, index) => (
-                        <button
-                            key={stage.id}
-                            type="button"
-                            className={`tableau-stage${selectedStage === stage.id ? ' is-selected' : ''}`}
-                            aria-pressed={selectedStage === stage.id}
-                            onClick={() => setSelectedStage((current) => current === stage.id ? null : stage.id)}
-                        >
-                            <span className="tableau-stage-index">0{index + 1}</span>
-                            <span className="tableau-stage-copy">
-                                <strong>{stage.title}</strong>
-                                <small>{stage.metric}</small>
-                            </span>
-                            <span className="tableau-stage-value">{formatCompact(count, locale)}<small>{copy.stageCount}</small></span>
-                            {index < workflowCounts.length - 1 && <span className="material-symbols-outlined tableau-stage-arrow text-[15px]" aria-hidden="true">arrow_forward</span>}
-                        </button>
-                    ))}
-                </div>
-            </section>
-
-            <section className={`tableau-panel tableau-map-panel${mapExpanded ? ' is-expanded' : ''}`} data-testid="operations-map-panel">
-                <PanelHeader
-                    title={copy.mapTitle}
-                    subtitle={copy.mapSubtitle}
-                    action={(
-                        <div className="tableau-map-toolbar" aria-label={copy.mapTitle}>
-                            <span className="tableau-map-live"><i />{copy.mapLive}</span>
-                            <span className="tableau-map-status"><i className="is-repairing" />{copy.mapRepairing}<strong>{mapStatus.repairing}</strong></span>
-                            <span className="tableau-map-status"><i className="is-idle" />{copy.mapIdle}<strong>{mapStatus.idle}</strong></span>
-                            <button
-                                type="button"
-                                className="tableau-icon-button"
-                                onClick={() => setMapExpanded((current) => !current)}
-                                aria-label={mapExpanded ? copy.mapCollapse : copy.mapExpand}
-                                title={mapExpanded ? copy.mapCollapse : copy.mapExpand}
-                            >
-                                {mapExpanded ? <span className="material-symbols-outlined text-[16px]" aria-hidden="true">fullscreen_exit</span> : <span className="material-symbols-outlined text-[16px]" aria-hidden="true">fullscreen</span>}
-                            </button>
-                        </div>
-                    )}
-                />
-                <div className="tableau-map-frame">
-                    <EnterpriseMap onStatusChange={setMapStatus} />
-                </div>
-            </section>
-
-            <div className="tableau-secondary-grid">
+            {/* 7. Secondary Category & Regional Performance Grid */}
+            <div className="tableau-secondary-grid grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <section className="tableau-panel tableau-category-panel">
                     <PanelHeader title={copy.categoryTitle} subtitle={copy.categorySubtitle} />
                     <div className="tableau-category-list">
@@ -655,6 +1003,7 @@ const EnterpriseDashboardHome: React.FC = () => {
                 </section>
             </div>
 
+            {/* 8. Palantir SLA Emergency Exception & Command Intervention Queue */}
             <section className="tableau-panel tableau-queue-panel">
                 <PanelHeader
                     title={copy.queueTitle}
@@ -663,7 +1012,7 @@ const EnterpriseDashboardHome: React.FC = () => {
                 />
                 <div className="tableau-table-scroll">
                     <table className="tableau-queue-table">
-                        <thead><tr><th>{copy.columns.id}</th><th>{copy.columns.issue}</th><th>{copy.columns.stage}</th><th>{copy.columns.priority}</th><th>{copy.columns.sla}</th><th>{copy.columns.assignee}</th><th>{copy.columns.status}</th></tr></thead>
+                        <thead><tr><th>{copy.columns.id}</th><th>{copy.columns.issue}</th><th>{copy.columns.stage}</th><th>{copy.columns.priority}</th><th>{copy.columns.sla}</th><th>{copy.columns.assignee}</th><th>{copy.columns.status}</th><th>{locale === 'zh' ? '指挥操作' : 'Action'}</th></tr></thead>
                         <tbody>
                             {visibleOrders.map((order) => {
                                 const stage = stages.find((item) => item.id === order.stage);
@@ -676,6 +1025,15 @@ const EnterpriseDashboardHome: React.FC = () => {
                                         <td><span className={order.slaMinutes < 0 ? 'tableau-sla is-overdue' : 'tableau-sla'}>{order.slaMinutes < 0 ? `${Math.abs(order.slaMinutes)} ${copy.minutes} ${copy.overdue}` : `${order.slaMinutes} ${copy.minutes}`}</span></td>
                                         <td>{localize(order.assignee, locale)}</td>
                                         <td><span className={`tableau-ticket-status is-${order.status}`}>{copy.statuses[order.status]}</span></td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className={`px-2.5 py-1 text-[11px] font-medium rounded-full transition-colors ${order.priority === 'critical' || order.slaMinutes < 0 ? 'bg-red-600 hover:bg-red-700 text-white shadow-sm' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'}`}
+                                                onClick={() => setDispatchModalOrder(order)}
+                                            >
+                                                {order.priority === 'critical' || order.slaMinutes < 0 ? (locale === 'zh' ? '紧急调配' : 'Force Dispatch') : (locale === 'zh' ? '调整' : 'Reassign')}
+                                            </button>
+                                        </td>
                                     </tr>
                                 );
                             })}
@@ -684,6 +1042,34 @@ const EnterpriseDashboardHome: React.FC = () => {
                     {visibleOrders.length === 0 && <div className="tableau-empty-state"><span className="material-symbols-outlined text-[20px]" aria-hidden="true">build</span><span>{copy.empty}</span></div>}
                 </div>
             </section>
+
+            {/* Commander Dispatch Modal */}
+            <CommanderDispatchModal
+                isOpen={dispatchModalOrder !== null}
+                order={dispatchModalOrder}
+                workersList={workersList}
+                locale={locale}
+                onClose={() => setDispatchModalOrder(null)}
+                onConfirmDispatch={handleConfirmDispatch}
+            />
+
+            {/* Toast Notification */}
+            {toast && (
+                <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-slate-900 border border-cyan-500/60 text-slate-100 rounded-xl shadow-2xl animate-bounce-in">
+                    <span className="material-symbols-outlined text-cyan-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        check_circle
+                    </span>
+                    <span className="text-xs font-medium">{toast.message}</span>
+                    <button
+                        type="button"
+                        onClick={() => setToast(null)}
+                        className="text-slate-400 hover:text-white ml-2 p-0.5"
+                        aria-label="Dismiss toast"
+                    >
+                        <span className="material-symbols-outlined text-[16px]">close</span>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

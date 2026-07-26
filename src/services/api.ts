@@ -414,11 +414,272 @@ export async function likePost(id: number | string): Promise<{ likes: number }> 
 
 // ============ Metrics API ============
 
+export type AiEconomicsRange = '7d' | '30d' | '90d';
+
+export interface AiEconomicsBreakdown {
+    key: string;
+    calls: number;
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+    output_share_pct: number;
+    total_to_output_ratio: number | null;
+    cost_usd: number;
+    cost_cny: number;
+    estimated_business_value_cny: number;
+    avg_duration_ms: number;
+}
+
+export interface AiEconomicsMetrics {
+    period: {
+        range: AiEconomicsRange;
+        since: string;
+        generated_at: string;
+    };
+    totals: AiEconomicsBreakdown & {
+        return_on_inference: number | null;
+        inference_to_value_pct: number | null;
+        tier: 'excellent' | 'good' | 'marginal' | 'negative' | 'no_data';
+        zero_cost_usage: boolean;
+    };
+    by_model: AiEconomicsBreakdown[];
+    by_endpoint: AiEconomicsBreakdown[];
+    daily: Array<{
+        date: string;
+        input_tokens: number;
+        output_tokens: number;
+        total_tokens: number;
+        cost_usd: number;
+    }>;
+}
+
+export type CompanyAnalyticsRange = AiEconomicsRange;
+export type CompanyAnalyticsMeasurement = 'measured' | 'estimated' | 'unavailable';
+export type CompanyAnalyticsStage =
+    | 'intake'
+    | 'diagnosis'
+    | 'deflection'
+    | 'dispatch'
+    | 'verification'
+    | 'reporting';
+
+export interface CompanyAnalyticsMetric {
+    value: number | null;
+    unit:
+        | 'count'
+        | 'percent'
+        | 'score_10'
+        | 'milliseconds'
+        | 'hours'
+        | 'cny'
+        | 'cny_per_minute'
+        | 'requests_per_minute'
+        | 'ratio';
+    measurement: CompanyAnalyticsMeasurement;
+    sample_size: number;
+    source: string;
+    reason: string | null;
+}
+
+export interface CompanyAnalyticsOverview {
+    meta: {
+        range: CompanyAnalyticsRange;
+        since: string;
+        until: string;
+        generated_at: string;
+        formula_version: 'company-analytics-v1';
+        freshness: 'live' | 'partial';
+        access_issues: Array<{
+            source: string;
+            message: string;
+        }>;
+    };
+    pulse: {
+        active_work_orders: CompanyAnalyticsMetric;
+        available_workers: CompanyAnalyticsMetric;
+        satisfaction: CompanyAnalyticsMetric;
+        sla_attainment_pct: CompanyAnalyticsMetric;
+        deflection_rate_pct: CompanyAnalyticsMetric;
+        first_time_fix_rate_pct: CompanyAnalyticsMetric;
+        diagnosis_accuracy_pct: CompanyAnalyticsMetric;
+        revenue_cny: CompanyAnalyticsMetric;
+        gross_margin_pct: CompanyAnalyticsMetric;
+    };
+    operating_loop: Array<{
+        stage: CompanyAnalyticsStage;
+        order: 1 | 2 | 3 | 4 | 5 | 6;
+        current_volume: CompanyAnalyticsMetric;
+        conversion_to_next_pct: CompanyAnalyticsMetric;
+        median_cycle_hours: CompanyAnalyticsMetric;
+        exception_count: CompanyAnalyticsMetric;
+    }>;
+    strategic_dimensions: Array<{
+        id: 'tam' | 'ten_x' | 'team' | 'financials';
+        score: CompanyAnalyticsMetric;
+        confidence: 'high' | 'medium' | 'low' | 'unavailable';
+        formula_version: string;
+        evidence_metric_ids: string[];
+    }>;
+    alerts: Array<{
+        id: string;
+        severity: 'critical' | 'warning' | 'info';
+        owner: 'operations' | 'finance' | 'workforce' | 'quality';
+        stage: CompanyAnalyticsStage | null;
+        metric_id: string;
+        metric: CompanyAnalyticsMetric;
+        threshold: number;
+        comparator: 'gt' | 'gte' | 'lt' | 'lte';
+        recommendation_code: string;
+        requires_human_approval: boolean;
+        generated_at: string;
+    }>;
+    agent_operations: Array<{
+        id: string;
+        display_code: string;
+        workflow_stage: CompanyAnalyticsStage | 'cross_stage';
+        status: 'online' | 'idle' | 'offline';
+        models: string[];
+        calls: CompanyAnalyticsMetric;
+        input_tokens: CompanyAnalyticsMetric;
+        output_tokens: CompanyAnalyticsMetric;
+        total_tokens: CompanyAnalyticsMetric;
+        cost_cny: CompanyAnalyticsMetric;
+        average_latency_ms: CompanyAnalyticsMetric;
+        p95_latency_ms: CompanyAnalyticsMetric;
+        success_rate_pct: CompanyAnalyticsMetric;
+        last_active_at: string | null;
+    }>;
+    system_load: {
+        observation_started_at: string;
+        throughput_per_minute: CompanyAnalyticsMetric;
+        success_rate_pct: CompanyAnalyticsMetric;
+        average_latency_ms: CompanyAnalyticsMetric;
+        p95_latency_ms: CompanyAnalyticsMetric;
+        active_agents: CompanyAnalyticsMetric;
+        utilization_pct: CompanyAnalyticsMetric;
+        samples: Array<{
+            timestamp: string;
+            throughput_per_minute: number;
+            success_rate_pct: number | null;
+            average_latency_ms: number | null;
+        }>;
+    };
+    efficiency: {
+        ai_compute_share_pct: CompanyAnalyticsMetric;
+        coordination_share_pct: CompanyAnalyticsMetric;
+        idle_share_pct: CompanyAnalyticsMetric;
+        cost_optimization_pct: CompanyAnalyticsMetric;
+    };
+    intelligence: {
+        latest: null;
+        measurement: 'unavailable';
+        reason: string;
+    };
+}
+
+export interface MarketResearchRequest {
+    sector: string;
+    focusArea?: string;
+    currentTAM?: number;
+    locale?: string;
+}
+
+export interface MarketResearchPreflight {
+    state: 'available' | 'blocked' | 'unavailable';
+    allowed: boolean;
+    measurement: 'measured' | 'unavailable';
+    period: string;
+    budget_cny: number | null;
+    reserved_cny: number | null;
+    spent_cny: number | null;
+    remaining_cny: number | null;
+    estimated_run_cost_cny: number | null;
+    reason_code:
+        | 'research_budget_settings_missing'
+        | 'research_budget_exhausted'
+        | null;
+}
+
+export interface MarketResearchReport {
+    sector: string;
+    generated_at: string;
+    pain_points: {
+        sector: string;
+        top_complaints: Array<{
+            keyword: string;
+            frequency_score: number;
+            source: string;
+            implication: string;
+        }>;
+        pain_density_score: number;
+        primary_bottleneck: 'communication' | 'scheduling' | 'pricing' | 'quality' | 'trust';
+        ai_intervention_point: string;
+    };
+    digital_vacuum: {
+        sector: string;
+        manual_hours_per_day: number;
+        total_operational_hours: number;
+        vacuum_ratio: number;
+        vacuum_grade: 'A' | 'B' | 'C' | 'D';
+        key_manual_processes: string[];
+        automation_feasibility: number;
+    };
+    tam_expansion: {
+        sector: string;
+        current_tam_cny: number;
+        ai_cost_reduction_pct: number;
+        suppressed_demand_multiplier: number;
+        expanded_tam_cny: number;
+        long_tail_segments: string[];
+        timeline_to_capture: string;
+    };
+    go_no_go: {
+        incremental_demand: { pass: boolean; evidence: string };
+        tenx_possibility: { pass: boolean; evidence: string };
+        competitive_moat: { pass: boolean; evidence: string };
+        overall_verdict: 'GO' | 'NO_GO' | 'NEEDS_MORE_DATA';
+    };
+    executive_summary: string;
+    confidence_score: number;
+}
+
 /**
  * Get system metrics (admin only)
  */
 export async function getMetrics(): Promise<unknown> {
     return fetchAPI('/metrics');
+}
+
+/**
+ * Get measured token usage and estimated inference economics (manager/admin).
+ */
+export async function getAiEconomics(range: AiEconomicsRange = '30d'): Promise<AiEconomicsMetrics> {
+    return fetchAPI<AiEconomicsMetrics>(`/metrics/ai-economics?range=${range}`);
+}
+
+/**
+ * Get the company-wide operations and agent overview (manager/admin only).
+ */
+export async function getCompanyAnalyticsOverview(
+    range: CompanyAnalyticsRange = '30d',
+): Promise<CompanyAnalyticsOverview> {
+    return fetchAPI<CompanyAnalyticsOverview>(`/analytics/company-overview?range=${range}`);
+}
+
+export async function getMarketResearchPreflight(): Promise<MarketResearchPreflight> {
+    return fetchAPI<MarketResearchPreflight>('/ai/research-market/preflight');
+}
+
+/**
+ * Explicitly execute the market-research swarm. This is never called on page load.
+ */
+export async function runMarketResearch(
+    request: MarketResearchRequest,
+): Promise<MarketResearchReport> {
+    return fetchAPI<MarketResearchReport>('/ai/research-market', {
+        method: 'POST',
+        body: JSON.stringify(request),
+    });
 }
 
 /**
@@ -710,6 +971,10 @@ export default {
     likePost,
     healthCheck,
     getMetrics,
+    getAiEconomics,
+    getCompanyAnalyticsOverview,
+    getMarketResearchPreflight,
+    runMarketResearch,
     getMetricsHealth,
     getAssets,
     addAsset,

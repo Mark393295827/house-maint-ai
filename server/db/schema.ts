@@ -195,6 +195,14 @@ export const aiSettings = sqliteTable('ai_settings', {
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),
 });
 
+export const researchBudgetReservations = sqliteTable('research_budget_reservations', {
+    periodKey: text('period_key').primaryKey(),
+    budgetCny: real('budget_cny').notNull(),
+    reservedCny: real('reserved_cny').notNull().default(0),
+    spentCny: real('spent_cny').notNull().default(0),
+    updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+});
+
 // AI Feedback Table (Product Improvement: Trust Loop)
 export const aiFeedback = sqliteTable('ai_feedback', {
     id: integer('id').primaryKey({ autoIncrement: true }),
