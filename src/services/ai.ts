@@ -66,6 +66,25 @@ export interface ProblemSolvingLoop {
     nextActions: string[];
 }
 
+export interface PhotoDiagnosis {
+    detected: boolean;
+    issueName: string;
+    category: string;
+    severity: 'critical' | 'moderate' | 'cosmetic';
+    confidence: number;
+    summary: string;
+    urgencyScore: number;
+    safetyWarning: string | null;
+    canDiy: boolean;
+    steps: string[];
+    requiredParts: Array<{
+        name: string;
+        spec: string;
+        estimatedPrice: string;
+    }>;
+    toolsNeeded: string[];
+}
+
 /**
  * Convert image file to base64
  */
@@ -92,13 +111,66 @@ async function blobUrlToBase64(blobUrl: string): Promise<string> {
     return imageToBase64(blob);
 }
 
+function normalizePhotoDiagnosis(data: any): PhotoDiagnosis {
+    const diagnosis = data?.diagnosis || {};
+    const solution = data?.solution || {};
+    const issueName = String(diagnosis.issue_type || diagnosis.issue_identified || 'UNCERTAIN').trim();
+    const summary = String(diagnosis.diagnosis_summary || diagnosis.description || '').trim();
+    const category = String(diagnosis.category || 'other').trim().toLowerCase();
+    const rawConfidence = Number(diagnosis.confidence_score);
+    const confidence = Number.isFinite(rawConfidence)
+        ? Math.min(1, Math.max(0, rawConfidence > 1 ? rawConfidence / 100 : rawConfidence))
+        : 0;
+    const rawSeverity = String(diagnosis.severity || '').trim().toLowerCase();
+    const severity: PhotoDiagnosis['severity'] = ['critical', 'high', 'severe', 'urgent'].includes(rawSeverity)
+        ? 'critical'
+        : ['cosmetic', 'low', 'minor', 'none'].includes(rawSeverity)
+            ? 'cosmetic'
+            : 'moderate';
+    const uncertainLabels = ['uncertain', 'none', 'no issue', 'no maintenance issue', 'unknown issue'];
+    const normalizedIssueName = issueName.toLowerCase();
+    const detected = confidence >= 0.35
+        && !uncertainLabels.some(label => normalizedIssueName === label || normalizedIssueName.startsWith(`${label} `));
+
+    return {
+        detected,
+        issueName,
+        category,
+        severity,
+        confidence,
+        summary,
+        urgencyScore: Number.isFinite(Number(diagnosis.urgency_score))
+            ? Math.min(10, Math.max(0, Math.round(Number(diagnosis.urgency_score))))
+            : severity === 'critical' ? 10 : severity === 'moderate' ? 5 : 2,
+        safetyWarning: typeof diagnosis.safety_warning === 'string' && diagnosis.safety_warning.trim()
+            ? diagnosis.safety_warning.trim()
+            : null,
+        canDiy: solution.can_diy === true,
+        steps: Array.isArray(solution.steps)
+            ? solution.steps.filter((step: unknown): step is string => typeof step === 'string' && !!step.trim()).map((step: string) => step.trim())
+            : [],
+        requiredParts: Array.isArray(solution.required_parts)
+            ? solution.required_parts.map((part: any) => ({
+                name: String(part?.name || ''),
+                spec: String(part?.spec || ''),
+                estimatedPrice: String(part?.estimated_price || ''),
+            })).filter((part: { name: string }) => !!part.name)
+            : [],
+        toolsNeeded: Array.isArray(solution.tools_needed)
+            ? solution.tools_needed.filter((tool: unknown): tool is string => typeof tool === 'string' && !!tool.trim()).map((tool: string) => tool.trim())
+            : [],
+    };
+}
+
 /**
- * Analyze image using Backend API
- * @param {string} imageBase64 - Base64 encoded image
- * @param {string} mimeType - Image MIME type (e.g., 'image/jpeg')
- * @returns {Promise<object>} Analysis result
+ * Send a captured or uploaded photo through the backend's multimodal diagnosis
+ * contract and normalize provider output into a stable UI shape.
  */
-export async function analyzeImage(imageBase64?: string, mimeType = 'image/jpeg', text?: string) {
+export async function diagnosePhoto(
+    imageBase64: string,
+    mimeType = 'image/jpeg',
+    text?: string
+): Promise<PhotoDiagnosis> {
     try {
         const csrfToken = await getCsrfToken();
         const response = await fetch(`${API_BASE_URL}/diagnose`, {
@@ -121,42 +193,59 @@ export async function analyzeImage(imageBase64?: string, mimeType = 'image/jpeg'
         }
 
         const data = await response.json();
+        return normalizePhotoDiagnosis(data);
+    } catch (error) {
+        console.error('Photo diagnosis error:', error);
+        throw error;
+    }
+}
 
-        // Map new backend structure to old frontend structure for compatibility
-        // Backend: { diagnosis: { issue_identified, category, severity_score, ... }, solution: { ... }, ... }
-        // Frontend expects: { detected, issue_name, severity, description, ... }
-
-        const diagnosis = data.diagnosis;
-        const severityScore = diagnosis.severity_score || 1;
-
-        let severity = 'low';
-        if (severityScore >= 4) severity = 'critical';
-        else if (severityScore === 3) severity = 'high';
-        else if (severityScore === 2) severity = 'medium';
-
+/**
+ * Backward-compatible image analysis shape used by the legacy repair guide.
+ */
+export async function analyzeImage(imageBase64?: string, mimeType = 'image/jpeg', text?: string) {
+    try {
+        if (!imageBase64) {
+            throw new Error('An image is required for visual diagnosis');
+        }
+        const diagnosis = await diagnosePhoto(imageBase64, mimeType, text);
         return {
-            // New structure preservation
-            raw_response: data,
-
-            // Backward compatibility
-            detected: diagnosis.issue_identified !== 'UNCERTAIN' && diagnosis.issue_identified !== 'None',
-            issue_name: diagnosis.issue_identified,
-            issue_name_en: diagnosis.issue_identified, // Fallback
-            confidence: 90, // AI prompt doesn't return confidence, default to 90
-            severity: severity,
-            description: diagnosis.description,
-            description_en: diagnosis.description,
-            possible_causes: [diagnosis.description], // Simplified
-            recommended_actions: data.solution?.steps || [],
-            diy_difficulty: data.solution?.can_diy ? 'easy' : 'hard',
-            estimated_cost: data.solution?.required_parts?.map((p: any) => p.estimated_price).join(', ') || 'Unknown',
-            urgency: data.worker_matching_criteria?.urgency === 'immediate' ? '立即处理' : '可以等待',
-
-            // Extra fields for logic
-            steps: data.solution?.steps || [],
-            safety_warning: diagnosis.safety_warning
+            raw_response: {
+                diagnosis: {
+                    issue_type: diagnosis.issueName,
+                    category: diagnosis.category,
+                    severity: diagnosis.severity,
+                    diagnosis_summary: diagnosis.summary,
+                    confidence_score: diagnosis.confidence,
+                    urgency_score: diagnosis.urgencyScore,
+                    safety_warning: diagnosis.safetyWarning,
+                },
+                solution: {
+                    can_diy: diagnosis.canDiy,
+                    steps: diagnosis.steps,
+                    required_parts: diagnosis.requiredParts.map(part => ({
+                        name: part.name,
+                        spec: part.spec,
+                        estimated_price: part.estimatedPrice,
+                    })),
+                    tools_needed: diagnosis.toolsNeeded,
+                },
+            },
+            detected: diagnosis.detected,
+            issue_name: diagnosis.issueName,
+            issue_name_en: diagnosis.issueName,
+            confidence: Math.round(diagnosis.confidence * 100),
+            severity: diagnosis.severity === 'moderate' ? 'medium' : diagnosis.severity === 'cosmetic' ? 'low' : 'critical',
+            description: diagnosis.summary,
+            description_en: diagnosis.summary,
+            possible_causes: diagnosis.summary ? [diagnosis.summary] : [],
+            recommended_actions: diagnosis.steps,
+            diy_difficulty: diagnosis.canDiy ? 'easy' : 'hard',
+            estimated_cost: diagnosis.requiredParts.map(part => part.estimatedPrice).filter(Boolean).join(', ') || 'Unknown',
+            urgency: diagnosis.urgencyScore >= 8 ? '立即处理' : '可以等待',
+            steps: diagnosis.steps,
+            safety_warning: diagnosis.safetyWarning
         };
-
     } catch (error) {
         console.error('AI analysis error:', error);
         throw error;
@@ -384,6 +473,7 @@ export default {
     analyzeImageFromUrl,
     generateRepairSteps,
     chatWithDiagnosis,
+    diagnosePhoto,
     inquiryChat,
     callMECE,
     callHypothesis,

@@ -14,7 +14,7 @@ export class TurnoverAgent implements AiProvider {
         const apiKey = process.env.GEMINI_API_KEY || '';
         this.hasApiKey = !!apiKey;
         this.genAI = new GoogleGenerativeAI(apiKey || 'dummy');
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     }
 
     async compareTurnover(
@@ -89,9 +89,9 @@ Respond in ${lang}. Output ONLY valid JSON:
                 result: parsed,
                 usage: {
                     input_tokens: usage?.promptTokenCount || 0,
-                    output_tokens: usage?.candidatesTokenCount || 0,
+                    output_tokens: (usage?.candidatesTokenCount || 0) + (usage?.thoughtsTokenCount || 0),
                     total_tokens: usage?.totalTokenCount || 0,
-                    model_name: 'gemini-1.5-flash'
+                    model_name: 'gemini-2.5-flash'
                 }
             };
         } catch (error) {

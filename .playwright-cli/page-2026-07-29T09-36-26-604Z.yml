@@ -1,0 +1,180 @@
+- generic [ref=f3e2]:
+  - link "Skip to main content" [ref=f3e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f3e59]:
+    - generic [ref=f3e61]:
+      - generic [ref=f3e62]:
+        - heading "🛡️ 运维指挥中心" [level=1] [ref=f3e63]
+        - generic [ref=f3e64]: SYSTEM ONLINE
+      - button "notifications" [ref=f3e67]
+    - generic [ref=f3e72]:
+      - generic [ref=f3e73]:
+        - generic [ref=f3e74]: auto_awesome
+        - generic [ref=f3e76]: ✨ AI 智能洞察
+        - generic [ref=f3e77]: LIVE
+      - heading "水管健康提醒" [level=3] [ref=f3e80]
+      - paragraph [ref=f3e81]: 距离上次水管检查已超过6个月。建议运行快速排水诊断。
+      - button "立即查看 arrow_forward" [ref=f3e82]:
+        - text: 立即查看
+        - generic [ref=f3e83]: arrow_forward
+    - generic [ref=f3e85]:
+      - generic [ref=f3e86]:
+        - generic [ref=f3e87]: "1"
+        - generic [ref=f3e88]: 进行中
+      - generic [ref=f3e89]:
+        - generic [ref=f3e90]: "1"
+        - generic [ref=f3e91]: 已完成
+      - generic [ref=f3e92]:
+        - generic [ref=f3e93]: "2"
+        - generic [ref=f3e94]: 本月新建
+    - button "add_a_photo 新建报修 拍照 · 视频 · 语音 → AI诊断 arrow_forward" [ref=f3e96]:
+      - generic [ref=f3e99]:
+        - generic [ref=f3e100]: add_a_photo
+        - generic [ref=f3e102]:
+          - generic [ref=f3e103]: 新建报修
+          - generic [ref=f3e104]: 拍照 · 视频 · 语音 → AI诊断
+        - generic [ref=f3e105]: arrow_forward
+    - generic [ref=f3e106]:
+      - generic [ref=f3e107]:
+        - heading "运营闭环" [level=2] [ref=f3e108]
+        - generic [ref=f3e109]: 从报修到业主报表
+      - generic [ref=f3e110]:
+        - button "forum 01 24/7 微信接入 6 秒内确认收到" [ref=f3e111]:
+          - generic [ref=f3e112]:
+            - generic [ref=f3e113]: forum
+            - generic [ref=f3e114]: "01"
+          - generic [ref=f3e115]:
+            - paragraph [ref=f3e116]: 24/7 微信接入
+            - paragraph [ref=f3e117]: 6 秒内确认收到
+        - button "camera_enhance 02 AI 诊断与责任判断 Top 10 品类目标 85%+" [ref=f3e118]:
+          - generic [ref=f3e119]:
+            - generic [ref=f3e120]: camera_enhance
+            - generic [ref=f3e121]: "02"
+          - generic [ref=f3e122]:
+            - paragraph [ref=f3e123]: AI 诊断与责任判断
+            - paragraph [ref=f3e124]: Top 10 品类目标 85%+
+        - button "self_improvement 03 DIY 分流 20%+ 分流目标" [ref=f3e125]:
+          - generic [ref=f3e126]:
+            - generic [ref=f3e127]: self_improvement
+            - generic [ref=f3e128]: "03"
+          - generic [ref=f3e129]:
+            - paragraph [ref=f3e130]: DIY 分流
+            - paragraph [ref=f3e131]: 20%+ 分流目标
+        - button "near_me 04 师傅智能派单 5 分钟内接单目标" [ref=f3e132]:
+          - generic [ref=f3e133]:
+            - generic [ref=f3e134]: near_me
+            - generic [ref=f3e135]: "04"
+          - generic [ref=f3e136]:
+            - paragraph [ref=f3e137]: 师傅智能派单
+            - paragraph [ref=f3e138]: 5 分钟内接单目标
+        - button "fact_check 05 维修验收回访 0 人工追单" [ref=f3e139]:
+          - generic [ref=f3e140]:
+            - generic [ref=f3e141]: fact_check
+            - generic [ref=f3e142]: "05"
+          - generic [ref=f3e143]:
+            - paragraph [ref=f3e144]: 维修验收回访
+            - paragraph [ref=f3e145]: 0 人工追单
+        - button "analytics 06 业主报表和 SLA 业主可读报表" [ref=f3e146]:
+          - generic [ref=f3e147]:
+            - generic [ref=f3e148]: analytics
+            - generic [ref=f3e149]: "06"
+          - generic [ref=f3e150]:
+            - paragraph [ref=f3e151]: 业主报表和 SLA
+            - paragraph [ref=f3e152]: 业主可读报表
+    - generic [ref=f3e154]:
+      - button "add_a_photo 30s 极速诊断" [ref=f3e155]:
+        - generic [ref=f3e156]: add_a_photo
+        - generic [ref=f3e158]:
+          - paragraph [ref=f3e159]: 30s
+          - paragraph [ref=f3e160]: 极速诊断
+      - button "hub Claw 全渠道模拟" [ref=f3e161]:
+        - generic [ref=f3e162]: hub
+        - generic [ref=f3e164]:
+          - paragraph [ref=f3e165]: Claw
+          - paragraph [ref=f3e166]: 全渠道模拟
+      - button "verified_user 防 复发机制" [ref=f3e167]:
+        - generic [ref=f3e168]: verified_user
+        - generic [ref=f3e170]:
+          - paragraph [ref=f3e171]: 防
+          - paragraph [ref=f3e172]: 复发机制
+      - button "videocam Live 远程巡检" [ref=f3e173]:
+        - generic [ref=f3e174]: videocam
+        - generic [ref=f3e176]:
+          - paragraph [ref=f3e177]: Live
+          - paragraph [ref=f3e178]: 远程巡检
+    - generic [ref=f3e180]:
+      - generic [ref=f3e181]:
+        - generic [ref=f3e182]: videocam
+        - generic [ref=f3e184]:
+          - generic [ref=f3e185]:
+            - paragraph [ref=f3e186]: 远程实时巡检
+            - generic [ref=f3e187]: 即将上线
+          - paragraph [ref=f3e188]: 工程师远程视频接入，Gemini 实时标注问题区域
+      - generic [ref=f3e189]:
+        - button "notifications 上线通知" [ref=f3e190]:
+          - generic [ref=f3e191]: notifications
+          - text: 上线通知
+        - button "info 了解更多" [ref=f3e192]:
+          - generic [ref=f3e193]: info
+          - text: 了解更多
+    - generic [ref=f3e194]:
+      - generic [ref=f3e195]:
+        - heading "📋 我的案例" [level=2] [ref=f3e196]
+        - button "查看全部" [ref=f3e197]
+      - generic [ref=f3e199]:
+        - generic [ref=f3e200]:
+          - generic [ref=f3e201]: engineering
+          - generic [ref=f3e203]:
+            - generic [ref=f3e204]:
+              - paragraph [ref=f3e205]: 水管接头漏水，已持续数天，逐渐加重
+              - generic [ref=f3e206]: 2026-07-08
+            - generic [ref=f3e207]:
+              - generic [ref=f3e208]: MODERATE
+              - generic [ref=f3e209]: S1/8
+        - generic [ref=f3e211]:
+          - generic [ref=f3e212]: 维修进度 PROGRESS
+          - generic [ref=f3e213]: 13%
+      - generic [ref=f3e216]:
+        - generic [ref=f3e217]: check_circle
+        - generic [ref=f3e218]: 1 个已完成案例
+    - generic [ref=f3e219]:
+      - heading "📚 案例库" [level=2] [ref=f3e221]
+      - generic [ref=f3e222]:
+        - button "plumbing 管道 0 案例" [ref=f3e223]:
+          - generic [ref=f3e224]: plumbing
+          - generic [ref=f3e226]: 管道
+          - generic [ref=f3e227]: 0 案例
+        - button "bolt 电气 0 案例" [ref=f3e228]:
+          - generic [ref=f3e229]: bolt
+          - generic [ref=f3e231]: 电气
+          - generic [ref=f3e232]: 0 案例
+        - button "ac_unit 暖通 0 案例" [ref=f3e233]:
+          - generic [ref=f3e234]: ac_unit
+          - generic [ref=f3e236]: 暖通
+          - generic [ref=f3e237]: 0 案例
+    - generic [ref=f3e238]:
+      - heading "🔔 待办提醒" [level=2] [ref=f3e240]
+      - generic [ref=f3e242] [cursor=pointer]:
+        - generic [ref=f3e243]: assignment
+        - generic [ref=f3e245]:
+          - paragraph [ref=f3e246]: 水管接头漏水，已持续数天，逐渐加重
+          - text: 待处理
+        - generic [ref=f3e247]: chevron_right
+    - navigation "Main Navigation" [ref=f3e248]:
+      - menubar [ref=f3e249]:
+        - menuitem "首页" [ref=f3e250] [cursor=pointer]:
+          - generic [ref=f3e252]: home
+        - menuitem "案例" [ref=f3e255] [cursor=pointer]:
+          - generic [ref=f3e256]:
+            - generic [ref=f3e257]: folder_open
+            - generic [ref=f3e258]: "1"
+        - menuitem "新建" [ref=f3e260] [cursor=pointer]:
+          - generic [ref=f3e261]: add_a_photo
+        - menuitem "案例库" [ref=f3e264] [cursor=pointer]:
+          - generic [ref=f3e265]: auto_stories
+        - menuitem "我的" [ref=f3e268] [cursor=pointer]:
+          - generic [ref=f3e269]: person
+  - alert [ref=f3e272]:
+    - generic [ref=f3e273]: check_circle
+    - paragraph [ref=f3e274]: 登录成功
+    - button "close" [ref=f3e275]

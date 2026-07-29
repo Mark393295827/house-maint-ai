@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/node';
 // Pricing per token (USD)
 const PRICING: Record<string, { input: number, output: number }> = {
     'gemini-1.5-flash': { input: 0.000000075, output: 0.0000003 },
+    'gemini-2.5-flash': { input: 0.0000003, output: 0.0000025 },
     'deepseek-reasoner': { input: 0.00000055, output: 0.00000219 },
     'default': { input: 0.0000005, output: 0.0000015 }
 };

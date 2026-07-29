@@ -11,7 +11,7 @@ export class DiagnosisAgent implements AiProvider {
     constructor() {
         const apiKey = process.env.GEMINI_API_KEY || '';
         this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         this.hasApiKey = !!apiKey;
     }
 
@@ -28,7 +28,7 @@ export class DiagnosisAgent implements AiProvider {
         // [ECC Cost-Aware Pipeline] 
         // Inject ephemeral cache tags on the repetitive system instruction to slash token burn
         const modelWithSystem = this.genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.5-flash",
             systemInstruction: systemPrompt
         });
         const normalizedParts = parts.map(part => typeof part === 'string' ? { text: part } : part);
@@ -47,9 +47,9 @@ export class DiagnosisAgent implements AiProvider {
     private mapUsage(usage: any) {
         return {
             input_tokens: usage.promptTokenCount || 0,
-            output_tokens: usage.candidatesTokenCount || 0,
+            output_tokens: (usage.candidatesTokenCount || 0) + (usage.thoughtsTokenCount || 0),
             total_tokens: usage.totalTokenCount || 0,
-            model_name: 'gemini-1.5-flash'
+            model_name: 'gemini-2.5-flash'
         };
     }
 
@@ -59,7 +59,17 @@ export class DiagnosisAgent implements AiProvider {
         if (!this.hasApiKey) {
             return { result: this.mockDiagnosis(), usage: { input_tokens: 0, output_tokens: 0, total_tokens: 0, model_name: 'mock' } };
         }
-        const prompt = `Diagnose this home maintenance issue. Return JSON only with keys: diagnosis (issue_type, severity, diagnosis_summary, confidence_score, category, urgency_score, safety_warning), solution (can_diy, steps, required_parts, tools_needed), worker_matching_criteria (required_skill, urgency, estimated_man_hours).`;
+        const prompt = `Inspect the image and accompanying text for a visible home-maintenance issue.
+
+Do not invent a defect. If the image is a selfie, an unrelated room view, too dark, blurry, obstructed, or otherwise does not clearly show a maintenance problem, return:
+- issue_type: "UNCERTAIN"
+- category: "other"
+- severity: "cosmetic"
+- confidence_score no greater than 0.3
+- a concise diagnosis_summary explaining what is missing
+- safe steps that tell the homeowner how to retake the photo (show the whole fixture, the damaged area, and one close-up)
+
+If an issue is visible, identify only evidence supported by the image/text and separate observation from inference. Return JSON only with keys: diagnosis (issue_type, severity, diagnosis_summary, confidence_score, category, urgency_score, safety_warning), solution (can_diy, steps, required_parts, tools_needed), worker_matching_criteria (required_skill, urgency, estimated_man_hours). Respond in the same language as the accompanying text.`;
         const parts = [prompt, ...this.buildParts(image, mimeType, text)];
         return withRetry(async () => {
             const { text: responseText, usage } = await this.callModel(

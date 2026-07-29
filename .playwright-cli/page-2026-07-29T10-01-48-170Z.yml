@@ -1,0 +1,68 @@
+- generic [ref=f83e2]:
+  - link "Skip to main content" [ref=f83e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f83e10]:
+    - generic [ref=f83e11]:
+      - heading "极速报修" [level=1] [ref=f83e12]
+      - generic [ref=f83e13]: Quick Report
+    - generic [ref=f83e14]:
+      - generic [ref=f83e15]:
+        - generic [ref=f83e16]: 问题类型
+        - generic [ref=f83e17]:
+          - button "water_drop 水管/管道" [active] [ref=f83e18]:
+            - generic [ref=f83e19]: water_drop
+            - generic [ref=f83e20]: 水管/管道
+          - button "bolt 电路/照明" [ref=f83e21]:
+            - generic [ref=f83e22]: bolt
+            - generic [ref=f83e23]: 电路/照明
+          - button "ac_unit 空调/暖通" [ref=f83e24]:
+            - generic [ref=f83e25]: ac_unit
+            - generic [ref=f83e26]: 空调/暖通
+          - button "kitchen 家电维修" [ref=f83e27]:
+            - generic [ref=f83e28]: kitchen
+            - generic [ref=f83e29]: 家电维修
+          - button "foundation 墙体/结构" [ref=f83e30]:
+            - generic [ref=f83e31]: foundation
+            - generic [ref=f83e32]: 墙体/结构
+          - button "handyman 其他问题" [ref=f83e33]:
+            - generic [ref=f83e34]: handyman
+            - generic [ref=f83e35]: 其他问题
+      - generic [ref=f83e36]:
+        - generic [ref=f83e37]: 紧急程度
+        - generic [ref=f83e38]:
+          - button "不急" [ref=f83e39]
+          - button "一般" [ref=f83e40]
+          - button "紧急" [ref=f83e41]
+          - button "非常紧急" [ref=f83e42]
+      - generic [ref=f83e43]:
+        - generic [ref=f83e44]: 问题描述 *
+        - textbox "请详细描述您遇到的问题..." [ref=f83e45]
+        - paragraph [ref=f83e46]: 0/500
+      - generic [ref=f83e47]:
+        - generic [ref=f83e48]: 语音/视频补充（可选）
+        - generic [ref=f83e49]:
+          - generic [ref=f83e50]:
+            - button "开始录音" [ref=f83e51]:
+              - generic [ref=f83e52]: mic
+            - generic [ref=f83e53]: 点击开始录音
+          - generic [ref=f83e54]:
+            - button "开始录制" [ref=f83e56]:
+              - generic [ref=f83e57]: videocam
+            - generic [ref=f83e58]: 最长 15 秒
+    - button "send 提交报修" [disabled] [ref=f83e60]:
+      - generic [ref=f83e61]: send
+      - generic [ref=f83e62]: 提交报修
+    - navigation "Main Navigation" [ref=f83e63]:
+      - menubar [ref=f83e64]:
+        - menuitem "Home" [ref=f83e65] [cursor=pointer]:
+          - generic [ref=f83e66]: home
+        - menuitem "Cases" [ref=f83e69] [cursor=pointer]:
+          - generic [ref=f83e70]:
+            - generic [ref=f83e71]: folder_open
+            - generic [ref=f83e72]: "3"
+        - menuitem "New" [ref=f83e74] [cursor=pointer]:
+          - generic [ref=f83e75]: add_a_photo
+        - menuitem "Library" [ref=f83e78] [cursor=pointer]:
+          - generic [ref=f83e79]: auto_stories
+        - menuitem "Profile" [ref=f83e82] [cursor=pointer]:
+          - generic [ref=f83e83]: person

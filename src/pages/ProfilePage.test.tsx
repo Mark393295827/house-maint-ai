@@ -14,6 +14,8 @@ vi.mock('../services/api', () => {
         updateProfile: vi.fn(),
         logout: vi.fn(),
         getCurrentUser: vi.fn(),
+        getSession: vi.fn(),
+        refreshSession: vi.fn(),
         isAuthenticated: vi.fn(),
         login: vi.fn(),
         register: vi.fn(),
@@ -66,6 +68,7 @@ describe('ProfilePage', () => {
         vi.clearAllMocks();
         // Default mock for getCurrentUser to have a logged in user
         (api.getCurrentUser as any).mockResolvedValue({ user: mockUser });
+        (api.getSession as any).mockResolvedValue({ user: mockUser });
         (api.getReports as any).mockResolvedValue({ reports: mockReports });
 
         // Mock window.matchMedia

@@ -1,15 +1,14 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import GlobalErrorBoundary from './components/ui/GlobalErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import PageTracker from './components/PageTracker';
 import SkipLink from './components/ui/SkipLink';
 import { initAgenticStack } from './agenticInit';
-import { useEffect } from 'react';
 import './enterprise.css';
 
 
@@ -46,6 +45,7 @@ const ReportDetailPage = lazy(() => import('./pages/ReportDetailPage'));
 const JobReviewPage = lazy(() => import('./pages/JobReviewPage'));
 const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
 const AssetsPage = lazy(() => import('./pages/AssetsPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export const APP_ROUTE_PATHS = [
   '/',
@@ -85,14 +85,24 @@ export const APP_ROUTE_PATHS = [
   '/review/:id',
   '/enterprise/*',
   '/enterpriseUI/*',
+  '*',
 ] as const;
 
-function App() {
+function AgenticStackInitializer() {
+  const { isAuthenticated, isLoading } = useAuth();
+
   useEffect(() => {
-    initAgenticStack();
-  }, []);
+    if (isLoading || !isAuthenticated) {
+      return;
+    }
 
+    return initAgenticStack();
+  }, [isAuthenticated, isLoading]);
 
+  return null;
+}
+
+function App() {
   return (
 
     <GlobalErrorBoundary>
@@ -102,6 +112,7 @@ function App() {
             <PageTracker />
             <SkipLink />
             <AuthProvider>
+              <AgenticStackInitializer />
               <Suspense fallback={<LoadingSpinner />}>
                 <div id="main-content" className="min-h-screen outline-none" tabIndex={-1}>
                   <Routes>
@@ -235,6 +246,7 @@ function App() {
                         <EnterpriseDashboard />
                       </ProtectedRoute>
                     } />
+                    <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </div>
               </Suspense>

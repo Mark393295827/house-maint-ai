@@ -135,7 +135,7 @@ export class WebIntelAgent {
     private async harvestComplaints(request: WebIntelScanRequest): Promise<ComplaintRecord[]> {
         if (this.genAI) {
             try {
-                const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
                 const prompt = `你是一个中国房地产市场情报分析员。根据以下参数，生成${request.region}地区真实可能存在的物业投诉数据。
 
 地区: ${request.region}
@@ -292,7 +292,7 @@ export class WebIntelAgent {
     ): Promise<string[]> {
         if (this.genAI) {
             try {
-                const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
                 const prompt = `基于以下${request.region}物业投诉数据，生成5条市场洞察（用于创始人决策）:
 
 投诉统计:

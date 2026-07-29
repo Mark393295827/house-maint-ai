@@ -8,7 +8,7 @@ import { MaintenanceAuditSkill } from './skills/audit/MaintenanceAuditSkill';
  * Initializes the Agentic Stack (Omnichannel Gateway + Skills Registry).
  * Inspired by OpenClaw's ambient assistant architecture.
  */
-export function initAgenticStack() {
+export function initAgenticStack(): () => void {
     console.log('[Agentic] Initializing OpenClaw-inspired stack...');
 
     // 1. Register Messaging Channels
@@ -24,8 +24,14 @@ export function initAgenticStack() {
 
     // 3. Trigger initial startup audit (Simulated cron)
     // In production, this would be managed by a separate background worker or a cron job.
-    setTimeout(() => {
+    const startupAuditTimer = window.setTimeout(() => {
         console.log('[Agentic] Running startup maintenance audit...');
-        skillRegistry.runAll();
+        void skillRegistry.runAll().catch((error) => {
+            console.warn('[Agentic] Startup maintenance audit failed:', error);
+        });
     }, 5000); // Wait 5s after startup
+
+    return () => {
+        window.clearTimeout(startupAuditTimer);
+    };
 }

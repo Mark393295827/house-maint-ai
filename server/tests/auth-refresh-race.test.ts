@@ -1,5 +1,5 @@
 import cookieParser from 'cookie-parser';
-import express from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import request from 'supertest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -17,6 +17,7 @@ vi.mock('../config/database.js', () => ({
 
 vi.mock('../middleware/auth.js', () => ({
     authenticate: vi.fn(),
+    optionalAuth: vi.fn((_req: Request, _res: Response, next: NextFunction) => next()),
     generateAccessToken: mocks.generateAccessToken,
     generateCsrfToken: vi.fn(),
     generateRefreshToken: mocks.generateRefreshToken,

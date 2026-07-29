@@ -1,0 +1,23 @@
+{"sequence":1,"at":"2026-07-29T17:19:04.4696840+08:00","node":"discovery","transition":"PENDING->RUNNING","evidence":"repository revision cc4d6a94dbe72a28025e116d7faf599ac11fc641"}
+{"sequence":2,"at":"2026-07-29T17:19:04.4696840+08:00","node":"discovery","transition":"RUNNING->VERIFYING->SUCCEEDED","evidence":".agent-state/graphs/frontend-functional-audit/artifacts/discovery.json"}
+{"sequence":3,"at":"2026-07-29T17:19:04.4696840+08:00","node":"baseline","transition":"PENDING->READY","payload":".agent-state/graphs/frontend-functional-audit/artifacts/discovery.json"}
+{"sequence":4,"at":"2026-07-29T17:32:03.764+08:00","node":"baseline","transition":"READY->RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/baseline.json"}
+{"sequence":5,"at":"2026-07-29T17:32:03.764+08:00","node":"smoke","transition":"PENDING->READY","payload":"output/frontend-functional-audit/baseline.json"}
+{"sequence":6,"at":"2026-07-29T17:44:48.507+08:00","node":"smoke","transition":"READY->RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/smoke.json"}
+{"sequence":7,"at":"2026-07-29T17:44:48.507+08:00","node":"core-workflows","transition":"PENDING->READY->RUNNING","payload":"output/frontend-functional-audit/smoke.json"}
+{"sequence":8,"at":"2026-07-29T17:53:39.475+08:00","node":"core-workflows","transition":"RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/core-workflows.json"}
+{"sequence":9,"at":"2026-07-29T17:53:39.475+08:00","node":"quality-accessibility-localization-responsive","transition":"PENDING->READY","payload":"output/frontend-functional-audit/core-workflows.json"}
+{"sequence":10,"at":"2026-07-29T17:53:39.475+08:00","node":"quality-api-resilience-realtime","transition":"PENDING->READY","payload":"output/frontend-functional-audit/core-workflows.json"}
+{"sequence":11,"at":"2026-07-29T17:53:39.475+08:00","node":"quality-security-performance","transition":"PENDING->READY","payload":"output/frontend-functional-audit/core-workflows.json"}
+{"sequence":12,"at":"2026-07-29T18:03:31.467+08:00","node":"quality-accessibility-localization-responsive","transition":"READY->RUNNING","payload":"output/frontend-functional-audit/core-workflows.json"}
+{"sequence":13,"at":"2026-07-29T18:03:31.467+08:00","node":"quality-accessibility-localization-responsive","transition":"RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/quality-accessibility-localization-responsive.json"}
+{"sequence":14,"at":"2026-07-29T18:03:31.467+08:00","node":"quality-api-resilience-realtime","transition":"READY->RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/quality-api-resilience-realtime.json"}
+{"sequence":15,"at":"2026-07-29T18:03:31.467+08:00","node":"quality-security-performance","transition":"READY->RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/quality-security-performance.json"}
+{"sequence":16,"at":"2026-07-29T18:03:31.467+08:00","node":"repair-reduce-join","transition":"WAITING->READY","evidence":"all three quality branches reached SUCCEEDED"}
+{"sequence":17,"at":"2026-07-29T18:03:31.467+08:00","node":"repair","transition":"PENDING->READY","payload":"three quality evidence locators plus reduce-join decision"}
+{"sequence":18,"at":"2026-07-29T18:03:31.467+08:00","node":"repair","transition":"READY->RUNNING"}
+{"sequence":19,"at":"2026-07-29T18:39:56.509+08:00","node":"repair","transition":"RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/repair.json"}
+{"sequence":20,"at":"2026-07-29T18:39:56.509+08:00","node":"regression","transition":"PENDING->READY->RUNNING","payload":"output/frontend-functional-audit/repair.json"}
+{"sequence":21,"at":"2026-07-29T19:00:18.912+08:00","node":"regression","transition":"RUNNING->VERIFYING->SUCCEEDED","evidence":"output/frontend-functional-audit/regression.json"}
+{"sequence":22,"at":"2026-07-29T19:00:18.912+08:00","node":"release-report","transition":"PENDING->READY->RUNNING","payload":"output/frontend-functional-audit/regression.json"}
+{"sequence":23,"at":"2026-07-29T19:05:37.240+08:00","node":"release-report","transition":"RUNNING->VERIFYING->SUCCEEDED","evidence":"reports/frontend-functional-audit.md","terminal_receipt":"output/frontend-functional-audit/release-report.json"}

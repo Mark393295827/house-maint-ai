@@ -1,0 +1,715 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "ui-clean-redesign-v1",
+  "objective": "Safely migrate House Maint AI to one coherent design foundation and four role-specific product shells while preserving route compatibility, permissions, data contracts, state transitions, localization, and critical maintenance workflows.",
+  "non_goals": [
+    "No big-bang rewrite of the frontend.",
+    "No backend business-rule, report-status, matching-score, payment-state, or authorization-policy changes hidden inside visual work.",
+    "No removal of compatibility routes before a measured deprecation window.",
+    "No production deployment, external publication, or live provider calls.",
+    "No dynamic graph expansion or whole-graph retry."
+  ],
+  "owner": "ui-redesign-integration-owner",
+  "artifact_path": ".agent-state/graphs/ui-clean-redesign-v1/artifacts",
+  "state_path": ".agent-state/graphs/ui-clean-redesign-v1/state.json",
+  "entry_nodes": [
+    "baseline-contract"
+  ],
+  "terminal_nodes": [
+    "release-review"
+  ],
+  "budgets": {
+    "max_nodes": 15,
+    "max_concurrency": 4,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 21600,
+    "tool_calls": 700,
+    "review_changed_lines": 1000
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read repository source, tests, product documents, and local build artifacts.",
+      "Write only the declared UI feature, style, localization, route-integration, test, screenshot, and graph-receipt targets.",
+      "Run local lint, type checks, builds, unit tests, integration tests, browser tests, accessibility checks, and bundle analysis."
+    ],
+    "denied": [
+      "Production deployment.",
+      "External publication.",
+      "Unapproved live AI, payment, messaging, analytics, or map-provider calls.",
+      "Writes outside declared node territories.",
+      "Destructive database operations or mutations of non-test data.",
+      "Client-side embedding or rendering of provider credentials."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only the failed node's checkpointed writer territory and retain all verified sibling artifacts and compatibility routes."
+  },
+  "nodes": [
+    {
+      "id": "baseline-contract",
+      "kind": "deterministic",
+      "owner": "ui-redesign-integration-owner",
+      "inputs": [],
+      "outputs": [
+        "redesign_scope"
+      ],
+      "reads": [
+        "docs/ui-clean-redesign-blueprint.md",
+        "docs/product-operating-model.md",
+        "PRD.md",
+        "USER_PERSONAS.md",
+        "src/App.tsx",
+        "package.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/redesign-scope.json"
+      ],
+      "verifier": "The blueprint identifies every current route group, role, operating-loop stage, preservation invariant, migration phase, and acceptance gate.",
+      "timeout_seconds": 180,
+      "max_attempts": 1,
+      "tool_calls": 8,
+      "effect_class": "reversible",
+      "idempotency": "Replace one deterministic scope artifact for the same source hash.",
+      "compensation": "Restore the prior redesign-scope artifact."
+    },
+    {
+      "id": "functional-contract",
+      "kind": "agent",
+      "owner": "workflow-contract-owner",
+      "inputs": [
+        "redesign_scope"
+      ],
+      "outputs": [
+        "functional_contract"
+      ],
+      "reads": [
+        "src/App.tsx",
+        "src/contexts",
+        "src/hooks",
+        "src/services",
+        "src/pages",
+        "src/types",
+        "server/routes"
+      ],
+      "writes": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/functional-contract.json"
+      ],
+      "verifier": "Every registered route, guard, API dependency, storage handoff, query invalidation, socket behavior, and user-visible capability is classified as preserve, repair, compatibility alias, or demo-only.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 32,
+      "effect_class": "reversible",
+      "idempotency": "Replace one isolated contract artifact for the same source hash.",
+      "compensation": "Restore the prior functional-contract artifact."
+    },
+    {
+      "id": "visual-contract",
+      "kind": "agent",
+      "owner": "design-system-audit-owner",
+      "inputs": [
+        "redesign_scope"
+      ],
+      "outputs": [
+        "visual_contract"
+      ],
+      "reads": [
+        "tailwind.config.js",
+        "src/index.css",
+        "src/enterprise.css",
+        "src/enterprise-analytics.css",
+        "src/enterprise-analytics-modules.css",
+        "src/showcase-antigravity.css",
+        "src/pages/DevicePreview.css",
+        "src/components",
+        "src/pages"
+      ],
+      "writes": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/visual-contract.json"
+      ],
+      "verifier": "The artifact inventories visual tokens, shells, navigation, page chrome, primitives, repeated patterns, exceptions, and measurable consolidation targets.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 32,
+      "effect_class": "reversible",
+      "idempotency": "Replace one isolated visual-contract artifact for the same source hash.",
+      "compensation": "Restore the prior visual-contract artifact."
+    },
+    {
+      "id": "quality-contract",
+      "kind": "agent",
+      "owner": "quality-baseline-owner",
+      "inputs": [
+        "redesign_scope"
+      ],
+      "outputs": [
+        "quality_contract"
+      ],
+      "reads": [
+        "package.json",
+        "vite.config.ts",
+        "vitest.config.ts",
+        "playwright.config.js",
+        "src",
+        "server/tests",
+        "tests"
+      ],
+      "writes": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/quality-contract.json"
+      ],
+      "verifier": "The artifact maps current automated coverage and defines route, workflow, visual, accessibility, responsive, localization, console, network, and performance gates with fresh baseline receipts.",
+      "timeout_seconds": 1500,
+      "max_attempts": 2,
+      "tool_calls": 38,
+      "effect_class": "reversible",
+      "idempotency": "Replace one isolated quality-contract artifact for the same source hash.",
+      "compensation": "Restore the prior quality-contract artifact."
+    },
+    {
+      "id": "architecture-freeze",
+      "kind": "deterministic",
+      "owner": "ui-redesign-integration-owner",
+      "inputs": [
+        "functional_contract",
+        "visual_contract",
+        "quality_contract"
+      ],
+      "outputs": [
+        "architecture_spec"
+      ],
+      "reads": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/functional-contract.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/visual-contract.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/quality-contract.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/architecture-spec.json"
+      ],
+      "verifier": "One decision record freezes canonical routes, compatibility redirects, four shell boundaries, token semantics, component layers, functional invariants, risk classifications, and acceptance metrics without unresolved writer overlap.",
+      "timeout_seconds": 300,
+      "max_attempts": 1,
+      "tool_calls": 10,
+      "effect_class": "reversible",
+      "idempotency": "Deterministic synthesis from three hash-addressed contracts.",
+      "compensation": "Restore the prior architecture-spec artifact."
+    },
+    {
+      "id": "design-token-foundation",
+      "kind": "agent",
+      "owner": "design-token-owner",
+      "inputs": [
+        "architecture_spec"
+      ],
+      "outputs": [
+        "token_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/architecture-spec.json",
+        "tailwind.config.js",
+        "src/index.css"
+      ],
+      "writes": [
+        "src/styles/tokens.css",
+        "src/styles/foundations.css",
+        "src/styles/tokens.test.ts"
+      ],
+      "verifier": "Semantic light/dark tokens, spacing, typography, radius, elevation, focus, motion, and reduced-motion contracts are complete, contrast-checked, and covered by deterministic token tests.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 30,
+      "effect_class": "reversible",
+      "idempotency": "Regenerate the token bundle from the frozen architecture spec.",
+      "compensation": "Restore the prior token-foundation checkpoint."
+    },
+    {
+      "id": "ui-primitives",
+      "kind": "agent",
+      "owner": "ui-primitives-owner",
+      "inputs": [
+        "token_bundle"
+      ],
+      "outputs": [
+        "ui_foundation"
+      ],
+      "reads": [
+        "src/styles/tokens.css",
+        "src/styles/foundations.css",
+        "src/components/ui",
+        "src/components/LoadingSpinner.tsx",
+        "src/components/LanguageToggle.tsx"
+      ],
+      "writes": [
+        "src/components/ui"
+      ],
+      "verifier": "Buttons, fields, badges, cards, overlays, feedback states, navigation primitives, media controls, and page patterns have typed APIs, keyboard behavior, accessible names, locale-safe content, and component tests.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 44,
+      "effect_class": "reversible",
+      "idempotency": "Regenerate only the shared UI directory from the same token bundle and component contracts.",
+      "compensation": "Restore the shared UI directory checkpoint."
+    },
+    {
+      "id": "public-surface",
+      "kind": "agent",
+      "owner": "public-surface-owner",
+      "inputs": [
+        "ui_foundation"
+      ],
+      "outputs": [
+        "public_surface_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/functional-contract.json",
+        "src/pages/WelcomePage.tsx",
+        "src/pages/ShowcasePage.tsx",
+        "src/pages/LoginPage.tsx",
+        "src/pages/RepairmanLoginPage.tsx",
+        "src/pages/PaymentSuccessPage.tsx",
+        "src/pages/PaymentCancelPage.tsx",
+        "src/pages/DevicePreview.tsx"
+      ],
+      "writes": [
+        "src/features/public",
+        "src/styles/surfaces/public.css",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/public-copy-manifest.json"
+      ],
+      "verifier": "Public, onboarding, authentication, callback, preview, and showcase adapters preserve their behavior, keep decorative showcase particle and click effects disabled, and pass desktop/mobile/keyboard component checks.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 48,
+      "effect_class": "reversible",
+      "idempotency": "Rewrite only the public feature and style territories from verified contracts.",
+      "compensation": "Restore the public-surface checkpoint."
+    },
+    {
+      "id": "resident-surface",
+      "kind": "agent-team",
+      "owner": "resident-surface-owner",
+      "inputs": [
+        "ui_foundation"
+      ],
+      "outputs": [
+        "resident_surface_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/functional-contract.json",
+        "src/components/diagnosis",
+        "src/components/calendar",
+        "src/components/repair",
+        "src/pages/DiagnosisPage.tsx",
+        "src/pages/QuickReportPage.tsx",
+        "src/pages/MyCasesPage.tsx",
+        "src/pages/ReportDetailPage.tsx",
+        "src/pages/WorkerMatchPage.tsx",
+        "src/pages/CalendarPage.tsx",
+        "src/pages/ChatPage.tsx",
+        "src/pages/ConversationsPage.tsx",
+        "src/pages/ProfilePage.tsx"
+      ],
+      "writes": [
+        "src/features/resident",
+        "src/styles/surfaces/resident.css",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/resident-copy-manifest.json"
+      ],
+      "verifier": "The photo-to-answer, inquiry, report, case, repair, match, booking, message, order, payment, review, asset, knowledge, community, notification, and profile contracts pass at 320px through desktop without route, API, storage, query, or socket regression.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 82,
+      "effect_class": "reversible",
+      "idempotency": "Rewrite only the resident feature and style territories from the same UI and functional contracts.",
+      "compensation": "Restore the resident-surface checkpoint."
+    },
+    {
+      "id": "worker-surface",
+      "kind": "agent",
+      "owner": "worker-surface-owner",
+      "inputs": [
+        "ui_foundation"
+      ],
+      "outputs": [
+        "worker_surface_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/functional-contract.json",
+        "src/components/worker",
+        "src/pages/WorkerDashboardPage.tsx",
+        "src/pages/WorkerJobPage.tsx",
+        "src/pages/WorkerRegistrationPage.tsx",
+        "src/pages/WorkerDirectoryPage.tsx"
+      ],
+      "writes": [
+        "src/features/worker",
+        "src/styles/surfaces/worker.css",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/worker-copy-manifest.json"
+      ],
+      "verifier": "Worker onboarding, availability, leads, acceptance, pre-diagnosed job detail, bilingual maintenance plan, report-scoped messaging, completion, and profile behavior pass with a worker-only navigation shell.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 58,
+      "effect_class": "reversible",
+      "idempotency": "Rewrite only the worker feature and style territories from verified contracts.",
+      "compensation": "Restore the worker-surface checkpoint."
+    },
+    {
+      "id": "enterprise-surface",
+      "kind": "agent",
+      "owner": "enterprise-surface-owner",
+      "inputs": [
+        "ui_foundation"
+      ],
+      "outputs": [
+        "enterprise_surface_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/functional-contract.json",
+        "src/components/enterprise",
+        "src/components/EnterpriseLayout.tsx",
+        "src/pages/EnterpriseDashboard.tsx",
+        "src/pages/MetricsDashboard.tsx",
+        "src/pages/EnterpriseAIConfigPage.tsx"
+      ],
+      "writes": [
+        "src/features/enterprise",
+        "src/styles/surfaces/enterprise.css",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/enterprise-copy-manifest.json"
+      ],
+      "verifier": "Enterprise overview, properties, tickets, workers, analytics, AI configuration, data-source labels, partial failures, role guards, tables, charts, and responsive navigation preserve their contracts and distinguish measured data from demo or unavailable data.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 70,
+      "effect_class": "reversible",
+      "idempotency": "Rewrite only the enterprise feature and style territories from verified contracts.",
+      "compensation": "Restore the enterprise-surface checkpoint."
+    },
+    {
+      "id": "surface-integration",
+      "kind": "agent",
+      "owner": "ui-redesign-integration-owner",
+      "inputs": [
+        "public_surface_bundle",
+        "resident_surface_bundle",
+        "worker_surface_bundle",
+        "enterprise_surface_bundle"
+      ],
+      "outputs": [
+        "integrated_ui"
+      ],
+      "reads": [
+        "src/features/public",
+        "src/features/resident",
+        "src/features/worker",
+        "src/features/enterprise",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/public-copy-manifest.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/resident-copy-manifest.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/worker-copy-manifest.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/enterprise-copy-manifest.json"
+      ],
+      "writes": [
+        "src/App.tsx",
+        "src/components/OnboardingGate.tsx",
+        "src/i18n/en.json",
+        "src/i18n/zh.json",
+        "src/app",
+        "tests/ui-redesign",
+        "tests/e2e/ui-redesign",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/surface-integration.json"
+      ],
+      "verifier": "Canonical route manifests and compatibility redirects preserve all deep links and callbacks; each role enters the correct shell; English and Chinese key trees match; route, guard, storage, API, query, and socket contract tests pass; every consumed surface manifest is hash-addressed and matches its declared contract inputs.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 64,
+      "effect_class": "reversible",
+      "idempotency": "Integrate the same verified surface hashes into one route and locale state.",
+      "compensation": "Restore the route, locale, application-shell, and integration-artifact checkpoints."
+    },
+    {
+      "id": "legacy-consolidation",
+      "kind": "agent",
+      "owner": "css-consolidation-owner",
+      "inputs": [
+        "integrated_ui"
+      ],
+      "outputs": [
+        "legacy_consolidated"
+      ],
+      "reads": [
+        "src/styles",
+        "src/features",
+        "tailwind.config.js",
+        "src/index.css",
+        "src/enterprise.css",
+        "src/enterprise-analytics.css",
+        "src/enterprise-analytics-modules.css",
+        "src/showcase-antigravity.css",
+        "src/pages/DevicePreview.css"
+      ],
+      "writes": [
+        "tailwind.config.js",
+        "src/index.css",
+        "src/enterprise.css",
+        "src/enterprise-analytics.css",
+        "src/enterprise-analytics-modules.css",
+        "src/showcase-antigravity.css",
+        "src/pages/DevicePreview.css",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/legacy-consolidation.json"
+      ],
+      "verifier": "Conflicting token definitions are removed, legacy styles are reduced to explicit compatibility imports, raw operational color/radius exceptions are allowlisted, no route changes appearance through an undeclared global selector, and bundle size does not regress.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 46,
+      "effect_class": "reversible",
+      "idempotency": "Convergent consolidation from the same integrated UI and style inventory.",
+      "compensation": "Restore the legacy stylesheet and Tailwind configuration checkpoint."
+    },
+    {
+      "id": "verification",
+      "kind": "agent-team",
+      "owner": "independent-quality-owner",
+      "inputs": [
+        "legacy_consolidated"
+      ],
+      "outputs": [
+        "verification_receipt"
+      ],
+      "reads": [
+        "docs/ui-clean-redesign-blueprint.md",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts",
+        "src",
+        "server",
+        "tests",
+        "package.json",
+        "playwright.config.js"
+      ],
+      "writes": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/verification.json",
+        "output/playwright/ui-redesign"
+      ],
+      "verifier": "Build, lint, unit, integration, route smoke, critical journey, visual regression, Chinese/English, keyboard, screen-reader semantics, 320px/390px/768px/1440px layout, reduced-motion, console, network, and bundle-budget checks pass with fresh receipts.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 84,
+      "effect_class": "reversible",
+      "idempotency": "Replace verification artifacts only for the same implementation hash.",
+      "compensation": "Remove failed verification artifacts and preserve source checkpoints."
+    },
+    {
+      "id": "release-review",
+      "kind": "human-gate",
+      "owner": "product-design-approval-owner",
+      "inputs": [
+        "verification_receipt"
+      ],
+      "outputs": [
+        "approval_receipt"
+      ],
+      "reads": [
+        "docs/ui-clean-redesign-blueprint.md",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/verification.json",
+        "output/playwright/ui-redesign"
+      ],
+      "writes": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/release-approval.json"
+      ],
+      "verifier": "A product owner confirms the four shells are clearer, every preservation invariant has evidence, known defects were not reclassified as intentional behavior, and rollout/rollback scope is acceptable.",
+      "timeout_seconds": 1800,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "reversible",
+      "idempotency": "One approval receipt bound to blueprint, implementation, and verification hashes.",
+      "compensation": "Invalidate the approval receipt if any bound hash changes."
+    }
+  ],
+  "edges": [
+    {
+      "from": "baseline-contract",
+      "to": "functional-contract",
+      "type": "data",
+      "payload_schema": "redesign_scope",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "baseline-contract",
+      "to": "visual-contract",
+      "type": "data",
+      "payload_schema": "redesign_scope",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "baseline-contract",
+      "to": "quality-contract",
+      "type": "data",
+      "payload_schema": "redesign_scope",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "functional-contract",
+      "to": "architecture-freeze",
+      "type": "data",
+      "payload_schema": "functional_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "visual-contract",
+      "to": "architecture-freeze",
+      "type": "data",
+      "payload_schema": "visual_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "quality-contract",
+      "to": "architecture-freeze",
+      "type": "data",
+      "payload_schema": "quality_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "architecture-freeze",
+      "to": "design-token-foundation",
+      "type": "data",
+      "payload_schema": "architecture_spec",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "design-token-foundation",
+      "to": "ui-primitives",
+      "type": "data",
+      "payload_schema": "token_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "ui-primitives",
+      "to": "public-surface",
+      "type": "data",
+      "payload_schema": "ui_foundation",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "ui-primitives",
+      "to": "resident-surface",
+      "type": "data",
+      "payload_schema": "ui_foundation",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "ui-primitives",
+      "to": "worker-surface",
+      "type": "data",
+      "payload_schema": "ui_foundation",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "ui-primitives",
+      "to": "enterprise-surface",
+      "type": "data",
+      "payload_schema": "ui_foundation",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "public-surface",
+      "to": "surface-integration",
+      "type": "data",
+      "payload_schema": "public_surface_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "resident-surface",
+      "to": "surface-integration",
+      "type": "data",
+      "payload_schema": "resident_surface_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "worker-surface",
+      "to": "surface-integration",
+      "type": "data",
+      "payload_schema": "worker_surface_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "enterprise-surface",
+      "to": "surface-integration",
+      "type": "data",
+      "payload_schema": "enterprise_surface_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "surface-integration",
+      "to": "legacy-consolidation",
+      "type": "verification",
+      "payload_schema": "integrated_ui",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "legacy-consolidation",
+      "to": "verification",
+      "type": "verification",
+      "payload_schema": "legacy_consolidated",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "verification",
+      "to": "release-review",
+      "type": "verification",
+      "payload_schema": "verification_receipt",
+      "condition": "verified",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "contract-freeze",
+      "target": "architecture-freeze",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "functional-contract",
+        "visual-contract",
+        "quality-contract"
+      ],
+      "verifier": "All three contracts are fresh, source-hash compatible, complete, and free of contradictory ownership or acceptance rules.",
+      "quorum": null
+    },
+    {
+      "id": "surface-integration-barrier",
+      "target": "surface-integration",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "public-surface",
+        "resident-surface",
+        "worker-surface",
+        "enterprise-surface"
+      ],
+      "verifier": "The public, resident, worker, and enterprise surface bundles target the same token and functional contract hashes, have disjoint writers, publish hash-addressed copy manifests, and pass their local preservation suites.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The human release-review verifier accepts the fresh verification receipt.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one changed attempt.",
+    "A writer-territory conflict, incompatible route contract, or schema mismatch is detected.",
+    "Any implementation exposes a provider credential or attempts an unapproved live external call.",
+    "A critical maintenance journey, payment callback, role guard, or rollback path loses parity."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/ui-clean-redesign-v1/checkpoint.json",
+    "write_back": ".agent-state/graphs/ui-clean-redesign-v1/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

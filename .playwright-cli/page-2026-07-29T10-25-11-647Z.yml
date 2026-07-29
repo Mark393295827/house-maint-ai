@@ -1,0 +1,91 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e37]:
+    - banner [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]: person
+          - generic [ref=e43]:
+            - paragraph [ref=e44]: Worker Dashboard
+            - heading "Wang Shifu" [level=1] [ref=e45]
+            - generic [ref=e46]: Receiving leads
+        - generic [ref=e49]:
+          - button "Switch language" [ref=e50]:
+            - generic [ref=e51]: language
+            - generic [ref=e52]: EN
+          - button "Refresh dashboard" [ref=e53]:
+            - generic [ref=e54]: sync
+          - button "Go offline" [ref=e55]:
+            - generic [ref=e56]: notifications_active
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - generic [ref=e61]: Earnings
+          - text: ¥9900
+        - generic [ref=e62]: payments
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e66]: Completed
+          - text: "2"
+        - generic [ref=e67]: task_alt
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: Rating
+          - text: "5.0"
+        - generic [ref=e72]: star
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: Active
+          - text: "1"
+        - generic [ref=e77]: hourglass_empty
+    - generic [ref=e80]:
+      - button "grid_view Leads (0)" [ref=e131]:
+        - generic [ref=e82]: grid_view
+        - generic [ref=e83]: Leads (0)
+      - button "assignment Jobs (3)" [pressed] [ref=e132]:
+        - generic [ref=e85]: assignment
+        - generic [ref=e86]: Jobs (3)
+    - main [ref=e87]:
+      - status [ref=e133]:
+        - generic [ref=e134]: check_circle
+        - generic [ref=e136]: Order accepted. Moving it to your jobs.
+      - generic [ref=e88]:
+        - 'button "Open ticket #6072" [ref=e137]':
+          - generic [ref=e138]:
+            - generic [ref=e139]: Processing
+            - generic [ref=e140]: "Ticket #6072"
+          - 'heading "Codex audit fixture: kitchen faucet leaking under" [level=3] [ref=e141]'
+          - generic [ref=e142]:
+            - generic [ref=e143]: Alex 用户
+            - generic [ref=e144]: chevron_right
+        - 'button "Open ticket #6050" [ref=e145]':
+          - generic [ref=e146]:
+            - generic [ref=e147]: Completed
+            - generic [ref=e148]: "Ticket #6050"
+          - heading "水管接头漏水，已持续数天，逐渐加重" [level=3] [ref=e149]
+          - generic [ref=e150]:
+            - generic [ref=e151]: Test User
+            - generic [ref=e152]: chevron_right
+        - 'button "Open ticket #6057" [ref=e153]':
+          - generic [ref=e154]:
+            - generic [ref=e155]: Completed
+            - generic [ref=e156]: "Ticket #6057"
+          - heading "水管接头漏水，已持续数天，逐渐加重" [level=3] [ref=e157]
+          - generic [ref=e158]:
+            - generic [ref=e159]: Alex 用户
+            - generic [ref=e160]: chevron_right
+    - navigation "Worker dashboard navigation":
+      - generic [ref=e112]:
+        - button "Open leads" [ref=e113]:
+          - generic [ref=e114]: grid_view
+          - generic [ref=e115]: Leads
+        - button "Open job history" [ref=e117]:
+          - generic [ref=e118]: receipt_long
+          - generic [ref=e119]: History
+        - button "Open alerts" [ref=e120]:
+          - generic [ref=e121]: notifications
+          - generic [ref=e122]: Alerts
+        - button "Open profile" [ref=e123]:
+          - generic [ref=e124]: account_circle
+          - generic [ref=e125]: Profile

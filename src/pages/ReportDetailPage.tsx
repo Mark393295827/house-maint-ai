@@ -3,6 +3,7 @@ import BottomNav from '../components/BottomNav';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useReport } from '../hooks/useReports';
+import { useAuth } from '../contexts/AuthContext';
 
 const statusTone: Record<string, string> = {
     pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
@@ -26,8 +27,10 @@ const ReportDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { t } = useLanguage();
+    const { user } = useAuth();
     const { data, isLoading, isError } = useReport(id || '');
     const report = data?.report;
+    const messagePartnerId = user?.role === 'worker' ? report?.user_id : report?.worker_user_id;
 
     const handleFindWorker = () => {
         if (!report) return;
@@ -144,7 +147,8 @@ const ReportDetailPage = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate('/messages')}
+                        onClick={() => messagePartnerId && navigate(`/chat/${messagePartnerId}?reportId=${report.id}`)}
+                        disabled={!messagePartnerId}
                         className="rounded-2xl bg-gray-100 px-4 py-3 text-sm font-bold text-gray-700 dark:bg-gray-800 dark:text-gray-200"
                     >
                         {t('reports.detail.messages')}

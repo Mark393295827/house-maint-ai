@@ -153,6 +153,24 @@
             "cancelled": "已取消"
         }
     },
+    "reports": {
+        "detail": {
+            "notFound": "未找到报修",
+            "backToCases": "返回案例",
+            "back": "返回",
+            "eyebrow": "报修 #{{id}}",
+            "category": "类别",
+            "worker": "师傅",
+            "workerId": "师傅 #{{id}}",
+            "unassigned": "未分配",
+            "unknown": "未知",
+            "description": "问题描述",
+            "findWorker": "匹配师傅",
+            "repairGuide": "维修指南",
+            "messages": "消息",
+            "review": "评价"
+        }
+    },
     "community": {
         "title": "社区",
         "create": {
@@ -176,6 +194,11 @@
             "minsAgo": "分钟前",
             "hoursAgo": "小时前"
         }
+    },
+    "notFound": {
+        "title": "页面未找到",
+        "message": "您访问的页面不存在或已不可用。",
+        "backHome": "返回首页"
     },
     "calendar": {
         "title": "房屋维护计划",
@@ -278,10 +301,19 @@
         "payNow": "立即支付",
         "success": {
             "title": "支付成功！",
-            "message": "您的支付已处理。工人已收到通知。",
+            "message": "支付已通过订单验证，报修现已进入师傅匹配。",
             "orderId": "订单编号",
             "amount": "金额",
             "viewOrders": "查看全部订单"
+        },
+        "verification": {
+            "loadingTitle": "正在验证支付",
+            "loadingMessage": "正在查询可信订单状态…",
+            "pendingTitle": "支付待完成",
+            "pendingMessage": "该订单尚未支付。请在微信中完成支付后再返回此页面。",
+            "failedTitle": "支付未验证",
+            "failedMessage": "无法从此链接验证已支付订单，系统尚未通知师傅。",
+            "service": "服务"
         },
         "cancel": {
             "title": "支付已取消",
@@ -310,7 +342,10 @@
         "emptyDesc": "与工人开始对话获取帮助",
         "chat": "聊天",
         "placeholder": "输入消息...",
-        "startConversation": "发送消息开始对话"
+        "startConversation": "发送消息开始对话",
+        "send": "发送消息",
+        "sendFailed": "消息发送失败，请重试。",
+        "missingReport": "请从已分配的报修进入聊天，以便安全关联工单。"
     },
     "workerPortal": {
         "title": "工人工作台",
@@ -471,6 +506,8 @@
         "or": "或",
         "socialWechat": "微信",
         "socialAlipay": "支付宝",
+        "socialGoogle": "Google",
+        "socialApple": "Apple",
         "skip": "跳过登录，先体验一下 →",
         "error": {
             "invalidPhone": "请输入有效的手机号码",

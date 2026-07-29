@@ -54,6 +54,7 @@ export class SQLiteFallback {
                 const schema = fs.readFileSync(schemaPath, 'utf-8');
                 this.db.exec(schema);
                 this.ensureAnalyticsReportColumns();
+                this.ensurePaymentOrderColumns();
                 console.log('✅ SQLite schema initialized');
             } else {
                 console.error('❌ Schema file not found at:', schemaPath);
@@ -94,6 +95,37 @@ export class SQLiteFallback {
                 );
             }
         }
+    }
+
+    /**
+     * CREATE TABLE IF NOT EXISTS does not upgrade an existing SQLite table.
+     * Converge the legacy payment table before checkout routes can use the
+     * WeChat trade number introduced in later schemas.
+     */
+    private ensurePaymentOrderColumns(): void {
+        const tableExists = this.db.prepare(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'orders'",
+        ).get();
+        if (!tableExists) {
+            return;
+        }
+
+        const columns = new Set(
+            (this.db.prepare('PRAGMA table_info(orders)').all() as Array<{ name: string }>)
+                .map((column) => column.name),
+        );
+
+        if (!columns.has('wechat_out_trade_no')) {
+            this.db.exec('ALTER TABLE orders ADD COLUMN wechat_out_trade_no TEXT');
+        }
+
+        this.db.exec(
+            'CREATE UNIQUE INDEX IF NOT EXISTS orders_wechat_out_trade_no_unique ON orders (wechat_out_trade_no)',
+        );
+    }
+
+    close(): void {
+        this.db.close();
     }
 
     /**

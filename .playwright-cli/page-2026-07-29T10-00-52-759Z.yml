@@ -1,0 +1,36 @@
+- generic [ref=f82e2]:
+  - link "Skip to main content" [ref=f82e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f82e5]:
+    - generic [ref=f82e6]:
+      - generic [ref=f82e7]:
+        - heading "📋 My Cases" [level=1] [ref=f82e8]
+        - button "add New" [ref=f82e9]:
+          - generic [ref=f82e10]: add
+          - text: New
+      - generic [ref=f82e11]:
+        - generic [ref=f82e12]: search
+        - textbox "Search cases..." [ref=f82e13]
+      - generic [ref=f82e14]:
+        - button "Active(0)" [ref=f82e15]:
+          - text: Active
+          - generic [ref=f82e16]: (0)
+        - button "Archived(0)" [ref=f82e17]:
+          - text: Archived
+          - generic [ref=f82e18]: (0)
+    - generic [ref=f82e20]:
+      - generic [ref=f82e21]: folder_open
+      - paragraph [ref=f82e22]: No cases yet
+      - button "Start Diagnosis" [ref=f82e23]
+    - navigation "Main Navigation" [ref=f82e24]:
+      - menubar [ref=f82e25]:
+        - menuitem "Home" [ref=f82e26] [cursor=pointer]:
+          - generic [ref=f82e27]: home
+        - menuitem "Cases" [ref=f82e30] [cursor=pointer]:
+          - generic [ref=f82e32]: folder_open
+        - menuitem "New" [ref=f82e35] [cursor=pointer]:
+          - generic [ref=f82e36]: add_a_photo
+        - menuitem "Library" [ref=f82e39] [cursor=pointer]:
+          - generic [ref=f82e40]: auto_stories
+        - menuitem "Profile" [ref=f82e43] [cursor=pointer]:
+          - generic [ref=f82e44]: person

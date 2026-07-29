@@ -103,7 +103,9 @@ router.get('/dashboard', authenticate, async (req, res, next) => {
         res.json(ApiResponse.success({
             worker,
             stats: {
-                earnings: parseFloat(earningsResult[0]?.total || '0'),
+                // Orders persist minor currency units (cents/fen); expose a
+                // display-ready major-unit total in the dashboard contract.
+                earnings: parseFloat(earningsResult[0]?.total || '0') / 100,
                 jobsCompleted: parseInt(jobStats[0]?.completed || '0'),
                 activeJobs: parseInt(jobStats[0]?.active || '0'),
                 rating: parseFloat(worker.rating || '0'),

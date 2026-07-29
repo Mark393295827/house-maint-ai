@@ -1,0 +1,44 @@
+- generic [ref=f16e2]:
+  - link "Skip to main content" [ref=f16e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f16e301]:
+    - generic [ref=f16e302]: location_searching
+    - generic [ref=f16e309]:
+      - region "六阶段运营闭环进度" [ref=f16e310]:
+        - generic [ref=f16e311]:
+          - generic [ref=f16e312]:
+            - paragraph [ref=f16e313]: 运营闭环
+            - heading "师傅智能派单" [level=3] [ref=f16e314]
+          - generic [ref=f16e315]: 4/6
+        - list [ref=f16e316]:
+          - listitem [ref=f16e317]:
+            - generic [ref=f16e318]:
+              - generic [ref=f16e319]: check
+              - generic [ref=f16e320]: 24/7 微信接入
+          - listitem [ref=f16e321]:
+            - generic [ref=f16e322]:
+              - generic [ref=f16e323]: check
+              - generic [ref=f16e324]: AI 诊断与责任判断
+          - listitem [ref=f16e325]:
+            - generic [ref=f16e326]:
+              - generic [ref=f16e327]: check
+              - generic [ref=f16e328]: DIY 分流
+          - listitem [ref=f16e329]:
+            - generic [ref=f16e330]:
+              - generic [ref=f16e331]: near_me
+              - generic [ref=f16e332]: 师傅智能派单
+          - listitem [ref=f16e333]:
+            - generic [ref=f16e334]:
+              - generic [ref=f16e335]: fact_check
+              - generic [ref=f16e336]: 维修验收回访
+          - listitem [ref=f16e337]:
+            - generic [ref=f16e338]:
+              - generic [ref=f16e339]: analytics
+              - generic [ref=f16e340]: 业主报表和 SLA
+      - generic [ref=f16e342]:
+        - generic [ref=f16e343]:
+          - generic [ref=f16e344]: smart_toy
+          - generic [ref=f16e346]:
+            - heading "智能家居顾问" [level=3] [ref=f16e347]
+            - generic [ref=f16e348]: 正在运行
+        - paragraph [ref=f16e352]: 正在检索 水管接头漏水，已持续数天，逐渐加重 专家...

@@ -1,0 +1,16 @@
+- generic [ref=f2e2]:
+  - link "Skip to main content" [ref=f2e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f2e5]:
+    - generic [ref=f2e7]:
+      - button "arrow_back" [ref=f2e8]
+      - generic [ref=f2e10]: "?"
+      - heading "Chat" [level=2] [ref=f2e12]
+    - main [ref=f2e13]:
+      - generic [ref=f2e23]:
+        - paragraph [ref=f2e24]: "Audit fixture: I accepted report 6072 and am on the way. 中文"
+        - paragraph [ref=f2e25]: 06:30 PM
+    - generic [ref=f2e18]:
+      - textbox "Type a message..." [ref=f2e19]
+      - button "Send message" [disabled] [ref=f2e20]:
+        - generic [ref=f2e21]: send

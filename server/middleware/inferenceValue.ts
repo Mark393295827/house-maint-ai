@@ -21,6 +21,7 @@ import { Request, Response, NextFunction } from 'express';
 const MODEL_COSTS: Record<string, { input: number; output: number }> = {
     'gemini-1.5-flash': { input: 0.075, output: 0.30 },
     'gemini-2.0-flash': { input: 0.10, output: 0.40 },
+    'gemini-2.5-flash': { input: 0.30, output: 2.50 },
     'gemini-1.5-pro': { input: 1.25, output: 5.00 },
     'deepseek-r1': { input: 0.55, output: 2.19 },
     'deepseek-reasoner': { input: 0.55, output: 2.19 },
@@ -66,7 +67,7 @@ export function calculateInferenceEconomics(
 ): InferenceEconomics {
     const costs = modelName.endsWith('-mock')
         ? { input: 0, output: 0 }
-        : MODEL_COSTS[modelName] || MODEL_COSTS['gemini-1.5-flash'];
+        : MODEL_COSTS[modelName] || MODEL_COSTS['gemini-2.5-flash'];
     const tokenCostUsd = (inputTokens * costs.input + outputTokens * costs.output) / 1_000_000;
     const tokenCostCny = tokenCostUsd * usdToCnyRate;
 
@@ -107,7 +108,7 @@ export function routeModel(endpoint: string, complexity: 'low' | 'medium' | 'hig
     if (isHighValue || complexity === 'high') {
         return process.env.OPENAI_CODEX_MODEL || 'deepseek-r1';       // High-value decisions need best reasoning
     }
-    return 'gemini-1.5-flash';      // Everything else uses cheapest model
+    return 'gemini-2.5-flash';      // Stable multimodal model used by the Gemini agents
 }
 
 /**
@@ -121,7 +122,7 @@ export const trackInferenceValue = (req: Request, res: Response, next: NextFunct
 
         const economics = calculateInferenceEconomics(
             req.originalUrl,
-            usage.model_name || 'gemini-1.5-flash',
+            usage.model_name || 'gemini-2.5-flash',
             usage.input_tokens || 0,
             usage.output_tokens || 0,
         );

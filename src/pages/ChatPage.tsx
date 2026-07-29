@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { getMessages, sendMessage } from '../services/api';
+import { emitMarkRead, getSocket } from '../services/socket';
 
 interface Message {
     id: number;
@@ -18,15 +19,18 @@ const ChatPage: React.FC = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
     const { userId } = useParams<{ userId: string }>();
+    const [searchParams] = useSearchParams();
     const { user } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [partnerName, setPartnerName] = useState('');
+    const [sendError, setSendError] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const partnerId = parseInt(userId || '0');
+    const reportId = Number(searchParams.get('reportId'));
 
     useEffect(() => {
         if (!partnerId) return;
@@ -47,11 +51,43 @@ const ChatPage: React.FC = () => {
     }, [partnerId]);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const socket = getSocket();
+        if (!socket || !user?.id || !partnerId) {
+            return;
+        }
+
+        const handleNewMessage = (message: Message) => {
+            if (message.sender_id !== partnerId || message.receiver_id !== user.id) {
+                return;
+            }
+
+            setMessages((current) => current.some((item) => item.id === message.id)
+                ? current
+                : [...current, message]);
+            if (message.sender_name) {
+                setPartnerName(message.sender_name);
+            }
+            emitMarkRead(partnerId);
+        };
+
+        socket.on('new_message', handleNewMessage);
+        return () => {
+            socket.off('new_message', handleNewMessage);
+        };
+    }, [partnerId, user?.id]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
     }, [messages]);
 
     const handleSend = async () => {
         if (!input.trim() || sending) return;
+        if (!Number.isInteger(reportId) || reportId <= 0) {
+            setSendError(t('messages.missingReport'));
+            return;
+        }
+
+        setSendError(null);
         setSending(true);
         const content = input.trim();
         setInput('');
@@ -68,11 +104,12 @@ const ChatPage: React.FC = () => {
         setMessages(prev => [...prev, tempMsg]);
 
         try {
-            await sendMessage({ receiverId: partnerId, content });
+            await sendMessage({ receiverId: partnerId, content, reportId });
         } catch {
             // Revert on failure
             setMessages(prev => prev.filter(m => m.id !== tempMsg.id));
             setInput(content);
+            setSendError(t('messages.sendFailed'));
         } finally {
             setSending(false);
         }
@@ -144,6 +181,11 @@ const ChatPage: React.FC = () => {
 
             {/* Input Bar */}
             <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 px-4 py-3 z-20">
+                {sendError && (
+                    <p role="alert" className="mb-2 text-sm font-medium text-red-600 dark:text-red-400">
+                        {sendError}
+                    </p>
+                )}
                 <div className="flex items-end gap-2">
                     <textarea
                         value={input}
@@ -157,9 +199,10 @@ const ChatPage: React.FC = () => {
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || sending}
+                        aria-label={t('messages.send')}
                         className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform flex-shrink-0"
                     >
-                        <span className="material-symbols-outlined text-xl">send</span>
+                        <span className="material-symbols-outlined text-xl" aria-hidden="true">send</span>
                     </button>
                 </div>
             </div>

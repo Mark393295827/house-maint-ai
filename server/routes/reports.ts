@@ -3,7 +3,6 @@ import { z } from 'zod';
 import db from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import type { ReportRow } from '../types/models.js';
 import { parseJsonColumn } from '../utils/parseJson.js';
 
 const router = express.Router();
@@ -219,7 +218,8 @@ router.get('/:id', authenticate, async (req, res, next) => {
     try {
         const { rows } = await db.query(`
             SELECT r.*, u.name as user_name, u.phone as user_phone,
-                   w.id as worker_id, wu.name as worker_name, wu.phone as worker_phone
+                   w.id as worker_id, w.user_id as worker_user_id,
+                   wu.name as worker_name, wu.phone as worker_phone
             FROM reports r
             LEFT JOIN users u ON r.user_id = u.id
             LEFT JOIN workers w ON r.matched_worker_id = w.id
@@ -482,7 +482,12 @@ router.post('/:id/plan', authenticate, async (req, res, next) => {
         const plan = await aiService.generateRepairPlan({
             title: issueContext.title,
             description: issueContext.description,
-            diagnosis: issueContext.home_context,
+            diagnosis: {
+                category: issueContext.category,
+                status: issueContext.status,
+                urgency_score: report.urgency_score,
+                home_context: issueContext.home_context,
+            },
         });
 
         res.json(ApiResponse.success({

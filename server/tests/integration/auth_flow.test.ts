@@ -9,6 +9,13 @@ describe('Authentication Flow Integration', () => {
         password: 'Password123!'
     };
 
+    it('represents an anonymous browser session without an expected 401', async () => {
+        const sessionRes = await request(app).get('/api/v1/auth/session');
+
+        expect(sessionRes.status).toBe(200);
+        expect(sessionRes.body.data.user).toBeNull();
+    });
+
     it('should complete a full register -> login -> profile flow', async () => {
         // 1. Register
         const regRes = await request(app)

@@ -232,6 +232,17 @@ export async function getCurrentUser(): Promise<{ user: User }> {
 }
 
 /**
+ * Bootstrap browser auth without treating an anonymous visitor as an error.
+ */
+export async function getSession(): Promise<{ user: User | null }> {
+    return fetchAPI<{ user: User | null }>('/auth/session');
+}
+
+export async function refreshSession(): Promise<void> {
+    await fetchAPI('/auth/refresh', { method: 'POST' }, { authRefreshAttempted: true });
+}
+
+/**
  * Update user profile
  */
 export async function updateProfile(name: string, avatar?: string): Promise<{ user: User }> {
@@ -739,8 +750,8 @@ export async function completeReport(id: number | string, resolutionDetails: any
 /**
  * Generate AI Repair Plan (DeepSeek)
  */
-export async function generateRepairPlan(id: number | string): Promise<{ plan: string; provider: string }> {
-    return fetchAPI<{ plan: string; provider: string }>(`/reports/${id}/plan`, {
+export async function generateRepairPlan(id: number | string): Promise<{ plan: unknown; provider: string }> {
+    return fetchAPI<{ plan: unknown; provider: string }>(`/reports/${id}/plan`, {
         method: 'POST',
     });
 }
@@ -893,7 +904,7 @@ export async function submitAiFeedback(data: { diagnosisData?: any; isHelpful: b
 
 // ============ Orders API ============
 
-interface Order {
+export interface Order {
     id: number;
     user_id: number;
     report_id?: number;
@@ -954,6 +965,8 @@ export default {
     login,
     logout,
     getCurrentUser,
+    getSession,
+    refreshSession,
     updateProfile,
     createReport,
     getReports,

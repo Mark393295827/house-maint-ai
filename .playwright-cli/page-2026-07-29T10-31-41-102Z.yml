@@ -1,0 +1,51 @@
+- generic [ref=f3e2]:
+  - link "Skip to main content" [ref=f3e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f3e10]:
+    - generic [ref=f3e11]:
+      - button "arrow_back" [ref=f3e12]
+      - 'heading "工单 #6072" [level=1] [ref=f3e14]'
+    - main [ref=f3e15]:
+      - generic [ref=f3e16]:
+        - generic [ref=f3e17]:
+          - generic [ref=f3e18]: ✓
+          - generic [ref=f3e21]: ✓
+          - generic [ref=f3e24]: "3"
+        - generic [ref=f3e26]:
+          - generic [ref=f3e27]: 待接单
+          - generic [ref=f3e28]: 施工中
+          - generic [ref=f3e29]: 已完工
+      - generic [ref=f3e30]:
+        - generic [ref=f3e31]:
+          - generic [ref=f3e32]: 已完工
+          - generic [ref=f3e33]: 7/29/2026
+        - 'heading "Codex audit fixture: kitchen faucet leaking under" [level=2] [ref=f3e34]'
+        - paragraph [ref=f3e35]: "Codex audit fixture: kitchen faucet leaking under sink 中文测试 🔧"
+      - generic [ref=f3e37]:
+        - heading "psychology AI 维修方案" [level=3] [ref=f3e38]:
+          - generic [ref=f3e39]: psychology
+          - text: AI 维修方案
+        - button "auto_awesome 生成方案" [ref=f3e40]:
+          - generic [ref=f3e41]: auto_awesome
+          - text: 生成方案
+      - generic [ref=f3e45]:
+        - button "chat 消息" [ref=f3e46]:
+          - generic [ref=f3e47]: chat
+          - text: 消息
+        - generic [ref=f3e73]:
+          - generic [ref=f3e74]: verified
+          - text: 已完工
+    - navigation "Main Navigation" [ref=f3e50]:
+      - menubar [ref=f3e51]:
+        - menuitem "Home" [ref=f3e52] [cursor=pointer]:
+          - generic [ref=f3e53]: home
+        - menuitem "Cases" [ref=f3e56] [cursor=pointer]:
+          - generic [ref=f3e57]:
+            - generic [ref=f3e58]: folder_open
+            - generic [ref=f3e59]: "1"
+        - menuitem "New" [ref=f3e61] [cursor=pointer]:
+          - generic [ref=f3e62]: add_a_photo
+        - menuitem "Library" [ref=f3e65] [cursor=pointer]:
+          - generic [ref=f3e66]: auto_stories
+        - menuitem "Profile" [ref=f3e69] [cursor=pointer]:
+          - generic [ref=f3e70]: person

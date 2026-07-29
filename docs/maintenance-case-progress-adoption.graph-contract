@@ -1,0 +1,393 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "maintenance-case-progress-adoption-v1",
+  "objective": "Adopt the already verified case-progress/v1 runtime contract in the resident camera-to-answer and worker bilingual-plan experiences without exposing provider internals, weakening fallbacks, or regressing the separately accepted UI and runtime contracts.",
+  "non_goals": [
+    "No AI-provider, policy, case-state, payment, dispatch, or server runtime changes.",
+    "No live-provider calls or production deployment.",
+    "No replacement of manual report, text, gallery, messaging, or emergency fallback paths.",
+    "No dynamic graph expansion or whole-graph retry."
+  ],
+  "owner": "case-progress-adoption-integration-owner",
+  "artifact_path": ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts",
+  "state_path": ".agent-state/graphs/maintenance-case-progress-adoption-v1/state.json",
+  "entry_nodes": [
+    "adoption-baseline"
+  ],
+  "terminal_nodes": [
+    "adoption-release-review"
+  ],
+  "budgets": {
+    "max_nodes": 8,
+    "max_concurrency": 2,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 16200,
+    "tool_calls": 400,
+    "review_changed_lines": 800
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read accepted UI/runtime receipts, local source, tests, fixtures, and local build artifacts.",
+      "Write only the declared client service, type, diagnosis, worker, locale, test, receipt, and local browser-output territories.",
+      "Run local unit, integration, fake-provider, browser, accessibility, locale, and responsive checks."
+    ],
+    "denied": [
+      "Server runtime/policy/state/payment/dispatch changes.",
+      "Production deployment or live AI, payment, messaging, map, or vendor calls.",
+      "Provider credentials, raw personal media, prompts, hidden reasoning, or raw provider payloads in client code, fixtures, or receipts.",
+      "Writes outside a declared node territory."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only the failed client node checkpoint; preserve accepted UI and runtime releases, legacy compatible client path, and manual fallback behavior."
+  },
+  "nodes": [
+    {
+      "id": "adoption-baseline",
+      "kind": "deterministic",
+      "owner": "case-progress-adoption-integration-owner",
+      "inputs": [],
+      "outputs": [
+        "adoption_scope"
+      ],
+      "reads": [
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/release-approval.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-release-approval.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-progress-contract.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/mounted-runtime-progress-contract.json",
+        "src/services/ai.ts",
+        "src/services/api.ts",
+        "src/services/socket.ts",
+        "src/components/diagnosis",
+        "src/components/worker",
+        "src/pages/DiagnosisPage.tsx",
+        "src/pages/WorkerJobPage.tsx",
+        "src/i18n/en.json",
+        "src/i18n/zh.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adoption-scope.json"
+      ],
+      "verifier": "Both prior approval receipts and runtime mount receipt are current and hash-compatible; the scope freezes current camera/gallery/text/manual, worker-plan, locale, socket, and error/retry contracts before any client write.",
+      "timeout_seconds": 180,
+      "max_attempts": 1,
+      "tool_calls": 12,
+      "effect_class": "reversible",
+      "idempotency": "Replace one deterministic adoption-scope artifact for matching source and prior receipt hashes.",
+      "compensation": "Restore the prior adoption-scope artifact."
+    },
+    {
+      "id": "cross-plane-contract",
+      "kind": "agent",
+      "owner": "cross-plane-contract-owner",
+      "inputs": [
+        "adoption_scope"
+      ],
+      "outputs": [
+        "cross_plane_contract"
+      ],
+      "reads": [
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adoption-scope.json",
+        "docs/maintenance-policy-agent-architecture.md",
+        "server/contracts/policy",
+        "src/services/ai.ts",
+        "src/services/api.ts",
+        "src/services/socket.ts",
+        "src/types"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/cross-plane-contract.json"
+      ],
+      "verifier": "The contract maps only safe case-progress/v1 fields to client types, preserves current request/report identifiers and manual fallbacks, forbids bearer/provider fields, and defines deterministic loading/complete/unavailable/retry behavior in Chinese and English.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 30,
+      "effect_class": "reversible",
+      "idempotency": "Replace the cross-plane contract only for matching adoption scope hashes.",
+      "compensation": "Restore the prior cross-plane contract artifact."
+    },
+    {
+      "id": "case-progress-client",
+      "kind": "agent",
+      "owner": "case-progress-client-owner",
+      "inputs": [
+        "cross_plane_contract"
+      ],
+      "outputs": [
+        "progress_client_bundle"
+      ],
+      "reads": [
+        "src/services/ai.ts",
+        "src/services/api.ts",
+        "src/services/socket.ts",
+        "src/types",
+        "src/hooks",
+        "src/contexts",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/cross-plane-contract.json"
+      ],
+      "writes": [
+        "src/services/ai.ts",
+        "src/services/api.ts",
+        "src/services/socket.ts",
+        "src/types/caseProgress.ts",
+        "src/services/caseProgress.test.ts",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/progress-client-bundle.json"
+      ],
+      "verifier": "Client tests prove idempotent logical upload/session handling, authorized case-progress polling/socket subscription, stale-event rejection, cancellation cleanup, opaque safe-render reference handling, and graceful fallback to the frozen compatible API when the new contract is unavailable.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 65,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only client service/type territories from the same cross-plane contract hash.",
+      "compensation": "Restore the case-progress client checkpoint."
+    },
+    {
+      "id": "resident-camera-experience",
+      "kind": "agent",
+      "owner": "resident-intake-adoption-owner",
+      "inputs": [
+        "progress_client_bundle"
+      ],
+      "outputs": [
+        "resident_camera_bundle"
+      ],
+      "reads": [
+        "src/components/diagnosis",
+        "src/pages/DiagnosisPage.tsx",
+        "src/services/ai.ts",
+        "src/types/caseProgress.ts",
+        "src/i18n",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/progress-client-bundle.json"
+      ],
+      "writes": [
+        "src/components/diagnosis",
+        "src/pages/DiagnosisPage.tsx",
+        "src/pages/DiagnosisPage.test.ts",
+        "src/components/diagnosis/CaseProgress.test.tsx",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/resident-camera-bundle.json"
+      ],
+      "verifier": "Camera, gallery, and text intake show immediate acknowledged progress; render only a validated safe bilingual answer; preserve retake/manual/report paths for low confidence, privacy block, provider failure, or denied camera; and pass keyboard/mobile/reduced-motion tests.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 70,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only diagnosis/client-view territories from the same progress-client bundle hash.",
+      "compensation": "Restore the resident camera experience checkpoint."
+    },
+    {
+      "id": "worker-plan-experience",
+      "kind": "agent",
+      "owner": "worker-plan-adoption-owner",
+      "inputs": [
+        "progress_client_bundle"
+      ],
+      "outputs": [
+        "worker_plan_bundle"
+      ],
+      "reads": [
+        "src/components/worker",
+        "src/pages/WorkerJobPage.tsx",
+        "src/services/api.ts",
+        "src/types/caseProgress.ts",
+        "src/i18n",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/progress-client-bundle.json"
+      ],
+      "writes": [
+        "src/components/worker",
+        "src/pages/WorkerJobPage.tsx",
+        "src/pages/WorkerJobPage.test.tsx",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/worker-plan-bundle.json"
+      ],
+      "verifier": "A worker sees a concise Chinese/English plan, skills, tools, safety constraints, evidence requirements, status, and next action from structured fields; raw JSON/provider internals never render and current job lifecycle actions remain intact.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 55,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only worker plan-view territories from the same progress-client bundle hash.",
+      "compensation": "Restore the worker plan experience checkpoint."
+    },
+    {
+      "id": "adoption-integration",
+      "kind": "agent",
+      "owner": "case-progress-adoption-integration-owner",
+      "inputs": [
+        "resident_camera_bundle",
+        "worker_plan_bundle"
+      ],
+      "outputs": [
+        "adopted_case_progress"
+      ],
+      "reads": [
+        "src/components/diagnosis",
+        "src/components/worker",
+        "src/pages/DiagnosisPage.tsx",
+        "src/pages/WorkerJobPage.tsx",
+        "src/i18n/en.json",
+        "src/i18n/zh.json",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/resident-camera-bundle.json",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/worker-plan-bundle.json"
+      ],
+      "writes": [
+        "src/i18n/en.json",
+        "src/i18n/zh.json",
+        "tests/e2e/case-progress-adoption",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adopted-case-progress.json"
+      ],
+      "verifier": "Locale key trees match; camera-to-answer and worker-plan journeys use the same case ID/progress semantics; compatibility, deep-link, retry, manual fallback, and no-raw-JSON assertions pass in both locales.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 60,
+      "effect_class": "reversible",
+      "idempotency": "Integrate only matching resident and worker bundle hashes into one locale/test state.",
+      "compensation": "Restore locale and adoption-test checkpoints."
+    },
+    {
+      "id": "adoption-verification",
+      "kind": "agent-team",
+      "owner": "independent-case-progress-quality-owner",
+      "inputs": [
+        "adopted_case_progress"
+      ],
+      "outputs": [
+        "adoption_verification_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts",
+        "src",
+        "server/contracts/policy",
+        "server/routes/case-progress.ts",
+        "tests",
+        "package.json",
+        "playwright.config.js"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adoption-verification.json",
+        "output/playwright/case-progress-adoption"
+      ],
+      "verifier": "Fresh fake-provider, unit, integration, route, socket, resident-camera, worker-plan, Chinese/English, 320px/mobile, keyboard, reduced-motion, accessibility, network, and no-secret/no-raw-provider-payload checks pass with a rollback evidence receipt.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 80,
+      "effect_class": "reversible",
+      "idempotency": "Replace verification receipts only for matching adoption implementation hashes.",
+      "compensation": "Remove failed adoption verification receipts and preserve source checkpoints."
+    },
+    {
+      "id": "adoption-release-review",
+      "kind": "human-gate",
+      "owner": "case-progress-adoption-approval-owner",
+      "inputs": [
+        "adoption_verification_receipt"
+      ],
+      "outputs": [
+        "adoption_approval_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adoption-verification.json",
+        "output/playwright/case-progress-adoption",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/release-approval.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-release-approval.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adoption-release-approval.json"
+      ],
+      "verifier": "A product, security, and operations approver confirms camera-to-answer and bilingual worker-plan value, fallback truthfulness, no raw/provider leakage, current prior receipts, cohort/rollback scope, and no T3/T4 authority expansion.",
+      "timeout_seconds": 900,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "reversible",
+      "idempotency": "One joint adoption approval receipt bound to both prior releases and the adoption verification hash.",
+      "compensation": "Invalidate the adoption approval receipt if any bound hash changes."
+    }
+  ],
+  "edges": [
+    {
+      "from": "adoption-baseline",
+      "to": "cross-plane-contract",
+      "type": "data",
+      "payload_schema": "adoption_scope",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "cross-plane-contract",
+      "to": "case-progress-client",
+      "type": "data",
+      "payload_schema": "cross_plane_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "case-progress-client",
+      "to": "resident-camera-experience",
+      "type": "data",
+      "payload_schema": "progress_client_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "case-progress-client",
+      "to": "worker-plan-experience",
+      "type": "data",
+      "payload_schema": "progress_client_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "resident-camera-experience",
+      "to": "adoption-integration",
+      "type": "data",
+      "payload_schema": "resident_camera_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "worker-plan-experience",
+      "to": "adoption-integration",
+      "type": "data",
+      "payload_schema": "worker_plan_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "adoption-integration",
+      "to": "adoption-verification",
+      "type": "verification",
+      "payload_schema": "adopted_case_progress",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "adoption-verification",
+      "to": "adoption-release-review",
+      "type": "verification",
+      "payload_schema": "adoption_verification_receipt",
+      "condition": "verified",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "adoption-surface-join",
+      "target": "adoption-integration",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "resident-camera-experience",
+        "worker-plan-experience"
+      ],
+      "verifier": "Resident and worker bundles consume the same case-progress client/schema version, have disjoint writers, preserve their manual fallback contracts, and publish complete Chinese/English copy requirements.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The human adoption-release-review verifier accepts a fresh adoption verification receipt.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one changed attempt.",
+    "A prior UI/runtime receipt is stale, a schema mismatch occurs, or a client path exposes provider internals, bearer references, credentials, or raw personal media.",
+    "Camera/gallery/text/manual/emergency fallback, worker lifecycle, locale parity, or rollback loses evidence."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/maintenance-case-progress-adoption-v1/checkpoint.json",
+    "write_back": ".agent-state/graphs/maintenance-case-progress-adoption-v1/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

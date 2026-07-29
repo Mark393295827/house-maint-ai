@@ -20,9 +20,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const data = await api.getCurrentUser();
+                let data = await api.getSession();
+                if (!data.user && sessionStorage.getItem('wasLoggedIn')) {
+                    try {
+                        await api.refreshSession();
+                        data = await api.getSession();
+                    } catch {
+                        sessionStorage.removeItem('wasLoggedIn');
+                    }
+                }
                 setUser(data.user);
-                connectSocket();
+                if (data.user) {
+                    connectSocket();
+                }
             } catch (_err) {
                 // No valid cookie — user is not authenticated
                 setUser(null);

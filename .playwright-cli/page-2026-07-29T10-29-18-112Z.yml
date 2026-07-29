@@ -1,0 +1,16 @@
+- generic [ref=f9e2]:
+  - link "Skip to main content" [ref=f9e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f9e61]:
+    - generic [ref=f9e63]:
+      - button "arrow_back" [ref=f9e64]
+      - generic [ref=f9e66]: "?"
+      - heading "Chat" [level=2] [ref=f9e68]
+    - main [ref=f9e69]:
+      - generic [ref=f9e70]:
+        - generic [ref=f9e71]: chat_bubble
+        - paragraph [ref=f9e72]: Send a message to start the conversation
+    - generic [ref=f9e74]:
+      - textbox "Type a message..." [ref=f9e75]
+      - button "Send message" [disabled] [ref=f9e76]:
+        - generic [ref=f9e77]: send

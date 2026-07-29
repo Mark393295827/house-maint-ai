@@ -1,0 +1,68 @@
+- generic [ref=f4e2]:
+  - link "Skip to main content" [ref=f4e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f4e172]:
+    - generic [ref=f4e174]:
+      - generic [ref=f4e175]:
+        - heading "Select Booking Time" [level=1] [ref=f4e176]
+        - paragraph [ref=f4e177]: Select booking time
+      - button "picture_as_pdf" [ref=f4e178]
+    - generic [ref=f4e181]:
+      - generic [ref=f4e183]:
+        - heading "Test User" [level=3] [ref=f4e184]
+        - paragraph [ref=f4e185]: ⭐ 5.0 · 2km
+      - button "close" [ref=f4e186]
+    - generic [ref=f4e188]:
+      - button "Previous week" [ref=f4e189]:
+        - generic [ref=f4e190]: chevron_left
+      - heading "Jul 29 – Aug 4, 2026" [level=2] [ref=f4e191]
+      - button "Next week" [ref=f4e192]:
+        - generic [ref=f4e193]: chevron_right
+    - generic [ref=f4e195]:
+      - button "Wed 29" [ref=f4e196]:
+        - generic [ref=f4e197]: Wed
+        - generic [ref=f4e198]: "29"
+      - button "Thu 30" [ref=f4e200]:
+        - generic [ref=f4e201]: Thu
+        - generic [ref=f4e202]: "30"
+      - button "Fri 31" [ref=f4e203]:
+        - generic [ref=f4e204]: Fri
+        - generic [ref=f4e205]: "31"
+      - button "Sat 1" [ref=f4e207]:
+        - generic [ref=f4e208]: Sat
+        - generic [ref=f4e209]: "1"
+      - button "Sun 2" [ref=f4e210]:
+        - generic [ref=f4e211]: Sun
+        - generic [ref=f4e212]: "2"
+    - generic [ref=f4e213]:
+      - heading "Select Time Slot" [level=3] [ref=f4e214]
+      - generic [ref=f4e215]:
+        - button "wb_sunny 8:00 AM - 12:00 PM 8:00 - 12:00" [ref=f4e216]:
+          - generic [ref=f4e217]: wb_sunny
+          - generic [ref=f4e218]: 8:00 AM - 12:00 PM
+          - generic [ref=f4e219]: 8:00 - 12:00
+        - button "wb_twilight 12:00 PM - 5:00 PM 12:00 - 17:00" [ref=f4e220]:
+          - generic [ref=f4e221]: wb_twilight
+          - generic [ref=f4e222]: 12:00 PM - 5:00 PM
+          - generic [ref=f4e223]: 12:00 - 17:00
+        - button "nights_stay 5:00 PM - 9:00 PM 17:00 - 21:00" [ref=f4e224]:
+          - generic [ref=f4e225]: nights_stay
+          - generic [ref=f4e226]: 5:00 PM - 9:00 PM
+          - generic [ref=f4e227]: 17:00 - 21:00
+    - button "event_available Confirm Booking" [disabled] [ref=f4e229]:
+      - generic [ref=f4e230]: event_available
+      - generic [ref=f4e231]: Confirm Booking
+    - navigation "Main Navigation" [ref=f4e232]:
+      - menubar [ref=f4e233]:
+        - menuitem "Home" [ref=f4e234] [cursor=pointer]:
+          - generic [ref=f4e235]: home
+        - menuitem "Cases" [ref=f4e238] [cursor=pointer]:
+          - generic [ref=f4e239]:
+            - generic [ref=f4e240]: folder_open
+            - generic [ref=f4e241]: "3"
+        - menuitem "New" [ref=f4e243] [cursor=pointer]:
+          - generic [ref=f4e244]: add_a_photo
+        - menuitem "Library" [ref=f4e247] [cursor=pointer]:
+          - generic [ref=f4e248]: auto_stories
+        - menuitem "Profile" [ref=f4e251] [cursor=pointer]:
+          - generic [ref=f4e252]: person

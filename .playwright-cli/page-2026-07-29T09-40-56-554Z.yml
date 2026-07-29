@@ -1,0 +1,71 @@
+- generic [ref=f7e2]:
+  - link "Skip to main content" [ref=f7e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f7e41]:
+    - banner [ref=f7e42]:
+      - generic [ref=f7e43]:
+        - generic [ref=f7e44]:
+          - generic [ref=f7e45]: person
+          - generic [ref=f7e47]:
+            - paragraph [ref=f7e48]: 工人工作台
+            - heading "Wang Shifu" [level=1] [ref=f7e49]
+            - generic [ref=f7e50]: 正在接收订单
+        - generic [ref=f7e53]:
+          - button "切换语言" [ref=f7e54]:
+            - generic [ref=f7e55]: language
+            - generic [ref=f7e56]: 中
+          - button "刷新工作台" [ref=f7e57]:
+            - generic [ref=f7e58]: sync
+          - button "下线" [ref=f7e59]:
+            - generic [ref=f7e60]: notifications_active
+    - generic [ref=f7e63]:
+      - generic [ref=f7e64]:
+        - generic [ref=f7e65]:
+          - generic [ref=f7e66]: 收入
+          - text: ¥0
+        - generic [ref=f7e67]: payments
+      - generic [ref=f7e69]:
+        - generic [ref=f7e70]:
+          - generic [ref=f7e71]: 已完成
+          - text: "2"
+        - generic [ref=f7e72]: task_alt
+      - generic [ref=f7e74]:
+        - generic [ref=f7e75]:
+          - generic [ref=f7e76]: 评分
+          - text: "5.0"
+        - generic [ref=f7e77]: star
+      - generic [ref=f7e79]:
+        - generic [ref=f7e80]:
+          - generic [ref=f7e81]: 进行中
+          - text: "0"
+        - generic [ref=f7e82]: hourglass_empty
+    - generic [ref=f7e85]:
+      - button "grid_view 可接订单 (0)" [pressed] [ref=f7e86]:
+        - generic [ref=f7e87]: grid_view
+        - generic [ref=f7e88]: 可接订单 (0)
+      - button "assignment 我的工单 (2)" [ref=f7e89]:
+        - generic [ref=f7e90]: assignment
+        - generic [ref=f7e91]: 我的工单 (2)
+    - main [ref=f7e92]:
+      - generic [ref=f7e94]:
+        - generic [ref=f7e95]: radar
+        - heading "正在扫描可接订单..." [level=3] [ref=f7e97]
+        - paragraph [ref=f7e98]: 附近暂无新的维修请求。有新订单时系统会立即通知您。
+    - navigation "工人工作台导航":
+      - generic [ref=f7e99]:
+        - button "打开可接订单" [ref=f7e100]:
+          - generic [ref=f7e101]: grid_view
+          - generic [ref=f7e102]: 订单
+        - button "打开工单记录" [ref=f7e104]:
+          - generic [ref=f7e105]: receipt_long
+          - generic [ref=f7e106]: 工单
+        - button "打开通知" [ref=f7e107]:
+          - generic [ref=f7e108]: notifications
+          - generic [ref=f7e109]: 通知
+        - button "打开个人资料" [ref=f7e110]:
+          - generic [ref=f7e111]: account_circle
+          - generic [ref=f7e112]: 我的
+  - alert [ref=f7e113]:
+    - generic [ref=f7e114]: check_circle
+    - paragraph [ref=f7e115]: 登录成功
+    - button "close" [ref=f7e116]

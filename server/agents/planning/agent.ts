@@ -1,5 +1,5 @@
 import { DEEPSEEK_API_KEY } from '../../config/secrets.js';
-import { AiProvider, AiResponse, ChatMessage, withRetry } from '../common.js';
+import { AiProvider, AiResponse, ChatMessage } from '../common.js';
 
 // DeepSeek Provider for Reasoning (CLAW 2)
 export class PlanningAgent implements AiProvider {
@@ -80,15 +80,30 @@ export class PlanningAgent implements AiProvider {
                 ELSE
                   → priority_protocol = "batch"
 
-                Output JSON ONLY:
+                Client communication requirements:
+                - Be clear, concise, and practical. Use no more than 5 steps.
+                - Provide every client-facing statement in both Simplified Chinese and English.
+                - Do not expose chain-of-thought, hidden reasoning, or internal implementation details.
+                - Use CNY for the cost range unless the issue explicitly requires another currency.
+                - Include only tools and materials that are likely required.
+
+                Output JSON ONLY, with no markdown and no outer "result" wrapper:
                 {
-                    "required_skills": ["skill1", "skill2"],
-                    "required_tools": ["tool1"],
+                    "customer_summary": {
+                        "zh": "一句简明的客户方案概述",
+                        "en": "One concise client-facing plan summary"
+                    },
+                    "required_skills": [{"zh": "水管工", "en": "Plumber"}],
+                    "required_tools": [{"zh": "管钳", "en": "Pipe wrench"}],
                     "estimated_hours": 1.5,
-                    "cost_range": {"min": 100, "max": 200},
+                    "cost_range": {"min": 100, "max": 200, "currency": "CNY"},
                     "priority_protocol": "immediate" | "batch",
-                    "steps": ["Step 1", "Step 2"],
-                    "explanation": "Brief reasoning"
+                    "steps": [
+                        {"zh": "关闭相关供水。", "en": "Shut off the affected water supply."}
+                    ],
+                    "safety_notes": [
+                        {"zh": "开工前确认现场安全。", "en": "Confirm the site is safe before work begins."}
+                    ]
                 }`
             },
             {

@@ -1,0 +1,143 @@
+- generic [ref=f6e2]:
+  - link "Skip to main content" [ref=f6e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f6e86]:
+    - generic [ref=f6e87]:
+      - button "arrow_back" [ref=f6e88]
+      - heading "匹配工人" [level=1] [ref=f6e90]
+    - main [ref=f6e91]:
+      - generic [ref=f6e93]:
+        - generic [ref=f6e94]: description
+        - generic [ref=f6e96]:
+          - heading "报修问题" [level=3] [ref=f6e97]
+          - paragraph [ref=f6e98]: "Codex audit fixture: kitchen faucet leaking under sink 中文测试 🔧"
+      - generic [ref=f6e99]:
+        - heading "auto_awesome AI 分析" [level=2] [ref=f6e100]:
+          - generic [ref=f6e101]: auto_awesome
+          - text: AI 分析
+        - paragraph [ref=f6e102]: 基于您的位置和所需技能，我们找到了 5 位合适的专家。
+      - button "Test User 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 100" [ref=f6e103] [cursor=pointer]:
+        - generic [ref=f6e104]:
+          - generic [ref=f6e105]:
+            - generic [ref=f6e108]:
+              - heading "Test User" [level=3] [ref=f6e109]
+              - paragraph [ref=f6e110]: 2km · ⭐ 5
+            - generic [ref=f6e111]:
+              - generic [ref=f6e112]: "94"
+              - generic [ref=f6e113]: 极佳
+          - generic [ref=f6e114]:
+            - generic [ref=f6e115]:
+              - generic [ref=f6e116]: location_on
+              - generic [ref=f6e117]: 距离
+              - generic [ref=f6e118]: "50"
+            - generic [ref=f6e119]:
+              - generic [ref=f6e120]: star
+              - generic [ref=f6e121]: 评价
+              - generic [ref=f6e122]: "100"
+            - generic [ref=f6e123]:
+              - generic [ref=f6e124]: handyman
+              - generic [ref=f6e125]: 技能
+              - generic [ref=f6e126]: "100"
+      - button "Bob Builder 2km · ⭐ 4.8 92 极佳 location_on 距离 50 star 评价 96 handyman 技能 100" [ref=f6e127] [cursor=pointer]:
+        - generic [ref=f6e128]:
+          - generic [ref=f6e129]:
+            - generic [ref=f6e132]:
+              - heading "Bob Builder" [level=3] [ref=f6e133]
+              - paragraph [ref=f6e134]: 2km · ⭐ 4.8
+            - generic [ref=f6e135]:
+              - generic [ref=f6e136]: "92"
+              - generic [ref=f6e137]: 极佳
+          - generic [ref=f6e138]:
+            - generic [ref=f6e139]:
+              - generic [ref=f6e140]: location_on
+              - generic [ref=f6e141]: 距离
+              - generic [ref=f6e142]: "50"
+            - generic [ref=f6e143]:
+              - generic [ref=f6e144]: star
+              - generic [ref=f6e145]: 评价
+              - generic [ref=f6e146]: "96"
+            - generic [ref=f6e147]:
+              - generic [ref=f6e148]: handyman
+              - generic [ref=f6e149]: 技能
+              - generic [ref=f6e150]: "100"
+      - button "Bob Builder 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 80" [ref=f6e151] [cursor=pointer]:
+        - generic [ref=f6e152]:
+          - generic [ref=f6e153]:
+            - generic [ref=f6e156]:
+              - heading "Bob Builder" [level=3] [ref=f6e157]
+              - paragraph [ref=f6e158]: 2km · ⭐ 5
+            - generic [ref=f6e159]:
+              - generic [ref=f6e160]: "94"
+              - generic [ref=f6e161]: 极佳
+          - generic [ref=f6e162]:
+            - generic [ref=f6e163]:
+              - generic [ref=f6e164]: location_on
+              - generic [ref=f6e165]: 距离
+              - generic [ref=f6e166]: "50"
+            - generic [ref=f6e167]:
+              - generic [ref=f6e168]: star
+              - generic [ref=f6e169]: 评价
+              - generic [ref=f6e170]: "100"
+            - generic [ref=f6e171]:
+              - generic [ref=f6e172]: handyman
+              - generic [ref=f6e173]: 技能
+              - generic [ref=f6e174]: "80"
+      - button "Worker One 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 80" [ref=f6e175] [cursor=pointer]:
+        - generic [ref=f6e176]:
+          - generic [ref=f6e177]:
+            - generic [ref=f6e180]:
+              - heading "Worker One" [level=3] [ref=f6e181]
+              - paragraph [ref=f6e182]: 2km · ⭐ 5
+            - generic [ref=f6e183]:
+              - generic [ref=f6e184]: "94"
+              - generic [ref=f6e185]: 极佳
+          - generic [ref=f6e186]:
+            - generic [ref=f6e187]:
+              - generic [ref=f6e188]: location_on
+              - generic [ref=f6e189]: 距离
+              - generic [ref=f6e190]: "50"
+            - generic [ref=f6e191]:
+              - generic [ref=f6e192]: star
+              - generic [ref=f6e193]: 评价
+              - generic [ref=f6e194]: "100"
+            - generic [ref=f6e195]:
+              - generic [ref=f6e196]: handyman
+              - generic [ref=f6e197]: 技能
+              - generic [ref=f6e198]: "80"
+      - button "Wang Shifu 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 80" [ref=f6e199] [cursor=pointer]:
+        - generic [ref=f6e200]:
+          - generic [ref=f6e201]:
+            - generic [ref=f6e204]:
+              - heading "Wang Shifu" [level=3] [ref=f6e205]
+              - paragraph [ref=f6e206]: 2km · ⭐ 5
+            - generic [ref=f6e207]:
+              - generic [ref=f6e208]: "94"
+              - generic [ref=f6e209]: 极佳
+          - generic [ref=f6e210]:
+            - generic [ref=f6e211]:
+              - generic [ref=f6e212]: location_on
+              - generic [ref=f6e213]: 距离
+              - generic [ref=f6e214]: "50"
+            - generic [ref=f6e215]:
+              - generic [ref=f6e216]: star
+              - generic [ref=f6e217]: 评价
+              - generic [ref=f6e218]: "100"
+            - generic [ref=f6e219]:
+              - generic [ref=f6e220]: handyman
+              - generic [ref=f6e221]: 技能
+              - generic [ref=f6e222]: "80"
+      - paragraph [ref=f6e224]: 点击工人卡片查看详情并预约服务
+    - navigation "Main Navigation" [ref=f6e225]:
+      - menubar [ref=f6e226]:
+        - menuitem "首页" [ref=f6e227] [cursor=pointer]:
+          - generic [ref=f6e228]: home
+        - menuitem "案例" [ref=f6e231] [cursor=pointer]:
+          - generic [ref=f6e232]:
+            - generic [ref=f6e233]: folder_open
+            - generic [ref=f6e234]: "1"
+        - menuitem "新建" [ref=f6e236] [cursor=pointer]:
+          - generic [ref=f6e237]: add_a_photo
+        - menuitem "案例库" [ref=f6e240] [cursor=pointer]:
+          - generic [ref=f6e241]: auto_stories
+        - menuitem "我的" [ref=f6e244] [cursor=pointer]:
+          - generic [ref=f6e245]: person

@@ -3,6 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getReport, generateRepairPlan, acceptJob, completeReport } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import BottomNav from '../components/BottomNav';
+import MaintenancePlanCard, {
+    normalizeMaintenancePlan,
+    type ClientMaintenancePlan,
+} from '../components/worker/MaintenancePlanCard';
+import type { Report } from '../types';
 
 /* ─── Status helpers ─── */
 const STATUS_STEPS = ['matched', 'in_progress', 'completed'] as const;
@@ -23,11 +28,12 @@ const WorkerJobPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const [report, setReport] = useState<any>(null);
+    const [report, setReport] = useState<Report | null>(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [planLoading, setPlanLoading] = useState(false);
-    const [plan, setPlan] = useState<string | null>(null);
+    const [plan, setPlan] = useState<ClientMaintenancePlan | null>(null);
+    const [planProvider, setPlanProvider] = useState('DeepSeek R1');
     const [error, setError] = useState<string | null>(null);
     const [resolutionNotes, setResolutionNotes] = useState('');
 
@@ -37,6 +43,11 @@ const WorkerJobPage = () => {
             try {
                 const data = await getReport(id);
                 setReport(data.report);
+                const savedPlan = normalizeMaintenancePlan(data.report.resolution_plan);
+                if (savedPlan) {
+                    setPlan(savedPlan);
+                    setPlanProvider('Saved AI plan');
+                }
             } catch (err) {
                 console.error(err);
                 setError('Failed to load job details');
@@ -84,7 +95,12 @@ const WorkerJobPage = () => {
         setError(null);
         try {
             const result = await generateRepairPlan(id);
-            setPlan(typeof result.plan === 'string' ? result.plan : JSON.stringify(result.plan, null, 2));
+            const normalizedPlan = normalizeMaintenancePlan(result.plan);
+            if (!normalizedPlan) {
+                throw new Error('AI returned an incomplete maintenance plan');
+            }
+            setPlan(normalizedPlan);
+            setPlanProvider(result.provider || 'DeepSeek R1');
         } catch (err: any) {
             setError(err.message || 'Failed to generate AI plan');
         } finally {
@@ -173,19 +189,7 @@ const WorkerJobPage = () => {
                     )}
 
                     {plan && (
-                        <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-inner border border-blue-50 dark:border-blue-900/30">
-                            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
-                                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Repair Execution Protocol</span>
-                                <span className="ml-auto text-[10px] text-gray-400">DeepSeek R1 v2.0</span>
-                            </div>
-                            <div className="text-sm leading-relaxed text-text-main-light dark:text-text-main-dark whitespace-pre-wrap font-sans">
-                                {plan}
-                            </div>
-                            <div className="mt-6 flex items-center justify-between text-[10px] text-gray-400 italic">
-                                <span>* AI generated plan for reference only</span>
-                                <span>Confidence: 94%</span>
-                            </div>
-                        </div>
+                        <MaintenancePlanCard plan={plan} provider={planProvider} />
                     )}
                 </div>
 
@@ -205,7 +209,7 @@ const WorkerJobPage = () => {
                 {/* ─── Action Buttons ─── */}
                 <div className="grid grid-cols-2 gap-3 mt-6">
                     <button
-                        onClick={() => navigate(`/messages`)}
+                        onClick={() => navigate(`/chat/${report.user_id}?reportId=${report.id}`)}
                         className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2"
                     >
                         <span className="material-symbols-outlined">chat</span> 消息

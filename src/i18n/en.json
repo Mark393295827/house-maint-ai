@@ -108,6 +108,8 @@
     },
     "profile": {
         "title": "Profile",
+        "defaultUser": "User",
+        "notLoggedIn": "Not signed in",
         "edit": "Edit",
         "save": "Save",
         "namePlaceholder": "Your Name",
@@ -136,6 +138,24 @@
             "cancelled": "Cancelled"
         }
     },
+    "reports": {
+        "detail": {
+            "notFound": "Report not found",
+            "backToCases": "Back to cases",
+            "back": "Back",
+            "eyebrow": "Report #{{id}}",
+            "category": "Category",
+            "worker": "Worker",
+            "workerId": "Worker #{{id}}",
+            "unassigned": "Unassigned",
+            "unknown": "Unknown",
+            "description": "Description",
+            "findWorker": "Find worker",
+            "repairGuide": "Repair guide",
+            "messages": "Messages",
+            "review": "Review"
+        }
+    },
     "community": {
         "title": "Community",
         "create": {
@@ -159,6 +179,11 @@
             "minsAgo": "mins ago",
             "hoursAgo": "hours ago"
         }
+    },
+    "notFound": {
+        "title": "Page not found",
+        "message": "The page you requested does not exist or is no longer available.",
+        "backHome": "Back to home"
     },
     "calendar": {
         "title": "Maintenance Plan",
@@ -276,10 +301,19 @@
         "payNow": "Pay Now",
         "success": {
             "title": "Payment Successful!",
-            "message": "Your payment has been processed. The worker has been notified.",
+            "message": "Your payment was verified. The report is now available for worker matching.",
             "orderId": "Order ID",
             "amount": "Amount",
             "viewOrders": "View All Orders"
+        },
+        "verification": {
+            "loadingTitle": "Verifying payment",
+            "loadingMessage": "Checking the trusted order status...",
+            "pendingTitle": "Payment pending",
+            "pendingMessage": "This order has not been paid yet. Complete payment in WeChat, then return here.",
+            "failedTitle": "Payment not verified",
+            "failedMessage": "We could not verify a paid order from this link. No worker has been notified.",
+            "service": "Service"
         },
         "cancel": {
             "title": "Payment Cancelled",
@@ -308,7 +342,10 @@
         "emptyDesc": "Start a conversation with a worker to get help",
         "chat": "Chat",
         "placeholder": "Type a message...",
-        "startConversation": "Send a message to start the conversation"
+        "startConversation": "Send a message to start the conversation",
+        "send": "Send message",
+        "sendFailed": "Message could not be sent. Please retry.",
+        "missingReport": "Open chat from an assigned repair so the message can be scoped securely."
     },
     "workerPortal": {
         "title": "Worker Dashboard",
@@ -469,6 +506,8 @@
         "or": "or",
         "socialGoogle": "Google",
         "socialApple": "Apple",
+        "socialWechat": "WeChat",
+        "socialAlipay": "Alipay",
         "skip": "Skip login, explore first →",
         "error": {
             "invalidPhone": "Please enter a valid phone number",

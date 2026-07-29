@@ -1,0 +1,1045 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "voice-first-sol-multi-agent-v1",
+  "objective": "Implement and independently verify an accessible voice-first UI plus a Sol-commanded, capability-routed specialist runtime with at least fourteen lower-cost worker roles while preserving all existing product functions and deterministic authority boundaries.",
+  "non_goals": [
+    "No production deployment, external publication, live provider call, credential mutation, payment, worker assignment, notification delivery, or customer-visible rollout.",
+    "No wake word, voice-only workflow, raw provider payload in the client, or autonomous consequential action.",
+    "No replacement of the previously declared Policy Orchestrator, lifecycle cutover, payment boundary, approval semantics, or case-progress authority.",
+    "No dynamic graph expansion or whole-graph retry."
+  ],
+  "owner": "voice-sol-integration-commander",
+  "artifact_path": ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts",
+  "state_path": ".agent-state/graphs/voice-first-sol-multi-agent-v1/state.json",
+  "entry_nodes": [
+    "voice-sol-baseline"
+  ],
+  "terminal_nodes": [
+    "voice-sol-release-review"
+  ],
+  "budgets": {
+    "max_nodes": 18,
+    "max_concurrency": 4,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 27000,
+    "tool_calls": 420,
+    "review_changed_lines": 1000
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read repository files and current local test output.",
+      "Read current predecessor graph contracts and their local approval receipts.",
+      "Write only the declared documentation, source, test, graph artifact, receipt, and local verification territories for the active node.",
+      "Run local typecheck, lint, unit, integration, accessibility, browser, graph-validation, and synthetic fake-provider tests.",
+      "Use synthetic or de-identified fixtures only."
+    ],
+    "denied": [
+      "Read, print, copy, commit, or transmit provider credentials.",
+      "Call a live model, ASR, TTS, payment, notification, dispatch, or other external service.",
+      "Deploy, publish, enable a production feature flag, or contact a real user or worker.",
+      "Store raw audio, transcript content, personal media, provider payloads, prompts, or hidden reasoning in graph state, receipts, analytics, or client contracts.",
+      "Modify production data, approve payment, assign a worker, send a notification, or transition a real case.",
+      "Overwrite or discard pre-existing user changes outside the active node territory."
+    ],
+    "approval_required": [],
+    "rollback": "Disable the voice, Sol commander, and policy-workflow feature flags; restore only the failed node's recorded checkpoint or inverse patch; preserve predecessor receipts and all unrelated dirty-worktree changes."
+  },
+  "nodes": [
+    {
+      "id": "voice-sol-baseline",
+      "kind": "deterministic",
+      "owner": "voice-sol-integration-commander",
+      "inputs": [],
+      "outputs": [
+        "voice_sol_scope"
+      ],
+      "reads": [
+        "docs/voice-first-sol-multi-agent-blueprint.md",
+        "docs/ui-clean-redesign-blueprint.md",
+        "docs/maintenance-policy-agent-architecture.md",
+        "docs/ui-agentic-delivery-command-program.md",
+        "docs/ui-clean-redesign-implementation.graph-contract",
+        "docs/maintenance-policy-runtime-implementation.graph-contract",
+        "docs/maintenance-case-progress-adoption.graph-contract",
+        "src",
+        "server",
+        "package.json",
+        "server/package.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/release-approval.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-release-approval.json",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adoption-release-approval.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-scope.json"
+      ],
+      "verifier": "The scope receipt records repository and dirty-worktree hashes, predecessor receipt status, voice/current-agent inventory, preserved journeys, graph admission width, open production decisions, and confirms that no credential value was copied.",
+      "timeout_seconds": 900,
+      "max_attempts": 1,
+      "tool_calls": 14,
+      "effect_class": "reversible",
+      "idempotency": "Recompute the same content-addressed scope receipt without changing source.",
+      "compensation": "Restore or remove only the scope artifact."
+    },
+    {
+      "id": "voice-interaction-contract",
+      "kind": "agent",
+      "owner": "voice-contract-architect",
+      "inputs": [
+        "voice_sol_scope"
+      ],
+      "outputs": [
+        "voice_interaction_contract"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-scope.json",
+        "src/components/VoiceRecordButton.tsx",
+        "src/pages/QuickReportPage.tsx",
+        "src/components/diagnosis",
+        "src/components/worker",
+        "src/pages/DiagnosisPage.tsx",
+        "src/pages/WorkerJobPage.tsx",
+        "src/i18n"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-interaction-contract.json"
+      ],
+      "verifier": "The contract defines consent, permission, listening, transcription review before Sol planning, confirmation, progress, separate browser/server TTS purposes, opaque expiring audio references, bilingual display, keyboard/screen-reader parity, camera/text/manual/emergency preservation, latency targets, error recovery, and explicit non-consequential speech rules.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 16,
+      "effect_class": "reversible",
+      "idempotency": "Regenerate only the isolated interaction contract from the same scope hash.",
+      "compensation": "Restore the prior interaction-contract artifact."
+    },
+    {
+      "id": "sol-command-contract",
+      "kind": "agent",
+      "owner": "sol-command-architect",
+      "inputs": [
+        "voice_sol_scope"
+      ],
+      "outputs": [
+        "sol_command_contract"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-scope.json",
+        "server/agents",
+        "server/services/ai.ts",
+        "server/services/aiUsage.ts",
+        "server/services/researchBudget.ts",
+        "server/worker.ts",
+        "server/config/secrets.ts"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/sol-command-contract.json"
+      ],
+      "verifier": "The contract defines command.high_reasoning.v1, the gpt-5.6-sol startup probe and safe-core fallback, at least fourteen typed worker roles, accepted-plan validation only after confirmed canonical intake and deterministic emergency classification, immutable dispatch, a deployment-owned model-route manifest with exact capability/cost/context/schema/residency limits, budgets, joins, cancellation, attempt caps, and a complete mapping of current AI functions.",
+      "timeout_seconds": 1500,
+      "max_attempts": 2,
+      "tool_calls": 18,
+      "effect_class": "reversible",
+      "idempotency": "Regenerate only the isolated command contract from the same inventory and scope hashes.",
+      "compensation": "Restore the prior command-contract artifact."
+    },
+    {
+      "id": "voice-governance-contract",
+      "kind": "agent",
+      "owner": "voice-security-evaluation-architect",
+      "inputs": [
+        "voice_sol_scope"
+      ],
+      "outputs": [
+        "voice_governance_contract"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-scope.json",
+        "server/middleware/piplBlur.ts",
+        "server/routes/auth.ts",
+        "server/routes/payments.ts",
+        "server/routes/reports.ts",
+        "server/routes/uploads.ts",
+        "server/services/matching.ts",
+        "server/services/learning.ts",
+        "server/socket.ts"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-governance-contract.json"
+      ],
+      "verifier": "The contract fixes consent, tenant, privacy, residency, ASR and server-TTS purpose separation, expiring audio references, retention, erasure, emergency, state/effect authority, adversarial-input, safe-output, independent-critic, observability-redaction, feature-flag, promotion, and rollback rules with synthetic fixtures.",
+      "timeout_seconds": 1500,
+      "max_attempts": 2,
+      "tool_calls": 18,
+      "effect_class": "reversible",
+      "idempotency": "Regenerate only the isolated governance contract from the same scope hash.",
+      "compensation": "Restore the prior governance-contract artifact."
+    },
+    {
+      "id": "voice-sol-architecture-freeze",
+      "kind": "deterministic",
+      "owner": "voice-sol-integration-commander",
+      "inputs": [
+        "voice_interaction_contract",
+        "sol_command_contract",
+        "voice_governance_contract"
+      ],
+      "outputs": [
+        "voice_sol_architecture"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-interaction-contract.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/sol-command-contract.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-governance-contract.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-architecture.json"
+      ],
+      "verifier": "A deterministic compatibility check proves one voice-session schema, one command/task/receipt family, one capability registry, no dual writer or forbidden effect, complete preserved-journey coverage, finite budgets, resolved terminology, and recorded product decisions that block production but not local implementation.",
+      "timeout_seconds": 600,
+      "max_attempts": 1,
+      "tool_calls": 10,
+      "effect_class": "reversible",
+      "idempotency": "Reduce the same verified contract hashes into one frozen architecture artifact.",
+      "compensation": "Restore the prior architecture-freeze artifact."
+    },
+    {
+      "id": "voice-territory-handoff",
+      "kind": "human-gate",
+      "owner": "cross-graph-handoff-owner",
+      "inputs": [
+        "voice_sol_architecture"
+      ],
+      "outputs": [
+        "voice_territory_handoff_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-architecture.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/artifacts/release-approval.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-release-approval.json",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/artifacts/adoption-release-approval.json",
+        ".agent-state/graphs/ui-clean-redesign-v1/state.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/state.json",
+        ".agent-state/graphs/maintenance-case-progress-adoption-v1/state.json",
+        "src/components/diagnosis",
+        "src/pages/DiagnosisPage.tsx",
+        "src/components/worker",
+        "src/pages/WorkerJobPage.tsx",
+        "src/i18n/en.json",
+        "src/i18n/zh.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-territory-handoff.json"
+      ],
+      "verifier": "A named cross-graph owner confirms all three predecessor approvals are current and accepted, their graphs are terminal, no predecessor writer lease is active, exact diagnosis/worker/locale source hashes are recorded, prior owners are retired for this successor release, and this graph receives one exclusive bounded territory lease. Missing local approval receipts block implementation.",
+      "timeout_seconds": 900,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "reversible",
+      "idempotency": "One immutable handoff receipt per predecessor approval and source-hash set.",
+      "compensation": "Revoke the handoff receipt before any successor write and return territory ownership to the terminal predecessor release."
+    },
+    {
+      "id": "voice-command-shared-contracts",
+      "kind": "agent",
+      "owner": "cross-plane-contract-owner",
+      "inputs": [
+        "voice_sol_architecture",
+        "voice_territory_handoff_receipt"
+      ],
+      "outputs": [
+        "voice_command_contract_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-architecture.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-territory-handoff.json",
+        "src/types/index.ts",
+        "server/types/models.ts",
+        "server/contracts",
+        "server/policy"
+      ],
+      "writes": [
+        "src/types/voice.ts",
+        "server/contracts/policy/agent-team.ts",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-command-contract-bundle.json"
+      ],
+      "verifier": "The handoff lease is current, and type/schema tests prove compatible voice-session, TTS request/audio, Sol plan, task, receipt, join, artifact reference, route-manifest, bilingual response, progress, error, cancellation, and feature-capability contracts with no provider or secret fields in client types.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 20,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only shared contract files and the isolated bundle from the frozen architecture and territory-handoff hashes.",
+      "compensation": "Restore the shared-contract checkpoint and bundle artifact."
+    },
+    {
+      "id": "sol-commander-model-router",
+      "kind": "agent",
+      "owner": "commander-router-owner",
+      "inputs": [
+        "voice_command_contract_bundle"
+      ],
+      "outputs": [
+        "commander_router_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-command-contract-bundle.json",
+        "server/contracts/policy/agent-team.ts",
+        "server/agents/problemSolving/agent.ts",
+        "server/config/secrets.ts",
+        "server/services/aiUsage.ts"
+      ],
+      "writes": [
+        "server/policy/commander",
+        "server/policy/modelRouter",
+        "server/config/aiCapabilities.ts",
+        "server/config/model-routes.example.json",
+        "server/tests/policy/commander",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/commander-router-bundle.json"
+      ],
+      "verifier": "Manifest and fake-provider tests prove Sol emits proposals only after confirmed canonical intake and deterministic emergency classification; plan validation rejects cycles/unknown roles/tools/over-budget joins; the configured gpt-5.6-sol route is capability-probed; unavailable Sol selects safe-core without live fallback; every enabled route has exact context, cost, schema, latency, region and data-class limits; test manifests contain fake deployments only; route policy enforces residency and critic independence; and no commander/router module imports DB or effect adapters.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 24,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only commander/router territories against the same shared-contract hash and fake routes.",
+      "compensation": "Restore the commander/router checkpoint and disable the commander feature flag."
+    },
+    {
+      "id": "voice-ui-foundation",
+      "kind": "agent",
+      "owner": "voice-foundation-owner",
+      "inputs": [
+        "voice_command_contract_bundle"
+      ],
+      "outputs": [
+        "voice_ui_foundation_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-command-contract-bundle.json",
+        "src/types/voice.ts",
+        "src/components/VoiceRecordButton.tsx",
+        "src/contexts/LocaleContext.tsx",
+        "src/services/api.ts"
+      ],
+      "writes": [
+        "src/components/voice",
+        "src/hooks/useVoiceSession.ts",
+        "src/services/voice.ts",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-ui-foundation-bundle.json"
+      ],
+      "verifier": "Unit and accessibility tests prove consent-before-permission, explicit session states, editable transcript review before Sol planning, retained drafts, lazy feature detection, abort/unmount cleanup, explicit browser-vs-server TTS mode and consent, opaque expiring server audio references, replay/stop/delete behavior, no-autoplay controls, keyboard/screen-reader behavior, locale selection, and complete text/template fallback without raw-content telemetry.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 22,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only shared voice UI territories from the same contract bundle.",
+      "compensation": "Restore the voice-foundation checkpoint and leave the voice UI feature flag disabled."
+    },
+    {
+      "id": "specialist-agent-adapters",
+      "kind": "agent-team",
+      "owner": "specialist-adapter-lead",
+      "inputs": [
+        "voice_command_contract_bundle"
+      ],
+      "outputs": [
+        "specialist_adapter_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-command-contract-bundle.json",
+        "server/contracts/policy/agent-team.ts",
+        "server/agents",
+        "server/services/ai.ts",
+        "server/services/knowledge.ts",
+        "server/services/matching.ts",
+        "server/services/learning.ts"
+      ],
+      "writes": [
+        "server/policy/adapters",
+        "server/workers/policy/agentRunner.ts",
+        "server/tests/policy/adapters",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/specialist-adapter-bundle.json"
+      ],
+      "verifier": "Adapter contract tests register W01-W14 and a route/service migration matrix covering diagnose/chat/inquiry, MECE/hypothesis/checklist/five-why/solution, problem-solving, plan, material, fault, turnover, research/web-intel, report/claw mutators, uploads, matching, payment, worker lifecycle, messaging/outbox, knowledge/learning/patterns, analytics/executive, experiments/telemetry/cache/budgets and authenticated domain routes; each row names its typed artifact or deterministic owner, workflow_engine_version cutover and fallback. Tests reject direct state/effect access, enforce tool/data-class grants, and isolate admin research from case PII.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 28,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only isolated adapter/runner territories from the same contract hash and fake providers.",
+      "compensation": "Restore the adapter checkpoint and remove the new registry routes from local configuration."
+    },
+    {
+      "id": "accepted-plan-dispatch-control",
+      "kind": "agent",
+      "owner": "dispatcher-control-owner",
+      "inputs": [
+        "voice_command_contract_bundle",
+        "commander_router_bundle",
+        "specialist_adapter_bundle"
+      ],
+      "outputs": [
+        "dispatch_control_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-command-contract-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/commander-router-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/specialist-adapter-bundle.json",
+        "server/contracts/policy/agent-team.ts",
+        "server/policy/orchestrator",
+        "server/services/aiUsage.ts",
+        "server/services/researchBudget.ts"
+      ],
+      "writes": [
+        "server/policy/dispatcher",
+        "server/policy/queue",
+        "server/policy/budget",
+        "server/tests/policy/dispatcher",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/dispatch-control-bundle.json"
+      ],
+      "verifier": "Synthetic runtime tests prove only validated plans create bounded runs; per-case concurrency is four; global and tenant fairness caps hold; reservations settle; optional tasks cancel at budget pressure; leases, heartbeats, stale/cancelled receipts, at-most-one replan, two-attempt caps, node-local retry, dead-letter, and safe-core degradation preserve sole-writer policy.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 28,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only dispatcher/queue/budget territories against the same bundle hashes and synthetic clock.",
+      "compensation": "Restore the dispatch-control checkpoint and disable policy worker dequeue."
+    },
+    {
+      "id": "voice-policy-evaluator-pack",
+      "kind": "agent",
+      "owner": "voice-evaluator-owner",
+      "inputs": [
+        "voice_command_contract_bundle",
+        "commander_router_bundle",
+        "specialist_adapter_bundle"
+      ],
+      "outputs": [
+        "voice_evaluator_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-command-contract-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/commander-router-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/specialist-adapter-bundle.json",
+        "server/policy/evaluators",
+        "server/middleware/piplBlur.ts"
+      ],
+      "writes": [
+        "server/policy/evaluators/voice",
+        "server/tests/policy/voice-fixtures",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-evaluator-bundle.json"
+      ],
+      "verifier": "Synthetic fixtures prove schema, grounding, privacy, separate ASR/server-TTS purpose consent, processor/region/TTL/erasure, opaque audio reference expiry, emergency, safety-text preservation, bilingual parity, authority, risk tier, stale epoch/version, adversarial transcript/media, independent-route critic, completion evidence, no-content telemetry, and feature-flag evaluators fail safely.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 22,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only voice evaluator and synthetic fixture territories from the same bundle hashes.",
+      "compensation": "Restore the evaluator checkpoint and keep voice and commander flags disabled."
+    },
+    {
+      "id": "voice-server-boundary",
+      "kind": "agent",
+      "owner": "voice-server-owner",
+      "inputs": [
+        "voice_command_contract_bundle",
+        "dispatch_control_bundle",
+        "voice_evaluator_bundle"
+      ],
+      "outputs": [
+        "voice_server_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-command-contract-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/dispatch-control-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-evaluator-bundle.json",
+        "server/contracts/policy/agent-team.ts",
+        "server/routes/uploads.ts",
+        "server/routes/reports.ts",
+        "server/middleware/piplBlur.ts"
+      ],
+      "writes": [
+        "server/routes/voice.ts",
+        "server/services/voice",
+        "server/tests/voice",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-server-bundle.json"
+      ],
+      "verifier": "Authenticated fake-adapter tests prove consent-bound transcript/audio handling before canonical intake and Sol planning; opaque scoped media references; MIME/size/rate limits; purpose/region/retention checks; idempotent turn submission; transcript confirmation; safe bilingual response proposal; separate browser and approved-server TTS requests; approved speech-artifact hash, processor, purpose, region, ephemeral TTL, opaque audio reference, replay and deletion behavior; cancellation; timeout; no raw-content logging; and deterministic display/safety-template fallback.",
+      "timeout_seconds": 2700,
+      "max_attempts": 2,
+      "tool_calls": 24,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only voice route/service/test territories from the same contracts and fake providers.",
+      "compensation": "Restore the voice-server checkpoint and unmount the local route through its feature flag."
+    },
+    {
+      "id": "resident-voice-adoption",
+      "kind": "agent",
+      "owner": "resident-voice-owner",
+      "inputs": [
+        "voice_ui_foundation_bundle",
+        "voice_server_bundle",
+        "voice_territory_handoff_receipt"
+      ],
+      "outputs": [
+        "resident_voice_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-ui-foundation-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-server-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-territory-handoff.json",
+        "src/components/voice",
+        "src/components/diagnosis",
+        "src/pages/DiagnosisPage.tsx",
+        "src/pages/QuickReportPage.tsx"
+      ],
+      "writes": [
+        "src/components/diagnosis",
+        "src/pages/DiagnosisPage.tsx",
+        "src/pages/DiagnosisPage.test.ts",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/resident-voice-bundle.json"
+      ],
+      "verifier": "The exclusive diagnosis territory handoff is current, and UI tests prove speak-or-type, explicit consent, transcript edit/confirm before Sol planning, camera/gallery preview and retake, idempotent submit, safe progress, bilingual display, optional browser/server playback, retained input on failure, and text/manual/emergency paths without browser-side authority.",
+      "timeout_seconds": 2700,
+      "max_attempts": 2,
+      "tool_calls": 24,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only resident diagnosis territories from the same UI/server bundles and local fixtures.",
+      "compensation": "Restore the resident checkpoint and disable resident voice without changing text/camera/gallery behavior."
+    },
+    {
+      "id": "worker-voice-adoption",
+      "kind": "agent",
+      "owner": "worker-voice-owner",
+      "inputs": [
+        "voice_ui_foundation_bundle",
+        "voice_server_bundle",
+        "voice_territory_handoff_receipt"
+      ],
+      "outputs": [
+        "worker_voice_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-ui-foundation-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-server-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-territory-handoff.json",
+        "src/components/voice",
+        "src/components/worker",
+        "src/pages/WorkerJobPage.tsx"
+      ],
+      "writes": [
+        "src/components/worker",
+        "src/pages/WorkerJobPage.tsx",
+        "src/pages/WorkerJobPage.test.tsx",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/worker-voice-bundle.json"
+      ],
+      "verifier": "The exclusive worker territory handoff is current, and UI tests prove concise Chinese/English plan rendering, listen/repeat/previous/next/pause/stop controls, speech-to-draft notes, browser/server TTS consent and expiry behavior, no autoplay or duplicate live announcement, visible confirmation for every state change, and unchanged manual worker lifecycle.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 22,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only worker voice territories from the same UI/server bundles and local fixtures.",
+      "compensation": "Restore the worker checkpoint and disable worker voice while retaining the bilingual visual plan."
+    },
+    {
+      "id": "voice-sol-integration-startup",
+      "kind": "agent",
+      "owner": "voice-sol-integration-owner",
+      "inputs": [
+        "dispatch_control_bundle",
+        "voice_server_bundle",
+        "resident_voice_bundle",
+        "worker_voice_bundle",
+        "voice_evaluator_bundle",
+        "voice_territory_handoff_receipt"
+      ],
+      "outputs": [
+        "voice_sol_integrated_bundle"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/dispatch-control-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-server-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/resident-voice-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/worker-voice-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-evaluator-bundle.json",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-territory-handoff.json",
+        "server/index.ts",
+        "server/worker.ts",
+        "server/socket.ts",
+        "src/i18n/en.json",
+        "src/i18n/zh.json",
+        "package.json",
+        "server/package.json"
+      ],
+      "writes": [
+        "server/index.ts",
+        "server/worker.ts",
+        "server/socket.ts",
+        "src/i18n/en.json",
+        "src/i18n/zh.json",
+        "package.json",
+        "server/package.json",
+        "server/tests/policy/voice-sol-integration",
+        "tests/e2e/voice-sol",
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-integrated-bundle.json"
+      ],
+      "verifier": "The exclusive locale/integration handoff is current, and local startup, type, route, socket, locale, fake-route-manifest, feature-flag, and E2E tests prove the API and bounded policy workers start normally, safe progress is reachable, confirmed voice intake precedes Sol, all preserved routes/callbacks remain compatible, feature flags default safely, no live egress occurs, and shutdown drains leases without duplicate effects.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 28,
+      "effect_class": "reversible",
+      "idempotency": "Integrate the same verified bundle hashes once, using recorded checkpoints and local fake providers.",
+      "compensation": "Restore the integration/startup checkpoint, disable all three feature flags, and retain predecessor runtime/client paths."
+    },
+    {
+      "id": "voice-sol-independent-verification",
+      "kind": "agent-team",
+      "owner": "independent-voice-sol-quality-owner",
+      "inputs": [
+        "voice_sol_integrated_bundle"
+      ],
+      "outputs": [
+        "voice_sol_verification"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-integrated-bundle.json",
+        "docs/voice-first-sol-multi-agent-blueprint.md",
+        "src",
+        "server",
+        "package.json",
+        "server/package.json",
+        "tests/e2e/voice-sol"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-verification.json",
+        "output/voice-sol-verification"
+      ],
+      "verifier": "An owner independent from implementation reproduces contract/graph validation, predecessor handoff and no-cross-graph-writer proof, build, targeted and regression tests, 320px/mobile browser journeys, keyboard/screen-reader/live-region/no-autoplay/reduced-motion checks, transcript-confirmation-before-Sol, browser/server TTS consent/TTL/erasure/fallback, fake-route-manifest latency/cost/context/schema/residency/concurrency/fairness/recovery/adversarial fixtures, complete route/service ownership, at-least-fourteen-role registration, no-content/no-secret scans, sole-writer proof, and a feature-flag rollback drill.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 30,
+      "effect_class": "reversible",
+      "idempotency": "Re-run verification against the same integrated bundle hash and overwrite only independent local evidence.",
+      "compensation": "Restore or remove only the independent verification artifacts."
+    },
+    {
+      "id": "voice-sol-release-review",
+      "kind": "human-gate",
+      "owner": "voice-sol-human-release-owner",
+      "inputs": [
+        "voice_sol_verification"
+      ],
+      "outputs": [
+        "voice_sol_release_approval_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-verification.json",
+        "output/voice-sol-verification",
+        "docs/voice-first-sol-multi-agent-blueprint.md"
+      ],
+      "writes": [
+        ".agent-state/graphs/voice-first-sol-multi-agent-v1/artifacts/voice-sol-release-approval.json"
+      ],
+      "verifier": "The named product/security owner issues a scoped approve or reject receipt bound to predecessor handoff, contract, implementation, and deployment-owned model-route-manifest hashes; explicitly decides Sol deployment, every enabled lower-tier route and its cost/context/schema/region/data classes, ASR/TTS processor and region, TTS TTL, raw-audio retention, voice default, human-review SLA, cohort/risk exposure, rollback owner and expiry; and confirms that production rollout remains a separate authorized action.",
+      "timeout_seconds": 1800,
+      "max_attempts": 1,
+      "tool_calls": 2,
+      "effect_class": "reversible",
+      "idempotency": "One immutable scoped review receipt per reviewed implementation hash.",
+      "compensation": "Revoke the local approval receipt and keep all feature flags disabled."
+    }
+  ],
+  "edges": [
+    {
+      "from": "voice-sol-baseline",
+      "to": "voice-interaction-contract",
+      "type": "data",
+      "payload_schema": "voice_sol_scope",
+      "condition": "scope verified and predecessor receipt state recorded",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-sol-baseline",
+      "to": "sol-command-contract",
+      "type": "data",
+      "payload_schema": "voice_sol_scope",
+      "condition": "scope verified and predecessor receipt state recorded",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-sol-baseline",
+      "to": "voice-governance-contract",
+      "type": "data",
+      "payload_schema": "voice_sol_scope",
+      "condition": "scope verified and predecessor receipt state recorded",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-interaction-contract",
+      "to": "voice-sol-architecture-freeze",
+      "type": "data",
+      "payload_schema": "voice_interaction_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "sol-command-contract",
+      "to": "voice-sol-architecture-freeze",
+      "type": "data",
+      "payload_schema": "sol_command_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-governance-contract",
+      "to": "voice-sol-architecture-freeze",
+      "type": "data",
+      "payload_schema": "voice_governance_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-sol-architecture-freeze",
+      "to": "voice-territory-handoff",
+      "type": "data",
+      "payload_schema": "voice_sol_architecture",
+      "condition": "architecture compatibility verifier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-sol-architecture-freeze",
+      "to": "voice-command-shared-contracts",
+      "type": "data",
+      "payload_schema": "voice_sol_architecture",
+      "condition": "architecture compatibility verifier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-territory-handoff",
+      "to": "voice-command-shared-contracts",
+      "type": "data",
+      "payload_schema": "voice_territory_handoff_receipt",
+      "condition": "all predecessor approvals are current, predecessor graphs are terminal, and the exclusive territory handoff is accepted",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-command-shared-contracts",
+      "to": "sol-commander-model-router",
+      "type": "data",
+      "payload_schema": "voice_command_contract_bundle",
+      "condition": "shared contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-command-shared-contracts",
+      "to": "voice-ui-foundation",
+      "type": "data",
+      "payload_schema": "voice_command_contract_bundle",
+      "condition": "shared contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-command-shared-contracts",
+      "to": "specialist-agent-adapters",
+      "type": "data",
+      "payload_schema": "voice_command_contract_bundle",
+      "condition": "shared contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-command-shared-contracts",
+      "to": "accepted-plan-dispatch-control",
+      "type": "data",
+      "payload_schema": "voice_command_contract_bundle",
+      "condition": "shared contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "sol-commander-model-router",
+      "to": "accepted-plan-dispatch-control",
+      "type": "data",
+      "payload_schema": "commander_router_bundle",
+      "condition": "commander and router fake-provider tests passed",
+      "failure_route": ""
+    },
+    {
+      "from": "specialist-agent-adapters",
+      "to": "accepted-plan-dispatch-control",
+      "type": "data",
+      "payload_schema": "specialist_adapter_bundle",
+      "condition": "all W01-W14 adapters registered and verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-command-shared-contracts",
+      "to": "voice-policy-evaluator-pack",
+      "type": "data",
+      "payload_schema": "voice_command_contract_bundle",
+      "condition": "shared contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "sol-commander-model-router",
+      "to": "voice-policy-evaluator-pack",
+      "type": "data",
+      "payload_schema": "commander_router_bundle",
+      "condition": "route and plan validation behavior verified",
+      "failure_route": ""
+    },
+    {
+      "from": "specialist-agent-adapters",
+      "to": "voice-policy-evaluator-pack",
+      "type": "data",
+      "payload_schema": "specialist_adapter_bundle",
+      "condition": "adapter artifact schemas verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-command-shared-contracts",
+      "to": "voice-server-boundary",
+      "type": "data",
+      "payload_schema": "voice_command_contract_bundle",
+      "condition": "voice and command contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "accepted-plan-dispatch-control",
+      "to": "voice-server-boundary",
+      "type": "data",
+      "payload_schema": "dispatch_control_bundle",
+      "condition": "bounded dispatch and safe-core behavior verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-policy-evaluator-pack",
+      "to": "voice-server-boundary",
+      "type": "data",
+      "payload_schema": "voice_evaluator_bundle",
+      "condition": "voice policy fixtures verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-ui-foundation",
+      "to": "resident-voice-adoption",
+      "type": "data",
+      "payload_schema": "voice_ui_foundation_bundle",
+      "condition": "shared voice UI tests passed",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-server-boundary",
+      "to": "resident-voice-adoption",
+      "type": "data",
+      "payload_schema": "voice_server_bundle",
+      "condition": "voice server contract tests passed",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-territory-handoff",
+      "to": "resident-voice-adoption",
+      "type": "data",
+      "payload_schema": "voice_territory_handoff_receipt",
+      "condition": "exclusive diagnosis territory lease remains current",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-ui-foundation",
+      "to": "worker-voice-adoption",
+      "type": "data",
+      "payload_schema": "voice_ui_foundation_bundle",
+      "condition": "shared voice UI tests passed",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-server-boundary",
+      "to": "worker-voice-adoption",
+      "type": "data",
+      "payload_schema": "voice_server_bundle",
+      "condition": "voice server contract tests passed",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-territory-handoff",
+      "to": "worker-voice-adoption",
+      "type": "data",
+      "payload_schema": "voice_territory_handoff_receipt",
+      "condition": "exclusive worker territory lease remains current",
+      "failure_route": ""
+    },
+    {
+      "from": "accepted-plan-dispatch-control",
+      "to": "voice-sol-integration-startup",
+      "type": "data",
+      "payload_schema": "dispatch_control_bundle",
+      "condition": "dispatch control verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-server-boundary",
+      "to": "voice-sol-integration-startup",
+      "type": "data",
+      "payload_schema": "voice_server_bundle",
+      "condition": "voice server verified",
+      "failure_route": ""
+    },
+    {
+      "from": "resident-voice-adoption",
+      "to": "voice-sol-integration-startup",
+      "type": "data",
+      "payload_schema": "resident_voice_bundle",
+      "condition": "resident voice journey verified",
+      "failure_route": ""
+    },
+    {
+      "from": "worker-voice-adoption",
+      "to": "voice-sol-integration-startup",
+      "type": "data",
+      "payload_schema": "worker_voice_bundle",
+      "condition": "worker voice journey verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-policy-evaluator-pack",
+      "to": "voice-sol-integration-startup",
+      "type": "data",
+      "payload_schema": "voice_evaluator_bundle",
+      "condition": "voice policy fixtures verified",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-territory-handoff",
+      "to": "voice-sol-integration-startup",
+      "type": "data",
+      "payload_schema": "voice_territory_handoff_receipt",
+      "condition": "exclusive locale and integration territory lease remains current",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-sol-integration-startup",
+      "to": "voice-sol-independent-verification",
+      "type": "verification",
+      "payload_schema": "voice_sol_integrated_bundle",
+      "condition": "local integration verifier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "voice-sol-independent-verification",
+      "to": "voice-sol-release-review",
+      "type": "verification",
+      "payload_schema": "voice_sol_verification",
+      "condition": "fresh independent verification passed with no unresolved critical issue",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "voice-sol-contract-freeze-join",
+      "target": "voice-sol-architecture-freeze",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "voice-interaction-contract",
+        "sol-command-contract",
+        "voice-governance-contract"
+      ],
+      "verifier": "All three contract hashes are fresh and jointly preserve voice parity, typed command routing, deterministic authority, privacy, safety, budget, fallback, and complete current-function ownership.",
+      "quorum": null
+    },
+    {
+      "id": "voice-shared-contract-handoff-join",
+      "target": "voice-command-shared-contracts",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "voice-sol-architecture-freeze",
+        "voice-territory-handoff"
+      ],
+      "verifier": "The frozen architecture and a current human-issued predecessor handoff receipt bind exact approval and source hashes, prove all predecessor graphs terminal with no active writer lease, and authorize this successor graph before any source implementation.",
+      "quorum": null
+    },
+    {
+      "id": "dispatch-control-join",
+      "target": "accepted-plan-dispatch-control",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "voice-command-shared-contracts",
+        "sol-commander-model-router",
+        "specialist-agent-adapters"
+      ],
+      "verifier": "The plan/task/receipt schemas, route registry, Sol validator, and all W01-W14 adapters have compatible hashes and no duplicate state/effect writer.",
+      "quorum": null
+    },
+    {
+      "id": "voice-evaluator-join",
+      "target": "voice-policy-evaluator-pack",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "voice-command-shared-contracts",
+        "sol-commander-model-router",
+        "specialist-agent-adapters"
+      ],
+      "verifier": "Fixtures target the exact published command, route, adapter, artifact, safety, privacy, locale, authority, and completion schemas, with an independent critic route.",
+      "quorum": null
+    },
+    {
+      "id": "voice-server-join",
+      "target": "voice-server-boundary",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "voice-command-shared-contracts",
+        "accepted-plan-dispatch-control",
+        "voice-policy-evaluator-pack"
+      ],
+      "verifier": "The voice endpoint consumes the frozen session/task contracts, dispatches only accepted bounded plans, and exposes only evaluator-approved bilingual display/speech proposals.",
+      "quorum": null
+    },
+    {
+      "id": "resident-voice-join",
+      "target": "resident-voice-adoption",
+      "mode": "all",
+      "inputs": [
+        "voice-ui-foundation",
+        "voice-server-boundary",
+        "voice-territory-handoff"
+      ],
+      "verifier": "Resident integration consumes matching UI/server voice-session versions plus the exact current diagnosis-territory handoff and retains all prior camera, gallery, text, manual, and emergency paths.",
+      "quorum": null
+    },
+    {
+      "id": "worker-voice-join",
+      "target": "worker-voice-adoption",
+      "mode": "all",
+      "inputs": [
+        "voice-ui-foundation",
+        "voice-server-boundary",
+        "voice-territory-handoff"
+      ],
+      "verifier": "Worker integration consumes matching UI/server voice-session versions plus the exact current worker-territory handoff and keeps visual confirmation as the only state-changing interaction.",
+      "quorum": null
+    },
+    {
+      "id": "voice-sol-integration-join",
+      "target": "voice-sol-integration-startup",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "accepted-plan-dispatch-control",
+        "voice-server-boundary",
+        "resident-voice-adoption",
+        "worker-voice-adoption",
+        "voice-policy-evaluator-pack",
+        "voice-territory-handoff"
+      ],
+      "verifier": "All runtime, voice, resident, worker, evaluator, and exclusive cross-graph handoff hashes are fresh, schema-compatible, feature-flagged, locally reachable, and free of writer-territory conflicts before shared integration.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The human release review issues an explicit scoped approve or reject receipt.",
+    "A credential, personal-content, privacy, residency, authority, financial, production-egress, or external-effect boundary is crossed.",
+    "A predecessor approval receipt is missing or stale when implementation beyond contract freeze is requested.",
+    "Any node or graph budget is exhausted.",
+    "The same failure signature repeats after one changed attempt.",
+    "A writer-territory conflict, incompatible contract, dual lifecycle writer, dynamic dependency, or whole-graph replay is proposed.",
+    "Independent verification finds an unresolved critical regression, inaccessible voice path, unsafe speech behavior, missing specialist registration, or failed rollback drill."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/voice-first-sol-multi-agent-v1/checkpoint.json",
+    "write_back": ".agent-state/graphs/voice-first-sol-multi-agent-v1/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

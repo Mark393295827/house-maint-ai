@@ -14,6 +14,8 @@ vi.mock('../services/api', () => ({
         register: vi.fn(),
         logout: vi.fn(),
         getCurrentUser: vi.fn(() => Promise.reject(new Error('No active session'))),
+        getSession: vi.fn(() => Promise.resolve({ user: null })),
+        refreshSession: vi.fn(() => Promise.resolve()),
         refreshCsrfToken: vi.fn(() => Promise.resolve()),
     }
 }));

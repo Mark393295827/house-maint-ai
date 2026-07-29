@@ -1,0 +1,31 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e5]:
+    - button "Switch language" [ref=e9]:
+      - generic [ref=e10]: language
+      - generic [ref=e11]: EN
+    - generic [ref=e12]:
+      - generic [ref=e13]: engineering
+      - heading "Repairman Portal" [level=1] [ref=e15]
+      - paragraph [ref=e16]: House Maint AI 专业版
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "Welcome back, Worker" [level=2] [ref=e20]
+        - paragraph [ref=e21]: Sign in to accept jobs and manage your work
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic: "+1"
+          - textbox "Phone number" [ref=e24]
+        - generic [ref=e25]:
+          - generic: lock
+          - textbox "Password" [ref=e26]
+          - button "visibility" [ref=e27]
+        - button "Worker Login bolt" [ref=e29]:
+          - generic [ref=e30]: Worker Login
+          - generic [ref=e31]: bolt
+      - button "Don't have an account? Join Platform" [ref=e33]
+      - link "arrow_back Back to User Login" [ref=e35] [cursor=pointer]:
+        - /url: /login
+        - generic [ref=e36]: arrow_back
+        - text: Back to User Login

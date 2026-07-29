@@ -204,7 +204,7 @@ describe('DiagnosisPage operating loop', () => {
         expect(screen.getByRole('button', { name: /match provider now/i })).toBeInTheDocument();
     });
 
-    it('continues from dispatch into verification and reporting touchpoints', async () => {
+    it('creates a real report and hands off to API-backed matching', async () => {
         await completeInquiry({
             ...demandSummary,
             severity: 'moderate',
@@ -213,20 +213,14 @@ describe('DiagnosisPage operating loop', () => {
 
         fireEvent.click(screen.getByRole('button', { name: /match provider now/i }));
 
-        expect(screen.getByText('4/6')).toBeInTheDocument();
-        expect(screen.getAllByText('Geo-ranked worker dispatch').length).toBeGreaterThan(0);
-
-        fireEvent.click(await screen.findByRole('button', { name: /confirm dispatch/i }, { timeout: 4500 }));
-
         await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(1));
         expect(mocks.mutateAsync).toHaveBeenCalledWith(expect.objectContaining({
             category: 'plumbing',
             urgency_score: 3,
         }));
-
-        expect(await screen.findByText('5/6')).toBeInTheDocument();
-        expect(screen.getByText('Repair verification queued')).toBeInTheDocument();
-        expect(screen.getByText('Owner reporting prepared')).toBeInTheDocument();
+        expect(mocks.navigate).toHaveBeenCalledWith('/match?report_id=42&category=plumbing');
+        expect(screen.queryByText('Repair verification queued')).not.toBeInTheDocument();
+        expect(screen.queryByText('Owner reporting prepared')).not.toBeInTheDocument();
         expect(screen.queryByText(/8-step|step 8/i)).not.toBeInTheDocument();
     });
 
@@ -251,31 +245,25 @@ describe('DiagnosisPage operating loop', () => {
         await completeInquiry();
 
         fireEvent.click(screen.getByRole('button', { name: /match provider now/i }));
-        fireEvent.click(await screen.findByRole('button', { name: /confirm dispatch/i }, { timeout: 4500 }));
 
         await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(1));
-        expect(await screen.findByText('Repair verification queued')).toBeInTheDocument();
+        expect(mocks.navigate).toHaveBeenCalledWith('/match?report_id=42&category=plumbing');
         expect(mocks.showToast).not.toHaveBeenCalled();
     });
 
-    it('persists verification feedback through the API even when local feedback storage is malformed', async () => {
-        localStorage.setItem('inquiry_feedback', '{malformed');
+    it('surfaces report creation failures and permits a retry', async () => {
+        mocks.mutateAsync
+            .mockRejectedValueOnce(new Error('Report service unavailable'))
+            .mockResolvedValueOnce({ report: { id: 42 } });
         await completeInquiry();
 
         fireEvent.click(screen.getByRole('button', { name: /match provider now/i }));
-        fireEvent.click(await screen.findByRole('button', { name: /confirm dispatch/i }, { timeout: 4500 }));
 
-        await screen.findByText('Repair verification queued');
-        fireEvent.click(screen.getByRole('button', { name: /5 stars/i }));
-        fireEvent.change(screen.getByPlaceholderText(/tell us what we can do better/i), {
-            target: { value: 'The repair plan was clear.' },
-        });
-        fireEvent.click(screen.getByRole('button', { name: /publish feedback/i }));
+        await waitFor(() => expect(mocks.showToast).toHaveBeenCalledWith('Report service unavailable', 'error'));
+        expect(mocks.navigate).not.toHaveBeenCalled();
 
-        await waitFor(() => expect(mocks.submitAiFeedback).toHaveBeenCalledWith(expect.objectContaining({
-            isHelpful: true,
-            comment: 'The repair plan was clear.',
-        })));
-        expect(screen.getByText('Feedback Received')).toBeInTheDocument();
+        fireEvent.click(screen.getByRole('button', { name: /match provider now/i }));
+        await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(2));
+        expect(mocks.navigate).toHaveBeenCalledWith('/match?report_id=42&category=plumbing');
     });
 });
