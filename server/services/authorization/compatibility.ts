@@ -2,7 +2,7 @@ import { isPositiveId } from './contracts.js';
 import type { AuthorizationRepository, MembershipRecord } from './repository.js';
 export function parseOrganizationHint(value: string | string[] | number | undefined): number | null {
     if (Array.isArray(value)) return null;
-    if (typeof value === 'number') return Number.isInteger(value) && value > 0 ? value : null;
+    if (typeof value === 'number') return Number.isSafeInteger(value) && value > 0 ? value : null;
     if (typeof value !== 'string' || !/^[1-9]\d*$/.test(value)) return null;
     const parsed = Number(value);
     return Number.isSafeInteger(parsed) ? parsed : null;
@@ -15,11 +15,13 @@ export async function resolveLegacyMembership(
         repository.listActiveOrganizationIds(),
         repository.listActiveMembershipsForUser(userId),
     ]);
-    if (organizationIds.length !== 1 || memberships.length !== 1) return null;
+    if (!Array.isArray(organizationIds) || !Array.isArray(memberships)
+        || organizationIds.length !== 1 || memberships.length !== 1) return null;
     const membership = memberships[0];
-    return isPositiveId(membership.id) && membership.userId === userId
+    return isPositiveId(membership.id) && isPositiveId(membership.userId)
+        && membership.userId === userId
         && isPositiveId(membership.organizationId)
-        && membership.organizationId === organizationIds[0] && !membership.revokedAt
+        && membership.organizationId === organizationIds[0] && membership.revokedAt === undefined
         && membership.status === 'active'
         && membership.organizationStatus === 'active'
         ? membership

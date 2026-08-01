@@ -1,4 +1,5 @@
 import {
+    isGrantResourceType,
     isPositiveId,
     isResourceType,
     isValidPrincipal,
@@ -57,13 +58,14 @@ export async function loadAuthorizationContext(
     request: { type: ResourceType; id: number },
     evaluatedAt: string,
 ): Promise<AuthorizationContext | null> {
-    if (!isValidPrincipal(principal) || !isResourceType(request.type)
+    if (!isValidPrincipal(principal) || !request || !isResourceType(request.type)
         || !isPositiveId(request.id) || parseInstant(evaluatedAt) === null) return null;
     const context = await repository.resolveAuthorizationContext({
         principal, organizationId: principal.organizationId,
         resourceType: request.type, resourceId: request.id, evaluatedAt,
     });
-    if (!context || !samePrincipal(principal, context.principal)
+    if (!context || !Array.isArray(context.validatedGrants)
+        || !samePrincipal(principal, context.principal)
         || context.evaluatedAt !== evaluatedAt || !isResolvedResource(context.resource)
         || context.resource.type !== request.type || context.resource.id !== request.id
         || context.resource.organizationId !== principal.organizationId
@@ -80,7 +82,8 @@ export async function validateGrantTarget(
     repository: AuthorizationRepository,
     request: GrantTargetRequest,
 ): Promise<boolean> {
-    if (!isPositiveId(request.organizationId) || !isPositiveId(request.resourceId)
+    if (!request || !isGrantResourceType(request.resourceType)
+        || !isPositiveId(request.organizationId) || !isPositiveId(request.resourceId)
         || request.resourceType === 'organization'
             && request.resourceId !== request.organizationId) return false;
     const target = await repository.resolveGrantTarget(request);

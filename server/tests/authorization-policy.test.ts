@@ -100,11 +100,13 @@ describe('foundation authorization policy', () => {
         expect(decide(context([], { resource: resource({ participantUserIds: [10] }) }),
             'message').allowed).toBe(true);
         const worker = principal({ role: 'worker', userId: 11, workerId: 70 });
-        expect(decide(context([], { principal: worker,
+        expect(decide(context([grant({ capability: 'verify' })], { principal: worker,
             resource: resource({ assignedWorkerUserId: 11 }) }), 'verify').allowed).toBe(true);
+        expect(decide(context([], { principal: worker,
+            resource: resource({ assignedWorkerUserId: 11 }) }), 'verify').allowed).toBe(false);
         expect(decide(context([], { principal: worker }), 'verify').allowed).toBe(false);
         expect(decide(context([], { principal: principal({ role: 'admin' }) })).allowed).toBe(false);
-        const system = principal({ actorKind: 'system', role: 'system' });
+        const system = principal({ actorKind: 'system', role: 'system', userId: 10, membershipId: 100 });
         expect(decide(context([], { principal: system,
             resource: resource({ ownerUserId: 10 }) })).allowed).toBe(false);
         const ctx = context([], { resource: resource({ ownerUserId: 12 }) });
@@ -128,10 +130,10 @@ describe('foundation authorization policy', () => {
         expect(participant.queryScope?.ownerUserId).toBeUndefined();
         expect(participant.queryScope?.assignedWorkerUserId).toBeUndefined();
         const worker = principal({ role: 'worker', userId: 12, workerId: 70 });
-        const assigned = decide(context([], { principal: worker,
+        const assigned = decide(context([grant({ capability: 'read' })], { principal: worker,
             resource: resource({ ownerUserId: 11, assignedWorkerUserId: 12 }) }));
         expect(assigned.queryScope).toMatchObject({
-            caseIds: [500], assignedWorkerUserId: 12,
+            access: 'resource-set', caseIds: [500],
         });
         expect(assigned.queryScope?.ownerUserId).toBeUndefined();
     });
@@ -160,6 +162,9 @@ describe('foundation authorization policy', () => {
         expect(await validateGrantTarget(repo, {
             organizationId: 1, resourceType: 'property', resourceId: 20,
         })).toBe(true);
+        expect(await validateGrantTarget(repo, {
+            organizationId: 1, resourceType: 'report' as never, resourceId: 20,
+        })).toBe(false);
         const crossOrg = repository();
         vi.mocked(crossOrg.resolveGrantTarget).mockResolvedValue(resource({
             type: 'property', id: 20, organizationId: 2, propertyId: undefined,

@@ -49,6 +49,7 @@ describe('active organization resolution', () => {
             organizationId: 7, compatibilityMode: 'legacy-single-org',
         });
         await rejects(resolve(repository([member({ revokedAt: '2026-07-30T00:00:00Z' })])), 403);
+        await rejects(resolve(repository([member({ revokedAt: '' })])), 403);
         await rejects(resolve(repository([member()]), undefined, false), 403);
         await rejects(resolve(repository([member(), member({ id: 102, organizationId: 8 })]),
             undefined), 403);

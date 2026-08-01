@@ -94,15 +94,30 @@ export const isAction = (value: string): value is Action =>
     (ACTIONS as readonly string[]).includes(value);
 export const isResourceType = (value: unknown): value is ResourceType =>
     typeof value === 'string' && (RESOURCE_TYPES as readonly string[]).includes(value);
+export const isGrantResourceType = (value: unknown): value is GrantResourceType =>
+    value === 'organization' || value === 'property' || value === 'unit' || value === 'case';
+export const isActorKind = (value: unknown): value is ActorKind =>
+    value === 'user' || value === 'provider' || value === 'system';
+const isOrgRole = (value: unknown): value is OrgRole =>
+    value === 'owner' || value === 'admin' || value === 'manager'
+    || value === 'resident' || value === 'worker' || value === 'auditor';
 export const isPositiveId = (value: unknown): value is number =>
     Number.isInteger(value) && Number(value) > 0;
-export const isValidPrincipal = (value: Principal): boolean =>
-    isPositiveId(value.organizationId)
-    && (value.userId === undefined || isPositiveId(value.userId))
-    && (value.membershipId === undefined || isPositiveId(value.membershipId))
-    && (value.workerId === undefined || isPositiveId(value.workerId))
-    && (value.actorKind !== 'user'
-        || (isPositiveId(value.userId) && isPositiveId(value.membershipId)));
+export const isValidPrincipal = (value: Principal): boolean => {
+    if (!value || typeof value !== 'object' || !isActorKind(value.actorKind)
+        || !isPositiveId(value.organizationId)
+        || value.policyVersion !== 'foundation-v1'
+        || (value.compatibilityMode !== 'none' && value.compatibilityMode !== 'legacy-single-org')) {
+        return false;
+    }
+    if (value.actorKind === 'user') {
+        return isOrgRole(value.role) && isPositiveId(value.userId)
+            && isPositiveId(value.membershipId)
+            && (value.role === 'worker' ? isPositiveId(value.workerId) : value.workerId === undefined);
+    }
+    return value.compatibilityMode === 'none' && value.role === value.actorKind && value.userId === undefined
+        && value.membershipId === undefined && value.workerId === undefined;
+};
 const CORRELATION = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/;
 export const normalizeCorrelationId = (
     value: unknown,

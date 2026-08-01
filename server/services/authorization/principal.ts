@@ -1,4 +1,4 @@
-import { isPositiveId, type Principal } from './contracts.js';
+import { isPositiveId, isValidPrincipal, type Principal } from './contracts.js';
 import { parseOrganizationHint, resolveLegacyMembership } from './compatibility.js';
 import type { AuthorizationRepository, MembershipRecord } from './repository.js';
 export class OrganizationResolutionError extends Error {
@@ -23,6 +23,14 @@ const toPrincipal = (
     policyVersion: 'foundation-v1',
     compatibilityMode,
 });
+const ensurePrincipal = (membership: MembershipRecord,
+    compatibilityMode: Principal['compatibilityMode']): Principal => {
+    const principal = toPrincipal(membership, compatibilityMode);
+    if (!isValidPrincipal(principal)) {
+        throw new OrganizationResolutionError(404, 'organization_unresolved');
+    }
+    return principal;
+};
 export async function resolvePrincipal(input: {
     userId: number;
     organizationHint?: string | string[] | number;
@@ -43,10 +51,10 @@ export async function resolvePrincipal(input: {
             || !isPositiveId(membership.id)
             || membership.status !== 'active'
             || membership.organizationStatus !== 'active'
-            || membership.revokedAt) {
+            || membership.revokedAt !== undefined) {
             throw new OrganizationResolutionError(404, 'organization_unresolved');
         }
-        return toPrincipal(membership, 'none');
+        return ensurePrincipal(membership, 'none');
     }
     if (!input.legacySingleOrgEnabled) {
         throw new OrganizationResolutionError(403, 'organization_ambiguous');
@@ -55,5 +63,5 @@ export async function resolvePrincipal(input: {
     if (!membership) {
         throw new OrganizationResolutionError(403, 'organization_ambiguous');
     }
-    return toPrincipal(membership, 'legacy-single-org');
+    return ensurePrincipal(membership, 'legacy-single-org');
 }

@@ -1,8 +1,10 @@
 import {
+    isActorKind,
     isAction,
     isPositiveId,
     isValidPrincipal,
     normalizeCorrelationId,
+    isResourceType,
     type Action,
     type AuditEnvelope,
     type AuthorizationContext,
@@ -31,7 +33,6 @@ export interface AuthorizationEvaluation {
     correlationId: string;
 }
 const ownerActions = new Set<Action>(['read', 'contribute', 'message', 'media']);
-const workerActions = new Set<Action>([...ownerActions, 'verify']);
 const samePrincipal = (left: Principal, right: Principal): boolean =>
     left.actorKind === right.actorKind && left.userId === right.userId
     && left.organizationId === right.organizationId
@@ -55,25 +56,27 @@ function directRelation(
     if (resource.participantUserIds?.includes(principal.userId) && ownerActions.has(action)) {
         return 'participant';
     }
-    return resource.assignedWorkerUserId === principal.userId && principal.role === 'worker'
-        && workerActions.has(action) ? 'assigned-worker' : null;
+    return null;
 }
 function auditFor(
     input: AuthorizationEvaluation,
     allowed: boolean,
     reason: DecisionReason,
 ): AuditEnvelope {
+    const instant = parseInstant(input.evaluatedAt);
+    const resource = input.resource;
+    const principal = input.principal;
     return {
         policyVersion: 'foundation-v1',
-        evaluatedAt: parseInstant(input.evaluatedAt) === null ? 'invalid-instant' : input.evaluatedAt,
+        evaluatedAt: instant === null ? 'invalid-instant' : new Date(instant).toISOString(),
         correlationId: normalizeCorrelationId(input.correlationId),
-        actorKind: input.principal?.actorKind ?? 'user',
-        userId: input.principal?.userId,
-        organizationId: input.principal?.organizationId ?? 0,
-        membershipId: input.principal?.membershipId,
+        actorKind: isActorKind(principal?.actorKind) ? principal.actorKind : 'user',
+        userId: isPositiveId(principal?.userId) ? principal.userId : undefined,
+        organizationId: isPositiveId(principal?.organizationId) ? principal.organizationId : 0,
+        membershipId: isPositiveId(principal?.membershipId) ? principal.membershipId : undefined,
         action: isAction(input.action) ? input.action : 'unknown',
-        resourceType: input.resource?.type ?? 'case',
-        resourceId: input.resource?.id ?? 0,
+        resourceType: isResourceType(resource?.type) ? resource.type : 'case',
+        resourceId: isPositiveId(resource?.id) ? resource.id : 0,
         allowed,
         reason,
     };
@@ -92,7 +95,8 @@ export function authorize(input: AuthorizationEvaluation): PolicyDecision {
     }
     if (!isAction(input.action)) return deny(input, 'action_unrecognized', 403);
     if (parseInstant(input.evaluatedAt) === null) return deny(input, 'role_forbidden', 403);
-    if (!input.context || !input.resource || !isResolvedResource(input.resource)) {
+    if (!input.context || !input.resource || !isResolvedResource(input.resource)
+        || !Array.isArray(input.context.validatedGrants)) {
         return deny(input, 'resource_unresolved', 404);
     }
     const { context, principal, resource } = input;
