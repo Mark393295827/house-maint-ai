@@ -289,3 +289,105 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON notifications(user_id, read_at);
 CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(sender_id, receiver_id, created_at);
 
+-- Organization-scoped maintenance case foundation (B1).
+CREATE TABLE IF NOT EXISTS organizations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK(id > 0), slug TEXT NOT NULL, name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','suspended','closed')),
+    default_timezone TEXT NOT NULL DEFAULT 'UTC', created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')), CONSTRAINT organizations_slug_unique UNIQUE(slug)
+);
+CREATE TABLE IF NOT EXISTS organization_memberships (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('owner','admin','manager','resident','worker','auditor')),
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','invited','suspended','revoked')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), revoked_at TEXT,
+    CONSTRAINT organization_memberships_ids_positive CHECK(id > 0 AND organization_id > 0 AND user_id > 0),
+    CONSTRAINT organization_memberships_org_user_unique UNIQUE(organization_id,user_id),
+    CONSTRAINT organization_memberships_org_id_unique UNIQUE(organization_id,id),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS properties (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization_id INTEGER NOT NULL, name TEXT NOT NULL, external_ref TEXT,
+    timezone TEXT NOT NULL DEFAULT 'UTC', status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','inactive','archived')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    CONSTRAINT properties_ids_positive CHECK(id > 0 AND organization_id > 0),
+    CONSTRAINT properties_org_id_unique UNIQUE(organization_id,id),
+    CONSTRAINT properties_org_external_ref_unique UNIQUE(organization_id,external_ref),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS units (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization_id INTEGER NOT NULL, property_id INTEGER NOT NULL,
+    label TEXT NOT NULL, external_ref TEXT, status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','inactive','archived')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    CONSTRAINT units_ids_positive CHECK(id > 0 AND organization_id > 0 AND property_id > 0),
+    CONSTRAINT units_org_id_unique UNIQUE(organization_id,id),
+    CONSTRAINT units_org_property_id_unique UNIQUE(organization_id,property_id,id),
+    CONSTRAINT units_property_label_unique UNIQUE(property_id,label),
+    CONSTRAINT units_org_property_external_ref_unique UNIQUE(organization_id,property_id,external_ref),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,property_id) REFERENCES properties(organization_id,id) ON DELETE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS resource_grants (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization_id INTEGER NOT NULL, membership_id INTEGER NOT NULL,
+    resource_type TEXT NOT NULL CHECK(resource_type IN ('organization','property','unit','case')), resource_id INTEGER NOT NULL,
+    capability TEXT NOT NULL CHECK(capability IN ('read','contribute','manage','message','media','dispatch','verify','report')),
+    granted_by_membership_id INTEGER, expires_at TEXT, revoked_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    CONSTRAINT resource_grants_ids_positive CHECK(id > 0 AND organization_id > 0 AND membership_id > 0 AND resource_id > 0 AND (granted_by_membership_id IS NULL OR granted_by_membership_id > 0)),
+    CONSTRAINT resource_grants_organization_scope_check CHECK(resource_type <> 'organization' OR resource_id = organization_id),
+    CONSTRAINT resource_grants_scope_unique UNIQUE(membership_id,resource_type,resource_id,capability),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,membership_id) REFERENCES organization_memberships(organization_id,id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,granted_by_membership_id) REFERENCES organization_memberships(organization_id,id) ON DELETE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS maintenance_cases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization_id INTEGER NOT NULL, property_id INTEGER, unit_id INTEGER,
+    opened_by_membership_id INTEGER, legacy_report_id INTEGER, title TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','resolved','closed','cancelled')),
+    stage TEXT NOT NULL DEFAULT 'intake' CHECK(stage IN ('intake','diagnosis','resolution','dispatch','repair','verification','closed')),
+    priority TEXT NOT NULL DEFAULT 'normal' CHECK(priority IN ('low','normal','urgent','emergency')),
+    version INTEGER NOT NULL DEFAULT 0 CHECK(version >= 0), created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')), closed_at TEXT,
+    CONSTRAINT maintenance_cases_ids_positive CHECK(id > 0 AND organization_id > 0 AND (property_id IS NULL OR property_id > 0) AND (unit_id IS NULL OR unit_id > 0) AND (opened_by_membership_id IS NULL OR opened_by_membership_id > 0) AND (legacy_report_id IS NULL OR legacy_report_id > 0)),
+    CONSTRAINT maintenance_cases_unit_property_check CHECK(unit_id IS NULL OR property_id IS NOT NULL),
+    CONSTRAINT maintenance_cases_org_id_unique UNIQUE(organization_id,id),
+    CONSTRAINT maintenance_cases_legacy_report_unique UNIQUE(legacy_report_id),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,property_id) REFERENCES properties(organization_id,id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,property_id,unit_id) REFERENCES units(organization_id,property_id,id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,opened_by_membership_id) REFERENCES organization_memberships(organization_id,id) ON DELETE RESTRICT,
+    FOREIGN KEY (legacy_report_id) REFERENCES reports(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS case_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization_id INTEGER NOT NULL, case_id INTEGER NOT NULL, sequence INTEGER NOT NULL,
+    event_type TEXT NOT NULL CHECK(event_type IN ('case_opened','legacy_imported','case_updated','case_stage_changed','case_resolved','case_closed','case_cancelled','case_reopened')),
+    schema_version INTEGER NOT NULL DEFAULT 1, reducer_version INTEGER NOT NULL DEFAULT 1,
+    actor_type TEXT NOT NULL CHECK(actor_type IN ('member','system','agent','integration')), actor_membership_id INTEGER,
+    idempotency_key TEXT NOT NULL, command_hash TEXT NOT NULL, payload_hash TEXT NOT NULL,
+    projection_patch_json TEXT NOT NULL, payload_json TEXT NOT NULL, correlation_id TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    CONSTRAINT case_events_ids_positive CHECK(id > 0 AND organization_id > 0 AND case_id > 0 AND (actor_membership_id IS NULL OR actor_membership_id > 0)),
+    CONSTRAINT case_events_versions_check CHECK(sequence > 0 AND schema_version > 0 AND reducer_version = 1),
+    CONSTRAINT case_events_member_actor_check CHECK(actor_type <> 'member' OR actor_membership_id IS NOT NULL),
+    CONSTRAINT case_events_case_sequence_unique UNIQUE(case_id,sequence),
+    CONSTRAINT case_events_case_idempotency_unique UNIQUE(case_id,idempotency_key),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,case_id) REFERENCES maintenance_cases(organization_id,id) ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id,actor_membership_id) REFERENCES organization_memberships(organization_id,id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_organization_memberships_user_status ON organization_memberships(user_id,status);
+CREATE INDEX IF NOT EXISTS idx_organization_memberships_org_role_status ON organization_memberships(organization_id,role,status);
+CREATE INDEX IF NOT EXISTS idx_properties_org_status ON properties(organization_id,status);
+CREATE INDEX IF NOT EXISTS idx_units_org_property_status ON units(organization_id,property_id,status);
+CREATE INDEX IF NOT EXISTS idx_resource_grants_target ON resource_grants(organization_id,resource_type,resource_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_cases_org_status_updated ON maintenance_cases(organization_id,status,updated_at);
+CREATE INDEX IF NOT EXISTS idx_maintenance_cases_org_property_unit ON maintenance_cases(organization_id,property_id,unit_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_cases_legacy_report ON maintenance_cases(legacy_report_id);
+CREATE INDEX IF NOT EXISTS idx_case_events_org_case_sequence ON case_events(organization_id,case_id,sequence);
+CREATE INDEX IF NOT EXISTS idx_case_events_correlation ON case_events(correlation_id);
+CREATE TRIGGER IF NOT EXISTS case_events_reject_update BEFORE UPDATE ON case_events
+BEGIN SELECT RAISE(ABORT, 'case_events is append-only'); END;
+CREATE TRIGGER IF NOT EXISTS case_events_reject_delete BEFORE DELETE ON case_events
+BEGIN SELECT RAISE(ABORT, 'case_events is append-only'); END;
+

@@ -1,4 +1,15 @@
-import { sqliteTable, text, integer, real, uniqueIndex, index, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
+import {
+    check,
+    foreignKey,
+    index,
+    integer,
+    real,
+    sqliteTable,
+    text,
+    unique,
+    uniqueIndex,
+    type AnySQLiteColumn,
+} from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 // Users Table
@@ -358,5 +369,208 @@ export const pheromoneEvents = sqliteTable('pheromone_events', {
     createdAt: text('created_at').default(sql`(datetime('now'))`),
 }, (table) => [
     index('idx_pheromone_task_id').on(table.taskId),
+]);
+
+// Organization-scoped maintenance case foundation (B1).
+export const organizations = sqliteTable('organizations', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    slug: text('slug').notNull(),
+    name: text('name').notNull(),
+    status: text('status', { enum: ['active', 'suspended', 'closed'] }).notNull().default('active'),
+    defaultTimezone: text('default_timezone').notNull().default('UTC'),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+    unique('organizations_slug_unique').on(table.slug),
+    check('organizations_id_positive', sql`${table.id} > 0`),
+    check('organizations_status_check', sql`${table.status} in ('active', 'suspended', 'closed')`),
+]);
+
+export const organizationMemberships = sqliteTable('organization_memberships', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    organizationId: integer('organization_id').notNull()
+        .references(() => organizations.id, { onDelete: 'restrict' }),
+    userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+    role: text('role', { enum: ['owner', 'admin', 'manager', 'resident', 'worker', 'auditor'] }).notNull(),
+    status: text('status', { enum: ['active', 'invited', 'suspended', 'revoked'] }).notNull().default('active'),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+    revokedAt: text('revoked_at'),
+}, (table) => [
+    unique('organization_memberships_org_user_unique').on(table.organizationId, table.userId),
+    unique('organization_memberships_org_id_unique').on(table.organizationId, table.id),
+    index('idx_organization_memberships_user_status').on(table.userId, table.status),
+    index('idx_organization_memberships_org_role_status').on(table.organizationId, table.role, table.status),
+    check('organization_memberships_ids_positive', sql`${table.id} > 0 and ${table.organizationId} > 0 and ${table.userId} > 0`),
+    check('organization_memberships_role_check', sql`${table.role} in ('owner', 'admin', 'manager', 'resident', 'worker', 'auditor')`),
+    check('organization_memberships_status_check', sql`${table.status} in ('active', 'invited', 'suspended', 'revoked')`),
+]);
+
+export const properties = sqliteTable('properties', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    organizationId: integer('organization_id').notNull()
+        .references(() => organizations.id, { onDelete: 'restrict' }),
+    name: text('name').notNull(),
+    externalRef: text('external_ref'),
+    timezone: text('timezone').notNull().default('UTC'),
+    status: text('status', { enum: ['active', 'inactive', 'archived'] }).notNull().default('active'),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+    unique('properties_org_id_unique').on(table.organizationId, table.id),
+    unique('properties_org_external_ref_unique').on(table.organizationId, table.externalRef),
+    index('idx_properties_org_status').on(table.organizationId, table.status),
+    check('properties_ids_positive', sql`${table.id} > 0 and ${table.organizationId} > 0`),
+    check('properties_status_check', sql`${table.status} in ('active', 'inactive', 'archived')`),
+]);
+
+export const units = sqliteTable('units', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    organizationId: integer('organization_id').notNull()
+        .references(() => organizations.id, { onDelete: 'restrict' }),
+    propertyId: integer('property_id').notNull(),
+    label: text('label').notNull(),
+    externalRef: text('external_ref'),
+    status: text('status', { enum: ['active', 'inactive', 'archived'] }).notNull().default('active'),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+    foreignKey({
+        name: 'units_org_property_fk',
+        columns: [table.organizationId, table.propertyId],
+        foreignColumns: [properties.organizationId, properties.id],
+    }).onDelete('restrict'),
+    unique('units_org_id_unique').on(table.organizationId, table.id),
+    unique('units_org_property_id_unique').on(table.organizationId, table.propertyId, table.id),
+    unique('units_property_label_unique').on(table.propertyId, table.label),
+    unique('units_org_property_external_ref_unique')
+        .on(table.organizationId, table.propertyId, table.externalRef),
+    index('idx_units_org_property_status').on(table.organizationId, table.propertyId, table.status),
+    check('units_ids_positive', sql`${table.id} > 0 and ${table.organizationId} > 0 and ${table.propertyId} > 0`),
+    check('units_status_check', sql`${table.status} in ('active', 'inactive', 'archived')`),
+]);
+
+export const resourceGrants = sqliteTable('resource_grants', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    organizationId: integer('organization_id').notNull()
+        .references(() => organizations.id, { onDelete: 'restrict' }),
+    membershipId: integer('membership_id').notNull(),
+    resourceType: text('resource_type', { enum: ['organization', 'property', 'unit', 'case'] }).notNull(),
+    resourceId: integer('resource_id').notNull(),
+    capability: text('capability', {
+        enum: ['read', 'contribute', 'manage', 'message', 'media', 'dispatch', 'verify', 'report'],
+    }).notNull(),
+    grantedByMembershipId: integer('granted_by_membership_id'),
+    expiresAt: text('expires_at'),
+    revokedAt: text('revoked_at'),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+    foreignKey({
+        name: 'resource_grants_org_membership_fk',
+        columns: [table.organizationId, table.membershipId],
+        foreignColumns: [organizationMemberships.organizationId, organizationMemberships.id],
+    }).onDelete('restrict'),
+    foreignKey({
+        name: 'resource_grants_org_grantor_fk',
+        columns: [table.organizationId, table.grantedByMembershipId],
+        foreignColumns: [organizationMemberships.organizationId, organizationMemberships.id],
+    }).onDelete('restrict'),
+    unique('resource_grants_scope_unique').on(table.membershipId, table.resourceType, table.resourceId, table.capability),
+    index('idx_resource_grants_target').on(table.organizationId, table.resourceType, table.resourceId),
+    check('resource_grants_ids_positive', sql`${table.id} > 0 and ${table.organizationId} > 0 and ${table.membershipId} > 0 and ${table.resourceId} > 0 and (${table.grantedByMembershipId} is null or ${table.grantedByMembershipId} > 0)`),
+    check('resource_grants_type_check', sql`${table.resourceType} in ('organization', 'property', 'unit', 'case')`),
+    check('resource_grants_capability_check', sql`${table.capability} in ('read', 'contribute', 'manage', 'message', 'media', 'dispatch', 'verify', 'report')`),
+    check('resource_grants_organization_scope_check', sql`${table.resourceType} <> 'organization' or ${table.resourceId} = ${table.organizationId}`),
+]);
+
+export const maintenanceCases = sqliteTable('maintenance_cases', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    organizationId: integer('organization_id').notNull()
+        .references(() => organizations.id, { onDelete: 'restrict' }),
+    propertyId: integer('property_id'),
+    unitId: integer('unit_id'),
+    openedByMembershipId: integer('opened_by_membership_id'),
+    legacyReportId: integer('legacy_report_id')
+        .references(() => reports.id, { onDelete: 'set null' }),
+    title: text('title').notNull(),
+    status: text('status', { enum: ['open', 'resolved', 'closed', 'cancelled'] }).notNull().default('open'),
+    stage: text('stage', {
+        enum: ['intake', 'diagnosis', 'resolution', 'dispatch', 'repair', 'verification', 'closed'],
+    }).notNull().default('intake'),
+    priority: text('priority', { enum: ['low', 'normal', 'urgent', 'emergency'] }).notNull().default('normal'),
+    version: integer('version').notNull().default(0),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+    closedAt: text('closed_at'),
+}, (table) => [
+    foreignKey({
+        name: 'maintenance_cases_org_property_fk',
+        columns: [table.organizationId, table.propertyId],
+        foreignColumns: [properties.organizationId, properties.id],
+    }).onDelete('restrict'),
+    foreignKey({
+        name: 'maintenance_cases_org_property_unit_fk',
+        columns: [table.organizationId, table.propertyId, table.unitId],
+        foreignColumns: [units.organizationId, units.propertyId, units.id],
+    }).onDelete('restrict'),
+    foreignKey({
+        name: 'maintenance_cases_org_opener_fk',
+        columns: [table.organizationId, table.openedByMembershipId],
+        foreignColumns: [organizationMemberships.organizationId, organizationMemberships.id],
+    }).onDelete('restrict'),
+    unique('maintenance_cases_org_id_unique').on(table.organizationId, table.id),
+    unique('maintenance_cases_legacy_report_unique').on(table.legacyReportId),
+    index('idx_maintenance_cases_org_status_updated').on(table.organizationId, table.status, table.updatedAt),
+    index('idx_maintenance_cases_org_property_unit').on(table.organizationId, table.propertyId, table.unitId),
+    index('idx_maintenance_cases_legacy_report').on(table.legacyReportId),
+    check('maintenance_cases_ids_positive', sql`${table.id} > 0 and ${table.organizationId} > 0 and (${table.propertyId} is null or ${table.propertyId} > 0) and (${table.unitId} is null or ${table.unitId} > 0) and (${table.openedByMembershipId} is null or ${table.openedByMembershipId} > 0) and (${table.legacyReportId} is null or ${table.legacyReportId} > 0)`),
+    check('maintenance_cases_status_check', sql`${table.status} in ('open', 'resolved', 'closed', 'cancelled')`),
+    check('maintenance_cases_stage_check', sql`${table.stage} in ('intake', 'diagnosis', 'resolution', 'dispatch', 'repair', 'verification', 'closed')`),
+    check('maintenance_cases_priority_check', sql`${table.priority} in ('low', 'normal', 'urgent', 'emergency')`),
+    check('maintenance_cases_version_check', sql`${table.version} >= 0`),
+    check('maintenance_cases_unit_property_check', sql`${table.unitId} is null or ${table.propertyId} is not null`),
+]);
+
+export const caseEvents = sqliteTable('case_events', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    organizationId: integer('organization_id').notNull()
+        .references(() => organizations.id, { onDelete: 'restrict' }),
+    caseId: integer('case_id').notNull(),
+    sequence: integer('sequence').notNull(),
+    eventType: text('event_type', {
+        enum: ['case_opened', 'legacy_imported', 'case_updated', 'case_stage_changed', 'case_resolved', 'case_closed', 'case_cancelled', 'case_reopened'],
+    }).notNull(),
+    schemaVersion: integer('schema_version').notNull().default(1),
+    reducerVersion: integer('reducer_version').notNull().default(1),
+    actorType: text('actor_type', { enum: ['member', 'system', 'agent', 'integration'] }).notNull(),
+    actorMembershipId: integer('actor_membership_id'),
+    idempotencyKey: text('idempotency_key').notNull(),
+    commandHash: text('command_hash').notNull(),
+    payloadHash: text('payload_hash').notNull(),
+    projectionPatchJson: text('projection_patch_json').notNull(),
+    payloadJson: text('payload_json').notNull(),
+    correlationId: text('correlation_id'),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+    foreignKey({
+        name: 'case_events_org_case_fk',
+        columns: [table.organizationId, table.caseId],
+        foreignColumns: [maintenanceCases.organizationId, maintenanceCases.id],
+    }).onDelete('restrict'),
+    foreignKey({
+        name: 'case_events_org_actor_fk',
+        columns: [table.organizationId, table.actorMembershipId],
+        foreignColumns: [organizationMemberships.organizationId, organizationMemberships.id],
+    }).onDelete('restrict'),
+    unique('case_events_case_sequence_unique').on(table.caseId, table.sequence),
+    unique('case_events_case_idempotency_unique').on(table.caseId, table.idempotencyKey),
+    index('idx_case_events_org_case_sequence').on(table.organizationId, table.caseId, table.sequence),
+    index('idx_case_events_correlation').on(table.correlationId),
+    check('case_events_ids_positive', sql`${table.id} > 0 and ${table.organizationId} > 0 and ${table.caseId} > 0 and (${table.actorMembershipId} is null or ${table.actorMembershipId} > 0)`),
+    check('case_events_versions_check', sql`${table.sequence} > 0 and ${table.schemaVersion} > 0 and ${table.reducerVersion} = 1`),
+    check('case_events_type_check', sql`${table.eventType} in ('case_opened', 'legacy_imported', 'case_updated', 'case_stage_changed', 'case_resolved', 'case_closed', 'case_cancelled', 'case_reopened')`),
+    check('case_events_actor_check', sql`${table.actorType} in ('member', 'system', 'agent', 'integration')`),
+    check('case_events_member_actor_check', sql`${table.actorType} <> 'member' or ${table.actorMembershipId} is not null`),
 ]);
 

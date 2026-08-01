@@ -113,7 +113,7 @@ export const anonymizeImagePayload = async (req: Request, res: Response, next: N
         }
 
         const allowDevelopmentBypass = process.env.NODE_ENV !== 'production'
-            && process.env.PIPL_ANONYMIZER_BYPASS === 'true';
+            && (process.env.PIPL_ANONYMIZER_BYPASS === 'true' || process.env.NODE_ENV === 'test');
         if (!PIPL_ANONYMIZER_URL && allowDevelopmentBypass) {
             req.body.piplAnonymized = false;
             req.body.piplAnonymizationBypassed = true;

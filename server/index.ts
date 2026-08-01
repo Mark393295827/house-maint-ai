@@ -16,6 +16,7 @@ import workerRoutes from './routes/workers.js';
 import uploadRoutes from './routes/uploads.js';
 import communityRoutes from './routes/community.js';
 import aiRoutes from './routes/ai.js';
+import agentRoutes from './routes/agent.routes.js';
 import metricsRoutes from './routes/metrics.js';
 import analyticsRoutes from './routes/analytics.js';
 import assetsRoutes from './routes/assets.js';
@@ -135,9 +136,7 @@ app.use(metricsCollector);
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger.js';
 
-// Static files for uploads. Uploaded media is intentionally served with
-// anti-sniffing/sandbox headers so a spoofed upload cannot execute as active
-// same-origin content.
+// Static files for uploads.
 app.use('/uploads', express.static(join(__dirname, 'uploads'), {
     setHeaders: (res) => {
         res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -168,6 +167,7 @@ apiV1Router.use('/workers', workerRoutes);
 apiV1Router.use('/uploads', uploadRoutes);
 apiV1Router.use('/community', communityRoutes);
 apiV1Router.use('/ai', strictLimiter, aiRoutes);
+apiV1Router.use('/agents', strictLimiter, agentRoutes);
 apiV1Router.use('/metrics', metricsRoutes);
 apiV1Router.use('/analytics', analyticsRoutes);
 apiV1Router.use('/assets', assetsRoutes);
@@ -192,9 +192,6 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Sentry Error Handler (must be before custom error handler)
-// Sentry.setupExpressErrorHandler(app);
-
 // Error handling
 app.use(errorHandler);
 
@@ -202,7 +199,6 @@ app.use(errorHandler);
 app.use((req, res) => {
     res.status(404).json({ error: 'Not Found', path: req.path });
 });
-
 
 import { createServer } from 'http';
 import { initSocket } from './socket.js';

@@ -91,7 +91,7 @@ class AiUsageService {
                 WHERE created_at >= date('now', 'start of day')
             `);
 
-            const totalSpend = rows[0].total_spend || 0;
+            const totalSpend = rows[0]?.total_spend || 0;
 
             // Get daily budget limit
             const { rows: settings } = await db.query("SELECT value FROM ai_settings WHERE key = 'daily_budget_usd'");
@@ -107,6 +107,41 @@ class AiUsageService {
             }
         } catch (error) {
             console.error('Budget check failed:', error);
+        }
+    }
+
+    async getBudgetStatus() {
+        try {
+            const { rows } = await db.query(`
+                SELECT 
+                    SUM(cost_usd) as total_spend,
+                    COUNT(*) as total_calls,
+                    AVG(cost_usd) as avg_cost_per_call
+                FROM ai_usage_logs 
+                WHERE created_at >= date('now', 'start of day')
+            `);
+
+            const { rows: settings } = await db.query("SELECT value FROM ai_settings WHERE key = 'daily_budget_usd'");
+            const totalSpend = parseFloat(rows[0]?.total_spend || '0');
+            const totalCalls = parseInt(rows[0]?.total_calls || '0');
+            const dailyLimit = parseFloat(settings[0]?.value || '10.0');
+
+            return {
+                total_spend_usd: totalSpend,
+                daily_limit_usd: dailyLimit,
+                total_calls: totalCalls,
+                usage_percentage: dailyLimit > 0 ? (totalSpend / dailyLimit) * 100 : 0,
+                is_budget_exceeded: totalSpend >= dailyLimit
+            };
+        } catch (error) {
+            console.error('getBudgetStatus failed:', error);
+            return {
+                total_spend_usd: 0,
+                daily_limit_usd: 10.0,
+                total_calls: 0,
+                usage_percentage: 0,
+                is_budget_exceeded: false
+            };
         }
     }
 }

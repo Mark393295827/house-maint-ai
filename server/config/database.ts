@@ -3,6 +3,7 @@ import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { fileURLToPath } from 'url';
 import { DB_PASSWORD } from './secrets.js';
 
@@ -11,10 +12,14 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Interface matching pg.Pool query result
-interface QueryResult<T = any> {
+// Interface matching the subset of pg.QueryResult used by the application.
+export interface QueryResult<T = unknown> {
     rows: T[];
     rowCount: number | null;
+}
+
+export interface TransactionClient {
+    query<T = unknown>(text: string, params?: unknown[]): Promise<QueryResult<T>>;
 }
 
 // Common interface for both database implementations
@@ -23,10 +28,29 @@ interface DatabaseAdapter {
     on?(event: string, callback: (...args: any[]) => void): void;
 }
 
+const transactionControlPattern =
+    /^(?:BEGIN|START\s+TRANSACTION|COMMIT|ROLLBACK|SAVEPOINT|RELEASE\s+SAVEPOINT)\b/i;
+
+function rejectTransactionControl(text: string): void {
+    if (transactionControlPattern.test(text.trimStart())) {
+        throw new Error('Transaction control statements are not allowed; use withTransaction');
+    }
+}
+
+function transactionFailure(originalError: unknown, rollbackError: unknown): AggregateError {
+    return new AggregateError(
+        [originalError, rollbackError],
+        'Transaction failed and rollback also failed',
+        { cause: originalError },
+    );
+}
+
 // SQLite fallback class that mimics pg.Pool interface
-export class SQLiteFallback {
+export class SQLiteFallback implements DatabaseAdapter {
     private db: Database.Database;
     private initialized: boolean = false;
+    private gateTail: Promise<void> = Promise.resolve();
+    private transactionScope = new AsyncLocalStorage<symbol>();
 
     constructor(dbPath: string) {
         // Ensure data directory exists (skip for in-memory DB)
@@ -38,7 +62,6 @@ export class SQLiteFallback {
         }
 
         this.db = new Database(dbPath);
-        this.db.pragma('journal_mode = WAL');
         console.warn('⚠️  Using SQLite fallback (Data stored in ' + dbPath + ')');
     }
 
@@ -46,9 +69,28 @@ export class SQLiteFallback {
      * Initialize the database with schema if not already done
      */
     async initSchema(): Promise<void> {
+        if (this.transactionScope.getStore()) {
+            throw new Error('Use the transaction client inside a transaction callback');
+        }
+        await this.runExclusive(() => this.initSchemaOwned());
+    }
+
+    private runExclusive<T>(operation: () => Promise<T> | T): Promise<T> {
+        const result = this.gateTail.then(operation);
+        this.gateTail = result.then(
+            () => undefined,
+            () => undefined,
+        );
+        return result;
+    }
+
+    private initSchemaOwned(): void {
         if (this.initialized) return;
 
         try {
+            this.db.pragma('journal_mode = WAL');
+            this.db.pragma('foreign_keys = ON');
+
             const schemaPath = path.join(__dirname, '..', 'models', 'schema.sql');
             if (fs.existsSync(schemaPath)) {
                 const schema = fs.readFileSync(schemaPath, 'utf-8');
@@ -171,8 +213,77 @@ export class SQLiteFallback {
      * Execute a query with PostgreSQL-compatible interface
      */
     async query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
-        await this.initSchema();
+        if (this.transactionScope.getStore()) {
+            throw new Error('Use the transaction client inside a transaction callback');
+        }
+        rejectTransactionControl(text);
+        return this.runExclusive(() => {
+            this.initSchemaOwned();
+            return this.executeQueryOwned<T>(text, params);
+        });
+    }
 
+    async withTransaction<T>(
+        work: (client: TransactionClient) => Promise<T>,
+    ): Promise<T> {
+        if (this.transactionScope.getStore()) {
+            throw new Error('Nested transactions are not supported');
+        }
+
+        return this.runExclusive(async () => {
+            this.initSchemaOwned();
+            this.db.exec('BEGIN IMMEDIATE');
+
+            const owner = Symbol('sqlite-transaction-owner');
+            let active = true;
+            const client: TransactionClient = {
+                query: async <Row = unknown>(
+                    text: string,
+                    params?: unknown[],
+                ): Promise<QueryResult<Row>> => {
+                    if (!active) {
+                        throw new Error('Transaction client is closed');
+                    }
+                    if (this.transactionScope.getStore() !== owner) {
+                        throw new Error('Transaction client is not owned by this callback');
+                    }
+                    rejectTransactionControl(text);
+                    return this.executeQueryOwned<Row>(text, params as any[] | undefined);
+                },
+            };
+
+            let result: T;
+            try {
+                result = await this.transactionScope.run(owner, () => work(client));
+            } catch (error) {
+                active = false;
+                this.rollbackOwned(error);
+                throw error;
+            }
+
+            active = false;
+            try {
+                this.db.exec('COMMIT');
+            } catch (error) {
+                this.rollbackOwned(error);
+                throw error;
+            }
+            return result;
+        });
+    }
+
+    private rollbackOwned(originalError: unknown): void {
+        try {
+            this.db.exec('ROLLBACK');
+        } catch (rollbackError) {
+            throw transactionFailure(originalError, rollbackError);
+        }
+    }
+
+    private executeQueryOwned<T = any>(
+        text: string,
+        params?: any[],
+    ): QueryResult<T> {
         const { sql, params: convertedParams } = this.convertParams(text, params);
         const trimmedSql = sql.trim().toUpperCase();
 
@@ -249,6 +360,72 @@ const pgPool = new Pool({
     port: parseInt(process.env.DB_PORT || '5432'),
 });
 
+const postgresTransactionScope = new AsyncLocalStorage<symbol>();
+
+async function withPostgresTransaction<T>(
+    work: (client: TransactionClient) => Promise<T>,
+): Promise<T> {
+    if (postgresTransactionScope.getStore()) {
+        throw new Error('Nested transactions are not supported');
+    }
+
+    const connection = await pgPool.connect();
+    let active = false;
+    try {
+        await connection.query('BEGIN');
+        active = true;
+        const owner = Symbol('postgres-transaction-owner');
+        const client: TransactionClient = {
+            query: async <Row = unknown>(
+                text: string,
+                params?: unknown[],
+            ): Promise<QueryResult<Row>> => {
+                if (!active) {
+                    throw new Error('Transaction client is closed');
+                }
+                if (postgresTransactionScope.getStore() !== owner) {
+                    throw new Error('Transaction client is not owned by this callback');
+                }
+                rejectTransactionControl(text);
+                const result = await connection.query(text, params as any[] | undefined);
+                return {
+                    rows: result.rows as Row[],
+                    rowCount: result.rowCount,
+                };
+            },
+        };
+
+        let result: T;
+        try {
+            result = await postgresTransactionScope.run(owner, () => work(client));
+        } catch (error) {
+            active = false;
+            try {
+                await connection.query('ROLLBACK');
+            } catch (rollbackError) {
+                throw transactionFailure(error, rollbackError);
+            }
+            throw error;
+        }
+
+        active = false;
+        try {
+            await connection.query('COMMIT');
+        } catch (error) {
+            try {
+                await connection.query('ROLLBACK');
+            } catch (rollbackError) {
+                throw transactionFailure(error, rollbackError);
+            }
+            throw error;
+        }
+        return result;
+    } finally {
+        active = false;
+        connection.release();
+    }
+}
+
 // Determine which database to use
 const useSQLite = process.env.DB_USE_SQLITE === 'true' ||
     (process.env.NODE_ENV !== 'production' && !process.env.DB_HOST && !process.env.DOCKER_ENV);
@@ -269,7 +446,23 @@ if (useSQLite) {
     });
 }
 
-export const query = <T = any>(text: string, params?: any[]): Promise<QueryResult<T>> => pool.query<T>(text, params);
+export const query = <T = any>(
+    text: string,
+    params?: any[],
+): Promise<QueryResult<T>> => {
+    rejectTransactionControl(text);
+    return pool.query<T>(text, params);
+};
+
+export function withTransaction<T>(
+    work: (client: TransactionClient) => Promise<T>,
+): Promise<T> {
+    if (useSQLite) {
+        return (pool as SQLiteFallback).withTransaction(work);
+    }
+    return withPostgresTransaction(work);
+}
+
 export const isSQLite = useSQLite;
 export default pool;
 

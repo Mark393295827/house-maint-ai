@@ -41,10 +41,11 @@ const WorkerRegistrationPage = lazy(() => import('./pages/WorkerRegistrationPage
 const WorkerDirectoryPage = lazy(() => import('./pages/WorkerDirectoryPage'));
 const RepairGuidePage = lazy(() => import('./pages/RepairGuidePage'));
 const DevicePreview = lazy(() => import('./pages/DevicePreview'));
-const ReportDetailPage = lazy(() => import('./pages/ReportDetailPage'));
 const JobReviewPage = lazy(() => import('./pages/JobReviewPage'));
 const EnterpriseDashboard = lazy(() => import('./pages/EnterpriseDashboard'));
 const AssetsPage = lazy(() => import('./pages/AssetsPage'));
+const PropertyToolsPage = lazy(() => import('./pages/PropertyToolsPage'));
+const ReportDetailPage = lazy(() => import('./pages/ReportDetailPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export const APP_ROUTE_PATHS = [
@@ -60,6 +61,8 @@ export const APP_ROUTE_PATHS = [
   '/diagnosis',
   '/quick-report',
   '/cases',
+  '/property-tools',
+  '/tools',
   '/reports/:id',
   '/library',
   '/community',
@@ -182,8 +185,16 @@ function App() {
                         <AssetsPage />
                       </ProtectedRoute>
                     } />
-
-                    {/* Worker-only routes */}
+                    <Route path="/property-tools" element={
+                      <ProtectedRoute>
+                        <PropertyToolsPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/tools" element={
+                      <ProtectedRoute>
+                        <PropertyToolsPage />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/worker/dashboard" element={
                       <ProtectedRoute allowedRoles={['worker', 'admin']}>
                         <WorkerDashboardPage />

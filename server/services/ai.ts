@@ -3,6 +3,7 @@ import { planningAgent } from '../agents/planning/agent.js';
 import { materialAgent } from '../agents/material/agent.js';
 import { faultAgent } from '../agents/fault/agent.js';
 import { turnoverAgent } from '../agents/turnover/agent.js';
+import { WebIntelAgent, WebIntelScanRequest, WebIntelReport } from '../agents/webintel/agent.js';
 import { researchOrchestrator } from '../agents/research/swarm.js';
 import { problemSolvingAgent, ProblemSolvingInput, ProblemSolvingLoopResult } from '../agents/problemSolving/agent.js';
 import { DiagnosisResult, RepairPattern, ChatMessage, MaterialBOM, FaultAttribution, TurnoverReport, IndustryResearchReport, withRetry, AiResponse } from '../agents/common.js';
@@ -239,6 +240,19 @@ class AiService {
         } catch (error) {
             Sentry.captureException(error);
             throw new Error('Research swarm failed');
+        }
+    }
+
+    /**
+     * WebIntel: Harvest property complaints and generate targeted physical sales tasks
+     */
+    async scanWebIntel(request: WebIntelScanRequest): Promise<WebIntelReport> {
+        try {
+            const agent = new WebIntelAgent();
+            return await agent.executeScan(request);
+        } catch (error) {
+            Sentry.captureException(error);
+            throw new Error('Web intelligence scan failed');
         }
     }
 }
