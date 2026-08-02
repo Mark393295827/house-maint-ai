@@ -211,7 +211,7 @@ if (useSQLite) {
     pool = pgPool as unknown as DatabaseAdapter;
 
     // Test connection
-    pgPool.on('error', (err, _client) => {
+    pgPool.on('error', (err) => {
         console.error('Unexpected error on idle client', err);
         process.exit(-1);
     });

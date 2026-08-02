@@ -107,7 +107,7 @@ export class WebIntelAgent {
 
         // Collect raw intelligence from all sources
         const complaints = await this.harvestComplaints(request);
-        const properties = await this.buildPropertyProfiles(complaints, request.region);
+        const properties = await this.buildPropertyProfiles(complaints);
         const physicalTasks = this.generatePhysicalTasks(properties);
         const summary = this.summarizeComplaints(complaints);
         const insights = await this.generateMarketInsights(complaints, properties, request);
@@ -185,7 +185,7 @@ export class WebIntelAgent {
     /**
      * Build property profiles from complaint data.
      */
-    private async buildPropertyProfiles(complaints: ComplaintRecord[], region: string): Promise<PropertyIntel[]> {
+    private async buildPropertyProfiles(complaints: ComplaintRecord[]): Promise<PropertyIntel[]> {
         // Group complaints by property
         const propertyMap = new Map<string, ComplaintRecord[]>();
         for (const c of complaints) {
