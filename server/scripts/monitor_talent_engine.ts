@@ -1,5 +1,5 @@
 
-import db, { query } from '../config/database.js';
+import { query } from '../config/database.js';
 import { learningService } from '../services/learning.js';
 import * as fs from 'fs';
 

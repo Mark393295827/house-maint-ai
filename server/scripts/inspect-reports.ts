@@ -1,4 +1,4 @@
-import pool, { query } from '../config/database.js';
+import { query } from '../config/database.js';
 
 async function inspect() {
     try {

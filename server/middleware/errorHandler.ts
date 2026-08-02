@@ -8,7 +8,7 @@ import { ZodError } from 'zod';
 import jwt from 'jsonwebtoken';
 const { JsonWebTokenError, TokenExpiredError } = jwt;
 
-export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
+export function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): void {
     // console.error('Error:', err); // Removed in production, can keep for dev if needed
     Sentry.captureException(err);
 
