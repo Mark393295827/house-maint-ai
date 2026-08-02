@@ -3,6 +3,7 @@ import BottomNav from '../components/BottomNav';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useReport } from '../hooks/useReports';
+import { useAuth } from '../contexts/AuthContext';
 
 const statusTone: Record<string, string> = {
     pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
@@ -26,8 +27,10 @@ const ReportDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { t } = useLanguage();
+    const { user } = useAuth();
     const { data, isLoading, isError } = useReport(id || '');
     const report = data?.report;
+    const messagePartnerId = user?.role === 'worker' ? report?.user_id : report?.worker_user_id;
 
     const handleFindWorker = () => {
         if (!report) return;
@@ -127,6 +130,52 @@ const ReportDetailPage = () => {
                     </p>
                 </section>
 
+                {/* Property Maintenance AI Tools Shortcuts */}
+                <section className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-indigo-500/5 to-purple-500/5 p-4 shadow-sm backdrop-blur-md dark:border-cyan-500/30">
+                    <h2 className="mb-3 flex items-center justify-between text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                        <span className="flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-cyan-500">auto_awesome</span>
+                            {t('reports.detail.aiTools', { defaultValue: 'AI Maintenance Tools' })}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/property-tools')}
+                            className="text-[11px] font-bold text-cyan-600 hover:underline dark:text-cyan-400"
+                        >
+                            Open Full Suite &rarr;
+                        </button>
+                    </h2>
+
+                    <div className="grid grid-cols-3 gap-2">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/property-tools?tab=bom')}
+                            className="flex flex-col items-center rounded-xl border border-white/40 bg-white/80 p-2.5 text-center shadow-xs transition hover:scale-[1.02] dark:border-slate-800 dark:bg-slate-900/80"
+                        >
+                            <span className="material-symbols-outlined mb-1 text-xl text-cyan-500">inventory_2</span>
+                            <span className="text-[11px] font-extrabold text-slate-800 dark:text-slate-200">Material BOM</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => navigate('/property-tools?tab=attribution')}
+                            className="flex flex-col items-center rounded-xl border border-white/40 bg-white/80 p-2.5 text-center shadow-xs transition hover:scale-[1.02] dark:border-slate-800 dark:bg-slate-900/80"
+                        >
+                            <span className="material-symbols-outlined mb-1 text-xl text-emerald-500">balance</span>
+                            <span className="text-[11px] font-extrabold text-slate-800 dark:text-slate-200">Attribution</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => navigate('/property-tools?tab=turnover')}
+                            className="flex flex-col items-center rounded-xl border border-white/40 bg-white/80 p-2.5 text-center shadow-xs transition hover:scale-[1.02] dark:border-slate-800 dark:bg-slate-900/80"
+                        >
+                            <span className="material-symbols-outlined mb-1 text-xl text-indigo-500">compare</span>
+                            <span className="text-[11px] font-extrabold text-slate-800 dark:text-slate-200">Photo Diff</span>
+                        </button>
+                    </div>
+                </section>
+
                 <section className="grid grid-cols-2 gap-3 pt-2">
                     <button
                         type="button"
@@ -144,7 +193,8 @@ const ReportDetailPage = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate('/messages')}
+                        onClick={() => messagePartnerId && navigate(`/chat/${messagePartnerId}?reportId=${report.id}`)}
+                        disabled={!messagePartnerId}
                         className="rounded-2xl bg-gray-100 px-4 py-3 text-sm font-bold text-gray-700 dark:bg-gray-800 dark:text-gray-200"
                     >
                         {t('reports.detail.messages')}

@@ -55,11 +55,11 @@ const OrdersPage: React.FC = () => {
         return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     };
 
-    const formatAmount = (amount: number, currency: string) => {
+    const formatAmount = (amountInCents: number, currency: string) => {
         return new Intl.NumberFormat(undefined, {
             style: 'currency',
             currency: currency.toUpperCase(),
-        }).format(amount);
+        }).format(amountInCents / 100);
     };
 
     return (

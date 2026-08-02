@@ -1,0 +1,17 @@
+{
+  "name": "@house-maint/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "houseMaint": {
+    "role": "ingress-domain-control-plane",
+    "compatibilityEntrypoint": "../../server/index.ts",
+    "migrationState": "compatibility"
+  },
+  "dependencies": {
+    "@house-maint/contracts": "0.1.0",
+    "@house-maint/domain": "0.1.0",
+    "@house-maint/persistence": "0.1.0",
+    "@house-maint/policy": "0.1.0"
+  }
+}

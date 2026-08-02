@@ -1,0 +1,54 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e162]:
+    - generic [ref=e163]:
+      - button "arrow_back" [ref=e164]
+      - 'heading "工单 #6072" [level=1] [ref=e166]'
+    - main [ref=e167]:
+      - generic [ref=e168]:
+        - generic [ref=e169]:
+          - generic [ref=e170]: ✓
+          - generic [ref=e173]: "2"
+          - generic [ref=e176]: "3"
+        - generic [ref=e178]:
+          - generic [ref=e179]: 待接单
+          - generic [ref=e180]: 施工中
+          - generic [ref=e181]: 已完工
+      - generic [ref=e182]:
+        - generic [ref=e183]:
+          - generic [ref=e184]: 施工中
+          - generic [ref=e185]: 7/29/2026
+        - 'heading "Codex audit fixture: kitchen faucet leaking under" [level=2] [ref=e186]'
+        - paragraph [ref=e187]: "Codex audit fixture: kitchen faucet leaking under sink 中文测试 🔧"
+      - generic [ref=e189]:
+        - heading "psychology AI 维修方案" [level=3] [ref=e190]:
+          - generic [ref=e191]: psychology
+          - text: AI 维修方案
+        - button "auto_awesome 生成方案" [ref=e192]:
+          - generic [ref=e193]: auto_awesome
+          - text: 生成方案
+      - generic [ref=e194]:
+        - heading "维修记录" [level=3] [ref=e195]
+        - textbox "记录维修过程、使用的材料和备注..." [ref=e196]
+      - generic [ref=e197]:
+        - button "chat 消息" [ref=e198]:
+          - generic [ref=e199]: chat
+          - text: 消息
+        - button "check_circle 完工" [ref=e200]:
+          - generic [ref=e201]: check_circle
+          - text: 完工
+    - navigation "Main Navigation" [ref=e202]:
+      - menubar [ref=e203]:
+        - menuitem "Home" [ref=e204] [cursor=pointer]:
+          - generic [ref=e205]: home
+        - menuitem "Cases" [ref=e208] [cursor=pointer]:
+          - generic [ref=e209]:
+            - generic [ref=e210]: folder_open
+            - generic [ref=e211]: "1"
+        - menuitem "New" [ref=e213] [cursor=pointer]:
+          - generic [ref=e214]: add_a_photo
+        - menuitem "Library" [ref=e217] [cursor=pointer]:
+          - generic [ref=e218]: auto_stories
+        - menuitem "Profile" [ref=e221] [cursor=pointer]:
+          - generic [ref=e222]: person

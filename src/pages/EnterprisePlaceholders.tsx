@@ -29,7 +29,7 @@ export const TicketsPage: React.FC = () => {
 
     return (
         <div className="page-enter">
-            <div className="mb-10 lg:mb-14">
+            <div className="mb-8 md:mb-10 lg:mb-14">
                 <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.tickets.title')}</h1>
                 <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.tickets.subtitle')}</p>
             </div>
@@ -119,7 +119,7 @@ export const EnterpriseWorkersPage: React.FC = () => {
 
     return (
         <div className="page-enter">
-            <div className="mb-10 lg:mb-14">
+            <div className="mb-8 md:mb-10 lg:mb-14">
                 <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.workers.title')}</h1>
                 <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.workers.subtitle')}</p>
             </div>
@@ -209,12 +209,12 @@ export const PropertiesPage: React.FC = () => {
 
     return (
         <div className="page-enter">
-            <div className="mb-10 lg:mb-14 flex justify-between items-end">
+            <div className="mb-8 md:mb-10 lg:mb-14 flex flex-col md:flex-row justify-start md:justify-between items-start md:items-end gap-4 md:gap-0">
                 <div>
                     <h1 className="text-4xl font-black text-black tracking-tighter">{t('enterprise.properties.title')}</h1>
                     <p className="text-[14px] font-black text-[#86868b] mt-2">{t('enterprise.properties.subtitle')}</p>
                 </div>
-                <button className="px-8 py-3.5 bg-[#1a73e8] text-white rounded-2xl text-[13px] font-black uppercase tracking-[0.15em] hover:bg-blue-600 transition-all duration-400 active:scale-95 flex items-center gap-2.5 shadow-xl shadow-blue-500/25">
+                <button className="w-full md:w-auto px-8 py-3.5 bg-[#1a73e8] text-white rounded-2xl text-[13px] font-black uppercase tracking-[0.15em] hover:bg-blue-600 transition-all duration-400 active:scale-95 flex items-center justify-center gap-2.5 shadow-xl shadow-blue-500/25">
                     <span className="material-symbols-outlined text-[20px] font-light">add_circle</span>
                     {t('enterprise.properties.add')}
                 </button>
@@ -296,9 +296,4 @@ export const PropertiesPage: React.FC = () => {
 };
 
 // ============ Analytics Page ============
-export const AnalyticsPage: React.FC = () => (
-    <div className="page-enter -m-10 lg:-m-14">
-        {/* Fill the layout with the MetricsDashboard */}
-        <MetricsDashboard />
-    </div>
-);
+export const AnalyticsPage: React.FC = () => <MetricsDashboard />;

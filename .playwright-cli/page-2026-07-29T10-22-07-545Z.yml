@@ -1,0 +1,143 @@
+- generic [ref=f6e2]:
+  - link "Skip to main content" [ref=f6e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f6e301]:
+    - generic [ref=f6e302]:
+      - button "arrow_back" [ref=f6e303]
+      - heading "Matching Workers" [level=1] [ref=f6e305]
+    - main [ref=f6e306]:
+      - generic [ref=f6e308]:
+        - generic [ref=f6e309]: description
+        - generic [ref=f6e311]:
+          - heading "Report Issue" [level=3] [ref=f6e312]
+          - paragraph [ref=f6e313]: "Pipe joint leak, ongoing for days, getting worse Loop summary: Pipe joint leak, ongoing for days, getting worse is handled through the six-stage loop with diagnosis, deflection, dispatch, verification, and reporting evidence."
+      - generic [ref=f6e314]:
+        - heading "auto_awesome AI Analysis" [level=2] [ref=f6e315]:
+          - generic [ref=f6e316]: auto_awesome
+          - text: AI Analysis
+        - paragraph [ref=f6e317]: Based on your location and required skills, we found 5 suitable experts.
+      - button "Test User 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 100" [ref=f6e318] [cursor=pointer]:
+        - generic [ref=f6e319]:
+          - generic [ref=f6e320]:
+            - generic [ref=f6e323]:
+              - heading "Test User" [level=3] [ref=f6e324]
+              - paragraph [ref=f6e325]: 2km · ⭐ 5
+            - generic [ref=f6e326]:
+              - generic [ref=f6e327]: "94"
+              - generic [ref=f6e328]: 极佳
+          - generic [ref=f6e329]:
+            - generic [ref=f6e330]:
+              - generic [ref=f6e331]: location_on
+              - generic [ref=f6e332]: 距离
+              - generic [ref=f6e333]: "50"
+            - generic [ref=f6e334]:
+              - generic [ref=f6e335]: star
+              - generic [ref=f6e336]: 评价
+              - generic [ref=f6e337]: "100"
+            - generic [ref=f6e338]:
+              - generic [ref=f6e339]: handyman
+              - generic [ref=f6e340]: 技能
+              - generic [ref=f6e341]: "100"
+      - button "Bob Builder 2km · ⭐ 4.8 92 极佳 location_on 距离 50 star 评价 96 handyman 技能 100" [ref=f6e342] [cursor=pointer]:
+        - generic [ref=f6e343]:
+          - generic [ref=f6e344]:
+            - generic [ref=f6e347]:
+              - heading "Bob Builder" [level=3] [ref=f6e348]
+              - paragraph [ref=f6e349]: 2km · ⭐ 4.8
+            - generic [ref=f6e350]:
+              - generic [ref=f6e351]: "92"
+              - generic [ref=f6e352]: 极佳
+          - generic [ref=f6e353]:
+            - generic [ref=f6e354]:
+              - generic [ref=f6e355]: location_on
+              - generic [ref=f6e356]: 距离
+              - generic [ref=f6e357]: "50"
+            - generic [ref=f6e358]:
+              - generic [ref=f6e359]: star
+              - generic [ref=f6e360]: 评价
+              - generic [ref=f6e361]: "96"
+            - generic [ref=f6e362]:
+              - generic [ref=f6e363]: handyman
+              - generic [ref=f6e364]: 技能
+              - generic [ref=f6e365]: "100"
+      - button "Bob Builder 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 80" [ref=f6e366] [cursor=pointer]:
+        - generic [ref=f6e367]:
+          - generic [ref=f6e368]:
+            - generic [ref=f6e371]:
+              - heading "Bob Builder" [level=3] [ref=f6e372]
+              - paragraph [ref=f6e373]: 2km · ⭐ 5
+            - generic [ref=f6e374]:
+              - generic [ref=f6e375]: "94"
+              - generic [ref=f6e376]: 极佳
+          - generic [ref=f6e377]:
+            - generic [ref=f6e378]:
+              - generic [ref=f6e379]: location_on
+              - generic [ref=f6e380]: 距离
+              - generic [ref=f6e381]: "50"
+            - generic [ref=f6e382]:
+              - generic [ref=f6e383]: star
+              - generic [ref=f6e384]: 评价
+              - generic [ref=f6e385]: "100"
+            - generic [ref=f6e386]:
+              - generic [ref=f6e387]: handyman
+              - generic [ref=f6e388]: 技能
+              - generic [ref=f6e389]: "80"
+      - button "Worker One 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 80" [ref=f6e390] [cursor=pointer]:
+        - generic [ref=f6e391]:
+          - generic [ref=f6e392]:
+            - generic [ref=f6e395]:
+              - heading "Worker One" [level=3] [ref=f6e396]
+              - paragraph [ref=f6e397]: 2km · ⭐ 5
+            - generic [ref=f6e398]:
+              - generic [ref=f6e399]: "94"
+              - generic [ref=f6e400]: 极佳
+          - generic [ref=f6e401]:
+            - generic [ref=f6e402]:
+              - generic [ref=f6e403]: location_on
+              - generic [ref=f6e404]: 距离
+              - generic [ref=f6e405]: "50"
+            - generic [ref=f6e406]:
+              - generic [ref=f6e407]: star
+              - generic [ref=f6e408]: 评价
+              - generic [ref=f6e409]: "100"
+            - generic [ref=f6e410]:
+              - generic [ref=f6e411]: handyman
+              - generic [ref=f6e412]: 技能
+              - generic [ref=f6e413]: "80"
+      - button "Wang Shifu 2km · ⭐ 5 94 极佳 location_on 距离 50 star 评价 100 handyman 技能 80" [ref=f6e414] [cursor=pointer]:
+        - generic [ref=f6e415]:
+          - generic [ref=f6e416]:
+            - generic [ref=f6e419]:
+              - heading "Wang Shifu" [level=3] [ref=f6e420]
+              - paragraph [ref=f6e421]: 2km · ⭐ 5
+            - generic [ref=f6e422]:
+              - generic [ref=f6e423]: "94"
+              - generic [ref=f6e424]: 极佳
+          - generic [ref=f6e425]:
+            - generic [ref=f6e426]:
+              - generic [ref=f6e427]: location_on
+              - generic [ref=f6e428]: 距离
+              - generic [ref=f6e429]: "50"
+            - generic [ref=f6e430]:
+              - generic [ref=f6e431]: star
+              - generic [ref=f6e432]: 评价
+              - generic [ref=f6e433]: "100"
+            - generic [ref=f6e434]:
+              - generic [ref=f6e435]: handyman
+              - generic [ref=f6e436]: 技能
+              - generic [ref=f6e437]: "80"
+      - paragraph [ref=f6e439]: Click a worker card to view details and book service
+    - navigation "Main Navigation" [ref=f6e440]:
+      - menubar [ref=f6e441]:
+        - menuitem "Home" [ref=f6e442] [cursor=pointer]:
+          - generic [ref=f6e443]: home
+        - menuitem "Cases" [ref=f6e446] [cursor=pointer]:
+          - generic [ref=f6e447]:
+            - generic [ref=f6e448]: folder_open
+            - generic [ref=f6e449]: "4"
+        - menuitem "New" [ref=f6e451] [cursor=pointer]:
+          - generic [ref=f6e452]: add_a_photo
+        - menuitem "Library" [ref=f6e455] [cursor=pointer]:
+          - generic [ref=f6e456]: auto_stories
+        - menuitem "Profile" [ref=f6e459] [cursor=pointer]:
+          - generic [ref=f6e460]: person

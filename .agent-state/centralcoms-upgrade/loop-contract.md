@@ -1,0 +1,24 @@
+# Loop Contract
+
+- Objective: Implement and independently verify the first approved CentralComs-inspired upgrade gate: organization/resource authorization plus a canonical, append-only maintenance case event foundation, while preserving existing behavior.
+- Mode: Goal
+- Trigger: Explicit user approval on 2026-07-29 to start executing the reviewed blueprint with a coordinated multi-agent team.
+- Scope: Wave A baseline evidence and the first bounded Wave B foundation slice in `server/db/**`, `server/services/**`, `server/middleware/**`, directly related routes, migrations, tests, and implementation receipts.
+- Non-goals: No production deployment, external messages, live channel/PMS/payment integration, credential use, autonomous financial action, leasing scope, broad UI redesign, or removal of legacy routes.
+- Owner: Primary commander `/root`; specialist builders have exclusive file territories and independent checker agents cannot self-certify their own edits.
+- Inputs: `docs/centralcoms-inspired-systematic-upgrade-blueprint.md`, current schema/routes/tests, repository audit evidence, and fresh baseline commands.
+- Artifacts path: `.agent-state/centralcoms-upgrade/artifacts/`
+- State path: `.agent-state/centralcoms-upgrade/state.md`
+- Work clock: `.agent-state/centralcoms-upgrade/work-clock.md`
+- Success metric: Strict contract validation passes; scoped schema/auth/case-event tests pass; existing node and UI unit tests pass; TypeScript build passes; no cross-organization or unrelated-resource fixture can read or mutate protected case data.
+- Evidence: Fresh command output, per-worker typed receipts, changed-file diff, migration/schema parity checks, authorization denial fixtures, event replay/idempotency fixtures, and independent review findings.
+- Verifier: Deterministic test/build/lint commands plus checker agents that did not author the accepted workstream.
+- Topology: manager-workers
+- Max iterations: 4 iterations
+- Time limit: 180 minutes
+- Budget: 220 tool calls
+- Review budget: 900 human-authored changed lines and 12 files per serial integration unit, with 25 source/generated files for the full B1 program; one generator-produced Drizzle snapshot is separately permitted only with a generator receipt and independent structural verification.
+- Stop condition: All declared success checks pass, or the 4-iteration, 180-minute, 220-call, 900-human-authored-line-per-unit, 12-file-per-unit, or 25-source-file program cap fires, or the same failure signature recurs twice after a changed diagnosis.
+- Write-back: Append every material action, evidence delta, decision, accepted/rejected artifact, and next action to the state and integration ledgers.
+- Permission boundary: Local workspace changes and local verification only; no production, deploy, publish, push, external service mutation, credentials, or shared-state action without separate user approval and a verified rollback; every worker crosses a serial integration gate owned by `/root`.
+- Recovery: Reject a worker artifact that violates territory or contracts; revert only commander-owned changes from the failed integration unit, retain legacy compatibility paths, and stop at the integration gate on regression or repeated failure.

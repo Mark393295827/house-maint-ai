@@ -6,9 +6,15 @@ import * as Sentry from '@sentry/node';
 import { trackAiCost } from '../middleware/aiCostTracker.js';
 import { trackInferenceValue } from '../middleware/inferenceValue.js';
 import { anonymizeImagePayload } from '../middleware/piplBlur.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
+import { aiUsageService } from '../services/aiUsage.js';
+import {
+    researchBudgetService,
+    type ResearchBudgetReservation,
+} from '../services/researchBudget.js';
 
 const router = express.Router();
+const USD_TO_CNY_RATE = Number(process.env.USD_TO_CNY_RATE || 7.2);
 
 function handleAiError(res: Response, error: unknown, publicMessage: string, logLabel: string) {
     console.error(`[AI] ${logLabel}`);
@@ -342,16 +348,81 @@ const researchSchema = z.object({
     locale: z.string().optional()
 });
 
-router.post('/research-market', async (req: Request, res: Response) => {
-    try {
-        const { sector, focusArea, currentTAM, locale } = researchSchema.parse(req.body);
-        const { result, usage } = await aiService.runResearch(sector, focusArea, currentTAM, locale);
-        (req as any).aiUsage = usage;
-        res.json(result);
-    } catch (error) {
-        handleAiError(res, error, 'Research swarm failed', 'Research swarm failed');
-    }
-});
+router.get(
+    '/research-market/preflight',
+    authorize('manager', 'admin'),
+    async (_req: Request, res: Response) => {
+        try {
+            res.json(await researchBudgetService.getPreflight());
+        } catch (error) {
+            handleAiError(
+                res,
+                error,
+                'Research budget preflight failed',
+                'Research budget preflight failed',
+            );
+        }
+    },
+);
+
+router.post(
+    '/research-market',
+    authorize('manager', 'admin'),
+    async (req: Request, res: Response) => {
+        let reservation: ResearchBudgetReservation | null = null;
+        try {
+            const {
+                sector,
+                focusArea,
+                currentTAM,
+                locale,
+            } = researchSchema.parse(req.body);
+
+            const budget = await researchBudgetService.reserve();
+            if (!budget.reserved) {
+                const status = budget.preflight.measurement === 'unavailable' ? 503 : 429;
+                res.status(status).json({
+                    error: 'Research execution is blocked by the budget gate',
+                    code: budget.preflight.reason_code,
+                    preflight: budget.preflight,
+                });
+                return;
+            }
+            reservation = budget.reservation;
+
+            const { result, usage } = await aiService.runResearch(
+                sector,
+                focusArea,
+                currentTAM,
+                locale,
+            );
+            (req as any).aiUsage = usage;
+
+            try {
+                await researchBudgetService.settle(
+                    reservation,
+                    aiUsageService.calculateCost(usage) * USD_TO_CNY_RATE,
+                );
+                reservation = null;
+            } catch (settlementError) {
+                console.error('[AI] Research budget settlement failed');
+                Sentry.captureException(settlementError);
+            }
+
+            res.json(result);
+        } catch (error) {
+            if (reservation) {
+                try {
+                    await researchBudgetService.release(reservation);
+                } catch (releaseError) {
+                    console.error('[AI] Research budget reservation release failed');
+                    Sentry.captureException(releaseError);
+                }
+            }
+            handleAiError(res, error, 'Research swarm failed', 'Research swarm failed');
+        }
+    },
+);
 
 
 export default router;

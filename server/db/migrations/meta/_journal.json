@@ -36,6 +36,20 @@
       "when": 1784508860527,
       "tag": "0004_complete_silver_samurai",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785038816939,
+      "tag": "0005_research_budget_reservations",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1785342657136,
+      "tag": "0006_organization_case_foundation",
+      "breakpoints": true
     }
   ]
 }

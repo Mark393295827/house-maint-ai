@@ -106,7 +106,7 @@ describe('Worker Portal Routes', () => {
 
             expect(res.status).toBe(200);
             expect(res.body.data.stats).toBeDefined();
-            expect(res.body.data.stats.earnings).toBe(450);
+            expect(res.body.data.stats.earnings).toBe(4.5);
             expect(res.body.data.stats.jobsCompleted).toBe(3);
             expect(res.body.data.stats.activeJobs).toBe(1);
             expect(res.body.data.stats.rating).toBe(4.5);

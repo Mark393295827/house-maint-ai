@@ -1,0 +1,56 @@
+- generic [ref=f12e2]:
+  - link "Skip to main content" [ref=f12e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f12e61]:
+    - generic [ref=f12e62]:
+      - button "arrow_back" [ref=f12e63]
+      - heading "验收评价" [level=1] [ref=f12e65]
+    - main [ref=f12e66]:
+      - generic [ref=f12e67]:
+        - generic [ref=f12e68]:
+          - generic [ref=f12e69]: check_circle
+          - generic [ref=f12e70]: 已完工
+        - 'heading "Codex audit fixture: kitchen faucet leaking under" [level=2] [ref=f12e71]'
+        - paragraph [ref=f12e72]: "Codex audit fixture: kitchen faucet leaking under sink 中文测试 🔧"
+      - generic [ref=f12e73]:
+        - heading "服务满意度" [level=3] [ref=f12e74]
+        - generic [ref=f12e75]:
+          - button "☆" [ref=f12e76]
+          - button "☆" [ref=f12e77]
+          - button "☆" [ref=f12e78]
+          - button "☆" [ref=f12e79]
+          - button "☆" [ref=f12e80]
+        - paragraph [ref=f12e81]: 请点击星星评分
+      - generic [ref=f12e82]:
+        - heading "质量指标" [level=3] [ref=f12e83]
+        - generic [ref=f12e84]:
+          - generic [ref=f12e85]: AI 诊断是否准确?
+          - generic [ref=f12e86]:
+            - button "✓ 准确" [ref=f12e87]
+            - button "✗ 不准确" [ref=f12e88]
+        - generic [ref=f12e89]:
+          - generic [ref=f12e90]: 是否一次修好?
+          - generic [ref=f12e91]:
+            - button "✓ 是" [ref=f12e92]
+            - button "✗ 否" [ref=f12e93]
+      - generic [ref=f12e94]:
+        - heading "补充说明 (选填)" [level=3] [ref=f12e95]
+        - textbox "您对本次维修服务有什么建议或补充?" [ref=f12e96]
+        - generic [ref=f12e97]: 0/500
+      - button "send 提交评价" [disabled] [ref=f12e98]:
+        - generic [ref=f12e99]: send
+        - text: 提交评价
+    - navigation "Main Navigation" [ref=f12e100]:
+      - menubar [ref=f12e101]:
+        - menuitem "Home" [ref=f12e102] [cursor=pointer]:
+          - generic [ref=f12e103]: home
+        - menuitem "Cases" [ref=f12e106] [cursor=pointer]:
+          - generic [ref=f12e107]:
+            - generic [ref=f12e108]: folder_open
+            - generic [ref=f12e109]: "3"
+        - menuitem "New" [ref=f12e111] [cursor=pointer]:
+          - generic [ref=f12e112]: add_a_photo
+        - menuitem "Library" [ref=f12e115] [cursor=pointer]:
+          - generic [ref=f12e116]: auto_stories
+        - menuitem "Profile" [ref=f12e119] [cursor=pointer]:
+          - generic [ref=f12e120]: person

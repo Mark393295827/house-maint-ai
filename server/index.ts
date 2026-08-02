@@ -13,10 +13,13 @@ import { dirname, join } from 'path';
 // Routes
 import authRoutes from './routes/auth.js';
 import reportRoutes from './routes/reports.js';
+import { createCasesRouter } from './routes/cases.routes.js';
+import { createReportCompatibilityRouter } from './routes/reportCompatibility.routes.js';
 import workerRoutes from './routes/workers.js';
 import uploadRoutes from './routes/uploads.js';
 import communityRoutes from './routes/community.js';
 import aiRoutes from './routes/ai.js';
+import agentRoutes from './routes/agent.routes.js';
 import metricsRoutes from './routes/metrics.js';
 import analyticsRoutes from './routes/analytics.js';
 import assetsRoutes from './routes/assets.js';
@@ -41,6 +44,10 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+// The concise case surface is deliberately opt-in until a concrete
+// organization-scoped AuthorizationRepository/resolver is mounted. With the
+// flag off, existing routes retain their exact ordering and behavior.
+const caseApiEnabled = process.env.CASE_API_ENABLED === 'true';
 
 // CORS Configuration - supports multiple environments
 const getAllowedOrigins = (): (string | RegExp)[] => {
@@ -136,9 +143,7 @@ app.use(metricsCollector);
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger.js';
 
-// Static files for uploads. Uploaded media is intentionally served with
-// anti-sniffing/sandbox headers so a spoofed upload cannot execute as active
-// same-origin content.
+// Static files for uploads.
 app.use('/uploads', express.static(join(__dirname, 'uploads'), {
     setHeaders: (res) => {
         res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -164,11 +169,18 @@ apiV1Router.get('/health', (req, res) => {
 // API Routes
 apiV1Router.use(userRateLimiter);
 apiV1Router.use('/auth', strictLimiter, authRoutes);
+if (caseApiEnabled) {
+    apiV1Router.use('/cases', createCasesRouter());
+    // POST /reports is a compatibility adapter; GET/PUT/etc. continue to the
+    // existing report router below because this router only handles POST /.
+    apiV1Router.use('/reports', createReportCompatibilityRouter());
+}
 apiV1Router.use('/reports', reportRoutes);
 apiV1Router.use('/workers', workerRoutes);
 apiV1Router.use('/uploads', uploadRoutes);
 apiV1Router.use('/community', communityRoutes);
 apiV1Router.use('/ai', strictLimiter, aiRoutes);
+apiV1Router.use('/agents', strictLimiter, agentRoutes);
 apiV1Router.use('/metrics', metricsRoutes);
 apiV1Router.use('/analytics', analyticsRoutes);
 apiV1Router.use('/assets', assetsRoutes);
@@ -193,9 +205,6 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Sentry Error Handler (must be before custom error handler)
-// Sentry.setupExpressErrorHandler(app);
-
 // Error handling
 app.use(errorHandler);
 
@@ -203,7 +212,6 @@ app.use(errorHandler);
 app.use((req, res) => {
     res.status(404).json({ error: 'Not Found', path: req.path });
 });
-
 
 import { createServer } from 'http';
 import { initSocket } from './socket.js';

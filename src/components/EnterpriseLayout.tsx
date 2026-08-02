@@ -50,7 +50,7 @@ const SearchField: React.FC = () => {
     const { t } = useLanguage();
 
     return (
-        <label className="enterprise-search">
+        <label className="enterprise-search hidden md:flex">
             <span className="material-symbols-outlined text-[17px]" aria-hidden="true">search</span>
             <input type="search" placeholder={t('enterprise.layout.searchPlaceholder')} />
         </label>
@@ -75,13 +75,16 @@ const Header: React.FC = () => {
             <SearchField />
 
             <div className="enterprise-topbar-actions">
+                <button className="md:hidden enterprise-icon-button" aria-label={t('enterprise.layout.searchPlaceholder')} title={t('enterprise.layout.searchPlaceholder')}>
+                    <span className="material-symbols-outlined text-[18px]">search</span>
+                </button>
                 <LanguageToggle />
                 <NotificationButton />
                 <div className="enterprise-user">
                     <span className="enterprise-user-avatar">
                         <span className="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
                     </span>
-                    <span className="enterprise-user-copy">
+                    <span className="enterprise-user-copy hidden md:flex">
                         <strong>{user?.name || t('enterprise.layout.defaultUser')}</strong>
                         <small>{user?.role || t('enterprise.layout.defaultRole')}</small>
                     </span>
@@ -96,7 +99,7 @@ const Sidebar: React.FC = () => {
     const { t } = useLanguage();
 
     return (
-        <aside className="enterprise-sidebar">
+        <aside className="enterprise-sidebar hidden md:flex">
             <div className="enterprise-brand">
                 <span className="enterprise-brand-mark">
                     <span className="material-symbols-outlined text-[21px]" aria-hidden="true">shield</span>
@@ -138,7 +141,7 @@ const MobileTabBar: React.FC = () => {
     const navItems = useEnterpriseNavItems();
 
     return (
-        <nav className="enterprise-mobile-tabs" aria-label="Enterprise navigation">
+        <nav className="enterprise-mobile-tabs md:hidden" aria-label="Enterprise navigation">
             {navItems.map((item) => {
                 return (
                     <NavLink

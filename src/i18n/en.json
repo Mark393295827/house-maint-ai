@@ -108,6 +108,8 @@
     },
     "profile": {
         "title": "Profile",
+        "defaultUser": "User",
+        "notLoggedIn": "Not signed in",
         "edit": "Edit",
         "save": "Save",
         "namePlaceholder": "Your Name",
@@ -136,6 +138,24 @@
             "cancelled": "Cancelled"
         }
     },
+    "reports": {
+        "detail": {
+            "notFound": "Report not found",
+            "backToCases": "Back to cases",
+            "back": "Back",
+            "eyebrow": "Report #{{id}}",
+            "category": "Category",
+            "worker": "Worker",
+            "workerId": "Worker #{{id}}",
+            "unassigned": "Unassigned",
+            "unknown": "Unknown",
+            "description": "Description",
+            "findWorker": "Find worker",
+            "repairGuide": "Repair guide",
+            "messages": "Messages",
+            "review": "Review"
+        }
+    },
     "community": {
         "title": "Community",
         "create": {
@@ -159,6 +179,11 @@
             "minsAgo": "mins ago",
             "hoursAgo": "hours ago"
         }
+    },
+    "notFound": {
+        "title": "Page not found",
+        "message": "The page you requested does not exist or is no longer available.",
+        "backHome": "Back to home"
     },
     "calendar": {
         "title": "Maintenance Plan",
@@ -276,10 +301,19 @@
         "payNow": "Pay Now",
         "success": {
             "title": "Payment Successful!",
-            "message": "Your payment has been processed. The worker has been notified.",
+            "message": "Your payment was verified. The report is now available for worker matching.",
             "orderId": "Order ID",
             "amount": "Amount",
             "viewOrders": "View All Orders"
+        },
+        "verification": {
+            "loadingTitle": "Verifying payment",
+            "loadingMessage": "Checking the trusted order status...",
+            "pendingTitle": "Payment pending",
+            "pendingMessage": "This order has not been paid yet. Complete payment in WeChat, then return here.",
+            "failedTitle": "Payment not verified",
+            "failedMessage": "We could not verify a paid order from this link. No worker has been notified.",
+            "service": "Service"
         },
         "cancel": {
             "title": "Payment Cancelled",
@@ -308,7 +342,10 @@
         "emptyDesc": "Start a conversation with a worker to get help",
         "chat": "Chat",
         "placeholder": "Type a message...",
-        "startConversation": "Send a message to start the conversation"
+        "startConversation": "Send a message to start the conversation",
+        "send": "Send message",
+        "sendFailed": "Message could not be sent. Please retry.",
+        "missingReport": "Open chat from an assigned repair so the message can be scoped securely."
     },
     "workerPortal": {
         "title": "Worker Dashboard",
@@ -469,6 +506,8 @@
         "or": "or",
         "socialGoogle": "Google",
         "socialApple": "Apple",
+        "socialWechat": "WeChat",
+        "socialAlipay": "Alipay",
         "skip": "Skip login, explore first →",
         "error": {
             "invalidPhone": "Please enter a valid phone number",
@@ -573,6 +612,668 @@
                 "workers": "Workers",
                 "analytics": "Analytics",
                 "aiConfig": "AI Config"
+            }
+        },
+        "analytics": {
+            "page": {
+                "eyebrow": "Enterprise Analytics",
+                "title": "Company Operations Intelligence",
+                "subtitle": "Company-wide operating efficiency, profitability, and reliability, with every value tied to its source and measurement state.",
+                "scopeSummary": "{{range}} · {{region}} · {{propertyType}}",
+                "generatedAt": "Generated {{time}}",
+                "formulaVersion": "Formula version {{version}}"
+            },
+            "filters": {
+                "title": "Analytics Filters",
+                "range": "Reporting Range",
+                "region": "Region",
+                "propertyType": "Property Type",
+                "stage": "Operating Stage",
+                "ranges": {
+                    "7d": "Last 7 Days",
+                    "30d": "Last 30 Days",
+                    "90d": "Last 90 Days"
+                },
+                "allRegions": "All Regions",
+                "allPropertyTypes": "All Property Types",
+                "allStages": "All Stages",
+                "activeScope": "Active Scope",
+                "open": "Open Filters",
+                "close": "Close Filters",
+                "apply": "Apply Filters",
+                "clear": "Clear Filters",
+                "refresh": "Refresh",
+                "refreshing": "Refreshing",
+                "export": "Export"
+            },
+            "navigation": {
+                "label": "Analytics Sections",
+                "overview": "Overview",
+                "visualizations": "Data Atlas",
+                "operations": "Operations",
+                "aiAgents": "AI & Agents",
+                "economics": "Economics",
+                "intelligence": "Intelligence",
+                "evidence": "Evidence"
+            },
+            "dataAtlas": {
+                "title": "Full Data Atlas",
+                "description": "A complete visual inventory of the verified operating, agent, load, and AI economics records in the selected period.",
+                "inventoryTitle": "Dataset Inventory",
+                "inventory": {
+                    "metrics": "Metric Points",
+                    "stages": "Operating Stages",
+                    "agents": "Agents",
+                    "samples": "Load Samples",
+                    "days": "Economics Days",
+                    "models": "Models",
+                    "endpoints": "Endpoints"
+                },
+                "coverageTitle": "Measurement Coverage",
+                "coverageDescription": "Measured, estimated, and unavailable metric points are counted without replacing missing values with zero.",
+                "charts": {
+                    "stageVolume": "Stage Volume and Exceptions",
+                    "stagePerformance": "Stage Conversion and Cycle Time",
+                    "pulseRates": "Company Percentage Metrics",
+                    "strategyScores": "Strategic Dimension Scores",
+                    "agentTokens": "Token Volume by Agent",
+                    "agentRuntime": "Agent Calls, Latency, and Token Scale",
+                    "systemLoad": "System Load Timeline",
+                    "tokenTimeline": "Daily Token and Cost Timeline",
+                    "modelEconomics": "Model Token Mix",
+                    "endpointValue": "Endpoint Business Value and Cost"
+                },
+                "series": {
+                    "volume": "Current Volume",
+                    "exceptions": "Exceptions",
+                    "conversion": "Conversion",
+                    "cycleTime": "Cycle Time",
+                    "actual": "Actual",
+                    "score": "Score",
+                    "inputTokens": "Input Tokens",
+                    "outputTokens": "Output Tokens",
+                    "calls": "Calls",
+                    "averageLatency": "Average Latency",
+                    "throughput": "Throughput",
+                    "successRate": "Success Rate",
+                    "cost": "Cost",
+                    "businessValue": "Estimated Business Value"
+                },
+                "noData": "No verified values are available for this visualization.",
+                "zeroData": "All verified values in this visualization are zero."
+            },
+            "measurement": {
+                "label": "Measurement State",
+                "measured": "Measured",
+                "estimated": "Estimated",
+                "unavailable": "Unavailable",
+                "na": "N/A",
+                "descriptions": {
+                    "measured": "Directly recorded or deterministically aggregated from durable data.",
+                    "estimated": "Calculated with a declared formula, baseline, or proxy.",
+                    "unavailable": "Not enough verified data is available to report a value."
+                }
+            },
+            "metadata": {
+                "currentValue": "Current Value",
+                "previousPeriod": "Previous Period",
+                "periodComparison": "Compared with Previous Period",
+                "target": "Target",
+                "source": "Source",
+                "freshness": "Freshness",
+                "sampleSize": "Sample Size",
+                "sampleSizeValue": "{{count}} samples",
+                "formulaVersion": "Formula Version",
+                "generatedAt": "Generated At",
+                "lastUpdated": "Last Updated",
+                "evidence": "Evidence",
+                "evidenceCount": "{{count}} evidence items",
+                "viewEvidence": "View Evidence",
+                "runTime": "Run Time",
+                "threshold": "Threshold",
+                "measuredValue": "Measured Value",
+                "unit": "Unit",
+                "reason": "Reason"
+            },
+            "freshness": {
+                "label": "Data Freshness",
+                "live": "Live",
+                "delayed": "Delayed",
+                "partial": "Partial",
+                "unknown": "Unknown"
+            },
+            "states": {
+                "loadingTitle": "Loading Analytics",
+                "loadingBody": "Reading company operations and AI usage sources.",
+                "emptyTitle": "No Data for This Scope",
+                "emptyBody": "No verified records match the selected filters.",
+                "errorTitle": "Analytics Could Not Be Loaded",
+                "errorBody": "The overview request failed. No unavailable value has been replaced with zero.",
+                "partialTitle": "Some Sources Are Unavailable",
+                "partialBody": "Verified sections remain available while affected sources are identified.",
+                "retry": "Try Again",
+                "noResults": "No Results",
+                "sectionUnavailable": "This section is unavailable.",
+                "accessIssue": "Source Access Issue",
+                "refreshFailed": "The latest refresh failed. Previously verified data remains visible.",
+                "noAlerts": "No active strategy alerts for this scope.",
+                "noAgents": "No agent activity was recorded for this scope.",
+                "noSamples": "No historical load samples are available.",
+                "noResearch": "No market-intelligence result is available.",
+                "noEconomics": "No AI economics records are available.",
+                "noEvidence": "No supporting evidence matches this scope."
+            },
+            "unavailableReasons": {
+                "missingValue": "The source did not return a value.",
+                "missingDenominator": "No denominator is available for this calculation.",
+                "zeroDenominator": "The denominator is zero, so a percentage or ratio cannot be calculated.",
+                "insufficientSample": "The verified sample is below the required minimum.",
+                "sourceUnavailable": "The required source could not be read.",
+                "durableSourceMissing": "A durable source has not been implemented for this measurement.",
+                "accessRestricted": "The current role cannot access the required source.",
+                "slaPolicyMissing": "No durable SLA deadline or policy ledger is available.",
+                "transitionHistoryMissing": "Stage-transition history is not recorded, so conversion and cycle time cannot be measured.",
+                "graphReceiptsMissing": "Graph-node completion receipts are not recorded.",
+                "telemetryObservationsMissing": "The telemetry ledger does not contain the observations required for this measurement.",
+                "historicalSamplesMissing": "Durable historical system-load samples are not available.",
+                "capacityMissing": "Configured system capacity is not available.",
+                "validatedResearchMissing": "No durable validated research run is available.",
+                "researchHistoryMissing": "Research-run history is not stored durably.",
+                "positiveRevenueRequired": "Positive paid revenue is required for this calculation.",
+                "requiredInputsMissing": "One or more required inputs are unavailable.",
+                "timingCategoriesMissing": "The required compute, coordination, and idle timing categories are not all observable.",
+                "baselineMissing": "No declared baseline model and period are available.",
+                "economicsUnavailable": "The AI economics ledger could not provide the required value.",
+                "noActivity": "No qualifying activity was recorded in the selected period.",
+                "outsideSelectedRange": "The source has no qualifying records in the selected period."
+            },
+            "pulse": {
+                "title": "Company Pulse",
+                "subtitle": "Current operating health, period movement, target, and data freshness.",
+                "metricAction": "Open Metric Evidence",
+                "metrics": {
+                    "activeWorkOrders": {
+                        "label": "Active Work Orders",
+                        "description": "Reports whose current status is not completed or cancelled."
+                    },
+                    "availableWorkers": {
+                        "label": "Available Workers",
+                        "description": "Workers currently marked as available."
+                    },
+                    "satisfaction": {
+                        "label": "Satisfaction",
+                        "description": "Average durable review rating for the selected period."
+                    },
+                    "slaAttainment": {
+                        "label": "SLA Attainment",
+                        "description": "Share of qualifying work that met its configured SLA deadline."
+                    },
+                    "diyDeflectionRate": {
+                        "label": "DIY Deflection Rate",
+                        "description": "Reports classified for DIY resolution as a share of all period reports."
+                    },
+                    "firstTimeFixRate": {
+                        "label": "First-Time-Fix Rate",
+                        "description": "Average of recorded first-time-fix outcomes."
+                    },
+                    "diagnosisAccuracy": {
+                        "label": "Diagnosis Accuracy",
+                        "description": "Average of recorded diagnosis-correct observations."
+                    },
+                    "revenue": {
+                        "label": "Paid Revenue",
+                        "description": "Paid order amount recorded in the selected period."
+                    },
+                    "grossMargin": {
+                        "label": "Gross Margin",
+                        "description": "Paid revenue less stored AI token cost, divided by paid revenue."
+                    },
+                    "estimatedAiValue": {
+                        "label": "Estimated AI-Created Value",
+                        "description": "Business value estimated from declared endpoint value models."
+                    },
+                    "aiCostToRevenue": {
+                        "label": "AI Cost to Revenue",
+                        "description": "Stored AI token cost divided by paid revenue."
+                    }
+                }
+            },
+            "operatingLoop": {
+                "title": "Operating Loop Health",
+                "subtitle": "Volume, progression, cycle time, and exceptions across the six operating stages.",
+                "loopLabel": "Six-Stage Operating Loop",
+                "stageNumber": "Stage {{order}}",
+                "selectStage": "Filter by stage",
+                "clearStage": "Clear Stage Filter",
+                "nextStage": "Next: {{stage}}",
+                "finalStage": "Final Stage",
+                "filteredBy": "Filtered by {{stage}}",
+                "noExceptions": "No exceptions recorded.",
+                "fields": {
+                    "currentVolume": "Current Volume",
+                    "enteringVolume": "Entering Volume",
+                    "conversionToNext": "Conversion to Next Stage",
+                    "medianCycleTime": "Median Cycle Time",
+                    "exceptionCount": "Exceptions"
+                },
+                "stages": {
+                    "intake": {
+                        "label": "Intake",
+                        "description": "Reports awaiting initial processing."
+                    },
+                    "diagnosis": {
+                        "label": "Diagnosis",
+                        "description": "Reports with failed analysis or awaiting manual review."
+                    },
+                    "deflection": {
+                        "label": "Deflection",
+                        "description": "Analyzed, DIY-routed, or failed-planning reports awaiting the next action."
+                    },
+                    "dispatch": {
+                        "label": "Dispatch",
+                        "description": "Work being planned, matched, or assigned."
+                    },
+                    "verification": {
+                        "label": "Verification",
+                        "description": "Work in progress and awaiting outcome verification."
+                    },
+                    "reporting": {
+                        "label": "Reporting",
+                        "description": "Completed and cancelled outcomes summarized for reporting."
+                    }
+                }
+            },
+            "strategy": {
+                "title": "Strategic Outlook",
+                "subtitle": "Versioned scores derived only when their required inputs and minimum samples are available.",
+                "scoreOutOfTen": "{{score}} out of 10",
+                "notScored": "Not Scored",
+                "minimumInputsMissing": "Minimum source or sample requirements are not met.",
+                "fields": {
+                    "score": "Score",
+                    "trend": "Trend",
+                    "confidence": "Confidence",
+                    "formulaVersion": "Formula Version",
+                    "source": "Source",
+                    "evidence": "Evidence Inputs"
+                },
+                "dimensions": {
+                    "tam": {
+                        "label": "TAM",
+                        "fullName": "Total Addressable Market",
+                        "description": "Validated current and expanded addressable-market evidence."
+                    },
+                    "tenX": {
+                        "label": "10X",
+                        "fullName": "10X Operating Leverage",
+                        "description": "Composite estimate using deflection, diagnosis accuracy, and first-time-fix rates."
+                    },
+                    "team": {
+                        "label": "Team",
+                        "fullName": "Team Capacity",
+                        "description": "Composite estimate using worker availability, first-time fix, and satisfaction."
+                    },
+                    "financials": {
+                        "label": "Financials",
+                        "fullName": "Financial Efficiency",
+                        "description": "Composite estimate using gross margin and inference efficiency."
+                    }
+                },
+                "confidence": {
+                    "high": "High",
+                    "medium": "Medium",
+                    "low": "Low",
+                    "unavailable": "Unavailable"
+                },
+                "trends": {
+                    "up": "Improving",
+                    "down": "Declining",
+                    "flat": "Stable",
+                    "unavailable": "Trend Unavailable"
+                }
+            },
+            "alerts": {
+                "title": "Strategy Control Alerts",
+                "subtitle": "Deterministic, advisory operating rules ranked by severity, business impact, and age.",
+                "sortOrder": "Sorted by severity, business impact, then age.",
+                "fields": {
+                    "id": "Alert ID",
+                    "generatedAt": "Generated At",
+                    "severity": "Severity",
+                    "owner": "Owner",
+                    "stage": "Operating Stage",
+                    "rule": "Rule",
+                    "formulaVersion": "Formula Version",
+                    "metricValue": "Metric Value",
+                    "unit": "Unit",
+                    "threshold": "Threshold",
+                    "comparison": "Comparison",
+                    "recommendedAction": "Recommended Action",
+                    "evidence": "Evidence",
+                    "approval": "Human Approval",
+                    "status": "Status",
+                    "businessImpact": "Business Impact",
+                    "age": "Age"
+                },
+                "severity": {
+                    "critical": "Critical",
+                    "warning": "Warning",
+                    "info": "Information"
+                },
+                "owners": {
+                    "operations": "Operations",
+                    "finance": "Finance",
+                    "workforce": "Workforce",
+                    "quality": "Quality"
+                },
+                "comparators": {
+                    "gt": "Greater Than",
+                    "gte": "Greater Than or Equal To",
+                    "lt": "Less Than",
+                    "lte": "Less Than or Equal To"
+                },
+                "statuses": {
+                    "active": "Active",
+                    "acknowledged": "Acknowledged",
+                    "resolved": "Resolved"
+                },
+                "approval": {
+                    "required": "Approval Required",
+                    "notRequired": "No Approval Required",
+                    "advisory": "This recommendation is advisory. No action is executed automatically."
+                },
+                "actions": {
+                    "view": "View Alert",
+                    "acknowledge": "Acknowledge",
+                    "acknowledging": "Acknowledging",
+                    "markResolved": "Mark Resolved",
+                    "viewEvidence": "View Alert Evidence"
+                },
+                "rules": {
+                    "diagnosisAccuracy": "Diagnosis accuracy is below 85%.",
+                    "firstTimeFix": "First-time-fix rate is below 80%.",
+                    "workforceCapacity": "There are more than three active work orders per available worker.",
+                    "grossMargin": "Gross margin is below 60%.",
+                    "operatingFailure": "A failed-analysis or failed-planning exception is present."
+                },
+                "recommendations": {
+                    "review_diagnosis_accuracy": "Review diagnosis evidence and quality controls before changing automation.",
+                    "review_first_time_fix": "Review repeat-work causes and the first-time-fix process.",
+                    "review_workforce_capacity": "Review worker coverage and capacity before approving recruitment or dispatch changes.",
+                    "review_gross_margin": "Review paid revenue and AI cost drivers before approving financial changes.",
+                    "review_failed_analysis": "Review failed-analysis exceptions and their evidence.",
+                    "review_failed_planning": "Review failed-planning exceptions and dispatch inputs.",
+                    "review_operating_exceptions": "Review current analysis and planning exceptions.",
+                    "unknown": "Review this alert with its assigned owner."
+                }
+            },
+            "agents": {
+                "title": "Agent Swarm Status",
+                "subtitle": "Operational telemetry from durable AI usage records and the endpoint-to-agent registry.",
+                "fields": {
+                    "agentId": "Agent ID",
+                    "displayName": "Display Name",
+                    "displayCode": "Display Code",
+                    "workflowStage": "Workflow Stage",
+                    "status": "Status",
+                    "assignedModels": "Assigned Models",
+                    "calls": "Calls",
+                    "inputTokens": "Input Tokens",
+                    "outputTokens": "Output Tokens",
+                    "totalTokens": "Total Tokens",
+                    "storedCost": "Stored Cost",
+                    "averageLatency": "Average Latency",
+                    "p95Latency": "P95 Latency",
+                    "successRate": "Success Rate",
+                    "errorRate": "Error Rate",
+                    "lastActivity": "Last Activity",
+                    "graphNodesCompleted": "Graph Nodes Completed"
+                },
+                "statuses": {
+                    "online": "Online",
+                    "idle": "Idle",
+                    "degraded": "Degraded",
+                    "offline": "Offline"
+                },
+                "statusDescriptions": {
+                    "online": "Activity recorded within the last 15 minutes.",
+                    "idle": "Last activity was more than 15 minutes ago and within 24 hours.",
+                    "degraded": "Available telemetry indicates impaired operation.",
+                    "offline": "Last activity was more than 24 hours ago, or no activity is recorded."
+                },
+                "crossStage": "Cross-Stage",
+                "noAssignedModel": "No assigned model reported.",
+                "lastActivityUnknown": "Last activity unavailable.",
+                "graphNodesHidden": "Graph-node counts remain hidden until completion receipts are available.",
+                "openDetails": "Open Agent Details"
+            },
+            "systemLoad": {
+                "title": "System Load",
+                "subtitle": "Current request throughput, reliability, latency, active runs, and utilization.",
+                "fields": {
+                    "observationStartedAt": "Observation Started",
+                    "throughput": "Request Throughput",
+                    "successRate": "Success Rate",
+                    "averageLatency": "Average Response Latency",
+                    "p95Latency": "P95 Response Latency",
+                    "activeAgentRuns": "Active Agent Runs",
+                    "activeAgents": "Active Agents",
+                    "utilization": "Utilization",
+                    "trend": "Load Trend",
+                    "timestamp": "Timestamp"
+                },
+                "statuses": {
+                    "live": "Live",
+                    "partial": "Partial",
+                    "unavailable": "Unavailable"
+                },
+                "trendUnavailable": "Historical trend requires durable metric samples.",
+                "p95Unavailable": "P95 latency requires sufficient recorded latency observations.",
+                "utilizationUnavailable": "Utilization requires durable samples and configured capacity."
+            },
+            "economics": {
+                "title": "VC Value Economics",
+                "subtitle": "Estimated business value and measured AI usage costs under one reporting range.",
+                "vc": {
+                    "title": "Value and Inference Economics",
+                    "subtitle": "Token cost is measured from the usage ledger; business value, ROI, and IVR are estimated from declared endpoint value models."
+                },
+                "token": {
+                    "title": "Token Efficiency",
+                    "subtitle": "Consumption, output share, and cost from durable usage rows."
+                },
+                "metrics": {
+                    "estimatedBusinessValue": "Estimated Business Value",
+                    "actualTokenCost": "Actual Stored Token Cost",
+                    "returnOnInference": "Return on Inference",
+                    "inferenceCostToValue": "Inference Cost / Business Value",
+                    "totalTokenConsumption": "Total Token Consumption",
+                    "inputTokens": "Input Tokens",
+                    "outputTokens": "Output Tokens",
+                    "outputShare": "Output Share",
+                    "totalToOutputRatio": "Total Consumption / Output",
+                    "calls": "Calls",
+                    "averageLatency": "Average Latency"
+                },
+                "effectiveTotalNote": "Each ledger row uses the greater of reported total tokens and input plus output tokens before aggregation.",
+                "noBillableCost": "Recorded calls generated no stored billable cost.",
+                "trendTitle": "Token Usage Trend",
+                "trendSubtitle": "Aggregated by ledger date for the selected range.",
+                "modelTitle": "Model Efficiency",
+                "modelSubtitle": "Compare usage, output share, calls, stored cost, and latency by model.",
+                "endpointTitle": "Endpoint Value",
+                "endpointSubtitle": "Compare measured usage and estimated value by endpoint.",
+                "fields": {
+                    "period": "Period",
+                    "model": "Model",
+                    "endpoint": "Endpoint",
+                    "calls": "Calls",
+                    "tokenMix": "Input / Output",
+                    "outputShare": "Output Share",
+                    "cost": "Stored Cost",
+                    "value": "Estimated Value",
+                    "latency": "Average Latency"
+                }
+            },
+            "intelligence": {
+                "title": "Automated Market Intelligence",
+                "subtitle": "Explicit, user-triggered market research with budget and validation checks.",
+                "notice": "Page load and refresh never start an external research call.",
+                "inputs": {
+                    "title": "Research Inputs",
+                    "sector": "Sector",
+                    "sectorPlaceholder": "Enter a market sector",
+                    "focus": "Focus Area",
+                    "focusPlaceholder": "Enter the decision or question to examine",
+                    "currentTam": "Current TAM",
+                    "currentTamPlaceholder": "Optional current TAM input",
+                    "locale": "Research Locale",
+                    "costEstimate": "Estimated Cost",
+                    "budgetState": "Budget State"
+                },
+                "actions": {
+                    "execute": "Execute Intelligence Scan",
+                    "executing": "Running Intelligence Scan",
+                    "viewHistory": "View Prior Runs",
+                    "viewEvidence": "View Research Evidence",
+                    "clearResult": "Clear Result",
+                    "retry": "Retry Scan"
+                },
+                "budget": {
+                    "withinBudget": "Within Budget",
+                    "nearLimit": "Near Budget Limit",
+                    "exceeded": "Budget Exceeded",
+                    "unavailable": "Budget State Unavailable",
+                    "approvalRequired": "Budget approval is required before execution."
+                },
+                "validation": {
+                    "title": "Three-Agent Validation",
+                    "pending": "Pending",
+                    "running": "In Progress",
+                    "passed": "Validated",
+                    "failed": "Validation Failed",
+                    "partial": "Partially Validated",
+                    "agents": {
+                        "incrementalDemand": "Incremental Demand",
+                        "tenX": "10X Potential",
+                        "competitiveMoat": "Competitive Moat"
+                    }
+                },
+                "results": {
+                    "title": "Latest Research Result",
+                    "latestVerdict": "Latest Verdict",
+                    "executiveSummary": "Executive Summary",
+                    "evidenceCount": "Evidence Count",
+                    "runTime": "Run Time",
+                    "completedAt": "Completed At",
+                    "measurement": "Measurement State",
+                    "priorRuns": "Prior Research Runs",
+                    "noResult": "No successful user-triggered research result is available."
+                },
+                "historyUnavailable": "Research-run history is not durable, so prior runs cannot be listed.",
+                "executionBlocked": "The scan cannot start until role, CSRF, and budget checks pass."
+            },
+            "efficiency": {
+                "title": "Efficiency Topology",
+                "subtitle": "Observed execution time allocated across compute, coordination, and idle categories.",
+                "categories": {
+                    "aiCompute": {
+                        "label": "AI Compute",
+                        "description": "Observed model execution time."
+                    },
+                    "agentCoordination": {
+                        "label": "Agent Coordination",
+                        "description": "Verified orchestration or wait time."
+                    },
+                    "systemIdle": {
+                        "label": "System Idle",
+                        "description": "Available observation time not consumed by compute or coordination."
+                    },
+                    "costOptimization": {
+                        "label": "Cost Optimization",
+                        "description": "Cost change against a declared baseline model and period."
+                    }
+                },
+                "fields": {
+                    "share": "Share",
+                    "observedDuration": "Observed Duration",
+                    "baselineModel": "Baseline Model",
+                    "baselinePeriod": "Baseline Period",
+                    "comparison": "Baseline Comparison"
+                },
+                "allocationTotal": "Measured Allocation",
+                "roundingNote": "Displayed shares are corrected after rounding to total 100%.",
+                "baselineComparison": "Compared with {{model}} over {{period}}.",
+                "unavailableNote": "Topology remains unavailable until all timing categories and a declared baseline are observable."
+            },
+            "evidence": {
+                "title": "Supporting Evidence",
+                "subtitle": "Measured and estimated detail by trend, model, endpoint, region, and quality source.",
+                "tabs": {
+                    "trends": "Trends",
+                    "models": "Models",
+                    "endpoints": "Endpoints",
+                    "regions": "Regions",
+                    "quality": "Quality"
+                },
+                "fields": {
+                    "metric": "Metric",
+                    "value": "Value",
+                    "measurement": "Measurement State",
+                    "source": "Source",
+                    "freshness": "Freshness",
+                    "sampleSize": "Sample Size",
+                    "model": "Model",
+                    "endpoint": "Endpoint",
+                    "region": "Region",
+                    "period": "Period"
+                },
+                "openRow": "Open Evidence Detail",
+                "tableEquivalent": "View Data Table",
+                "chartSummary": "Chart Summary"
+            },
+            "units": {
+                "count": "Count",
+                "percent": "Percent",
+                "score_10": "Score out of 10",
+                "milliseconds": "Milliseconds",
+                "hours": "Hours",
+                "cny": "CNY",
+                "cny_per_minute": "CNY per minute",
+                "requests_per_minute": "Requests per minute",
+                "ratio": "Ratio"
+            },
+            "accessibility": {
+                "skipToContent": "Skip to analytics content",
+                "sectionNavigation": "Analytics section navigation",
+                "openFilters": "Open analytics filters",
+                "closeFilters": "Close analytics filters",
+                "rangeFilter": "Filter by reporting range",
+                "regionFilter": "Filter by region",
+                "propertyTypeFilter": "Filter by property type",
+                "stageFilter": "Filter by operating stage",
+                "refreshAnalytics": "Refresh company analytics",
+                "refreshingAnalytics": "Company analytics are refreshing",
+                "metricDetails": "Open details for {{metric}}",
+                "selectStage": "Filter analytics by {{stage}}",
+                "clearStage": "Clear operating-stage filter",
+                "alertDetails": "Open strategy alert {{id}}",
+                "agentDetails": "Open details for agent {{agent}}",
+                "openEvidence": "Open supporting evidence",
+                "closeDrawer": "Close detail panel",
+                "chartSummary": "Accessible chart summary",
+                "dataTable": "Accessible data table",
+                "loadingSection": "Loading {{section}}",
+                "measurementFor": "{{metric}} is {{measurement}}",
+                "freshnessFor": "{{metric}} freshness: {{freshness}}",
+                "systemLoadChart": "System load trend",
+                "tokenTrendChart": "Token usage trend",
+                "efficiencyChart": "Efficiency topology shares",
+                "marketResearchForm": "Market intelligence research form",
+                "executeResearch": "Execute a user-triggered market intelligence scan",
+                "previousPage": "Previous page",
+                "nextPage": "Next page",
+                "sortBy": "Sort by {{field}}"
             }
         },
         "tickets": {

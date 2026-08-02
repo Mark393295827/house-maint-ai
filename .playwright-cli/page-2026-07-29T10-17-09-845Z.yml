@@ -1,0 +1,220 @@
+- generic [ref=f2e2]:
+  - link "Skip to main content" [ref=f2e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f2e61]:
+    - generic [ref=f2e63]:
+      - generic [ref=f2e64]:
+        - heading "🛡️ Ops Center" [level=1] [ref=f2e65]
+        - generic [ref=f2e66]: SYSTEM ONLINE
+      - button "notifications" [ref=f2e69]
+    - generic [ref=f2e74]:
+      - generic [ref=f2e75]:
+        - generic [ref=f2e76]: auto_awesome
+        - generic [ref=f2e78]: ✨ AI Proactive Insight
+        - generic [ref=f2e79]: LIVE
+      - heading "Clean AC Filter" [level=3] [ref=f2e82]
+      - paragraph [ref=f2e83]: No recent AC maintenance detected. Suggest deep cleaning filter to maintain air quality.
+      - button "View Now arrow_forward" [ref=f2e84]:
+        - text: View Now
+        - generic [ref=f2e85]: arrow_forward
+    - generic [ref=f2e87]:
+      - generic [ref=f2e88]:
+        - generic [ref=f2e89]: "3"
+        - generic [ref=f2e90]: ACTIVE
+      - generic [ref=f2e91]:
+        - generic [ref=f2e92]: "1"
+        - generic [ref=f2e93]: DONE
+      - generic [ref=f2e94]:
+        - generic [ref=f2e95]: "3"
+        - generic [ref=f2e96]: THIS MTH
+    - button "add_a_photo New Report Photo · Video · Voice → AI Diagnosis arrow_forward" [ref=f2e98]:
+      - generic [ref=f2e101]:
+        - generic [ref=f2e102]: add_a_photo
+        - generic [ref=f2e104]:
+          - generic [ref=f2e105]: New Report
+          - generic [ref=f2e106]: Photo · Video · Voice → AI Diagnosis
+        - generic [ref=f2e107]: arrow_forward
+    - generic [ref=f2e108]:
+      - generic [ref=f2e109]:
+        - heading "Operating Loop" [level=2] [ref=f2e110]
+        - generic [ref=f2e111]: Report to owner-ready
+      - generic [ref=f2e112]:
+        - button "forum 01 24/7 WeChat intake Receipt in 6 seconds" [ref=f2e113]:
+          - generic [ref=f2e114]:
+            - generic [ref=f2e115]: forum
+            - generic [ref=f2e116]: "01"
+          - generic [ref=f2e117]:
+            - paragraph [ref=f2e118]: 24/7 WeChat intake
+            - paragraph [ref=f2e119]: Receipt in 6 seconds
+        - button "camera_enhance 02 AI diagnosis and liability gate 85%+ target on top categories" [ref=f2e120]:
+          - generic [ref=f2e121]:
+            - generic [ref=f2e122]: camera_enhance
+            - generic [ref=f2e123]: "02"
+          - generic [ref=f2e124]:
+            - paragraph [ref=f2e125]: AI diagnosis and liability gate
+            - paragraph [ref=f2e126]: 85%+ target on top categories
+        - button "self_improvement 03 DIY deflection 20%+ deflection target" [ref=f2e127]:
+          - generic [ref=f2e128]:
+            - generic [ref=f2e129]: self_improvement
+            - generic [ref=f2e130]: "03"
+          - generic [ref=f2e131]:
+            - paragraph [ref=f2e132]: DIY deflection
+            - paragraph [ref=f2e133]: 20%+ deflection target
+        - button "near_me 04 Geo-ranked worker dispatch 5-minute acceptance target" [ref=f2e134]:
+          - generic [ref=f2e135]:
+            - generic [ref=f2e136]: near_me
+            - generic [ref=f2e137]: "04"
+          - generic [ref=f2e138]:
+            - paragraph [ref=f2e139]: Geo-ranked worker dispatch
+            - paragraph [ref=f2e140]: 5-minute acceptance target
+        - button "fact_check 05 Repair verification 0 manual chasing" [ref=f2e141]:
+          - generic [ref=f2e142]:
+            - generic [ref=f2e143]: fact_check
+            - generic [ref=f2e144]: "05"
+          - generic [ref=f2e145]:
+            - paragraph [ref=f2e146]: Repair verification
+            - paragraph [ref=f2e147]: 0 manual chasing
+        - button "analytics 06 Owner reports and SLA Owner-ready reporting" [ref=f2e148]:
+          - generic [ref=f2e149]:
+            - generic [ref=f2e150]: analytics
+            - generic [ref=f2e151]: "06"
+          - generic [ref=f2e152]:
+            - paragraph [ref=f2e153]: Owner reports and SLA
+            - paragraph [ref=f2e154]: Owner-ready reporting
+    - generic [ref=f2e156]:
+      - button "add_a_photo 30s Photo Diagnosis" [ref=f2e157]:
+        - generic [ref=f2e158]: add_a_photo
+        - generic [ref=f2e160]:
+          - paragraph [ref=f2e161]: 30s
+          - paragraph [ref=f2e162]: Photo Diagnosis
+      - button "hub Claw Omnichannel" [ref=f2e163]:
+        - generic [ref=f2e164]: hub
+        - generic [ref=f2e166]:
+          - paragraph [ref=f2e167]: Claw
+          - paragraph [ref=f2e168]: Omnichannel
+      - button "verified_user 防 Anti-Relapse" [ref=f2e169]:
+        - generic [ref=f2e170]: verified_user
+        - generic [ref=f2e172]:
+          - paragraph [ref=f2e173]: 防
+          - paragraph [ref=f2e174]: Anti-Relapse
+      - button "videocam Live Remote Inspect" [ref=f2e175]:
+        - generic [ref=f2e176]: videocam
+        - generic [ref=f2e178]:
+          - paragraph [ref=f2e179]: Live
+          - paragraph [ref=f2e180]: Remote Inspect
+    - generic [ref=f2e182]:
+      - generic [ref=f2e183]:
+        - generic [ref=f2e184]: videocam
+        - generic [ref=f2e186]:
+          - generic [ref=f2e187]:
+            - paragraph [ref=f2e188]: Live Remote Inspection
+            - generic [ref=f2e189]: Coming Soon
+          - paragraph [ref=f2e190]: Engineers join via video, Gemini marks problem areas in real-time
+      - generic [ref=f2e191]:
+        - button "notifications Notify Me" [ref=f2e192]:
+          - generic [ref=f2e193]: notifications
+          - text: Notify Me
+        - button "info Learn More" [ref=f2e194]:
+          - generic [ref=f2e195]: info
+          - text: Learn More
+    - generic [ref=f2e196]:
+      - generic [ref=f2e197]:
+        - heading "📋 My Cases" [level=2] [ref=f2e198]
+        - button "View All" [ref=f2e199]
+      - generic [ref=f2e200]:
+        - generic [ref=f2e201]:
+          - generic [ref=f2e202]:
+            - generic [ref=f2e203]: engineering
+            - generic [ref=f2e205]:
+              - generic [ref=f2e206]:
+                - paragraph [ref=f2e207]: 水管接头漏水，已持续数天，逐渐加重
+                - generic [ref=f2e208]: 2026-07-29
+              - generic [ref=f2e209]:
+                - generic [ref=f2e210]: MODERATE
+                - generic [ref=f2e211]: S1/8
+          - generic [ref=f2e213]:
+            - generic [ref=f2e214]: 维修进度 PROGRESS
+            - generic [ref=f2e215]: 13%
+        - generic [ref=f2e218]:
+          - generic [ref=f2e219]:
+            - generic [ref=f2e220]: engineering
+            - generic [ref=f2e222]:
+              - generic [ref=f2e223]:
+                - paragraph [ref=f2e224]: "Codex audit fixture: kitchen faucet leaking under"
+                - generic [ref=f2e225]: 2026-07-29
+              - generic [ref=f2e226]:
+                - generic [ref=f2e227]: MODERATE
+                - generic [ref=f2e228]: S1/8
+          - generic [ref=f2e230]:
+            - generic [ref=f2e231]: 维修进度 PROGRESS
+            - generic [ref=f2e232]: 13%
+        - generic [ref=f2e235]:
+          - generic [ref=f2e236]:
+            - generic [ref=f2e237]: engineering
+            - generic [ref=f2e239]:
+              - generic [ref=f2e240]:
+                - paragraph [ref=f2e241]: 水管接头漏水，已持续数天，逐渐加重
+                - generic [ref=f2e242]: 2026-07-08
+              - generic [ref=f2e243]:
+                - generic [ref=f2e244]: MODERATE
+                - generic [ref=f2e245]: S1/8
+          - generic [ref=f2e247]:
+            - generic [ref=f2e248]: 维修进度 PROGRESS
+            - generic [ref=f2e249]: 13%
+      - generic [ref=f2e252]:
+        - generic [ref=f2e253]: check_circle
+        - generic [ref=f2e254]: 1 completed
+    - generic [ref=f2e255]:
+      - heading "📚 Case Library" [level=2] [ref=f2e257]
+      - generic [ref=f2e258]:
+        - button "plumbing Plumbing 2 cases" [ref=f2e259]:
+          - generic [ref=f2e260]: plumbing
+          - generic [ref=f2e262]: Plumbing
+          - generic [ref=f2e263]: 2 cases
+        - button "bolt Electrical 0 cases" [ref=f2e264]:
+          - generic [ref=f2e265]: bolt
+          - generic [ref=f2e267]: Electrical
+          - generic [ref=f2e268]: 0 cases
+        - button "ac_unit HVAC 0 cases" [ref=f2e269]:
+          - generic [ref=f2e270]: ac_unit
+          - generic [ref=f2e272]: HVAC
+          - generic [ref=f2e273]: 0 cases
+    - generic [ref=f2e274]:
+      - heading "🔔 Todo Reminders" [level=2] [ref=f2e276]
+      - generic [ref=f2e277]:
+        - generic [ref=f2e278] [cursor=pointer]:
+          - generic [ref=f2e279]: assignment
+          - generic [ref=f2e281]:
+            - paragraph [ref=f2e282]: 水管接头漏水，已持续数天，逐渐加重
+            - text: Pending
+          - generic [ref=f2e283]: chevron_right
+        - generic [ref=f2e284] [cursor=pointer]:
+          - generic [ref=f2e285]: assignment
+          - generic [ref=f2e287]:
+            - paragraph [ref=f2e288]: "Codex audit fixture: kitchen faucet leaking under"
+            - text: Pending
+          - generic [ref=f2e289]: chevron_right
+        - generic [ref=f2e290] [cursor=pointer]:
+          - generic [ref=f2e291]: assignment
+          - generic [ref=f2e293]:
+            - paragraph [ref=f2e294]: 水管接头漏水，已持续数天，逐渐加重
+            - text: Pending
+          - generic [ref=f2e295]: chevron_right
+    - navigation "Main Navigation" [ref=f2e296]:
+      - menubar [ref=f2e297]:
+        - menuitem "Home" [ref=f2e298] [cursor=pointer]:
+          - generic [ref=f2e300]: home
+        - menuitem "Cases" [ref=f2e303] [cursor=pointer]:
+          - generic [ref=f2e304]:
+            - generic [ref=f2e305]: folder_open
+            - generic [ref=f2e306]: "3"
+        - menuitem "New" [ref=f2e308] [cursor=pointer]:
+          - generic [ref=f2e309]: add_a_photo
+        - menuitem "Library" [ref=f2e312] [cursor=pointer]:
+          - generic [ref=f2e313]: auto_stories
+        - menuitem "Profile" [ref=f2e316] [cursor=pointer]:
+          - generic [ref=f2e317]: person
+  - alert [ref=f2e320]:
+    - generic [ref=f2e321]: check_circle
+    - paragraph [ref=f2e322]: Signed in successfully
+    - button "close" [ref=f2e323]

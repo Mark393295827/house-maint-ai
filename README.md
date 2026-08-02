@@ -2,7 +2,7 @@
 
 # 🏠 House Maint AI
 
-### AI-Powered Residential Maintenance · WeChat-Native · Enterprise-Grade
+### Agent-Native Residential Maintenance Platform · WeChat-Native · Modular Monolith Architecture
 
 **The full-stack AI platform transforming home repair in China.**
 From a tenant's photo to a dispatched technician — in 30 seconds.
@@ -20,8 +20,8 @@ From a tenant's photo to a dispatched technician — in 30 seconds.
 
 <br/>
 
-> **🎯 Like Thumbtack & Quaala, but built exclusively for the Chinese WeChat ecosystem.**
-> Transforming residential maintenance triage with AI Vision, native WeChat mini-programs, and automated local worker (师傅) dispatch.
+> **🎯 Built exclusively for the Chinese WeChat ecosystem.**
+> Transforming residential maintenance triage with a **Domain-First Control Plane**, vendor-neutral **Agent Runtime Kernel**, native WeChat mini-programs, and automated local technician (师傅) dispatch.
 
 ---
 
@@ -31,7 +31,7 @@ From a tenant's photo to a dispatched technician — in 30 seconds.
   <img src="./assets/screenshots/systematic_architecture.jpg" width="95%" alt="HASIKI Enterprise Digital Twin Systematic Architecture" />
 </div>
 
-<p align="center"><sub>HASIKI Enterprise Digital Twin — AI Agent Matrix · Core Services · Data Infrastructure</sub></p>
+<p align="center"><sub>HASIKI Enterprise Digital Twin — Agent Runtime Kernel · Maintenance Control Plane · Modular Monolith Workspaces</sub></p>
 
 ---
 
@@ -48,25 +48,59 @@ From a tenant's photo to a dispatched technician — in 30 seconds.
 
 ---
 
-## 🧠 The Vision
+## 🧠 The Vision & Architecture
 
-House Maint AI is a **B2B2C triage & dispatch platform** solving the core friction in Chinese urban home maintenance: the chaotic, untrusted bridge between tenants/landlords and local repair workers (师傅).
+House Maint AI is an **agent-native B2B2C triage & dispatch platform** solving core friction in urban property maintenance.
 
-By combining **AI Photo/Voice Triage** (Gemini Vision) with the **WeChat Ecosystem**, we create an **18-month localization moat** against foreign competitors.
+The system enforces two strict operational authorities:
+1. **Maintenance Domain Control Plane**: Canonical `maintenance_cases` + append-only `case_events` ledger managing identity, organization hierarchy, resource scope ancestry, approvals, payments, and state reductions.
+2. **Agent Runtime Kernel**: Vendor-neutral execution runtime managing scoped sessions, runs, task leases, capability routing, immutable artifacts, shared wall-time/token budgets, and independent evaluation.
 
 <details>
-<summary><b>📊 Key Metrics</b></summary>
+<summary><b>📊 Key Platform Metrics</b></summary>
 
 | Metric | Value |
 |--------|-------|
-| **Passing Tests** | 200+ |
-| **Project Rating** | 9.5/10 |
-| **AI Agents** | 10+ |
-| **Pages Built** | 29 |
+| **Automated Tests** | 340+ tests across Node backend & UI suites |
+| **Monorepo Packages** | 9 core packages (`@house-maint/*`) + 4 apps |
 | **Diagnosis Speed** | ~30 seconds |
-| **Cost Optimization** | -98.6% |
+| **Cost Optimization** | -98.6% AI overhead via bounded task envelopes |
+| **Multi-Tenancy** | Organization & Scope Ancestry preflight isolation |
 
 </details>
+
+---
+
+## 🏗️ Workspace Directory Layout
+
+The codebase is structured as an **npm workspaces modular monorepo**:
+
+```text
+house-maint-ai/
+├── apps/
+│   ├── web/                    # React 19 + Vite UI (Resident, Worker, Enterprise surfaces)
+│   ├── api/                    # Express HTTP gateway, auth ingress, case commands
+│   ├── worker/                 # Durable background task execution & outbox worker
+│   └── miniprogram/            # WeChat Mini Program client interface
+├── packages/
+│   ├── contracts/              # Zod schemas & versioned API/event/artifact contracts (@house-maint/contracts)
+│   ├── domain/                 # Maintenance control plane, CaseCommandService, case reducer & ancestry logic
+│   ├── agent-core/             # Vendor-neutral agent kernel, task leases, budgets, memory store
+│   ├── agent-adapters/         # Capability adapters (Diagnosis, Plan, BOM, Fault, Match)
+│   ├── policy/                 # Scope authorization, risk tiers, tool grants, approval gates
+│   ├── persistence/            # Postgres & SQLite repositories, migrations, transactional outbox
+│   ├── observability/          # Security audits, usage ledgers, telemetry, PIPL redaction
+│   ├── plugin-chassis/         # Surface plugin framework & signed ingress client
+│   └── testkit/                # Fake harnesses, deterministic clocks, adversarial test fixtures
+├── plugins/
+│   ├── web/                    # Web surface plugin
+│   ├── wechat/                 # WeChat channel integration plugin
+│   ├── notifications/          # Multi-channel notification delivery plugin
+│   └── internal-ops/           # Operations command plugin
+├── server/                     # Express backend API & DB migrations
+├── docs/                       # Architecture blueprints & graph contracts
+└── tests/                      # Contract, integration, e2e, and eval test suites
+```
 
 ---
 
@@ -74,7 +108,7 @@ By combining **AI Photo/Voice Triage** (Gemini Vision) with the **WeChat Ecosyst
 
 ### 1. 📱 Consumer App — AI-Powered Diagnosis
 
-The tenant snaps a photo, the AI diagnoses the issue, and a qualified worker is auto-matched — all within the WeChat ecosystem with zero app installs.
+The tenant uploads photos or describes an issue; the agent kernel generates a typed diagnosis and repair strategy, and auto-matches qualified technicians.
 
 <div align="center">
   <img src="./assets/screenshots/showcase_landing.jpg" width="22%" alt="Welcome Screen" />
@@ -85,143 +119,50 @@ The tenant snaps a photo, the AI diagnoses the issue, and a qualified worker is 
 
 <p align="center"><sub>Landing → Login → AI Chat Diagnosis → Worker Match Result</sub></p>
 
-**Key Features:**
-- 🔍 **30-Second AI Diagnosis** — Upload a photo, get a professional severity report with repair strategy
-- 🤖 **Gemini Vision Engine** — Industry-leading multimodal AI for damage classification
-- 🗂️ **6 Service Categories** — Plumbing, Electrical, HVAC, Walls/Structure, Painting, General
-- 🔄 **OpenClaw Omnichannel** — Route reports from WeChat, Alipay, phone calls, or web
+- 🔍 **30-Second AI Triage**: Multimodal damage classification with structured repair planning.
+- 🔒 **PIPL Privacy Safeguards**: Automated blurring of private residential spaces in photos.
+- 🗂️ **6 Service Categories**: Plumbing, Electrical, HVAC, Walls/Structure, Painting, General.
 
 ---
 
 ### 2. 🔧 Worker Portal — Technician Command Center
 
-A dedicated dark-themed professional interface for repair technicians (师傅) to manage leads, track jobs, and build their reputation.
+A dedicated interface for technicians (师傅) to view job leads, manage schedules, and complete repairs.
 
 <div align="center">
   <img src="./assets/screenshots/worker_login.jpg" width="22%" alt="Worker Login Portal" />
   <img src="./assets/screenshots/worker_leads.jpg" width="22%" alt="Live Job Leads" />
   <img src="./assets/screenshots/worker_service_request.jpg" width="22%" alt="Service Request Alert" />
-  <img src="./assets/screenshots/maintenance_calendar.jpg" width="22%" alt="Maintenance Calendar" />
+  <img src="./assets/screenshots/maintenance_calendar.jpg" width="22%" alt="Maintenance Planner" />
 </div>
 
 <p align="center"><sub>Worker Login → Job Leads Feed → Live Service Request → Maintenance Planner</sub></p>
 
-**Key Features:**
-- ⚡ **Live Lead Feed** — Real-time urgent/standard job notifications with one-tap claim
-- 📍 **Geo-Aware Dispatch** — Distance-based routing with ETA and cost estimates
-- 📅 **Smart Calendar** — AI auto-fills maintenance schedules with time-block planning
-- 🏅 **Reputation System** — Distance/Rating/Skill composite scoring (0-100)
+- ⚡ **Real-Time Job Claiming**: Distance-aware dispatch with transparent ETA and labor estimates.
+- 📅 **Smart Maintenance Calendar**: AI-assisted schedule optimization.
 
 ---
 
-### 3. 📚 Community Knowledge Base
+### 3. 🏢 Enterprise Mission Control
 
-A crowd-sourced repair knowledge library and user management hub — turning institutional wisdom into a searchable resource.
+Command center for property managers featuring portfolio-wide observability and AI agent runtime monitoring.
 
 <div align="center">
-  <img src="./assets/screenshots/knowledge_base.jpg" width="22%" alt="Community Knowledge Base" />
-  <img src="./assets/screenshots/case_library.jpg" width="22%" alt="Case Library" />
-  <img src="./assets/screenshots/user_profile.jpg" width="22%" alt="User Profile & Settings" />
-  <img src="./assets/screenshots/worker_registration.jpg" width="22%" alt="Worker Onboarding" />
+  <img src="./assets/screenshots/mission_control_v2.jpg" width="95%" alt="Mission Control Dashboard" />
 </div>
 
-<p align="center"><sub>Knowledge Base → Case Library → Profile Settings → Worker Onboarding</sub></p>
-
-**Key Features:**
-- 📖 **DIY/Professional Tags** — Each case tagged with difficulty, cost range, and view count
-- 🔍 **Category Filtering** — Search by Plumbing, Electrical, HVAC with popularity sorting
-- 👤 **Unified Profiles** — Seamless user/worker role switching with bilingual settings
-- 📋 **3-Step Onboarding** — Streamlined worker registration with skill selection
+<p align="center"><sub>Enterprise Mission Control — 4D Metrics · Live Geo-Tracking · System Load Swarm</sub></p>
 
 ---
 
-### 4. 🏢 Enterprise AEGIS — Mission Control
+## 🌏 China Localization Moat
 
-The command center for property management firms. Real-time portfolio-wide observability with AI agent orchestration and strategic performance scoring.
-
-<div align="center">
-  <img src="./assets/screenshots/mission_control_v2.jpg" width="95%" alt="AEGIS Mission Control Dashboard" />
-</div>
-
-<p align="center"><sub>AEGIS Mission Control — Strategic 4D Scoring · Live Geo-Tracking · System Load Monitoring</sub></p>
-
-**Key Features:**
-- 📊 **4D Strategy Scoring** — TAM, 10X Speed, Team, Financials — each rated out of 10
-- 🗺️ **Live Geo-Tracking** — Real-time Sanya district map with active technician nodes
-- 📈 **System Load Swarm** — Diagnosis capacity, latency, and success rate monitoring
-- 🔎 **Unified Search** — Intelligence reports, agents, and analytics at your fingertips
-
----
-
-### 5. 🤖 AI Agent Swarm & Operations
-
-A multi-agent LLM system with automated market intelligence, strategy alerts, and efficiency optimization — the operational brain of the platform.
-
-<div align="center">
-  <img src="./assets/screenshots/agent_swarm.jpg" width="95%" alt="LLM Agent Swarm Dashboard" />
-</div>
-
-<p align="center"><sub>Agent Swarm — DiagnosisAgent · PlanningAgent · CFO Agent · Intelligence Scanner · Efficiency Topology</sub></p>
-
-**Key Features:**
-- 🧠 **3 Active LLM Agents** — Diagnosis (Gemini), Planning (R1), CFO (Algorithmic)
-- 🔍 **Market Intelligence Scanner** — One-click competitive research with 3-agent cross-validation
-- ⚠️ **Strategy Control Alerts** — Automatic rules-based warnings (margin, coverage, demand)
-- 📉 **Cost Optimization** — AI-driven token and labor cost protocols achieving **-98.6%** overhead
-
----
-
-### 6. 📊 Enterprise Data Hub
-
-Portfolio management, ticket tracking, worker directory, and analytics — all the operational data a property manager needs.
-
-<div align="center">
-  <img src="./assets/screenshots/property_portfolio.jpg" width="48%" alt="Property Portfolio" />
-  <img src="./assets/screenshots/worker_directory.jpg" width="48%" alt="Worker Directory" />
-</div>
-<div align="center">
-  <img src="./assets/screenshots/ticket_management.jpg" width="48%" alt="Ticket Management" />
-  <img src="./assets/screenshots/analytics_dashboard.jpg" width="48%" alt="Analytics Dashboard" />
-</div>
-
-<p align="center"><sub>Property Portfolio · Worker Directory · Ticket Management · Analytics Dashboard</sub></p>
-
-**Key Features:**
-- 🏘️ **Portfolio Overview** — 4 regions, 89 active units, real-time alert monitoring
-- 👷 **Worker Directory** — Skills, ratings, phone, status — complete technician CRM
-- 🎫 **Ticket Lifecycle** — Full work order management with status tracking and assignment
-- 📈 **Analytics Suite** — Satisfaction scores, conversion rates, inquiry trends, type distribution
-
----
-
-### 7. 🌐 Showcase Marketing Site
-
-A polished marketing experience showcasing the platform's capabilities with interactive device previews and live demos.
-
-<div align="center">
-  <img src="./assets/screenshots/showcase_hero.jpg" width="48%" alt="Showcase Hero" />
-  <img src="./assets/screenshots/showcase_features.jpg" width="48%" alt="Core Features" />
-</div>
-<div align="center">
-  <img src="./assets/screenshots/showcase_demo.jpg" width="48%" alt="Live Demo Preview" />
-  <img src="./assets/screenshots/showcase_stats.jpg" width="48%" alt="Platform Statistics" />
-</div>
-
-<p align="center"><sub>Hero Landing · Core Features Grid · Interactive Device Preview · Platform Statistics</sub></p>
-
----
-
-## 🌏 Why China? The Localization Moat
-
-This system is explicitly architected to **win in mainland China** and deter foreign clones:
-
-| Dimension | Our Moat |
-|-----------|----------|
-| **🎭 Product UX** | 100% WeChat Mini Program — zero app installs, fits Chinese consumer habits |
-| **🗣️ Multimodal Voice** | Localized NLP for Chinese regional dialects and maintenance colloquialisms |
-| **🔒 PIPL Compliance** | Strict data residency, auto-blurring of private interior spaces |
-| **💰 WeChat Pay Escrow** | Native payments replacing Stripe for instant worker settlement |
-| **🌐 True Bilingual** | Full English/中文 i18n — Dashboard, Worker Portal, Enterprise Center |
+| Dimension | Implementation |
+|-----------|----------------|
+| **🎭 UX Native** | 100% WeChat Ecosystem integration with zero forced app downloads |
+| **🔒 Data Governance** | PIPL compliance, data residency, automatic image anonymization |
+| **💰 Payment Escrow** | Native WeChat Pay v3 escrow settlement |
+| **🌐 Full i18n** | Seamless Bilingual English/中文 support across all apps |
 
 ---
 
@@ -229,13 +170,12 @@ This system is explicitly architected to **win in mainland China** and deter for
 
 | Layer | Technology |
 |:------|:-----------|
-| **🧠 Core AI** | Google Gemini Vision + DeepSeek R1 + Algorithmic Agents |
+| **🧠 AI Core** | Gemini Vision + DeepSeek R1 + Vendor-Neutral Agent Kernel |
 | **⚛️ Frontend** | React 19 + TypeScript + Vite + TailwindCSS |
-| **🖥️ Backend** | Node.js 20, Express, TypeScript, Drizzle ORM |
-| **🗄️ Database** | PostgreSQL + SQLite (dev) + Redis |
-| **🔐 Auth** | WeChat OpenID + Phone/SMS + JWT |
-| **💳 Payments** | WeChat Pay API v3 + Escrow Settlement |
-| **📱 Mobile** | WeChat Mini Program (Taro/Uni-app) |
+| **🖥️ Backend** | Node.js 20, Express, TypeScript, npm workspaces |
+| **🗄️ Database** | PostgreSQL + Drizzle ORM + SQLite (unit testkit) |
+| **🔐 Auth** | Scoped JWT + WeChat OpenID + Resource Ancestry |
+| **💳 Payments** | WeChat Pay API v3 + Idempotent Outbox Settlement |
 | **🚀 Deploy** | Docker + Nginx + Vercel |
 
 ---
@@ -245,9 +185,7 @@ This system is explicitly architected to **win in mainland China** and deter for
 ### Prerequisites
 
 - Node.js 20+
-- WeChat Developer Tools (微信开发者工具)
-- Gemini / DeepSeek API Key
-- WeChat Merchant Account (微信支付商户号) *(optional for payment features)*
+- npm 10+ (Workspaces enabled)
 
 ### Quick Start
 
@@ -256,80 +194,28 @@ This system is explicitly architected to **win in mainland China** and deter for
 git clone https://github.com/Mark393295827/house-maint-ai.git
 cd house-maint-ai
 
-# Install dependencies
+# Install workspace dependencies
 npm install
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your API keys
 
-# Start development server (frontend + backend)
-npm run dev
+# Start all local services (Frontend + API + Worker)
+npm run dev:all
 ```
 
-### Running Tests
+### Running Test Suites
 
 ```bash
-# Run the full test suite
+# Run full unit & contract test suite
 npm test
 
-# Run with coverage
-npm run test:coverage
+# Run focused contract and integration tests
+npx vitest run --config vitest.config.ts tests/contract/cases tests/integration/cases tests/contract/agent-runtime tests/integration/agent-runtime
 ```
 
 ---
-
-## 📂 Architecture
-
-```
-house-maint-ai/
-├── src/                    # React 19 Frontend
-│   ├── pages/              # 29 application pages
-│   ├── components/         # Reusable UI components
-│   └── i18n/               # Bilingual translations (en/zh)
-├── server/                 # Express.js Backend
-│   ├── routes/             # API endpoints (reports, workers, payments, wechat)
-│   ├── services/           # Business logic (AI diagnosis, matching, PIPL)
-│   └── agents/             # LLM Agent orchestration
-├── agents/                 # Agent configuration & prompts
-├── assets/                 # Static assets & screenshots
-└── docs/                   # Architecture & business documentation
-```
-
-**Deep Dives:**
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — System design & component breakdown
-- [COMPETITIVE_ANALYSIS.md](./COMPETITIVE_ANALYSIS.md) — Market positioning & moat analysis
-- [PRD.md](./PRD.md) — Product requirements document
-- [BUSINESS_OKRS.md](./BUSINESS_OKRS.md) — Quarterly objectives & key results
-
----
-
-## 🗺️ Roadmap
-
-- [x] AI Vision Diagnosis (Gemini + DeepSeek)
-- [x] Worker Matching & Dispatch Engine
-- [x] Enterprise AEGIS Dashboard
-- [x] Multi-Agent LLM Orchestration
-- [x] Community Knowledge Base
-- [x] Bilingual i18n (EN/中文)
-- [x] Analytics & Reporting Suite
-- [ ] WeChat Mini Program Launch
-- [ ] WeChat Pay Escrow Integration
-- [ ] Remote Video Inspection (Live)
-- [ ] Voice-Based Diagnosis
-
----
-
-<div align="center">
 
 ## 🚢 License
 
 MIT License · Created by [Mark393295827](https://github.com/Mark393295827)
-
-<br/>
-
-**Built with ❤️ for Sanya, Hainan 🌴**
-
-*让你的家，智能维护。*
-
-</div>

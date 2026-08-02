@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { getConversations } from '../services/api';
 import BottomNav from '../components/BottomNav';
+import { getSocket } from '../services/socket';
 
 interface Conversation {
     id: number;
@@ -12,6 +13,7 @@ interface Conversation {
     content: string;
     created_at: string;
     unread: number;
+    report_id: number;
 }
 
 const ConversationsPage: React.FC = () => {
@@ -20,19 +22,36 @@ const ConversationsPage: React.FC = () => {
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await getConversations();
-                setConversations(data.conversations || []);
-            } catch {
-                // silent
-            } finally {
-                setLoading(false);
-            }
-        };
-        load();
+    const load = useCallback(async () => {
+        try {
+            const data = await getConversations();
+            setConversations(data.conversations || []);
+        } catch {
+            // Keep the current list when a refresh fails.
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        void load();
+    }, [load]);
+
+    useEffect(() => {
+        const socket = getSocket();
+        if (!socket) {
+            return;
+        }
+
+        const refreshConversations = () => {
+            void load();
+        };
+
+        socket.on('new_message', refreshConversations);
+        return () => {
+            socket.off('new_message', refreshConversations);
+        };
+    }, [load]);
 
     const timeAgo = (dateStr: string) => {
         const diff = Date.now() - new Date(dateStr).getTime();
@@ -82,7 +101,7 @@ const ConversationsPage: React.FC = () => {
                         {conversations.map((conv) => (
                             <button
                                 key={conv.partner_id}
-                                onClick={() => navigate(`/chat/${conv.partner_id}`)}
+                                onClick={() => navigate(`/chat/${conv.partner_id}?reportId=${conv.report_id}`)}
                                 className="flex items-center gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl transition-colors text-left w-full"
                             >
                                 {/* Avatar */}

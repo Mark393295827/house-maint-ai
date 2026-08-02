@@ -1,6 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { analyticsService } from '../services/analytics.js';
+import {
+    companyAnalyticsService,
+    isAnalyticsRange,
+} from '../services/companyAnalytics.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import * as Sentry from '@sentry/node';
 
@@ -8,6 +12,30 @@ const router = Router();
 
 // Protect all analytics routes - Manager and Admin only
 router.use(authenticate, authorize('manager', 'admin'));
+
+/**
+ * GET /api/analytics/company-overview
+ * Get the bounded company operations and agent read model.
+ */
+router.get('/company-overview', async (req: Request, res: Response) => {
+    const requestedRange = String(req.query.range || '30d');
+    if (!isAnalyticsRange(requestedRange)) {
+        return res.status(400).json(
+            ApiResponse.fail('range must be one of 7d, 30d, or 90d'),
+        );
+    }
+
+    try {
+        const overview = await companyAnalyticsService.getOverview(requestedRange);
+        return res.json(ApiResponse.success(overview));
+    } catch (error) {
+        console.error('Error fetching company analytics overview:', error);
+        Sentry.captureException(error);
+        return res.status(500).json(
+            ApiResponse.fail('Failed to fetch company analytics overview'),
+        );
+    }
+});
 
 /**
  * GET /api/analytics/dashboard

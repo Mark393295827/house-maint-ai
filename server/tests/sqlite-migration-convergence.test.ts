@@ -1,10 +1,24 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 const migrationsFolder = fileURLToPath(new URL('../db/migrations', import.meta.url));
+const bootstrapSql = readFileSync(
+    fileURLToPath(new URL('../models/schema.sql', import.meta.url)),
+    'utf8',
+);
+const foundationTables = [
+    'organizations',
+    'organization_memberships',
+    'properties',
+    'units',
+    'resource_grants',
+    'maintenance_cases',
+    'case_events',
+];
 
 type TableInfoRow = {
     name: string;
@@ -13,6 +27,23 @@ type TableInfoRow = {
 function columns(database: Database.Database, table: string): string[] {
     return (database.prepare(`PRAGMA table_info(${table})`).all() as TableInfoRow[])
         .map((column) => column.name);
+}
+
+function structure(database: Database.Database, table: string) {
+    const uniqueColumns = (database.pragma(`index_list('${table}')`) as Array<{
+        name: string;
+        unique: number;
+    }>).filter((indexRow) => indexRow.unique === 1).map((indexRow) =>
+        (database.pragma(`index_info('${indexRow.name}')`) as Array<{ name: string }>)
+            .map((column) => column.name).join(','),
+    ).sort();
+    return {
+        columns: database.pragma(`table_info('${table}')`),
+        foreignKeys: (database.pragma(`foreign_key_list('${table}')`) as Array<Record<string, unknown>>)
+            .map(({ id: _id, ...foreignKey }) => foreignKey)
+            .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
+        uniqueColumns,
+    };
 }
 
 describe('SQLite migration convergence', () => {
@@ -26,7 +57,7 @@ describe('SQLite migration convergence', () => {
             expect(sqlite.prepare(`
                 SELECT COUNT(*) AS count
                 FROM __drizzle_migrations
-            `).get()).toEqual({ count: 5 });
+            `).get()).toEqual({ count: 7 });
 
             const tables = (sqlite.prepare(`
                 SELECT name
@@ -42,22 +73,30 @@ describe('SQLite migration convergence', () => {
                 'ai_feedback',
                 'ai_settings',
                 'ai_usage_logs',
+                'case_events',
                 'cases',
                 'device_nodes',
                 'fault_attributions',
+                'maintenance_cases',
                 'matches',
                 'messages',
                 'notifications',
                 'orders',
+                'organization_memberships',
+                'organizations',
                 'patterns',
                 'pheromone_events',
                 'posts',
                 'price_guide',
+                'properties',
                 'refresh_tokens',
                 'reports',
+                'research_budget_reservations',
+                'resource_grants',
                 'reviews',
                 'tasks',
                 'turnover_inspections',
+                'units',
                 'user_assets',
                 'users',
                 'workers',
@@ -93,6 +132,13 @@ describe('SQLite migration convergence', () => {
                 'first_time_fix',
                 'pattern_extracted',
             ]));
+            expect(columns(sqlite, 'research_budget_reservations')).toEqual([
+                'period_key',
+                'budget_cny',
+                'reserved_cny',
+                'spent_cny',
+                'updated_at',
+            ]);
             expect(columns(sqlite, 'reviews')).toContain('photos');
             expect(columns(sqlite, 'patterns')).toEqual(expect.arrayContaining([
                 'performance_score',
@@ -255,6 +301,23 @@ describe('SQLite migration convergence', () => {
             expect(sqlite.prepare('SELECT phone FROM users WHERE id = ?').get(userId))
                 .toEqual({ phone: null });
             expect(sqlite.pragma('foreign_key_check')).toEqual([]);
+
+            const bootstrap = new Database(':memory:');
+            try {
+                bootstrap.pragma('foreign_keys = ON');
+                bootstrap.exec(bootstrapSql);
+                for (const table of foundationTables) {
+                    expect(structure(sqlite, table), table).toEqual(structure(bootstrap, table));
+                }
+                const triggers = (database: Database.Database) => database.prepare(`
+                    SELECT name FROM sqlite_master
+                    WHERE type = 'trigger' AND tbl_name = 'case_events'
+                    ORDER BY name
+                `).all();
+                expect(triggers(sqlite)).toEqual(triggers(bootstrap));
+            } finally {
+                bootstrap.close();
+            }
         } finally {
             sqlite.close();
         }

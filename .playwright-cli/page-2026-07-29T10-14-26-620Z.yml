@@ -1,0 +1,10 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - paragraph [ref=e7]: "404"
+      - heading "Page not found" [level=1] [ref=e8]
+      - paragraph [ref=e9]: The page you requested does not exist or is no longer available.
+      - link "Back to home" [ref=e10] [cursor=pointer]:
+        - /url: /

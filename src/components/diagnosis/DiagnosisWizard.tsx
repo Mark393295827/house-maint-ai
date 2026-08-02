@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useCreateReport } from '../../hooks/useReports';
@@ -9,11 +9,9 @@ import { solveProblem, type ProblemSolvingLoop } from '../../services/ai';
 // Phase Components
 import InquiryChat from './InquiryChat';
 import DemandSummary, { type DemandData } from './DemandSummary';
-import StepDispatch from './steps/StepDispatch';
-import FeedbackModal from './FeedbackModal';
 
 /* ─── Types ─── */
-type Phase = 'inquiry' | 'summary' | 'dispatch' | 'feedback';
+type Phase = 'inquiry' | 'summary';
 
 const DiagnosisWizard: React.FC = () => {
     const { locale } = useLanguage();
@@ -23,10 +21,10 @@ const DiagnosisWizard: React.FC = () => {
     const [phase, setPhase] = useState<Phase>('inquiry');
     const [demandData, setDemandData] = useState<DemandData | null>(null);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
-    const [caseId, setCaseId] = useState<string>('');
     const [problemSolvingPlan, setProblemSolvingPlan] = useState<ProblemSolvingLoop | null>(null);
     const [problemSolvingLoading, setProblemSolvingLoading] = useState(false);
     const [problemSolvingError, setProblemSolvingError] = useState<string | null>(null);
+    const dispatchStartedRef = useRef(false);
 
     /* ─── Phase 1 → 2 ─── */
     const handleInquiryComplete = useCallback((summary: DemandData, imgB64?: string | null, imgUrl?: string | null) => {
@@ -57,18 +55,15 @@ const DiagnosisWizard: React.FC = () => {
             .finally(() => setProblemSolvingLoading(false));
     }, [locale]);
 
-    /* ─── Phase 2 → 3 (Dispatch) ─── */
-    const handleDispatchStart = useCallback(() => {
-        setPhase('dispatch');
-    }, []);
-
     const createReportMutation = useCreateReport();
 
-    /* ─── Dispatch confirmation → Feedback ─── */
-    const handleDispatch = useCallback(async (worker: any) => {
-        sessionStorage.setItem('selectedWorker', JSON.stringify(worker));
+    /* ─── Persist diagnosis before entering real API-backed matching ─── */
+    const handleDispatchStart = useCallback(async () => {
+        if (dispatchStartedRef.current || !demandData) {
+            return;
+        }
+        dispatchStartedRef.current = true;
 
-        // Prefer the unified problem-solving loop output; fall back to the local severity mapping.
         const urgencyScore = problemSolvingPlan?.diagnosis.urgencyScore
             ?? (demandData?.severity === 'critical' ? 10 : demandData?.severity === 'moderate' ? 6 : 3);
         const category = problemSolvingPlan?.diagnosis.category || demandData?.projectType || 'other';
@@ -77,7 +72,7 @@ const DiagnosisWizard: React.FC = () => {
             problemSolvingPlan?.reporting.ownerSummary ? `Loop summary: ${problemSolvingPlan.reporting.ownerSummary}` : '',
         ].filter(Boolean).join('\n\n');
         
-        let result;
+        let result: { report: { id: number } };
         try {
             result = await createReportMutation.mutateAsync({
                 title: problemSolvingPlan?.diagnosis.issueType?.slice(0, 30) || demandData?.scope?.slice(0, 30) || (locale === 'zh' ? '新诊断' : 'New Diagnosis'),
@@ -87,6 +82,7 @@ const DiagnosisWizard: React.FC = () => {
                 urgency_score: urgencyScore,
             });
         } catch (err) {
+            dispatchStartedRef.current = false;
             console.error('Failed to create report:', err);
             const message = err instanceof Error ? err.message : (locale === 'zh' ? '创建报修失败，请重试' : 'Failed to create report. Please try again.');
             showToast(message, 'error');
@@ -94,14 +90,11 @@ const DiagnosisWizard: React.FC = () => {
         }
 
         const newCaseId = String(result.report.id);
-        setCaseId(newCaseId);
-        setPhase('feedback');
+        sessionStorage.setItem('lastReportId', newCaseId);
 
         try {
-            sessionStorage.setItem('lastReportId', newCaseId);
-
-            Analytics.track('inquiry_dispatched', { 
-                caseId: newCaseId, 
+            Analytics.track('inquiry_ready_for_matching', {
+                caseId: newCaseId,
                 category,
                 severity: problemSolvingPlan?.diagnosis.severity || demandData?.severity,
                 deflectionEligible: problemSolvingPlan?.deflection.eligible,
@@ -121,38 +114,21 @@ const DiagnosisWizard: React.FC = () => {
             });
             localStorage.setItem('inquiry_metrics', JSON.stringify(metrics));
         } catch (err) {
-            console.warn('Report created, but local dispatch telemetry could not be persisted:', err);
+            console.warn('Report created, but local matching telemetry could not be persisted:', err);
         }
-    }, [demandData, locale, imageUrl, createReportMutation, problemSolvingPlan]);
 
-    /* ─── Feedback close → Navigate away ─── */
-    const handleFeedbackClose = useCallback(() => {
-        navigate('/calendar');
-    }, [navigate]);
+        navigate(`/match?report_id=${encodeURIComponent(newCaseId)}&category=${encodeURIComponent(category)}`);
+    }, [demandData, locale, imageUrl, createReportMutation, problemSolvingPlan, navigate, showToast]);
 
     /* ─── Navigation ─── */
     const handleBack = useCallback(() => {
         if (phase === 'summary') {
             setPhase('inquiry');
-        } else if (phase === 'dispatch') {
-            setPhase('summary');
         } else {
             navigate(-1);
             Analytics.track('inquiry_abandoned', { phase, progress: 0 });
         }
     }, [phase, navigate]);
-
-    /* ─── Build diagnosis-like object for StepDispatch compat ─── */
-    const diagnosisCompat = demandData ? {
-        issue_name: problemSolvingPlan?.diagnosis.issueType || demandData.projectType,
-        issue_name_en: problemSolvingPlan?.diagnosis.issueType || demandData.projectType,
-        severity: problemSolvingPlan?.diagnosis.severity || demandData.severity,
-        estimated_cost: problemSolvingPlan
-            ? `${problemSolvingPlan.dispatch.estimatedCost.currency === 'CNY' ? '¥' : '$'}${problemSolvingPlan.dispatch.estimatedCost.min}-${problemSolvingPlan.dispatch.estimatedCost.max}`
-            : demandData.budget,
-        description: problemSolvingPlan?.diagnosis.rootCauseSummary || demandData.scope,
-        imageUrl: imageUrl,
-    } : null;
 
     return (
         <div className="flex flex-col h-[100dvh] bg-[#ffffff] text-[#202124] overflow-hidden selection:bg-[#1a73e8]/10">
@@ -183,22 +159,6 @@ const DiagnosisWizard: React.FC = () => {
                     />
                 )}
 
-                {phase === 'dispatch' && (
-                    <StepDispatch
-                        diagnosis={diagnosisCompat}
-                        locale={locale}
-                        onDispatch={handleDispatch}
-                    />
-                )}
-
-                {phase === 'feedback' && (
-                    <FeedbackModal
-                        caseId={caseId}
-                        locale={locale}
-                        problemSolvingPlan={problemSolvingPlan}
-                        onClose={handleFeedbackClose}
-                    />
-                )}
             </div>
         </div>
     );

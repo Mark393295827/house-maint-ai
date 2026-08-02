@@ -4,6 +4,7 @@ import { z } from 'zod';
 import db from '../config/database.js';
 import {
     authenticate,
+    optionalAuth,
     generateAccessToken,
     generateRefreshToken,
     generateCsrfToken,
@@ -400,6 +401,24 @@ router.get('/me', authenticate, async (req, res) => {
     }
 
     res.json(ApiResponse.success({ user }));
+});
+
+/**
+ * GET /api/v1/auth/session
+ * Browser bootstrap endpoint. Anonymous is a valid state and therefore returns
+ * 200 with user=null instead of producing expected 401 console noise.
+ */
+router.get('/session', optionalAuth, async (req, res) => {
+    if (!req.user) {
+        return res.json(ApiResponse.success({ user: null }));
+    }
+
+    const { rows } = await db.query(`
+        SELECT id, phone, name, role, avatar, created_at
+        FROM users WHERE id = $1
+    `, [req.user.id]);
+
+    res.json(ApiResponse.success({ user: rows[0] || null }));
 });
 
 /**

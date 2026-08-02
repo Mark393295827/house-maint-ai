@@ -3,10 +3,16 @@
     "version": "1.0.0",
     "private": true,
     "type": "module",
+    "workspaces": [
+        "apps/*",
+        "packages/*",
+        "plugins/*"
+    ],
     "scripts": {
         "dev": "vite",
         "dev:server": "cd server && npm run dev",
-        "dev:all": "npx -y concurrently -n FE,BE -c cyan,green \"npm run dev\" \"npm run dev:server\"",
+        "dev:worker": "npm --prefix server exec -- tsx worker.ts",
+        "dev:all": "npx -y concurrently -n FE,BE,WORKER -c cyan,green,magenta \"npm run dev\" \"npm run dev:server\" \"npm run dev:worker\"",
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "audit:loop": "node scripts/audit-loop.mjs",
@@ -20,7 +26,9 @@
         "test:e2e": "playwright test",
         "test:watch": "vitest",
         "test:ui": "vitest --ui",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "test:contracts": "npm run test --workspace @house-maint/contracts",
+        "typecheck:contracts": "npm run typecheck --workspace @house-maint/contracts"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.975.0",
@@ -44,6 +52,7 @@
         "react-dom": "^19.2.0",
         "react-leaflet": "^5.0.0",
         "react-router-dom": "^7.12.0",
+        "recharts": "^3.10.1",
         "socket.io": "^4.8.3",
         "socket.io-client": "^4.8.3",
         "stripe": "^20.3.1",

@@ -1,0 +1,15 @@
+{
+  "name": "@house-maint/miniprogram",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "houseMaint": {
+    "role": "surface",
+    "compatibilityEntrypoint": "../../miniprogram/app.js",
+    "migrationState": "compatibility"
+  },
+  "dependencies": {
+    "@house-maint/contracts": "0.1.0",
+    "@house-maint/plugin-chassis": "0.1.0"
+  }
+}

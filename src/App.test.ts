@@ -15,6 +15,7 @@ describe('App route coverage', () => {
             '/reports/:id',
             '/repair',
             '/repair/:id',
+            '*',
         ]));
     });
 });

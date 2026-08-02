@@ -36,6 +36,12 @@ describe('ShowcasePage', () => {
         expect(screen.queryByText(/8-step|eight-step|step 8/i)).not.toBeInTheDocument();
     });
 
+    it('does not mount the temporarily disabled firefly and click-effect canvas', () => {
+        const { container } = renderShowcase();
+
+        expect(container.querySelector('.gravity-meteor-canvas')).not.toBeInTheDocument();
+    });
+
     it('lets the embedded demo switch to the diagnosis flow', () => {
         renderShowcase();
 

@@ -11,7 +11,9 @@ let socket: Socket | null = null;
 
 /** Initialize socket connection. Call after successful login. */
 export function connectSocket(): Socket {
-    if (socket?.connected) return socket;
+    // Reuse an in-flight connection as well as a connected one. React StrictMode
+    // may run the auth bootstrap twice before the first handshake completes.
+    if (socket) return socket;
 
     socket = io(window.location.origin, {
         withCredentials: true,  // sends httpOnly accessToken cookie

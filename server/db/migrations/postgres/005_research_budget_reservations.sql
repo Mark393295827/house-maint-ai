@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS research_budget_reservations (
+    period_key TEXT PRIMARY KEY,
+    budget_cny DOUBLE PRECISION NOT NULL,
+    reserved_cny DOUBLE PRECISION NOT NULL DEFAULT 0,
+    spent_cny DOUBLE PRECISION NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

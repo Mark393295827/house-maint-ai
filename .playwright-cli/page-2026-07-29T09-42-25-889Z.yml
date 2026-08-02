@@ -1,0 +1,1421 @@
+- generic [ref=f9e2]:
+  - link "Skip to main content" [ref=f9e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f9e62]:
+    - complementary [ref=f9e63]:
+      - generic [ref=f9e64]:
+        - generic [ref=f9e65]: shield
+        - generic [ref=f9e67]:
+          - strong [ref=f9e68]: AEGIS
+          - generic [ref=f9e69]: AI 物业管理系统
+      - navigation "海斯基企业版" [ref=f9e70]:
+        - link "任务控制中心" [ref=f9e71] [cursor=pointer]:
+          - /url: /enterprise
+          - generic [ref=f9e72]: dashboard
+        - link "房产资产" [ref=f9e74] [cursor=pointer]:
+          - /url: /enterprise/properties
+          - generic [ref=f9e75]: domain
+        - link "工单管理" [ref=f9e77] [cursor=pointer]:
+          - /url: /enterprise/tickets
+          - generic [ref=f9e78]: assignment
+        - link "工人目录" [ref=f9e80] [cursor=pointer]:
+          - /url: /enterprise/workers
+          - generic [ref=f9e81]: build
+        - link "数据分析" [ref=f9e83] [cursor=pointer]:
+          - /url: /enterprise/analytics
+          - generic [ref=f9e84]: bar_chart
+        - link "AI 配置" [ref=f9e86] [cursor=pointer]:
+          - /url: /enterprise/ai-config
+          - generic [ref=f9e87]: settings
+      - generic [ref=f9e89]:
+        - strong [ref=f9e92]: 运营正常
+        - generic [ref=f9e93]: 系统状态
+    - generic [ref=f9e94]:
+      - banner [ref=f9e95]:
+        - generic [ref=f9e96]:
+          - generic [ref=f9e97]: 海斯基企业版
+          - generic [ref=f9e98]: /
+          - strong [ref=f9e99]: 任务控制中心
+        - generic [ref=f9e100]:
+          - generic [ref=f9e101]: search
+          - searchbox [ref=f9e102]
+        - generic [ref=f9e103]:
+          - button "搜索情报、报告、智能体..." [ref=f9e104]:
+            - generic [ref=f9e105]: search
+          - button "切换语言" [ref=f9e106]:
+            - generic [ref=f9e107]: language
+            - generic [ref=f9e108]: 中
+          - button "通知" [ref=f9e109]:
+            - generic [ref=f9e110]: notifications
+          - generic [ref=f9e112]:
+            - generic [ref=f9e113]: person
+            - generic [ref=f9e115]:
+              - strong [ref=f9e116]: 管理员
+              - generic [ref=f9e117]: admin
+      - main [ref=f9e118]:
+        - generic [ref=f9e119]:
+          - generic [ref=f9e120]:
+            - generic [ref=f9e121]:
+              - paragraph [ref=f9e122]: 三亚资产组合 · 运营指挥台
+              - generic [ref=f9e123]:
+                - heading "物业运营总览" [level=1] [ref=f9e124]
+                - generic [ref=f9e125]: 实时数据
+              - paragraph [ref=f9e127]: 聚合报修、诊断、分流、派单、验收与业主报表的实时经营视图
+            - generic [ref=f9e128]:
+              - generic [ref=f9e129]:
+                - strong [ref=f9e130]: 演示数据集
+                - text: 更新于 17:42
+              - button "刷新数据" [ref=f9e131]:
+                - generic [ref=f9e132]: refresh
+              - button "导出当前视图" [ref=f9e133]:
+                - generic [ref=f9e134]: download
+          - region "全局筛选" [ref=f9e135]:
+            - generic "全局筛选" [ref=f9e136]:
+              - button "今日" [ref=f9e137]
+              - button "近 7 天" [pressed] [ref=f9e138]
+              - button "近 30 天" [ref=f9e139]
+            - generic [ref=f9e140]:
+              - generic [ref=f9e141]: 区域
+              - combobox "区域" [ref=f9e142]:
+                - option "全部区域" [selected]
+                - option "海棠区"
+                - option "吉阳区"
+                - option "天涯区"
+                - option "崖州区"
+            - generic [ref=f9e143]:
+              - generic [ref=f9e144]: 物业类型
+              - combobox "物业类型" [ref=f9e145]:
+                - option "全部物业" [selected]
+                - option "住宅社区"
+                - option "酒店度假"
+                - option "商业物业"
+            - generic [ref=f9e146]:
+              - generic [ref=f9e147]: 工单状态
+              - combobox "工单状态" [ref=f9e148]:
+                - option "全部状态" [selected]
+                - option "待处理"
+                - option "处理中"
+                - option "已超时"
+                - option "已完成"
+            - button "重置筛选" [disabled] [ref=f9e149]:
+              - generic [ref=f9e150]: restart_alt
+              - text: 重置筛选
+          - generic [ref=f9e151]:
+            - generic [ref=f9e152]:
+              - generic [ref=f9e153]:
+                - heading "实时运维地图" [level=2] [ref=f9e154]
+                - paragraph [ref=f9e155]: 技师位置、服务状态与当前派单区域
+              - generic "实时运维地图" [ref=f9e156]:
+                - generic [ref=f9e157]: 实时
+                - generic [ref=f9e159]:
+                  - text: 维修中
+                  - strong [ref=f9e161]: "2"
+                - generic [ref=f9e162]:
+                  - text: 待命
+                  - strong [ref=f9e164]: "1"
+                - button "展开地图" [ref=f9e165]:
+                  - generic [ref=f9e166]: fullscreen
+            - generic [ref=f9e168]:
+              - generic [ref=f9e169]:
+                - generic:
+                  - generic:
+                    - 'button "UNIT #1 - 维修中" [ref=f9e176] [cursor=pointer]'
+                    - 'button "UNIT #2 - 待命" [ref=f9e182] [cursor=pointer]'
+                    - 'button "UNIT #3 - 维修中" [ref=f9e188] [cursor=pointer]'
+                    - button "⚠️ INC-1" [ref=f9e194] [cursor=pointer]
+                    - button "⚠️ INC-2" [ref=f9e200] [cursor=pointer]
+                - generic:
+                  - generic [ref=f9e206]:
+                    - button "Zoom in" [ref=f9e207] [cursor=pointer]: +
+                    - button "Zoom out" [ref=f9e208] [cursor=pointer]: −
+                  - link "Leaflet" [ref=f9e210] [cursor=pointer]:
+                    - /url: https://leafletjs.com
+              - generic [ref=f9e215]:
+                - generic [ref=f9e216]:
+                  - generic [ref=f9e217]:
+                    - heading "系统分布" [level=2] [ref=f9e218]
+                    - generic [ref=f9e219]: 三亚运营视图
+                  - generic [ref=f9e222]: 演示模式已启用
+                - generic [ref=f9e223]:
+                  - generic [ref=f9e224]:
+                    - generic [ref=f9e225]: 全部
+                    - text: "3"
+                  - generic [ref=f9e226]:
+                    - generic [ref=f9e227]: 维修中
+                    - text: "2"
+                  - generic [ref=f9e228]:
+                    - generic [ref=f9e229]: 待命
+                    - text: "1"
+                - generic [ref=f9e230]:
+                  - generic [ref=f9e231]: 人员筛选
+                  - generic [ref=f9e233]:
+                    - button "全部" [ref=f9e234]
+                    - button "维修中" [ref=f9e235]
+                    - button "待命" [ref=f9e236]
+                  - button "⚠️ 突发警情图层 2 活跃" [ref=f9e237]:
+                    - generic [ref=f9e238]:
+                      - generic [ref=f9e239]: ⚠️
+                      - generic [ref=f9e240]: 突发警情图层
+                    - generic [ref=f9e241]: 2 活跃
+                  - button "🛣️ 运维轨迹图层 3 条" [ref=f9e242]:
+                    - generic [ref=f9e243]:
+                      - generic [ref=f9e244]: 🛣️
+                      - generic [ref=f9e245]: 运维轨迹图层
+                    - generic [ref=f9e246]: 3 条
+          - generic [ref=f9e247]:
+            - generic [ref=f9e249]:
+              - heading "六阶段运营闭环" [level=2] [ref=f9e250]
+              - paragraph [ref=f9e251]: 点击阶段筛选下方工单；数量表示当前范围内进入该阶段的工单
+            - generic [ref=f9e252]:
+              - button "01 24/7 微信接入 6 秒内确认收到 2,785 工单" [ref=f9e253]:
+                - generic [ref=f9e254]: "01"
+                - generic [ref=f9e255]:
+                  - strong [ref=f9e256]: 24/7 微信接入
+                  - generic [ref=f9e257]: 6 秒内确认收到
+                - generic [ref=f9e258]:
+                  - text: 2,785
+                  - generic [ref=f9e259]: 工单
+                - generic [ref=f9e260]: arrow_forward
+              - button "02 AI 诊断与责任判断 Top 10 品类目标 85%+ 2,634 工单" [ref=f9e261]:
+                - generic [ref=f9e262]: "02"
+                - generic [ref=f9e263]:
+                  - strong [ref=f9e264]: AI 诊断与责任判断
+                  - generic [ref=f9e265]: Top 10 品类目标 85%+
+                - generic [ref=f9e266]:
+                  - text: 2,634
+                  - generic [ref=f9e267]: 工单
+                - generic [ref=f9e268]: arrow_forward
+              - button "03 DIY 分流 20%+ 分流目标 596 工单" [ref=f9e269]:
+                - generic [ref=f9e270]: "03"
+                - generic [ref=f9e271]:
+                  - strong [ref=f9e272]: DIY 分流
+                  - generic [ref=f9e273]: 20%+ 分流目标
+                - generic [ref=f9e274]:
+                  - text: "596"
+                  - generic [ref=f9e275]: 工单
+                - generic [ref=f9e276]: arrow_forward
+              - button "04 师傅智能派单 5 分钟内接单目标 1,831 工单" [ref=f9e277]:
+                - generic [ref=f9e278]: "04"
+                - generic [ref=f9e279]:
+                  - strong [ref=f9e280]: 师傅智能派单
+                  - generic [ref=f9e281]: 5 分钟内接单目标
+                - generic [ref=f9e282]:
+                  - text: 1,831
+                  - generic [ref=f9e283]: 工单
+                - generic [ref=f9e284]: arrow_forward
+              - button "05 维修验收回访 0 人工追单 1,654 工单" [ref=f9e285]:
+                - generic [ref=f9e286]: "05"
+                - generic [ref=f9e287]:
+                  - strong [ref=f9e288]: 维修验收回访
+                  - generic [ref=f9e289]: 0 人工追单
+                - generic [ref=f9e290]:
+                  - text: 1,654
+                  - generic [ref=f9e291]: 工单
+                - generic [ref=f9e292]: arrow_forward
+              - button "06 业主报表和 SLA 业主可读报表 1,518 工单" [ref=f9e293]:
+                - generic [ref=f9e294]: "06"
+                - generic [ref=f9e295]:
+                  - strong [ref=f9e296]: 业主报表和 SLA
+                  - generic [ref=f9e297]: 业主可读报表
+                - generic [ref=f9e298]:
+                  - text: 1,518
+                  - generic [ref=f9e299]: 工单
+          - region "物业运营总览" [ref=f9e300]:
+            - article [ref=f9e301]:
+              - generic [ref=f9e302]:
+                - generic [ref=f9e303]: 接入工单
+                - generic [ref=f9e304]: fact_check
+              - strong [ref=f9e306]: 2,785
+              - generic [ref=f9e307]:
+                - generic [ref=f9e308]:
+                  - generic [ref=f9e309]: north_east
+                  - text: +8.6%
+                - generic [ref=f9e310]: 较上一周期
+              - paragraph [ref=f9e311]: 所有渠道新建工单
+            - article [ref=f9e312]:
+              - generic [ref=f9e313]:
+                - generic [ref=f9e314]: SLA 达成率
+                - generic [ref=f9e315]: track_changes
+              - generic [ref=f9e316]:
+                - strong [ref=f9e317]: "94.8"
+                - generic [ref=f9e318]: "%"
+              - generic [ref=f9e319]:
+                - generic [ref=f9e320]:
+                  - generic [ref=f9e321]: north_east
+                  - text: +2.4pp
+                - generic [ref=f9e322]: 较上一周期
+              - paragraph [ref=f9e323]: 目标 92.0%
+            - article [ref=f9e324]:
+              - generic [ref=f9e325]:
+                - generic [ref=f9e326]: AI 诊断准确率
+                - generic [ref=f9e327]: smart_toy
+              - generic [ref=f9e328]:
+                - strong [ref=f9e329]: "87.6"
+                - generic [ref=f9e330]: "%"
+              - generic [ref=f9e331]:
+                - generic [ref=f9e332]:
+                  - generic [ref=f9e333]: north_east
+                  - text: +1.8pp
+                - generic [ref=f9e334]: 较上一周期
+              - paragraph [ref=f9e335]: Top 10 故障品类
+            - article [ref=f9e336]:
+              - generic [ref=f9e337]:
+                - generic [ref=f9e338]: DIY 分流率
+                - generic [ref=f9e339]: auto_awesome
+              - generic [ref=f9e340]:
+                - strong [ref=f9e341]: "21.4"
+                - generic [ref=f9e342]: "%"
+              - generic [ref=f9e343]:
+                - generic [ref=f9e344]:
+                  - generic [ref=f9e345]: north_east
+                  - text: +3.2pp
+                - generic [ref=f9e346]: 较上一周期
+              - paragraph [ref=f9e347]: 目标 20.0%
+            - article [ref=f9e348]:
+              - generic [ref=f9e349]:
+                - generic [ref=f9e350]: 平均维修周期
+                - generic [ref=f9e351]: schedule
+              - generic [ref=f9e352]:
+                - strong [ref=f9e353]: "3.8"
+                - generic [ref=f9e354]: 小时
+              - generic [ref=f9e355]:
+                - generic [ref=f9e356]:
+                  - generic [ref=f9e357]: south_east
+                  - text: "-0.6h"
+                - generic [ref=f9e358]: 较上一周期
+              - paragraph [ref=f9e359]: 从接入到验收
+          - generic [ref=f9e360]:
+            - generic [ref=f9e361]:
+              - generic [ref=f9e363]:
+                - heading "工单流入与完成趋势" [level=2] [ref=f9e364]
+                - paragraph [ref=f9e365]: 按所选范围汇总；虚线为上一周期
+              - generic [ref=f9e366]:
+                - generic [ref=f9e367]:
+                  - generic [ref=f9e368]: 流入工单
+                  - generic [ref=f9e370]: 完成工单
+                  - generic [ref=f9e372]: 上一周期
+                - img "流入工单, 完成工单" [ref=f9e374]:
+                  - generic [ref=f9e375]: "0"
+                  - generic [ref=f9e377]: "125"
+                  - generic [ref=f9e379]: "250"
+                  - generic [ref=f9e381]: "375"
+                  - generic [ref=f9e383]: "500"
+                  - generic [ref=f9e388]:
+                    - 'generic "周一: 318" [ref=f9e389]'
+                    - generic [ref=f9e390]: 周一
+                  - generic [ref=f9e391]:
+                    - 'generic "周二: 342" [ref=f9e392]'
+                    - generic [ref=f9e393]: 周二
+                  - generic [ref=f9e394]:
+                    - 'generic "周三: 386" [ref=f9e395]'
+                    - generic [ref=f9e396]: 周三
+                  - generic [ref=f9e397]:
+                    - 'generic "周四: 401" [ref=f9e398]'
+                    - generic [ref=f9e399]: 周四
+                  - generic [ref=f9e400]:
+                    - 'generic "周五: 428" [ref=f9e401]'
+                    - generic [ref=f9e402]: 周五
+                  - generic [ref=f9e403]:
+                    - 'generic "周六: 447" [ref=f9e404]'
+                    - generic [ref=f9e405]: 周六
+                  - generic [ref=f9e406]:
+                    - 'generic "周日: 463" [ref=f9e407]'
+                    - generic [ref=f9e408]: 周日
+            - generic [ref=f9e409]:
+              - generic [ref=f9e410]:
+                - generic [ref=f9e411]:
+                  - heading "AI 运营洞察" [level=2] [ref=f9e412]
+                  - paragraph [ref=f9e413]: 基于当前筛选范围自动识别
+                - generic [ref=f9e414]:
+                  - generic [ref=f9e415]: auto_awesome
+                  - text: 3 项待关注
+              - generic [ref=f9e416]:
+                - article [ref=f9e417]:
+                  - generic [ref=f9e418]: warning
+                  - generic [ref=f9e420]:
+                    - heading "天涯区派单等待时间上升" [level=3] [ref=f9e421]
+                    - paragraph [ref=f9e422]: 水暖类平均等待 18 分钟，较组合均值高 31%。
+                - article [ref=f9e423]:
+                  - generic [ref=f9e424]: check_circle
+                  - generic [ref=f9e426]:
+                    - heading "DIY 分流超过目标" [level=3] [ref=f9e427]
+                    - paragraph [ref=f9e428]: 低风险电路问题分流率达到 24.8%，预计节省 ¥12,640。
+                - article [ref=f9e429]:
+                  - generic [ref=f9e430]: speed
+                  - generic [ref=f9e432]:
+                    - heading "7 个工单需要人工复核" [level=3] [ref=f9e433]
+                    - paragraph [ref=f9e434]: 诊断置信度低于 78%，已进入责任判断队列。
+              - link "查看相关工单" [ref=f9e435] [cursor=pointer]:
+                - /url: /enterprise/tickets
+                - text: 查看相关工单
+                - generic [ref=f9e436]: arrow_forward
+          - generic [ref=f9e437]:
+            - generic [ref=f9e438]:
+              - generic [ref=f9e440]:
+                - heading "报修品类构成" [level=2] [ref=f9e441]
+                - paragraph [ref=f9e442]: 点击品类联动异常工单队列
+              - generic [ref=f9e443]:
+                - button "水暖 914" [ref=f9e444]:
+                  - generic [ref=f9e445]: 水暖
+                  - strong [ref=f9e448]: "914"
+                - button "电路 627" [ref=f9e449]:
+                  - generic [ref=f9e450]: 电路
+                  - strong [ref=f9e453]: "627"
+                - button "暖通空调 512" [ref=f9e454]:
+                  - generic [ref=f9e455]: 暖通空调
+                  - strong [ref=f9e458]: "512"
+                - button "家电 438" [ref=f9e459]:
+                  - generic [ref=f9e460]: 家电
+                  - strong [ref=f9e463]: "438"
+                - button "结构 294" [ref=f9e464]:
+                  - generic [ref=f9e465]: 结构
+                  - strong [ref=f9e468]: "294"
+            - generic [ref=f9e469]:
+              - generic [ref=f9e471]:
+                - heading "区域服务表现" [level=2] [ref=f9e472]
+                - paragraph [ref=f9e473]: SLA、分流率与平均维修周期对比
+              - table [ref=f9e475]:
+                - rowgroup [ref=f9e476]:
+                  - row [ref=f9e477]:
+                    - columnheader "区域" [ref=f9e478]
+                    - columnheader "工单量" [ref=f9e479]
+                    - columnheader "SLA" [ref=f9e480]
+                    - columnheader "分流率" [ref=f9e481]
+                    - columnheader "维修周期" [ref=f9e482]
+                - rowgroup [ref=f9e483]:
+                  - row [ref=f9e484]:
+                    - cell [ref=f9e485]:
+                      - button "海棠区" [ref=f9e486]
+                    - cell "948" [ref=f9e487]
+                    - cell "96.2%" [ref=f9e488]
+                    - cell "23.1%" [ref=f9e490]
+                    - cell "3.4 小时" [ref=f9e491]
+                  - row [ref=f9e492]:
+                    - cell [ref=f9e493]:
+                      - button "吉阳区" [ref=f9e494]
+                    - cell "808" [ref=f9e495]
+                    - cell "94.7%" [ref=f9e496]
+                    - cell "21.8%" [ref=f9e498]
+                    - cell "3.7 小时" [ref=f9e499]
+                  - row [ref=f9e500]:
+                    - cell [ref=f9e501]:
+                      - button "天涯区" [ref=f9e502]
+                    - cell "613" [ref=f9e503]
+                    - cell "88.9%" [ref=f9e504]
+                    - cell "17.4%" [ref=f9e506]
+                    - cell "4.6 小时" [ref=f9e507]
+                  - row [ref=f9e508]:
+                    - cell [ref=f9e509]:
+                      - button "崖州区" [ref=f9e510]
+                    - cell "416" [ref=f9e511]
+                    - cell "92.8%" [ref=f9e512]
+                    - cell "20.2%" [ref=f9e514]
+                    - cell "4.1 小时" [ref=f9e515]
+          - generic [ref=f9e516]:
+            - generic [ref=f9e517]:
+              - generic [ref=f9e518]:
+                - heading "SLA 异常工单" [level=2] [ref=f9e519]
+                - paragraph [ref=f9e520]: 按风险与剩余响应时间排序
+              - generic [ref=f9e521]: 58 条记录
+            - table [ref=f9e523]:
+              - rowgroup [ref=f9e524]:
+                - row [ref=f9e525]:
+                  - columnheader "工单" [ref=f9e526]
+                  - columnheader "问题 / 物业" [ref=f9e527]
+                  - columnheader "当前阶段" [ref=f9e528]
+                  - columnheader "优先级" [ref=f9e529]
+                  - columnheader "SLA 剩余" [ref=f9e530]
+                  - columnheader "负责人" [ref=f9e531]
+                  - columnheader "状态" [ref=f9e532]
+                  - columnheader "指挥操作" [ref=f9e533]
+              - rowgroup [ref=f9e534]:
+                - row [ref=f9e535]:
+                  - cell [ref=f9e536]:
+                    - link "HM-240718" [ref=f9e537] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "主卫天花板持续渗水 海棠湾壹号 · 2-1803" [ref=f9e538]:
+                    - strong [ref=f9e539]: 主卫天花板持续渗水
+                    - generic [ref=f9e540]: 海棠湾壹号 · 2-1803
+                  - cell [ref=f9e541]:
+                    - generic [ref=f9e542]:
+                      - generic [ref=f9e543]: insights
+                      - text: 师傅智能派单
+                  - cell "紧急" [ref=f9e544]
+                  - cell "12 分钟 已超时" [ref=f9e546]
+                  - cell "张师傅" [ref=f9e547]
+                  - cell "已超时" [ref=f9e548]
+                  - cell [ref=f9e550]:
+                    - button "紧急调配" [ref=f9e551]
+                - row [ref=f9e552]:
+                  - cell [ref=f9e553]:
+                    - link "HM-240681" [ref=f9e554] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "厨房水槽下方漏水 红塘湾 · 8-1102" [ref=f9e555]:
+                    - strong [ref=f9e556]: 厨房水槽下方漏水
+                    - generic [ref=f9e557]: 红塘湾 · 8-1102
+                  - cell [ref=f9e558]:
+                    - generic [ref=f9e559]:
+                      - generic [ref=f9e560]: insights
+                      - text: 维修验收回访
+                  - cell "高" [ref=f9e561]
+                  - cell "6 分钟 已超时" [ref=f9e563]
+                  - cell "陈师傅" [ref=f9e564]
+                  - cell "已超时" [ref=f9e565]
+                  - cell [ref=f9e567]:
+                    - button "紧急调配" [ref=f9e568]
+                - row [ref=f9e569]:
+                  - cell [ref=f9e570]:
+                    - link "HM-API-6057" [ref=f9e571] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 81)" [ref=f9e572]':
+                    - strong [ref=f9e573]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e574]: "物业区域 (ID: 81)"
+                  - cell [ref=f9e575]:
+                    - generic [ref=f9e576]:
+                      - generic [ref=f9e577]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e578]
+                  - cell "0 分钟" [ref=f9e580]
+                  - cell "待指派" [ref=f9e581]
+                  - cell "已完成" [ref=f9e582]
+                  - cell [ref=f9e584]:
+                    - button "调整" [ref=f9e585]
+                - row [ref=f9e586]:
+                  - cell [ref=f9e587]:
+                    - link "HM-API-6056" [ref=f9e588] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 85)" [ref=f9e589]':
+                    - strong [ref=f9e590]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e591]: "物业区域 (ID: 85)"
+                  - cell [ref=f9e592]:
+                    - generic [ref=f9e593]:
+                      - generic [ref=f9e594]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e595]
+                  - cell "0 分钟" [ref=f9e597]
+                  - cell "待指派" [ref=f9e598]
+                  - cell "已完成" [ref=f9e599]
+                  - cell [ref=f9e601]:
+                    - button "调整" [ref=f9e602]
+                - row [ref=f9e603]:
+                  - cell [ref=f9e604]:
+                    - link "HM-API-6055" [ref=f9e605] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 90)" [ref=f9e606]':
+                    - strong [ref=f9e607]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e608]: "物业区域 (ID: 90)"
+                  - cell [ref=f9e609]:
+                    - generic [ref=f9e610]:
+                      - generic [ref=f9e611]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e612]
+                  - cell "0 分钟" [ref=f9e614]
+                  - cell "待指派" [ref=f9e615]
+                  - cell "已完成" [ref=f9e616]
+                  - cell [ref=f9e618]:
+                    - button "调整" [ref=f9e619]
+                - row [ref=f9e620]:
+                  - cell [ref=f9e621]:
+                    - link "HM-API-6054" [ref=f9e622] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 88)" [ref=f9e623]':
+                    - strong [ref=f9e624]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e625]: "物业区域 (ID: 88)"
+                  - cell [ref=f9e626]:
+                    - generic [ref=f9e627]:
+                      - generic [ref=f9e628]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e629]
+                  - cell "0 分钟" [ref=f9e631]
+                  - cell "待指派" [ref=f9e632]
+                  - cell "已完成" [ref=f9e633]
+                  - cell [ref=f9e635]:
+                    - button "调整" [ref=f9e636]
+                - row [ref=f9e637]:
+                  - cell [ref=f9e638]:
+                    - link "HM-API-6053" [ref=f9e639] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 87)" [ref=f9e640]':
+                    - strong [ref=f9e641]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e642]: "物业区域 (ID: 87)"
+                  - cell [ref=f9e643]:
+                    - generic [ref=f9e644]:
+                      - generic [ref=f9e645]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e646]
+                  - cell "0 分钟" [ref=f9e648]
+                  - cell "待指派" [ref=f9e649]
+                  - cell "已完成" [ref=f9e650]
+                  - cell [ref=f9e652]:
+                    - button "调整" [ref=f9e653]
+                - row [ref=f9e654]:
+                  - cell [ref=f9e655]:
+                    - link "HM-API-6052" [ref=f9e656] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 80)" [ref=f9e657]':
+                    - strong [ref=f9e658]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e659]: "物业区域 (ID: 80)"
+                  - cell [ref=f9e660]:
+                    - generic [ref=f9e661]:
+                      - generic [ref=f9e662]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e663]
+                  - cell "0 分钟" [ref=f9e665]
+                  - cell "待指派" [ref=f9e666]
+                  - cell "已完成" [ref=f9e667]
+                  - cell [ref=f9e669]:
+                    - button "调整" [ref=f9e670]
+                - row [ref=f9e671]:
+                  - cell [ref=f9e672]:
+                    - link "HM-API-6051" [ref=f9e673] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e674]':
+                    - strong [ref=f9e675]: 水管漏水
+                    - generic [ref=f9e676]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e677]:
+                    - generic [ref=f9e678]:
+                      - generic [ref=f9e679]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e680]
+                  - cell "0 分钟" [ref=f9e682]
+                  - cell "待指派" [ref=f9e683]
+                  - cell "已完成" [ref=f9e684]
+                  - cell [ref=f9e686]:
+                    - button "调整" [ref=f9e687]
+                - row [ref=f9e688]:
+                  - cell [ref=f9e689]:
+                    - link "HM-API-6050" [ref=f9e690] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 80)" [ref=f9e691]':
+                    - strong [ref=f9e692]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e693]: "物业区域 (ID: 80)"
+                  - cell [ref=f9e694]:
+                    - generic [ref=f9e695]:
+                      - generic [ref=f9e696]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e697]
+                  - cell "0 分钟" [ref=f9e699]
+                  - cell "待指派" [ref=f9e700]
+                  - cell "已完成" [ref=f9e701]
+                  - cell [ref=f9e703]:
+                    - button "调整" [ref=f9e704]
+                - row [ref=f9e705]:
+                  - cell [ref=f9e706]:
+                    - link "HM-API-6049" [ref=f9e707] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e708]':
+                    - strong [ref=f9e709]: 水管漏水
+                    - generic [ref=f9e710]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e711]:
+                    - generic [ref=f9e712]:
+                      - generic [ref=f9e713]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e714]
+                  - cell "0 分钟" [ref=f9e716]
+                  - cell "待指派" [ref=f9e717]
+                  - cell "已完成" [ref=f9e718]
+                  - cell [ref=f9e720]:
+                    - button "调整" [ref=f9e721]
+                - row [ref=f9e722]:
+                  - cell [ref=f9e723]:
+                    - link "HM-API-6046" [ref=f9e724] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e725]':
+                    - strong [ref=f9e726]: 水管漏水
+                    - generic [ref=f9e727]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e728]:
+                    - generic [ref=f9e729]:
+                      - generic [ref=f9e730]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e731]
+                  - cell "0 分钟" [ref=f9e733]
+                  - cell "待指派" [ref=f9e734]
+                  - cell "已完成" [ref=f9e735]
+                  - cell [ref=f9e737]:
+                    - button "调整" [ref=f9e738]
+                - row [ref=f9e739]:
+                  - cell [ref=f9e740]:
+                    - link "HM-API-6043" [ref=f9e741] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Water leaking from under the kitchen sink 物业区域 (ID: 38)" [ref=f9e742]':
+                    - strong [ref=f9e743]: Water leaking from under the kitchen sink
+                    - generic [ref=f9e744]: "物业区域 (ID: 38)"
+                  - cell [ref=f9e745]:
+                    - generic [ref=f9e746]:
+                      - generic [ref=f9e747]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e748]
+                  - cell "0 分钟" [ref=f9e750]
+                  - cell "待指派" [ref=f9e751]
+                  - cell "已完成" [ref=f9e752]
+                  - cell [ref=f9e754]:
+                    - button "调整" [ref=f9e755]
+                - row [ref=f9e756]:
+                  - cell [ref=f9e757]:
+                    - link "HM-API-6042" [ref=f9e758] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e759]':
+                    - strong [ref=f9e760]: 水管漏水
+                    - generic [ref=f9e761]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e762]:
+                    - generic [ref=f9e763]:
+                      - generic [ref=f9e764]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e765]
+                  - cell "0 分钟" [ref=f9e767]
+                  - cell "待指派" [ref=f9e768]
+                  - cell "已完成" [ref=f9e769]
+                  - cell [ref=f9e771]:
+                    - button "调整" [ref=f9e772]
+                - row [ref=f9e773]:
+                  - cell [ref=f9e774]:
+                    - link "HM-API-6041" [ref=f9e775] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e776]':
+                    - strong [ref=f9e777]: 水管漏水
+                    - generic [ref=f9e778]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e779]:
+                    - generic [ref=f9e780]:
+                      - generic [ref=f9e781]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e782]
+                  - cell "0 分钟" [ref=f9e784]
+                  - cell "待指派" [ref=f9e785]
+                  - cell "已完成" [ref=f9e786]
+                  - cell [ref=f9e788]:
+                    - button "调整" [ref=f9e789]
+                - row [ref=f9e790]:
+                  - cell [ref=f9e791]:
+                    - link "HM-API-5537" [ref=f9e792] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e793]':
+                    - strong [ref=f9e794]: Dummy
+                    - generic [ref=f9e795]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e796]:
+                    - generic [ref=f9e797]:
+                      - generic [ref=f9e798]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e799]
+                  - cell "0 分钟" [ref=f9e801]
+                  - cell "待指派" [ref=f9e802]
+                  - cell "已完成" [ref=f9e803]
+                  - cell [ref=f9e805]:
+                    - button "调整" [ref=f9e806]
+                - row [ref=f9e807]:
+                  - cell [ref=f9e808]:
+                    - link "HM-API-5538" [ref=f9e809] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e810]':
+                    - strong [ref=f9e811]: Dummy
+                    - generic [ref=f9e812]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e813]:
+                    - generic [ref=f9e814]:
+                      - generic [ref=f9e815]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e816]
+                  - cell "0 分钟" [ref=f9e818]
+                  - cell "待指派" [ref=f9e819]
+                  - cell "已完成" [ref=f9e820]
+                  - cell [ref=f9e822]:
+                    - button "调整" [ref=f9e823]
+                - row [ref=f9e824]:
+                  - cell [ref=f9e825]:
+                    - link "HM-API-5539" [ref=f9e826] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e827]':
+                    - strong [ref=f9e828]: Dummy
+                    - generic [ref=f9e829]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e830]:
+                    - generic [ref=f9e831]:
+                      - generic [ref=f9e832]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e833]
+                  - cell "0 分钟" [ref=f9e835]
+                  - cell "待指派" [ref=f9e836]
+                  - cell "已完成" [ref=f9e837]
+                  - cell [ref=f9e839]:
+                    - button "调整" [ref=f9e840]
+                - row [ref=f9e841]:
+                  - cell [ref=f9e842]:
+                    - link "HM-API-5540" [ref=f9e843] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e844]':
+                    - strong [ref=f9e845]: Dummy
+                    - generic [ref=f9e846]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e847]:
+                    - generic [ref=f9e848]:
+                      - generic [ref=f9e849]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e850]
+                  - cell "0 分钟" [ref=f9e852]
+                  - cell "待指派" [ref=f9e853]
+                  - cell "已完成" [ref=f9e854]
+                  - cell [ref=f9e856]:
+                    - button "调整" [ref=f9e857]
+                - row [ref=f9e858]:
+                  - cell [ref=f9e859]:
+                    - link "HM-API-5541" [ref=f9e860] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e861]':
+                    - strong [ref=f9e862]: Dummy
+                    - generic [ref=f9e863]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e864]:
+                    - generic [ref=f9e865]:
+                      - generic [ref=f9e866]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e867]
+                  - cell "0 分钟" [ref=f9e869]
+                  - cell "待指派" [ref=f9e870]
+                  - cell "已完成" [ref=f9e871]
+                  - cell [ref=f9e873]:
+                    - button "调整" [ref=f9e874]
+                - row [ref=f9e875]:
+                  - cell [ref=f9e876]:
+                    - link "HM-API-5542" [ref=f9e877] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e878]':
+                    - strong [ref=f9e879]: Dummy
+                    - generic [ref=f9e880]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e881]:
+                    - generic [ref=f9e882]:
+                      - generic [ref=f9e883]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e884]
+                  - cell "0 分钟" [ref=f9e886]
+                  - cell "待指派" [ref=f9e887]
+                  - cell "已完成" [ref=f9e888]
+                  - cell [ref=f9e890]:
+                    - button "调整" [ref=f9e891]
+                - row [ref=f9e892]:
+                  - cell [ref=f9e893]:
+                    - link "HM-API-5543" [ref=f9e894] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e895]':
+                    - strong [ref=f9e896]: Dummy
+                    - generic [ref=f9e897]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e898]:
+                    - generic [ref=f9e899]:
+                      - generic [ref=f9e900]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e901]
+                  - cell "0 分钟" [ref=f9e903]
+                  - cell "待指派" [ref=f9e904]
+                  - cell "已完成" [ref=f9e905]
+                  - cell [ref=f9e907]:
+                    - button "调整" [ref=f9e908]
+                - row [ref=f9e909]:
+                  - cell [ref=f9e910]:
+                    - link "HM-API-5544" [ref=f9e911] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e912]':
+                    - strong [ref=f9e913]: Dummy
+                    - generic [ref=f9e914]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e915]:
+                    - generic [ref=f9e916]:
+                      - generic [ref=f9e917]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e918]
+                  - cell "0 分钟" [ref=f9e920]
+                  - cell "待指派" [ref=f9e921]
+                  - cell "已完成" [ref=f9e922]
+                  - cell [ref=f9e924]:
+                    - button "调整" [ref=f9e925]
+                - row [ref=f9e926]:
+                  - cell [ref=f9e927]:
+                    - link "HM-API-5545" [ref=f9e928] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e929]':
+                    - strong [ref=f9e930]: Dummy
+                    - generic [ref=f9e931]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e932]:
+                    - generic [ref=f9e933]:
+                      - generic [ref=f9e934]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e935]
+                  - cell "0 分钟" [ref=f9e937]
+                  - cell "待指派" [ref=f9e938]
+                  - cell "已完成" [ref=f9e939]
+                  - cell [ref=f9e941]:
+                    - button "调整" [ref=f9e942]
+                - row [ref=f9e943]:
+                  - cell [ref=f9e944]:
+                    - link "HM-API-5546" [ref=f9e945] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e946]':
+                    - strong [ref=f9e947]: Dummy
+                    - generic [ref=f9e948]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e949]:
+                    - generic [ref=f9e950]:
+                      - generic [ref=f9e951]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e952]
+                  - cell "0 分钟" [ref=f9e954]
+                  - cell "待指派" [ref=f9e955]
+                  - cell "已完成" [ref=f9e956]
+                  - cell [ref=f9e958]:
+                    - button "调整" [ref=f9e959]
+                - row [ref=f9e960]:
+                  - cell [ref=f9e961]:
+                    - link "HM-API-5547" [ref=f9e962] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e963]':
+                    - strong [ref=f9e964]: Dummy
+                    - generic [ref=f9e965]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e966]:
+                    - generic [ref=f9e967]:
+                      - generic [ref=f9e968]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e969]
+                  - cell "0 分钟" [ref=f9e971]
+                  - cell "待指派" [ref=f9e972]
+                  - cell "已完成" [ref=f9e973]
+                  - cell [ref=f9e975]:
+                    - button "调整" [ref=f9e976]
+                - row [ref=f9e977]:
+                  - cell [ref=f9e978]:
+                    - link "HM-API-5548" [ref=f9e979] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e980]':
+                    - strong [ref=f9e981]: Dummy
+                    - generic [ref=f9e982]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e983]:
+                    - generic [ref=f9e984]:
+                      - generic [ref=f9e985]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e986]
+                  - cell "0 分钟" [ref=f9e988]
+                  - cell "待指派" [ref=f9e989]
+                  - cell "已完成" [ref=f9e990]
+                  - cell [ref=f9e992]:
+                    - button "调整" [ref=f9e993]
+                - row [ref=f9e994]:
+                  - cell [ref=f9e995]:
+                    - link "HM-API-5549" [ref=f9e996] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e997]':
+                    - strong [ref=f9e998]: Dummy
+                    - generic [ref=f9e999]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1000]:
+                    - generic [ref=f9e1001]:
+                      - generic [ref=f9e1002]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e1003]
+                  - cell "0 分钟" [ref=f9e1005]
+                  - cell "待指派" [ref=f9e1006]
+                  - cell "已完成" [ref=f9e1007]
+                  - cell [ref=f9e1009]:
+                    - button "调整" [ref=f9e1010]
+                - row [ref=f9e1011]:
+                  - cell [ref=f9e1012]:
+                    - link "HM-API-5550" [ref=f9e1013] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e1014]':
+                    - strong [ref=f9e1015]: Dummy
+                    - generic [ref=f9e1016]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1017]:
+                    - generic [ref=f9e1018]:
+                      - generic [ref=f9e1019]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e1020]
+                  - cell "0 分钟" [ref=f9e1022]
+                  - cell "待指派" [ref=f9e1023]
+                  - cell "已完成" [ref=f9e1024]
+                  - cell [ref=f9e1026]:
+                    - button "调整" [ref=f9e1027]
+                - row [ref=f9e1028]:
+                  - cell [ref=f9e1029]:
+                    - link "HM-API-5551" [ref=f9e1030] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e1031]':
+                    - strong [ref=f9e1032]: Dummy
+                    - generic [ref=f9e1033]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1034]:
+                    - generic [ref=f9e1035]:
+                      - generic [ref=f9e1036]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e1037]
+                  - cell "0 分钟" [ref=f9e1039]
+                  - cell "待指派" [ref=f9e1040]
+                  - cell "已完成" [ref=f9e1041]
+                  - cell [ref=f9e1043]:
+                    - button "调整" [ref=f9e1044]
+                - row [ref=f9e1045]:
+                  - cell [ref=f9e1046]:
+                    - link "HM-API-5552" [ref=f9e1047] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e1048]':
+                    - strong [ref=f9e1049]: Dummy
+                    - generic [ref=f9e1050]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1051]:
+                    - generic [ref=f9e1052]:
+                      - generic [ref=f9e1053]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e1054]
+                  - cell "0 分钟" [ref=f9e1056]
+                  - cell "待指派" [ref=f9e1057]
+                  - cell "已完成" [ref=f9e1058]
+                  - cell [ref=f9e1060]:
+                    - button "调整" [ref=f9e1061]
+                - row [ref=f9e1062]:
+                  - cell [ref=f9e1063]:
+                    - link "HM-API-5553" [ref=f9e1064] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e1065]':
+                    - strong [ref=f9e1066]: Dummy
+                    - generic [ref=f9e1067]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1068]:
+                    - generic [ref=f9e1069]:
+                      - generic [ref=f9e1070]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e1071]
+                  - cell "0 分钟" [ref=f9e1073]
+                  - cell "待指派" [ref=f9e1074]
+                  - cell "已完成" [ref=f9e1075]
+                  - cell [ref=f9e1077]:
+                    - button "调整" [ref=f9e1078]
+                - row [ref=f9e1079]:
+                  - cell [ref=f9e1080]:
+                    - link "HM-API-5554" [ref=f9e1081] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Dummy 物业区域 (ID: 11)" [ref=f9e1082]':
+                    - strong [ref=f9e1083]: Dummy
+                    - generic [ref=f9e1084]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1085]:
+                    - generic [ref=f9e1086]:
+                      - generic [ref=f9e1087]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e1088]
+                  - cell "0 分钟" [ref=f9e1090]
+                  - cell "待指派" [ref=f9e1091]
+                  - cell "已完成" [ref=f9e1092]
+                  - cell [ref=f9e1094]:
+                    - button "调整" [ref=f9e1095]
+                - row [ref=f9e1096]:
+                  - cell [ref=f9e1097]:
+                    - link "HM-240721" [ref=f9e1098] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "配电箱反复跳闸 亚龙湾悦榕庄 · B12" [ref=f9e1099]:
+                    - strong [ref=f9e1100]: 配电箱反复跳闸
+                    - generic [ref=f9e1101]: 亚龙湾悦榕庄 · B12
+                  - cell [ref=f9e1102]:
+                    - generic [ref=f9e1103]:
+                      - generic [ref=f9e1104]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "紧急" [ref=f9e1105]
+                  - cell "8 分钟" [ref=f9e1107]
+                  - cell "责任复核队列" [ref=f9e1108]
+                  - cell "待处理" [ref=f9e1109]
+                  - cell [ref=f9e1111]:
+                    - button "紧急调配" [ref=f9e1112]
+                - row [ref=f9e1113]:
+                  - cell [ref=f9e1114]:
+                    - link "HM-API-6072" [ref=f9e1115] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Codex audit fixture: kitchen faucet leaking under 物业区域 (ID: 81)" [ref=f9e1116]':
+                    - strong [ref=f9e1117]: "Codex audit fixture: kitchen faucet leaking under"
+                    - generic [ref=f9e1118]: "物业区域 (ID: 81)"
+                  - cell [ref=f9e1119]:
+                    - generic [ref=f9e1120]:
+                      - generic [ref=f9e1121]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1122]
+                  - cell "15 分钟" [ref=f9e1124]
+                  - cell "待指派" [ref=f9e1125]
+                  - cell "待处理" [ref=f9e1126]
+                  - cell [ref=f9e1128]:
+                    - button "调整" [ref=f9e1129]
+                - row [ref=f9e1130]:
+                  - cell [ref=f9e1131]:
+                    - link "HM-API-6071" [ref=f9e1132] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1133]':
+                    - strong [ref=f9e1134]: Leaky Faucet
+                    - generic [ref=f9e1135]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1136]:
+                    - generic [ref=f9e1137]:
+                      - generic [ref=f9e1138]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1139]
+                  - cell "15 分钟" [ref=f9e1141]
+                  - cell "待指派" [ref=f9e1142]
+                  - cell "待处理" [ref=f9e1143]
+                  - cell [ref=f9e1145]:
+                    - button "调整" [ref=f9e1146]
+                - row [ref=f9e1147]:
+                  - cell [ref=f9e1148]:
+                    - link "HM-API-6070" [ref=f9e1149] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1150]':
+                    - strong [ref=f9e1151]: Leaky Faucet
+                    - generic [ref=f9e1152]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1153]:
+                    - generic [ref=f9e1154]:
+                      - generic [ref=f9e1155]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1156]
+                  - cell "15 分钟" [ref=f9e1158]
+                  - cell "待指派" [ref=f9e1159]
+                  - cell "待处理" [ref=f9e1160]
+                  - cell [ref=f9e1162]:
+                    - button "调整" [ref=f9e1163]
+                - row [ref=f9e1164]:
+                  - cell [ref=f9e1165]:
+                    - link "HM-API-6069" [ref=f9e1166] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1167]':
+                    - strong [ref=f9e1168]: Leaky Faucet
+                    - generic [ref=f9e1169]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1170]:
+                    - generic [ref=f9e1171]:
+                      - generic [ref=f9e1172]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1173]
+                  - cell "15 分钟" [ref=f9e1175]
+                  - cell "待指派" [ref=f9e1176]
+                  - cell "待处理" [ref=f9e1177]
+                  - cell [ref=f9e1179]:
+                    - button "调整" [ref=f9e1180]
+                - row [ref=f9e1181]:
+                  - cell [ref=f9e1182]:
+                    - link "HM-API-6068" [ref=f9e1183] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1184]':
+                    - strong [ref=f9e1185]: Leaky Faucet
+                    - generic [ref=f9e1186]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1187]:
+                    - generic [ref=f9e1188]:
+                      - generic [ref=f9e1189]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1190]
+                  - cell "15 分钟" [ref=f9e1192]
+                  - cell "待指派" [ref=f9e1193]
+                  - cell "待处理" [ref=f9e1194]
+                  - cell [ref=f9e1196]:
+                    - button "调整" [ref=f9e1197]
+                - row [ref=f9e1198]:
+                  - cell [ref=f9e1199]:
+                    - link "HM-API-6067" [ref=f9e1200] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1201]':
+                    - strong [ref=f9e1202]: Leaky Faucet
+                    - generic [ref=f9e1203]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1204]:
+                    - generic [ref=f9e1205]:
+                      - generic [ref=f9e1206]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1207]
+                  - cell "15 分钟" [ref=f9e1209]
+                  - cell "待指派" [ref=f9e1210]
+                  - cell "待处理" [ref=f9e1211]
+                  - cell [ref=f9e1213]:
+                    - button "调整" [ref=f9e1214]
+                - row [ref=f9e1215]:
+                  - cell [ref=f9e1216]:
+                    - link "HM-API-6066" [ref=f9e1217] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1218]':
+                    - strong [ref=f9e1219]: Leaky Faucet
+                    - generic [ref=f9e1220]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1221]:
+                    - generic [ref=f9e1222]:
+                      - generic [ref=f9e1223]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1224]
+                  - cell "15 分钟" [ref=f9e1226]
+                  - cell "待指派" [ref=f9e1227]
+                  - cell "待处理" [ref=f9e1228]
+                  - cell [ref=f9e1230]:
+                    - button "调整" [ref=f9e1231]
+                - row [ref=f9e1232]:
+                  - cell [ref=f9e1233]:
+                    - link "HM-API-6065" [ref=f9e1234] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1235]':
+                    - strong [ref=f9e1236]: Leaky Faucet
+                    - generic [ref=f9e1237]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1238]:
+                    - generic [ref=f9e1239]:
+                      - generic [ref=f9e1240]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1241]
+                  - cell "15 分钟" [ref=f9e1243]
+                  - cell "待指派" [ref=f9e1244]
+                  - cell "待处理" [ref=f9e1245]
+                  - cell [ref=f9e1247]:
+                    - button "调整" [ref=f9e1248]
+                - row [ref=f9e1249]:
+                  - cell [ref=f9e1250]:
+                    - link "HM-API-6064" [ref=f9e1251] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1252]':
+                    - strong [ref=f9e1253]: Leaky Faucet
+                    - generic [ref=f9e1254]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1255]:
+                    - generic [ref=f9e1256]:
+                      - generic [ref=f9e1257]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1258]
+                  - cell "15 分钟" [ref=f9e1260]
+                  - cell "待指派" [ref=f9e1261]
+                  - cell "待处理" [ref=f9e1262]
+                  - cell [ref=f9e1264]:
+                    - button "调整" [ref=f9e1265]
+                - row [ref=f9e1266]:
+                  - cell [ref=f9e1267]:
+                    - link "HM-API-6063" [ref=f9e1268] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 81)" [ref=f9e1269]':
+                    - strong [ref=f9e1270]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e1271]: "物业区域 (ID: 81)"
+                  - cell [ref=f9e1272]:
+                    - generic [ref=f9e1273]:
+                      - generic [ref=f9e1274]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1275]
+                  - cell "15 分钟" [ref=f9e1277]
+                  - cell "待指派" [ref=f9e1278]
+                  - cell "待处理" [ref=f9e1279]
+                  - cell [ref=f9e1281]:
+                    - button "调整" [ref=f9e1282]
+                - row [ref=f9e1283]:
+                  - cell [ref=f9e1284]:
+                    - link "HM-API-6062" [ref=f9e1285] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1286]':
+                    - strong [ref=f9e1287]: Leaky Faucet
+                    - generic [ref=f9e1288]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1289]:
+                    - generic [ref=f9e1290]:
+                      - generic [ref=f9e1291]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1292]
+                  - cell "15 分钟" [ref=f9e1294]
+                  - cell "待指派" [ref=f9e1295]
+                  - cell "待处理" [ref=f9e1296]
+                  - cell [ref=f9e1298]:
+                    - button "调整" [ref=f9e1299]
+                - row [ref=f9e1300]:
+                  - cell [ref=f9e1301]:
+                    - link "HM-API-6061" [ref=f9e1302] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1303]':
+                    - strong [ref=f9e1304]: Leaky Faucet
+                    - generic [ref=f9e1305]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1306]:
+                    - generic [ref=f9e1307]:
+                      - generic [ref=f9e1308]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1309]
+                  - cell "15 分钟" [ref=f9e1311]
+                  - cell "待指派" [ref=f9e1312]
+                  - cell "待处理" [ref=f9e1313]
+                  - cell [ref=f9e1315]:
+                    - button "调整" [ref=f9e1316]
+                - row [ref=f9e1317]:
+                  - cell [ref=f9e1318]:
+                    - link "HM-API-6060" [ref=f9e1319] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1320]':
+                    - strong [ref=f9e1321]: Leaky Faucet
+                    - generic [ref=f9e1322]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1323]:
+                    - generic [ref=f9e1324]:
+                      - generic [ref=f9e1325]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1326]
+                  - cell "15 分钟" [ref=f9e1328]
+                  - cell "待指派" [ref=f9e1329]
+                  - cell "待处理" [ref=f9e1330]
+                  - cell [ref=f9e1332]:
+                    - button "调整" [ref=f9e1333]
+                - row [ref=f9e1334]:
+                  - cell [ref=f9e1335]:
+                    - link "HM-API-6059" [ref=f9e1336] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "Leaky Faucet 物业区域 (ID: 12)" [ref=f9e1337]':
+                    - strong [ref=f9e1338]: Leaky Faucet
+                    - generic [ref=f9e1339]: "物业区域 (ID: 12)"
+                  - cell [ref=f9e1340]:
+                    - generic [ref=f9e1341]:
+                      - generic [ref=f9e1342]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1343]
+                  - cell "15 分钟" [ref=f9e1345]
+                  - cell "待指派" [ref=f9e1346]
+                  - cell "待处理" [ref=f9e1347]
+                  - cell [ref=f9e1349]:
+                    - button "调整" [ref=f9e1350]
+                - row [ref=f9e1351]:
+                  - cell [ref=f9e1352]:
+                    - link "HM-API-6058" [ref=f9e1353] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管接头漏水，已持续数天，逐渐加重 物业区域 (ID: 88)" [ref=f9e1354]':
+                    - strong [ref=f9e1355]: 水管接头漏水，已持续数天，逐渐加重
+                    - generic [ref=f9e1356]: "物业区域 (ID: 88)"
+                  - cell [ref=f9e1357]:
+                    - generic [ref=f9e1358]:
+                      - generic [ref=f9e1359]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1360]
+                  - cell "15 分钟" [ref=f9e1362]
+                  - cell "待指派" [ref=f9e1363]
+                  - cell "待处理" [ref=f9e1364]
+                  - cell [ref=f9e1366]:
+                    - button "调整" [ref=f9e1367]
+                - row [ref=f9e1368]:
+                  - cell [ref=f9e1369]:
+                    - link "HM-API-6048" [ref=f9e1370] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e1371]':
+                    - strong [ref=f9e1372]: 水管漏水
+                    - generic [ref=f9e1373]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1374]:
+                    - generic [ref=f9e1375]:
+                      - generic [ref=f9e1376]: insights
+                      - text: 师傅智能派单
+                  - cell "中" [ref=f9e1377]
+                  - cell "15 分钟" [ref=f9e1379]
+                  - cell "待指派" [ref=f9e1380]
+                  - cell "处理中" [ref=f9e1381]
+                  - cell [ref=f9e1383]:
+                    - button "调整" [ref=f9e1384]
+                - row [ref=f9e1385]:
+                  - cell [ref=f9e1386]:
+                    - link "HM-API-6047" [ref=f9e1387] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e1388]':
+                    - strong [ref=f9e1389]: 水管漏水
+                    - generic [ref=f9e1390]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1391]:
+                    - generic [ref=f9e1392]:
+                      - generic [ref=f9e1393]: insights
+                      - text: 师傅智能派单
+                  - cell "中" [ref=f9e1394]
+                  - cell "15 分钟" [ref=f9e1396]
+                  - cell "待指派" [ref=f9e1397]
+                  - cell "处理中" [ref=f9e1398]
+                  - cell [ref=f9e1400]:
+                    - button "调整" [ref=f9e1401]
+                - row [ref=f9e1402]:
+                  - cell [ref=f9e1403]:
+                    - link "HM-API-6045" [ref=f9e1404] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e1405]':
+                    - strong [ref=f9e1406]: 水管漏水
+                    - generic [ref=f9e1407]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1408]:
+                    - generic [ref=f9e1409]:
+                      - generic [ref=f9e1410]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1411]
+                  - cell "15 分钟" [ref=f9e1413]
+                  - cell "待指派" [ref=f9e1414]
+                  - cell "待处理" [ref=f9e1415]
+                  - cell [ref=f9e1417]:
+                    - button "调整" [ref=f9e1418]
+                - row [ref=f9e1419]:
+                  - cell [ref=f9e1420]:
+                    - link "HM-API-6044" [ref=f9e1421] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - 'cell "水管漏水 物业区域 (ID: 11)" [ref=f9e1422]':
+                    - strong [ref=f9e1423]: 水管漏水
+                    - generic [ref=f9e1424]: "物业区域 (ID: 11)"
+                  - cell [ref=f9e1425]:
+                    - generic [ref=f9e1426]:
+                      - generic [ref=f9e1427]: insights
+                      - text: AI 诊断与责任判断
+                  - cell "中" [ref=f9e1428]
+                  - cell "15 分钟" [ref=f9e1430]
+                  - cell "待指派" [ref=f9e1431]
+                  - cell "待处理" [ref=f9e1432]
+                  - cell [ref=f9e1434]:
+                    - button "调整" [ref=f9e1435]
+                - row [ref=f9e1436]:
+                  - cell [ref=f9e1437]:
+                    - link "HM-240704" [ref=f9e1438] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "中央空调制冷不足 三亚中心广场 · 17F" [ref=f9e1439]:
+                    - strong [ref=f9e1440]: 中央空调制冷不足
+                    - generic [ref=f9e1441]: 三亚中心广场 · 17F
+                  - cell [ref=f9e1442]:
+                    - generic [ref=f9e1443]:
+                      - generic [ref=f9e1444]: insights
+                      - text: 师傅智能派单
+                  - cell "高" [ref=f9e1445]
+                  - cell "18 分钟" [ref=f9e1447]
+                  - cell "李师傅" [ref=f9e1448]
+                  - cell "处理中" [ref=f9e1449]
+                  - cell [ref=f9e1451]:
+                    - button "调整" [ref=f9e1452]
+                - row [ref=f9e1453]:
+                  - cell [ref=f9e1454]:
+                    - link "HM-240699" [ref=f9e1455] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "洗衣机排水异常 半山半岛 · 5-903" [ref=f9e1456]:
+                    - strong [ref=f9e1457]: 洗衣机排水异常
+                    - generic [ref=f9e1458]: 半山半岛 · 5-903
+                  - cell [ref=f9e1459]:
+                    - generic [ref=f9e1460]:
+                      - generic [ref=f9e1461]: insights
+                      - text: DIY 分流
+                  - cell "中" [ref=f9e1462]
+                  - cell "24 分钟" [ref=f9e1464]
+                  - cell "DIY 分流代理" [ref=f9e1465]
+                  - cell "待处理" [ref=f9e1466]
+                  - cell [ref=f9e1468]:
+                    - button "调整" [ref=f9e1469]
+                - row [ref=f9e1470]:
+                  - cell [ref=f9e1471]:
+                    - link "HM-240688" [ref=f9e1472] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "阳台墙面出现裂纹 崖州湾科技城 · A6" [ref=f9e1473]:
+                    - strong [ref=f9e1474]: 阳台墙面出现裂纹
+                    - generic [ref=f9e1475]: 崖州湾科技城 · A6
+                  - cell [ref=f9e1476]:
+                    - generic [ref=f9e1477]:
+                      - generic [ref=f9e1478]: insights
+                      - text: 维修验收回访
+                  - cell "高" [ref=f9e1479]
+                  - cell "31 分钟" [ref=f9e1481]
+                  - cell "王工" [ref=f9e1482]
+                  - cell "处理中" [ref=f9e1483]
+                  - cell [ref=f9e1485]:
+                    - button "调整" [ref=f9e1486]
+                - row [ref=f9e1487]:
+                  - cell [ref=f9e1488]:
+                    - link "HM-240673" [ref=f9e1489] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "客房门锁无法供电 海棠湾康莱德 · 708" [ref=f9e1490]:
+                    - strong [ref=f9e1491]: 客房门锁无法供电
+                    - generic [ref=f9e1492]: 海棠湾康莱德 · 708
+                  - cell [ref=f9e1493]:
+                    - generic [ref=f9e1494]:
+                      - generic [ref=f9e1495]: insights
+                      - text: 业主报表和 SLA
+                  - cell "中" [ref=f9e1496]
+                  - cell "42 分钟" [ref=f9e1498]
+                  - cell "赵师傅" [ref=f9e1499]
+                  - cell "已完成" [ref=f9e1500]
+                  - cell [ref=f9e1502]:
+                    - button "调整" [ref=f9e1503]
+                - row [ref=f9e1504]:
+                  - cell [ref=f9e1505]:
+                    - link "HM-240665" [ref=f9e1506] [cursor=pointer]:
+                      - /url: /enterprise/tickets
+                  - cell "热水器出水温度波动 南山花园 · 3-602" [ref=f9e1507]:
+                    - strong [ref=f9e1508]: 热水器出水温度波动
+                    - generic [ref=f9e1509]: 南山花园 · 3-602
+                  - cell [ref=f9e1510]:
+                    - generic [ref=f9e1511]:
+                      - generic [ref=f9e1512]: insights
+                      - text: 24/7 微信接入
+                  - cell "中" [ref=f9e1513]
+                  - cell "51 分钟" [ref=f9e1515]
+                  - cell "接入代理" [ref=f9e1516]
+                  - cell "待处理" [ref=f9e1517]
+                  - cell [ref=f9e1519]:
+                    - button "调整" [ref=f9e1520]
+  - alert [ref=f9e1521]:
+    - generic [ref=f9e1522]: check_circle
+    - paragraph [ref=f9e1523]: 登录成功
+    - button "close" [ref=f9e1524]

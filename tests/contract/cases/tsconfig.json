@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": [
+    "../../../packages/domain/src/**/*.ts",
+    "../../../packages/persistence/src/cases/**/*.ts",
+    "../../../apps/api/src/modules/cases/**/*.ts",
+    "./**/*.ts",
+    "../../integration/cases/**/*.ts"
+  ]
+}

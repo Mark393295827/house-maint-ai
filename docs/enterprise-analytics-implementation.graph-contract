@@ -1,0 +1,415 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "enterprise-analytics-restructure-v1",
+  "objective": "Implement the approved company operations analytics blueprint at /enterprise/analytics without a map, using measured data, typed joins, and isolated writer territories.",
+  "non_goals": [
+    "No map or geospatial dependency on the analytics route.",
+    "No production deployment or external publication.",
+    "No automatic market-research execution during page load or tests.",
+    "No dynamic graph expansion or whole-graph retry."
+  ],
+  "owner": "analytics-integration-owner",
+  "artifact_path": ".agent-state/graphs/enterprise-analytics/artifacts",
+  "state_path": ".agent-state/graphs/enterprise-analytics/state.json",
+  "entry_nodes": [
+    "blueprint-baseline"
+  ],
+  "terminal_nodes": [
+    "terminal-review"
+  ],
+  "budgets": {
+    "max_nodes": 8,
+    "max_concurrency": 4,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 5400,
+    "tool_calls": 180,
+    "review_changed_lines": 1000
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read repository files and the approved blueprint.",
+      "Write the declared server analytics, telemetry, migration, frontend analytics, localization, test, and verification targets.",
+      "Run local tests, type checks, builds, lint, and browser verification."
+    ],
+    "denied": [
+      "Production deployment.",
+      "External publication.",
+      "Unapproved external AI calls.",
+      "Writes outside declared node territories.",
+      "Destructive database operations against non-test data."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only the failed node's checkpointed writer territory and preserve verified sibling artifacts."
+  },
+  "nodes": [
+    {
+      "id": "blueprint-baseline",
+      "kind": "deterministic",
+      "owner": "analytics-integration-owner",
+      "inputs": [],
+      "outputs": [
+        "blueprint_spec"
+      ],
+      "reads": [
+        "docs/enterprise-analytics-blueprint.md",
+        "src/pages/MetricsDashboard.tsx",
+        "src/pages/EnterpriseDashboard.tsx",
+        "server/routes/analytics.ts",
+        "server/routes/metrics.ts"
+      ],
+      "writes": [],
+      "verifier": "Blueprint scope, map exclusion, module list, source-of-truth rules, and acceptance criteria are complete and internally consistent.",
+      "timeout_seconds": 120,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "read-only",
+      "idempotency": "Pure read and schema extraction.",
+      "compensation": ""
+    },
+    {
+      "id": "company-read-model",
+      "kind": "agent",
+      "owner": "backend-analytics-owner",
+      "inputs": [
+        "blueprint_spec"
+      ],
+      "outputs": [
+        "company_overview_contract"
+      ],
+      "reads": [
+        "docs/enterprise-analytics-blueprint.md",
+        "server/services/analytics.ts",
+        "server/services/executive.ts",
+        "server/routes/metrics.ts",
+        "server/models/schema.sql"
+      ],
+      "writes": [
+        "server/services/companyAnalytics.ts",
+        "server/routes/analytics.ts",
+        "server/tests/company-analytics.test.ts"
+      ],
+      "verifier": "Company pulse, six-stage loop, strategic dimensions, alerts, and economics have typed formulas, access control, portability tests, and zero-denominator tests.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 30,
+      "effect_class": "reversible",
+      "idempotency": "Rewrite only declared backend analytics targets from the same blueprint hash.",
+      "compensation": "Restore the node-local backend analytics checkpoint."
+    },
+    {
+      "id": "agent-telemetry-read-model",
+      "kind": "agent",
+      "owner": "agent-telemetry-owner",
+      "inputs": [
+        "blueprint_spec"
+      ],
+      "outputs": [
+        "agent_telemetry_contract"
+      ],
+      "reads": [
+        "docs/enterprise-analytics-blueprint.md",
+        "server/services/aiUsage.ts",
+        "server/middleware/metricsCollector.ts",
+        "server/models/blackboard.sql",
+        "server/db/schema.ts"
+      ],
+      "writes": [
+        "server/services/agentTelemetry.ts",
+        "server/tests/agent-telemetry.test.ts"
+      ],
+      "verifier": "Agent token, cost, model, recency, and latency fields use the existing portable ai_usage_logs schema with a 50,000-row fail-closed bound. Success, historical load, active-run, and utilization fields remain explicitly unavailable until durable ledgers exist.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 32,
+      "effect_class": "reversible",
+      "idempotency": "Convergent migrations and deterministic read-model aggregation.",
+      "compensation": "Apply the declared test-only down migration and restore the telemetry checkpoint."
+    },
+    {
+      "id": "analytics-ui-modules",
+      "kind": "agent",
+      "owner": "frontend-analytics-owner",
+      "inputs": [
+        "blueprint_spec"
+      ],
+      "outputs": [
+        "analytics_module_bundle"
+      ],
+      "reads": [
+        "docs/enterprise-analytics-blueprint.md",
+        "src/pages/MetricsDashboard.tsx",
+        "src/enterprise-analytics.css",
+        "src/components/OperationCharts.tsx"
+      ],
+      "writes": [
+        "src/components/enterprise/analytics/CompanyPulse.tsx",
+        "src/components/enterprise/analytics/OperatingLoopHealth.tsx",
+        "src/components/enterprise/analytics/StrategicDimensions.tsx",
+        "src/components/enterprise/analytics/AgentOperations.tsx",
+        "src/components/enterprise/analytics/StrategyAlerts.tsx",
+        "src/components/enterprise/analytics/MarketIntelligence.tsx",
+        "src/components/enterprise/analytics/EfficiencyTopology.tsx",
+        "src/enterprise-analytics.css",
+        "src/components/enterprise/analytics/analytics-components.test.tsx"
+      ],
+      "verifier": "All blueprint modules render from typed fixtures, exclude the map, preserve stable dimensions, and pass responsive and accessibility component tests.",
+      "timeout_seconds": 1500,
+      "max_attempts": 2,
+      "tool_calls": 42,
+      "effect_class": "reversible",
+      "idempotency": "Overwrite the isolated analytics component bundle from the same fixture and blueprint hashes.",
+      "compensation": "Restore the frontend analytics module checkpoint."
+    },
+    {
+      "id": "analytics-copy",
+      "kind": "deterministic",
+      "owner": "localization-owner",
+      "inputs": [
+        "blueprint_spec"
+      ],
+      "outputs": [
+        "localized_copy_bundle"
+      ],
+      "reads": [
+        "docs/enterprise-analytics-blueprint.md",
+        "src/i18n/en.json",
+        "src/i18n/zh.json"
+      ],
+      "writes": [
+        "src/i18n/en.json",
+        "src/i18n/zh.json"
+      ],
+      "verifier": "English and Chinese keys are structurally identical, operational terminology is consistent, and measured, estimated, unavailable, warning, and approval states are explicit.",
+      "timeout_seconds": 480,
+      "max_attempts": 2,
+      "tool_calls": 12,
+      "effect_class": "reversible",
+      "idempotency": "Deterministic key merge without unrelated locale reformatting.",
+      "compensation": "Restore the localization checkpoint."
+    },
+    {
+      "id": "analytics-integration",
+      "kind": "agent",
+      "owner": "analytics-integration-owner",
+      "inputs": [
+        "company_overview_contract",
+        "agent_telemetry_contract",
+        "analytics_module_bundle",
+        "localized_copy_bundle"
+      ],
+      "outputs": [
+        "integrated_analytics"
+      ],
+      "reads": [
+        "server/services/companyAnalytics.ts",
+        "server/services/agentTelemetry.ts",
+        "server/routes/metrics.ts",
+        "server/routes/ai.ts",
+        "src/components/enterprise/analytics",
+        "src/i18n/en.json",
+        "src/i18n/zh.json"
+      ],
+      "writes": [
+        "server/services/researchBudget.ts",
+        "server/routes/metrics.ts",
+        "server/routes/ai.ts",
+        "server/db/migrations/0005_research_budget_reservations.sql",
+        "server/db/migrations/postgres/005_research_budget_reservations.sql",
+        "src/pages/MetricsDashboard.tsx",
+        "src/enterprise-analytics.css",
+        "src/services/api.ts",
+        "src/pages/MetricsDashboard.test.tsx"
+      ],
+      "verifier": "One authoritative range drives company and economics reads; stage and metric URL scopes affect only compatible modules; partial failures stay explicit; no company metric uses localStorage; research fails closed behind an atomic durable budget reservation.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 30,
+      "effect_class": "reversible",
+      "idempotency": "Deterministic integration against verified branch contracts.",
+      "compensation": "Restore the integration checkpoint without reverting verified branch targets."
+    },
+    {
+      "id": "verification",
+      "kind": "agent",
+      "owner": "qa-owner",
+      "inputs": [
+        "integrated_analytics"
+      ],
+      "outputs": [
+        "verification_receipt"
+      ],
+      "reads": [
+        "docs/enterprise-analytics-blueprint.md",
+        "src",
+        "server",
+        "tests"
+      ],
+      "writes": [
+        ".agent-state/graphs/enterprise-analytics/artifacts/verification.json",
+        "output/playwright/enterprise-analytics-desktop.png",
+        "output/playwright/enterprise-analytics-mobile.png"
+      ],
+      "verifier": "Server and UI tests, type checks, build, lint, API contract checks, keyboard review, console checks, and 1440px/390px overflow checks pass with fresh receipts.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 22,
+      "effect_class": "reversible",
+      "idempotency": "Replace only verification artifacts for the same implementation hash.",
+      "compensation": "Delete the failed verification artifacts and preserve source checkpoints."
+    },
+    {
+      "id": "terminal-review",
+      "kind": "deterministic",
+      "owner": "independent-review-owner",
+      "inputs": [
+        "blueprint_spec",
+        "verification_receipt"
+      ],
+      "outputs": [
+        "accepted_release"
+      ],
+      "reads": [
+        "docs/enterprise-analytics-blueprint.md",
+        ".agent-state/graphs/enterprise-analytics/artifacts/verification.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/enterprise-analytics/artifacts/terminal-receipt.json"
+      ],
+      "verifier": "Every blueprint acceptance criterion maps to fresh evidence, no map dependency remains, and no unverified or fabricated metric is presented as measured.",
+      "timeout_seconds": 300,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "reversible",
+      "idempotency": "Deterministic terminal decision from blueprint and verification hashes.",
+      "compensation": "Remove an invalid terminal receipt and retain the verification evidence."
+    }
+  ],
+  "edges": [
+    {
+      "from": "blueprint-baseline",
+      "to": "company-read-model",
+      "type": "data",
+      "payload_schema": "blueprint_spec",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "blueprint-baseline",
+      "to": "agent-telemetry-read-model",
+      "type": "data",
+      "payload_schema": "blueprint_spec",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "blueprint-baseline",
+      "to": "analytics-ui-modules",
+      "type": "data",
+      "payload_schema": "blueprint_spec",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "blueprint-baseline",
+      "to": "analytics-copy",
+      "type": "data",
+      "payload_schema": "blueprint_spec",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "company-read-model",
+      "to": "analytics-integration",
+      "type": "data",
+      "payload_schema": "company_overview_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "agent-telemetry-read-model",
+      "to": "analytics-integration",
+      "type": "data",
+      "payload_schema": "agent_telemetry_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "analytics-ui-modules",
+      "to": "analytics-integration",
+      "type": "data",
+      "payload_schema": "analytics_module_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "analytics-copy",
+      "to": "analytics-integration",
+      "type": "data",
+      "payload_schema": "localized_copy_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "analytics-integration",
+      "to": "verification",
+      "type": "verification",
+      "payload_schema": "integrated_analytics",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "blueprint-baseline",
+      "to": "terminal-review",
+      "type": "data",
+      "payload_schema": "blueprint_spec",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "verification",
+      "to": "terminal-review",
+      "type": "verification",
+      "payload_schema": "verification_receipt",
+      "condition": "verified",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "analytics-contract-integration",
+      "target": "analytics-integration",
+      "mode": "all",
+      "inputs": [
+        "company-read-model",
+        "agent-telemetry-read-model",
+        "analytics-ui-modules",
+        "analytics-copy"
+      ],
+      "verifier": "All four branch artifacts are fresh, schema-compatible, and have disjoint writer receipts.",
+      "quorum": null
+    },
+    {
+      "id": "terminal-evidence-barrier",
+      "target": "terminal-review",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "blueprint-baseline",
+        "verification"
+      ],
+      "verifier": "The verification receipt matches the current blueprint and implementation hashes.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The terminal verifier accepts every blueprint criterion.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one changed attempt.",
+    "A writer-territory conflict or incompatible payload schema is detected.",
+    "A test attempts an unapproved external AI call or non-test database mutation."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/enterprise-analytics/checkpoint.json",
+    "write_back": ".agent-state/graphs/enterprise-analytics/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

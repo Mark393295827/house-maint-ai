@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { inquiryChat } from '../../services/ai';
+import { diagnosePhoto, inquiryChat, type PhotoDiagnosis } from '../../services/ai';
 import Analytics from '../../services/analytics';
 import type { DemandData } from './DemandSummary';
 import OperatingLoopProgress from './OperatingLoopProgress';
@@ -14,6 +14,7 @@ interface ChatMessage {
     progress?: number;
     imageUrl?: string;        
     timestamp?: string;
+    photoDiagnosis?: PhotoDiagnosis;
 }
 
 interface InquiryChatProps {
@@ -44,6 +45,101 @@ const getTimeStr = () => {
     return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
 };
 
+const PhotoDiagnosisCard: React.FC<{ diagnosis: PhotoDiagnosis; isZh: boolean }> = ({ diagnosis, isZh }) => {
+    const severityLabel = diagnosis.severity === 'critical'
+        ? (isZh ? '紧急' : 'Urgent')
+        : diagnosis.severity === 'moderate'
+            ? (isZh ? '中等' : 'Moderate')
+            : (isZh ? '轻微' : 'Low');
+    const severityClass = diagnosis.severity === 'critical'
+        ? 'bg-[#fef2f2] text-[#c5221f]'
+        : diagnosis.severity === 'moderate'
+            ? 'bg-[#fff7e6] text-[#b06000]'
+            : 'bg-[#eef7ee] text-[#188038]';
+
+    if (!diagnosis.detected) {
+        return (
+            <section
+                aria-label={isZh ? '照片分析结果' : 'Photo analysis result'}
+                className="mt-3 w-full max-w-[560px] rounded-[24px] border border-[#f2c94c]/30 bg-[#fffbeb] p-5 text-[#202124]"
+            >
+                <div className="flex items-start gap-3">
+                    <span className="material-symbols-outlined mt-0.5 text-[#b06000]" aria-hidden="true">center_focus_weak</span>
+                    <div>
+                        <h3 className="text-[15px] font-black">
+                            {isZh ? '未识别到明确的维修问题' : 'No clear maintenance issue detected'}
+                        </h3>
+                        <p className="mt-2 text-[13px] leading-6 text-[#5f6368]">
+                            {diagnosis.summary || (isZh
+                                ? '请重新拍摄故障部位，而不是人物或整个房间。'
+                                : 'Retake the damaged fixture rather than a person or the whole room.')}
+                        </p>
+                    </div>
+                </div>
+                <div className="mt-4 rounded-2xl bg-white/80 p-4">
+                    <p className="text-[11px] font-black uppercase tracking-wider text-[#86868b]">
+                        {isZh ? '建议重拍方式' : 'How to retake'}
+                    </p>
+                    <ol className="mt-2 list-decimal space-y-1 pl-5 text-[12px] leading-5 text-[#3c4043]">
+                        <li>{isZh ? '先拍摄设备或受损区域的整体位置。' : 'Show the full fixture or damaged area.'}</li>
+                        <li>{isZh ? '再拍一张漏水、裂缝或损坏细节的近照。' : 'Add a close-up of the leak, crack, or damage.'}</li>
+                        <li>{isZh ? '保持光线充足、画面清晰，并避免拍到人脸。' : 'Use good light, keep it sharp, and avoid faces.'}</li>
+                    </ol>
+                </div>
+            </section>
+        );
+    }
+
+    return (
+        <section
+            aria-label={isZh ? '照片初步诊断' : 'Preliminary photo diagnosis'}
+            className="mt-3 w-full max-w-[560px] rounded-[24px] border border-black/5 bg-[#f8f9fa] p-5 text-[#202124]"
+        >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#86868b]">
+                        {isZh ? 'AI 照片初步诊断' : 'AI preliminary photo diagnosis'}
+                    </p>
+                    <h3 className="mt-1 text-[17px] font-black tracking-tight">{diagnosis.issueName}</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-3 py-1 text-[11px] font-black ${severityClass}`}>{severityLabel}</span>
+                    <span className="rounded-full bg-white px-3 py-1 text-[11px] font-black text-[#5f6368]">
+                        {Math.round(diagnosis.confidence * 100)}%
+                    </span>
+                </div>
+            </div>
+
+            <div className="mt-4">
+                <p className="text-[11px] font-black text-[#86868b]">{isZh ? '观察与判断' : 'Observation'}</p>
+                <p className="mt-1 text-[13px] leading-6 text-[#3c4043]">{diagnosis.summary}</p>
+            </div>
+
+            {diagnosis.safetyWarning && (
+                <div className="mt-4 flex gap-2 rounded-2xl bg-[#fef2f2] p-3 text-[#a50e0e]">
+                    <span className="material-symbols-outlined text-[18px]" aria-hidden="true">warning</span>
+                    <p className="text-[12px] font-bold leading-5">{diagnosis.safetyWarning}</p>
+                </div>
+            )}
+
+            {diagnosis.steps.length > 0 && (
+                <div className="mt-4">
+                    <p className="text-[11px] font-black text-[#86868b]">{isZh ? '建议下一步' : 'Recommended next steps'}</p>
+                    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-[12px] leading-5 text-[#3c4043]">
+                        {diagnosis.steps.slice(0, 4).map((step, index) => <li key={`${index}-${step}`}>{step}</li>)}
+                    </ol>
+                </div>
+            )}
+
+            <p className="mt-4 border-t border-black/5 pt-3 text-[10px] leading-4 text-[#86868b]">
+                {isZh
+                    ? '以上仅为基于照片的初步判断。请补充发生位置和症状，系统会继续核实。'
+                    : 'This is a photo-based preliminary assessment. Add the location and symptoms so the system can verify it.'}
+            </p>
+        </section>
+    );
+};
+
 const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
     const { locale } = useLanguage();
     const isZh = locale === 'zh';
@@ -65,6 +161,7 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
 
     const [showCamera, setShowCamera] = useState(false);
     const [cameraReady, setCameraReady] = useState(false);
+    const [cameraError, setCameraError] = useState<string | null>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [showInputMenu, setShowInputMenu] = useState(false);
 
@@ -91,19 +188,35 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
 
     const openCamera = useCallback(async () => {
         setShowCamera(true);
+        setCameraError(null);
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
             });
             setStream(mediaStream);
-            if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
-                videoRef.current.onloadedmetadata = () => setCameraReady(true);
-            }
         } catch (e) {
             console.error('Camera error', e);
+            setCameraError(isZh
+                ? '无法使用摄像头。请允许摄像头权限，或改用相册上传。'
+                : 'The camera is unavailable. Allow camera access or upload from the gallery.');
         }
-    }, []);
+    }, [isZh]);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!showCamera || !stream || !video) return;
+
+        video.srcObject = stream;
+        if (video.readyState >= 1) {
+            setCameraReady(true);
+        }
+
+        return () => {
+            if (video.srcObject === stream) {
+                video.srcObject = null;
+            }
+        };
+    }, [showCamera, stream]);
 
     const closeCamera = useCallback(() => {
         stream?.getTracks().forEach(t => t.stop());
@@ -112,32 +225,108 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
         setCameraReady(false);
     }, [stream]);
 
+    useEffect(() => () => {
+        stream?.getTracks().forEach(track => track.stop());
+    }, [stream]);
+
+    const analyzeCapturedPhoto = useCallback(async (
+        base64: string,
+        url: string,
+        source: 'camera' | 'gallery',
+        mimeType = 'image/jpeg'
+    ) => {
+        setImageBase64(base64);
+        setImageUrl(url);
+        setShowWelcome(false);
+
+        const userText = source === 'camera'
+            ? (isZh ? '我拍了一张需要诊断的照片' : 'I took a photo for diagnosis')
+            : (isZh ? '我上传了一张需要诊断的照片' : 'I uploaded a photo for diagnosis');
+        const photoMsg: ChatMessage = {
+            role: 'user',
+            content: source === 'camera'
+                ? (isZh ? '📷 已拍摄照片' : '📷 Photo taken')
+                : (isZh ? '📷 已上传照片' : '📷 Photo uploaded'),
+            imageUrl: url,
+            timestamp: getTimeStr(),
+        };
+        const newHistory = [...history, { role: 'user' as const, content: userText }];
+
+        setMessages(prev => [...prev, photoMsg]);
+        setHistory(newHistory);
+        setIsThinking(true);
+
+        try {
+            const diagnosis = await diagnosePhoto(
+                base64,
+                mimeType,
+                isZh
+                    ? '请直接分析照片中可见的房屋维修问题；如果没有清晰展示故障，请明确说明并给出重拍建议。请使用中文。'
+                    : 'Directly analyze the visible home-maintenance issue. If no fault is clearly shown, say so and explain how to retake the photo. Respond in English.'
+            );
+            const assistantText = diagnosis.detected
+                ? (isZh
+                    ? `照片初步判断：${diagnosis.issueName}。请继续告诉我问题发生在哪个房间或区域。`
+                    : `Preliminary photo finding: ${diagnosis.issueName}. Tell me which room or area this is in.`)
+                : (isZh
+                    ? '这张照片没有清晰展示维修故障。请按照下方建议重新拍摄。'
+                    : 'This photo does not clearly show a maintenance problem. Please retake it using the guidance below.');
+            const aiMsg: ChatMessage = {
+                role: 'assistant',
+                content: assistantText,
+                photoDiagnosis: diagnosis,
+                quickReplies: diagnosis.detected
+                    ? (isZh
+                        ? ['厨房', '卫生间', '卧室', '客厅', '阳台', '外墙']
+                        : ['Kitchen', 'Bathroom', 'Bedroom', 'Living room', 'Balcony', 'Exterior'])
+                    : undefined,
+                progress: diagnosis.detected ? 35 : 10,
+                timestamp: getTimeStr(),
+            };
+
+            setMessages(prev => [...prev, aiMsg]);
+            setHistory([...newHistory, { role: 'assistant', content: `${assistantText}\n${diagnosis.summary}` }]);
+            setProgress(aiMsg.progress || 0);
+            Analytics.track('photo_diagnosis_completed', {
+                source,
+                detected: diagnosis.detected,
+                category: diagnosis.category,
+                severity: diagnosis.severity,
+                confidence: diagnosis.confidence,
+            });
+        } catch (error) {
+            console.error('Photo diagnosis error:', error);
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: isZh
+                    ? '照片已保留，但 AI 分析失败。请确认后端服务正在运行后重试，或重新拍摄一张更清晰的故障照片。'
+                    : 'Your photo was kept, but AI analysis failed. Check that the backend is running, then retry or take a clearer photo.',
+                timestamp: getTimeStr(),
+            }]);
+            Analytics.track('photo_diagnosis_failed', { source });
+        } finally {
+            setIsThinking(false);
+        }
+    }, [history, isZh]);
+
     const capturePhoto = useCallback(() => {
         if (!videoRef.current || !canvasRef.current) return;
         const v = videoRef.current, c = canvasRef.current, ctx = c.getContext('2d');
         if (!ctx) return;
+        if (!v.videoWidth || !v.videoHeight) {
+            setCameraError(isZh ? '摄像头尚未准备好，请稍候重试。' : 'The camera is not ready yet. Please try again.');
+            return;
+        }
         c.width = v.videoWidth; c.height = v.videoHeight;
         ctx.drawImage(v, 0, 0);
         const base64 = c.toDataURL('image/jpeg', 0.85).split(',')[1];
         c.toBlob(blob => {
             if (!blob) return;
             const url = URL.createObjectURL(blob);
-            setImageBase64(base64);
-            setImageUrl(url);
-            const photoMsg: ChatMessage = {
-                role: 'user',
-                content: isZh ? '📷 已拍摄照片' : '📷 Photo taken',
-                imageUrl: url,
-                timestamp: getTimeStr(),
-            };
-            setMessages(prev => [...prev, photoMsg]);
-            setShowWelcome(false);
-            const newHistory = [...history, { role: 'user' as const, content: isZh ? '我拍了一张照片' : 'I took a photo' }];
-            setHistory(newHistory);
-            sendToAI(isZh ? '我拍了照片' : 'I took a photo', newHistory, base64);
             closeCamera();
+            void analyzeCapturedPhoto(base64, url, 'camera', 'image/jpeg');
         }, 'image/jpeg', 0.85);
-    }, [history, isZh, closeCamera]);
+    }, [analyzeCapturedPhoto, closeCamera, isZh]);
 
     const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -147,22 +336,18 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
         const reader = new FileReader();
         reader.onload = () => {
             const b64 = (reader.result as string).split(',')[1];
-            setImageBase64(b64);
-            const photoMsg: ChatMessage = {
-                role: 'user',
-                content: isZh ? '📷 已上传照片' : '📷 Photo uploaded',
-                imageUrl: url,
-                timestamp: getTimeStr(),
-            };
-            setMessages(prev => [...prev, photoMsg]);
-            setShowWelcome(false);
-            const newHistory = [...history, { role: 'user' as const, content: isZh ? '我上传了照片' : 'I uploaded a photo' }];
-            setHistory(newHistory);
-            sendToAI(isZh ? '我上传了照片' : 'I uploaded a photo', newHistory, b64);
+            void analyzeCapturedPhoto(b64, url, 'gallery', file.type || 'image/jpeg');
         };
         reader.readAsDataURL(file);
+        e.target.value = '';
         setShowInputMenu(false);
     };
+
+    useEffect(() => () => {
+        if (imageUrl?.startsWith('blob:')) {
+            URL.revokeObjectURL(imageUrl);
+        }
+    }, [imageUrl]);
 
     const sendToAI = useCallback(async (_userText: string, newHistory: typeof history, imgB64?: string) => {
         setIsThinking(true);
@@ -255,6 +440,9 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                             <div className={`p-5 rounded-[22px] ${msg.role === 'user' ? 'bg-[#202124] text-white rounded-tr-sm shadow-xl shadow-black/10' : 'bg-white apple-glass rounded-tl-sm shadow-sm border border-black/5'}`}>
                                 <p className="text-[14px] font-medium leading-[1.5] whitespace-pre-wrap">{msg.content}</p>
                             </div>
+                            {msg.photoDiagnosis && (
+                                <PhotoDiagnosisCard diagnosis={msg.photoDiagnosis} isZh={isZh} />
+                            )}
                             <span className="mt-1.5 text-[10px] font-black text-[#86868b] uppercase tracking-wide opacity-40 px-2">{msg.timestamp}</span>
                          </div>
 
@@ -346,14 +534,48 @@ const InquiryChat: React.FC<InquiryChatProps> = ({ onComplete, onBack }) => {
                          <div className="w-10" />
                     </div>
                     <div className="flex-1 relative overflow-hidden">
-                        <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover" />
-                        <div className="absolute inset-x-12 top-24 bottom-24 border border-white/20 rounded-3xl pointer-events-none" />
+                        {cameraError ? (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center text-white">
+                                <span className="material-symbols-outlined text-5xl text-white/60" aria-hidden="true">no_photography</span>
+                                <p role="alert" className="mt-4 max-w-md text-[14px] font-bold leading-6">{cameraError}</p>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        closeCamera();
+                                        fileRef.current?.click();
+                                    }}
+                                    className="mt-6 rounded-2xl bg-white px-5 py-3 text-[12px] font-black text-[#202124]"
+                                >
+                                    {isZh ? '从相册选择' : 'Choose from gallery'}
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <video
+                                    ref={videoRef}
+                                    autoPlay
+                                    playsInline
+                                    muted
+                                    onLoadedMetadata={() => setCameraReady(true)}
+                                    onCanPlay={() => setCameraReady(true)}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-x-12 top-24 bottom-24 border border-white/20 rounded-3xl pointer-events-none" />
+                            </>
+                        )}
                     </div>
                     <div className="p-10 flex flex-col items-center gap-8 bg-gradient-to-t from-black to-transparent">
-                         <button onClick={capturePhoto} disabled={!cameraReady} className="w-20 h-20 rounded-full border-4 border-white/30 p-1 active:scale-90 transition-transform disabled:opacity-30">
+                         <button
+                             onClick={capturePhoto}
+                             disabled={!cameraReady || !!cameraError || isThinking}
+                             aria-label={isZh ? '拍摄并分析照片' : 'Capture and analyze photo'}
+                             className="w-20 h-20 rounded-full border-4 border-white/30 p-1 active:scale-90 transition-transform disabled:opacity-30"
+                         >
                              <div className="w-full h-full bg-white rounded-full shadow-2xl" />
                          </button>
-                         <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest">Focusing on the issue</p>
+                         <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest">
+                             {isZh ? '对准故障区域，拍照后立即分析' : 'Frame the issue for immediate analysis'}
+                         </p>
                     </div>
                 </div>
             )}

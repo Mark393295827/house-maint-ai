@@ -31,10 +31,7 @@ const CalendarPage = () => {
     // });
     // const reports = reportsData?.reports ?? []; // kept for future use if we filter by report
 
-    // Get current date info
     const today = new Date();
-    const currentMonth = today.toLocaleDateString('en-US', { month: 'short' });
-    const currentYear = today.getFullYear();
 
     // Generate next 7 days
     const generateDays = () => {
@@ -184,10 +181,8 @@ const CalendarPage = () => {
 
             {/* Week Selector */}
             <WeekSelector
-                currentMonth={currentMonth}
-                currentYear={currentYear}
-                startDate={days[0]?.date}
-                endDate={days[6]?.date}
+                startDate={days[0]?.fullDate}
+                endDate={days[6]?.fullDate}
             />
 
             {/* Date Tabs */}

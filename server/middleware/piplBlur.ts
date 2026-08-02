@@ -112,6 +112,15 @@ export const anonymizeImagePayload = async (req: Request, res: Response, next: N
             return next();
         }
 
+        const allowDevelopmentBypass = process.env.NODE_ENV !== 'production'
+            && (process.env.PIPL_ANONYMIZER_BYPASS === 'true' || process.env.NODE_ENV === 'test');
+        if (!PIPL_ANONYMIZER_URL && allowDevelopmentBypass) {
+            req.body.piplAnonymized = false;
+            req.body.piplAnonymizationBypassed = true;
+            console.warn(`[PIPL] Development-only anonymization bypass used for ${refs.length} image(s)`);
+            return next();
+        }
+
         for (const ref of refs) {
             const anonymized = await anonymizeImage(ref.image, ref.mimeType);
             ref.set(anonymized.image, anonymized.mimeType);

@@ -25,7 +25,12 @@ const MyCasesPage = () => {
     const [tab, setTab] = useState<'active' | 'archived'>('active');
     const [search, setSearch] = useState('');
 
-    const { data: reportsData, isLoading: loadingReports } = useReports();
+    const {
+        data: reportsData,
+        isLoading: loadingReports,
+        isError: reportsFailed,
+        refetch: retryReports,
+    } = useReports();
     const reports = reportsData?.reports || [];
     const stageCopies = getOperatingStageCopies(locale === 'zh' ? 'zh' : 'en');
 
@@ -120,6 +125,23 @@ const MyCasesPage = () => {
                 {loadingReports ? (
                     <div className="flex flex-col items-center justify-center py-16">
                         <div className="w-8 h-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
+                    </div>
+                ) : reportsFailed ? (
+                    <div className="flex flex-col items-center gap-3 py-16 text-center">
+                        <span className="material-symbols-outlined text-5xl text-red-500" aria-hidden="true">cloud_off</span>
+                        <p className="font-bold text-text-main-light dark:text-text-main-dark">
+                            {zh ? '无法加载案例' : 'Unable to load cases'}
+                        </p>
+                        <p className="max-w-xs text-sm text-text-sub-light dark:text-text-sub-dark">
+                            {zh ? '请检查网络连接后重试。现有案例未被清空。' : 'Check your connection and retry. Existing cases have not been cleared.'}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => void retryReports()}
+                            className="mt-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white"
+                        >
+                            {zh ? '重试' : 'Retry'}
+                        </button>
                     </div>
                 ) : filtered.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 py-16 text-gray-400">

@@ -1,0 +1,88 @@
+- generic [ref=f80e2]:
+  - link "Skip to main content" [ref=f80e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f80e9]:
+    - banner [ref=f80e10]:
+      - generic [ref=f80e11]:
+        - generic [ref=f80e12]: shield_with_heart
+        - generic [ref=f80e14]: House Maint AI
+      - generic [ref=f80e15]:
+        - button "Switch language" [active] [ref=f80e115]:
+          - generic [ref=f80e17]: language
+          - generic [ref=f80e18]: EN
+        - link "Sign In" [ref=f80e116] [cursor=pointer]:
+          - /url: /login
+    - main [ref=f80e20]:
+      - generic [ref=f80e21]:
+        - generic [ref=f80e22]:
+          - generic [ref=f80e23]: WeChat Maintenance Operating Loop Live
+          - heading "From report to verified repair in one WeChat-native loop." [level=1] [ref=f80e117]
+          - paragraph [ref=f80e26]: Submit photos, voice, or video. AI handles triage, DIY deflection, worker dispatch, repair verification, and owner reporting.
+        - generic [ref=f80e27]:
+          - generic [ref=f80e30]:
+            - generic [ref=f80e31]: add_a_photo
+            - heading "Every report enters the operating loop" [level=2] [ref=f80e118]
+            - paragraph [ref=f80e34]: Tenants do not need another app. Once context arrives through WeChat, the system decides whether to deflect, dispatch, and attribute responsibility.
+            - link "Get Started arrow_forward" [ref=f80e119] [cursor=pointer]:
+              - /url: /diagnosis
+              - text: Get Started
+              - generic [ref=f80e36]: arrow_forward
+          - generic [ref=f80e39]:
+            - generic [ref=f80e40]:
+              - generic [ref=f80e41]: forum
+              - generic [ref=f80e43]:
+                - generic [ref=f80e44]: 1/6
+                - heading "24/7 WeChat intake" [level=3] [ref=f80e120]
+                - paragraph [ref=f80e48]: Tenants report through Mini Program, Official Account, or WeChat groups. AI identifies the sender, property, history, and likely responsibility boundary.
+            - generic [ref=f80e49]:
+              - generic [ref=f80e50]: camera_enhance
+              - generic [ref=f80e52]:
+                - generic [ref=f80e53]: 2/6
+                - heading "AI diagnosis and liability gate" [level=3] [ref=f80e121]
+                - paragraph [ref=f80e57]: Gemini and DeepSeek classify issue type, severity, landlord-vs-tenant responsibility, and the next best action.
+            - generic [ref=f80e58]:
+              - generic [ref=f80e59]: self_improvement
+              - generic [ref=f80e61]:
+                - generic [ref=f80e62]: 3/6
+                - heading "DIY deflection" [level=3] [ref=f80e122]
+                - paragraph [ref=f80e66]: Low-risk cases receive in-WeChat guides before dispatch, reducing unnecessary truck rolls and wasted free estimates.
+            - generic [ref=f80e67]:
+              - generic [ref=f80e68]: near_me
+              - generic [ref=f80e70]:
+                - generic [ref=f80e71]: 4/6
+                - heading "Geo-ranked worker dispatch" [level=3] [ref=f80e123]
+                - paragraph [ref=f80e75]: Nearby workers receive structured leads ranked by skill fit, distance, rating, response speed, required parts, and pricing band.
+            - generic [ref=f80e76]:
+              - generic [ref=f80e77]: fact_check
+              - generic [ref=f80e79]:
+                - generic [ref=f80e80]: 5/6
+                - heading "Repair verification" [level=3] [ref=f80e124]
+                - paragraph [ref=f80e84]: After completion photos are uploaded, AI checks with the tenant, follows up if they go quiet, and only closes once the fix is confirmed.
+            - generic [ref=f80e85]:
+              - generic [ref=f80e86]: analytics
+              - generic [ref=f80e88]:
+                - generic [ref=f80e89]: 6/6
+                - heading "Owner reports and SLA" [level=3] [ref=f80e125]
+                - paragraph [ref=f80e93]: "Managers and absentee owners see one source of truth: cost, response time, deflection, worker quality, and data compliance status."
+        - generic [ref=f80e96]:
+          - heading "Not a single diagnosis tool. A property operating system." [level=2] [ref=f80e126]: Not a single diagnosis tool.A property operating system.
+          - generic [ref=f80e98]:
+            - generic [ref=f80e127]:
+              - generic [ref=f80e128]: 30s
+              - generic [ref=f80e129]: multimodal triage report
+            - generic [ref=f80e130]:
+              - generic [ref=f80e131]: 20%+
+              - generic [ref=f80e132]: target DIY ticket deflection
+            - generic [ref=f80e133]:
+              - generic [ref=f80e134]: RMB10
+              - generic [ref=f80e135]: per-door monthly SaaS benchmark
+    - contentinfo [ref=f80e108]:
+      - generic [ref=f80e109]:
+        - paragraph [ref=f80e110]: © 2026 House Maint AI. WeChat-native maintenance operations.
+        - generic [ref=f80e111]:
+          - link "Privacy" [ref=f80e136] [cursor=pointer]:
+            - /url: /showcase
+          - link "Terms" [ref=f80e137] [cursor=pointer]:
+            - /url: /showcase
+          - link "Support" [ref=f80e138] [cursor=pointer]:
+            - /url: /showcase

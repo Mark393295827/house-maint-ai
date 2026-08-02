@@ -1,0 +1,410 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e5]:
+    - banner "House Maint AI" [ref=e6]:
+      - link "House Maint AI home" [ref=e7] [cursor=pointer]:
+        - /url: "#showcase-top"
+        - generic [ref=e13]: House Maint AI
+      - navigation "Showcase sections" [ref=e14]:
+        - link "Operating Model" [ref=e15] [cursor=pointer]:
+          - /url: "#showcase-operating-model"
+        - link "Live Demo" [ref=e16] [cursor=pointer]:
+          - /url: "#showcase-live-demo"
+        - link "Tech Stack" [ref=e17] [cursor=pointer]:
+          - /url: "#showcase-tech"
+      - generic [ref=e18]:
+        - button "Switch language" [ref=e19]:
+          - generic [ref=e20]: language
+          - generic [ref=e21]: EN
+        - link "Launch App arrow_forward" [ref=e22] [cursor=pointer]:
+          - /url: /welcome
+          - text: Launch App
+          - generic [ref=e23]: arrow_forward
+    - main [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: home
+            - generic [ref=e29]: House Maint AI
+          - paragraph [ref=e30]: Production-Ready • 9.5/10 Rating
+          - heading "Your Home, Intelligently Maintained." [level=1] [ref=e32]
+          - paragraph [ref=e33]: "A six-stage operating loop for WeChat-native maintenance: intake, AI diagnosis, DIY deflection, worker dispatch, repair verification, and owner reporting."
+          - generic [ref=e34]:
+            - link "Try the Demo arrow_forward" [ref=e35] [cursor=pointer]:
+              - /url: /welcome
+              - text: Try the Demo
+              - generic [ref=e36]: arrow_forward
+            - link "View on GitHub" [ref=e37] [cursor=pointer]:
+              - /url: https://github.com/Mark393295827/house-maint-ai
+        - button "Scroll to explore arrow_downward" [ref=e40] [cursor=pointer]:
+          - generic [ref=e41]: Scroll to explore
+          - generic [ref=e42]: arrow_downward
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]: Operating loop
+            - strong [ref=e47]: 01-06
+          - generic "Six-stage operating loop" [ref=e48]:
+            - generic [ref=e49]: home
+            - generic [ref=e51]:
+              - generic [ref=e52]: chat_bubble
+              - generic [ref=e53]: "01"
+            - generic [ref=e54]:
+              - generic [ref=e55]: saved_search
+              - generic [ref=e56]: "02"
+            - generic [ref=e57]:
+              - generic [ref=e58]: library_books
+              - generic [ref=e59]: "03"
+            - generic [ref=e60]:
+              - generic [ref=e61]: explore
+              - generic [ref=e62]: "04"
+            - generic [ref=e63]:
+              - generic [ref=e64]: verified
+              - generic [ref=e65]: "05"
+            - generic [ref=e66]:
+              - generic [ref=e67]: monitoring
+              - generic [ref=e68]: "06"
+        - generic "Six-stage operating loop" [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic [ref=e72]: chat_bubble
+              - generic [ref=e74]: 24/7 WeChat intake
+            - generic [ref=e75]:
+              - generic [ref=e76]: saved_search
+              - generic [ref=e78]: AI diagnosis and liability gate
+            - generic [ref=e79]:
+              - generic [ref=e80]: library_books
+              - generic [ref=e82]: DIY deflection
+            - generic [ref=e83]:
+              - generic [ref=e84]: explore
+              - generic [ref=e86]: Geo-ranked worker dispatch
+            - generic [ref=e87]:
+              - generic [ref=e88]: verified
+              - generic [ref=e90]: Repair verification
+            - generic [ref=e91]:
+              - generic [ref=e92]: monitoring
+              - generic [ref=e94]: Owner reports and SLA
+            - generic [ref=e95]:
+              - generic [ref=e96]: chat_bubble
+              - generic [ref=e98]: 24/7 WeChat intake
+            - generic [ref=e99]:
+              - generic [ref=e100]: saved_search
+              - generic [ref=e102]: AI diagnosis and liability gate
+            - generic [ref=e103]:
+              - generic [ref=e104]: library_books
+              - generic [ref=e106]: DIY deflection
+            - generic [ref=e107]:
+              - generic [ref=e108]: explore
+              - generic [ref=e110]: Geo-ranked worker dispatch
+            - generic [ref=e111]:
+              - generic [ref=e112]: verified
+              - generic [ref=e114]: Repair verification
+            - generic [ref=e115]:
+              - generic [ref=e116]: monitoring
+              - generic [ref=e118]: Owner reports and SLA
+        - generic [ref=e119]:
+          - paragraph [ref=e120]: Operating Model
+          - heading "One six-stage loop, not a point diagnosis tool." [level=2] [ref=e121]
+        - generic [ref=e122]:
+          - article [ref=e123]:
+            - generic [ref=e124]:
+              - generic [ref=e125]:
+                - generic [ref=e126]: 01 / 06
+                - generic [ref=e127]: Receipt in 6 seconds
+              - heading "24/7 WeChat intake" [level=3] [ref=e128]
+              - paragraph [ref=e129]: Tenants report through Mini Program, Official Account, or WeChat groups. AI identifies the sender, property, history, and likely responsibility boundary.
+            - generic [ref=e130]:
+              - generic [ref=e131]:
+                - generic [ref=e132]: chat_bubble
+                - generic [ref=e134]: Receipt in 6 seconds
+              - generic [ref=e135]: chat_bubble
+              - generic [ref=e145]:
+                - generic [ref=e146]: "01"
+                - strong [ref=e147]: 24/7 WeChat intake
+          - article [ref=e148]:
+            - generic [ref=e149]:
+              - generic [ref=e150]:
+                - generic [ref=e151]: 02 / 06
+                - generic [ref=e152]: 85%+ target on top categories
+              - heading "AI diagnosis and liability gate" [level=3] [ref=e153]
+              - paragraph [ref=e154]: Gemini and DeepSeek classify issue type, severity, landlord-vs-tenant responsibility, and the next best action.
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - generic [ref=e157]: saved_search
+                - generic [ref=e159]: 85%+ target on top categories
+              - generic [ref=e160]: saved_search
+              - generic [ref=e170]:
+                - generic [ref=e171]: "02"
+                - strong [ref=e172]: AI diagnosis and liability gate
+          - article [ref=e173]:
+            - generic [ref=e174]:
+              - generic [ref=e175]:
+                - generic [ref=e176]: 03 / 06
+                - generic [ref=e177]: 20%+ deflection target
+              - heading "DIY deflection" [level=3] [ref=e178]
+              - paragraph [ref=e179]: Low-risk cases receive in-WeChat guides before dispatch, reducing unnecessary truck rolls and wasted free estimates.
+            - generic [ref=e180]:
+              - generic [ref=e181]:
+                - generic [ref=e182]: library_books
+                - generic [ref=e184]: 20%+ deflection target
+              - generic [ref=e185]: library_books
+              - generic [ref=e195]:
+                - generic [ref=e196]: "03"
+                - strong [ref=e197]: DIY deflection
+          - article [ref=e198]:
+            - generic [ref=e199]:
+              - generic [ref=e200]:
+                - generic [ref=e201]: 04 / 06
+                - generic [ref=e202]: 5-minute acceptance target
+              - heading "Geo-ranked worker dispatch" [level=3] [ref=e203]
+              - paragraph [ref=e204]: Nearby workers receive structured leads ranked by skill fit, distance, rating, response speed, required parts, and pricing band.
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - generic [ref=e207]: explore
+                - generic [ref=e209]: 5-minute acceptance target
+              - generic [ref=e210]: explore
+              - generic [ref=e220]:
+                - generic [ref=e221]: "04"
+                - strong [ref=e222]: Geo-ranked worker dispatch
+          - article [ref=e223]:
+            - generic [ref=e224]:
+              - generic [ref=e225]:
+                - generic [ref=e226]: 05 / 06
+                - generic [ref=e227]: 0 manual chasing
+              - heading "Repair verification" [level=3] [ref=e228]
+              - paragraph [ref=e229]: After completion photos are uploaded, AI checks with the tenant, follows up if they go quiet, and only closes once the fix is confirmed.
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - generic [ref=e232]: verified
+                - generic [ref=e234]: 0 manual chasing
+              - generic [ref=e235]: verified
+              - generic [ref=e245]:
+                - generic [ref=e246]: "05"
+                - strong [ref=e247]: Repair verification
+          - article [ref=e248]:
+            - generic [ref=e249]:
+              - generic [ref=e250]:
+                - generic [ref=e251]: 06 / 06
+                - generic [ref=e252]: Owner-ready reporting
+              - heading "Owner reports and SLA" [level=3] [ref=e253]
+              - paragraph [ref=e254]: "Managers and absentee owners see one source of truth: cost, response time, deflection, worker quality, and data compliance status."
+            - generic [ref=e255]:
+              - generic [ref=e256]:
+                - generic [ref=e257]: monitoring
+                - generic [ref=e259]: Owner-ready reporting
+              - generic [ref=e260]: monitoring
+              - generic [ref=e270]:
+                - generic [ref=e271]: "06"
+                - strong [ref=e272]: Owner reports and SLA
+      - generic [ref=e273]:
+        - generic [ref=e274]:
+          - paragraph [ref=e275]: Live Demo
+          - heading "See it in action." [level=2] [ref=e276]
+        - tablist "Live Demo" [ref=e277]:
+          - tab "Dashboard" [selected] [ref=e278] [cursor=pointer]
+          - tab "Welcome" [ref=e279] [cursor=pointer]
+          - tab "Login" [ref=e280] [cursor=pointer]
+          - tab "AI Diagnosis" [ref=e281] [cursor=pointer]
+          - tab "Worker Portal" [ref=e282] [cursor=pointer]
+          - tab "Registration" [ref=e283] [cursor=pointer]
+          - tab "Community" [ref=e284] [cursor=pointer]
+          - tab "Calendar" [ref=e285] [cursor=pointer]
+          - tab "Enterprise Platform" [ref=e286] [cursor=pointer]
+        - tabpanel "Dashboard" [ref=e287]:
+          - generic [ref=e288]:
+            - generic [ref=e289]: Live Demo
+            - strong [ref=e290]: Dashboard
+            - paragraph [ref=e291]: House Maint AI / 01
+          - iframe [active] [ref=e297]:
+            - generic [ref=f1e2]:
+              - link "Skip to main content" [ref=f1e3] [cursor=pointer]:
+                - /url: "#main-content"
+              - generic [ref=f1e5]:
+                - banner [ref=f1e6]:
+                  - generic [ref=f1e7]:
+                    - generic [ref=f1e8]: shield_with_heart
+                    - generic [ref=f1e10]: House Maint AI
+                  - generic [ref=f1e11]:
+                    - button "Switch language" [ref=f1e12]:
+                      - generic [ref=f1e13]: language
+                      - generic [ref=f1e14]: EN
+                    - link "Sign In" [ref=f1e15] [cursor=pointer]:
+                      - /url: /login
+                - main [ref=f1e16]:
+                  - generic [ref=f1e17]:
+                    - generic [ref=f1e18]:
+                      - generic [ref=f1e19]: WeChat Maintenance Operating Loop Live
+                      - heading "From report to verified repair in one WeChat-native loop." [level=1] [ref=f1e21]
+                      - paragraph [ref=f1e22]: Submit photos, voice, or video. AI handles triage, DIY deflection, worker dispatch, repair verification, and owner reporting.
+                    - generic [ref=f1e23]:
+                      - generic [ref=f1e26]:
+                        - generic [ref=f1e27]: add_a_photo
+                        - heading "Every report enters the operating loop" [level=2] [ref=f1e29]
+                        - paragraph [ref=f1e30]: Tenants do not need another app. Once context arrives through WeChat, the system decides whether to deflect, dispatch, and attribute responsibility.
+                        - link "Get Started arrow_forward" [ref=f1e31] [cursor=pointer]:
+                          - /url: /diagnosis
+                          - text: Get Started
+                          - generic [ref=f1e32]: arrow_forward
+                      - generic [ref=f1e35]:
+                        - generic [ref=f1e36]:
+                          - generic [ref=f1e37]: forum
+                          - generic [ref=f1e39]:
+                            - generic [ref=f1e40]: 1/6
+                            - heading "24/7 WeChat intake" [level=3] [ref=f1e43]
+                            - paragraph [ref=f1e44]: Tenants report through Mini Program, Official Account, or WeChat groups. AI identifies the sender, property, history, and likely responsibility boundary.
+                        - generic [ref=f1e45]:
+                          - generic [ref=f1e46]: camera_enhance
+                          - generic [ref=f1e48]:
+                            - generic [ref=f1e49]: 2/6
+                            - heading "AI diagnosis and liability gate" [level=3] [ref=f1e52]
+                            - paragraph [ref=f1e53]: Gemini and DeepSeek classify issue type, severity, landlord-vs-tenant responsibility, and the next best action.
+                        - generic [ref=f1e54]:
+                          - generic [ref=f1e55]: self_improvement
+                          - generic [ref=f1e57]:
+                            - generic [ref=f1e58]: 3/6
+                            - heading "DIY deflection" [level=3] [ref=f1e61]
+                            - paragraph [ref=f1e62]: Low-risk cases receive in-WeChat guides before dispatch, reducing unnecessary truck rolls and wasted free estimates.
+                        - generic [ref=f1e63]:
+                          - generic [ref=f1e64]: near_me
+                          - generic [ref=f1e66]:
+                            - generic [ref=f1e67]: 4/6
+                            - heading "Geo-ranked worker dispatch" [level=3] [ref=f1e70]
+                            - paragraph [ref=f1e71]: Nearby workers receive structured leads ranked by skill fit, distance, rating, response speed, required parts, and pricing band.
+                        - generic [ref=f1e72]:
+                          - generic [ref=f1e73]: fact_check
+                          - generic [ref=f1e75]:
+                            - generic [ref=f1e76]: 5/6
+                            - heading "Repair verification" [level=3] [ref=f1e79]
+                            - paragraph [ref=f1e80]: After completion photos are uploaded, AI checks with the tenant, follows up if they go quiet, and only closes once the fix is confirmed.
+                        - generic [ref=f1e81]:
+                          - generic [ref=f1e82]: analytics
+                          - generic [ref=f1e84]:
+                            - generic [ref=f1e85]: 6/6
+                            - heading "Owner reports and SLA" [level=3] [ref=f1e88]
+                            - paragraph [ref=f1e89]: "Managers and absentee owners see one source of truth: cost, response time, deflection, worker quality, and data compliance status."
+                    - generic [ref=f1e92]:
+                      - heading "Not a single diagnosis tool. A property operating system." [level=2] [ref=f1e93]: Not a single diagnosis tool.A property operating system.
+                      - generic [ref=f1e94]:
+                        - generic [ref=f1e95]:
+                          - generic [ref=f1e96]: 30s
+                          - generic [ref=f1e97]: multimodal triage report
+                        - generic [ref=f1e98]:
+                          - generic [ref=f1e99]: 20%+
+                          - generic [ref=f1e100]: target DIY ticket deflection
+                        - generic [ref=f1e101]:
+                          - generic [ref=f1e102]: RMB10
+                          - generic [ref=f1e103]: per-door monthly SaaS benchmark
+                - contentinfo [ref=f1e104]:
+                  - generic [ref=f1e105]:
+                    - paragraph [ref=f1e106]: © 2026 House Maint AI. WeChat-native maintenance operations.
+                    - generic [ref=f1e107]:
+                      - link "Privacy" [ref=f1e108] [cursor=pointer]:
+                        - /url: /showcase
+                      - link "Terms" [ref=f1e109] [cursor=pointer]:
+                        - /url: /showcase
+                      - link "Support" [ref=f1e110] [cursor=pointer]:
+                        - /url: /showcase
+      - generic [ref=e298]:
+        - generic [ref=e299]:
+          - paragraph [ref=e300]: Tech Stack
+          - heading "Built with modern tools." [level=2] [ref=e301]
+        - generic [ref=e303]:
+          - article [ref=e304]:
+            - strong [ref=e312]: React 19
+          - article [ref=e313]:
+            - img [ref=e315]:
+              - generic [ref=e317]: TS
+            - strong [ref=e318]: TypeScript
+          - article [ref=e319]:
+            - strong [ref=e324]: Node.js
+          - article [ref=e325]:
+            - strong [ref=e329]: Gemini AI
+          - article [ref=e330]:
+            - strong [ref=e336]: PostgreSQL
+          - article [ref=e337]:
+            - strong [ref=e342]: Redis
+          - article [ref=e343]:
+            - strong [ref=e347]: Stripe
+          - article [ref=e348]:
+            - strong [ref=e352]: Docker
+          - article [ref=e353]:
+            - strong [ref=e357]: Sentry
+          - article [ref=e358]:
+            - strong [ref=e364]: Mixpanel
+          - article [ref=e365]:
+            - strong [ref=e370]: Vite
+          - article [ref=e371]:
+            - strong [ref=e375]: TailwindCSS
+          - article [ref=e376]:
+            - strong [ref=e384]: React 19
+          - article [ref=e385]:
+            - img [ref=e387]:
+              - generic [ref=e389]: TS
+            - strong [ref=e390]: TypeScript
+          - article [ref=e391]:
+            - strong [ref=e396]: Node.js
+          - article [ref=e397]:
+            - strong [ref=e401]: Gemini AI
+          - article [ref=e402]:
+            - strong [ref=e408]: PostgreSQL
+          - article [ref=e409]:
+            - strong [ref=e414]: Redis
+          - article [ref=e415]:
+            - strong [ref=e419]: Stripe
+          - article [ref=e420]:
+            - strong [ref=e424]: Docker
+          - article [ref=e425]:
+            - strong [ref=e429]: Sentry
+          - article [ref=e430]:
+            - strong [ref=e436]: Mixpanel
+          - article [ref=e437]:
+            - strong [ref=e442]: Vite
+          - article [ref=e443]:
+            - strong [ref=e447]: TailwindCSS
+      - generic [ref=e449]:
+        - article [ref=e450]:
+          - generic [ref=e451]:
+            - strong [ref=e452]: "0"
+            - generic [ref=e453]: +
+          - paragraph [ref=e454]: Passing Tests
+        - article [ref=e455]:
+          - generic [ref=e456]:
+            - strong [ref=e457]: "0.0"
+            - generic [ref=e458]: /10
+          - paragraph [ref=e459]: Project Rating
+        - article [ref=e460]:
+          - generic [ref=e461]:
+            - strong [ref=e462]: "0"
+            - generic [ref=e463]: +
+          - paragraph [ref=e464]: AI Agents
+        - article [ref=e465]:
+          - strong [ref=e467]: "0"
+          - paragraph [ref=e468]: Pages Built
+      - generic [ref=e471]:
+        - heading "Ready to explore?" [level=2] [ref=e472]:
+          - text: Ready to
+          - generic [ref=e473]: explore?
+        - paragraph [ref=e474]: Dive into the full experience — intake, diagnosis, deflection, dispatch, verification, and reporting.
+        - generic [ref=e475]:
+          - link "play_arrow Launch App" [ref=e476] [cursor=pointer]:
+            - /url: /welcome
+            - generic [ref=e477]: play_arrow
+            - text: Launch App
+          - link "devices Device Preview" [ref=e478] [cursor=pointer]:
+            - /url: /preview
+            - generic [ref=e479]: devices
+            - text: Device Preview
+    - contentinfo [ref=e480]:
+      - generic [ref=e481]:
+        - generic [ref=e482]:
+          - paragraph [ref=e483]: Built with ❤️
+          - strong [ref=e484]: House Maint AI
+        - navigation "Product links" [ref=e485]:
+          - link "Dashboard" [ref=e486] [cursor=pointer]:
+            - /url: /
+          - link "Welcome" [ref=e487] [cursor=pointer]:
+            - /url: /welcome
+          - link "Community" [ref=e488] [cursor=pointer]:
+            - /url: /community
+      - paragraph [ref=e489]: House Maint AI

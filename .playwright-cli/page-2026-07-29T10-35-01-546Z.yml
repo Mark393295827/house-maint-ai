@@ -1,0 +1,23 @@
+- generic [ref=f12e2]:
+  - link "Skip to main content" [ref=f12e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f12e61]:
+    - main [ref=f12e128]:
+      - generic [ref=f12e129]: 🎉
+      - heading "感谢您的评价!" [level=2] [ref=f12e130]
+      - paragraph [ref=f12e131]: 您的反馈帮助我们持续改进服务质量
+      - button "返回首页" [ref=f12e132]
+    - navigation "Main Navigation" [ref=f12e133]:
+      - menubar [ref=f12e134]:
+        - menuitem "Home" [ref=f12e135] [cursor=pointer]:
+          - generic [ref=f12e136]: home
+        - menuitem "Cases" [ref=f12e139] [cursor=pointer]:
+          - generic [ref=f12e140]:
+            - generic [ref=f12e141]: folder_open
+            - generic [ref=f12e142]: "3"
+        - menuitem "New" [ref=f12e144] [cursor=pointer]:
+          - generic [ref=f12e145]: add_a_photo
+        - menuitem "Library" [ref=f12e148] [cursor=pointer]:
+          - generic [ref=f12e149]: auto_stories
+        - menuitem "Profile" [ref=f12e152] [cursor=pointer]:
+          - generic [ref=f12e153]: person

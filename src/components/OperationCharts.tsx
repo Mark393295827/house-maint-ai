@@ -12,7 +12,7 @@ export const PerformanceChart: React.FC = () => {
     const areaData = `${pathData} L ${width} ${height} L 0 ${height} Z`;
 
     return (
-        <div className="w-full h-full min-h-[140px] sm:min-h-[160px] relative mt-6 lg:mt-10">
+        <div className="w-full h-full min-h-[300px] relative mt-6 lg:mt-10">
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
                 <defs>
                     <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">

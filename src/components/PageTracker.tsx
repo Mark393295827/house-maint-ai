@@ -4,13 +4,13 @@ import { useLocation } from 'react-router-dom';
 import Analytics from '../services/analytics';
 
 const PageTracker = () => {
-    const location = useLocation();
+    const { pathname, search } = useLocation();
 
     useEffect(() => {
         // Track page view
         Analytics.track('Page View', {
-            path: location.pathname,
-            search: location.search
+            path: pathname,
+            search,
         });
 
         // Focus management: Move focus to the top of the content on route change
@@ -20,7 +20,7 @@ const PageTracker = () => {
             mainContent.focus();
             window.scrollTo(0, 0);
         }
-    }, [location]);
+    }, [pathname, search]);
 
     return null;
 };

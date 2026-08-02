@@ -19,7 +19,7 @@ export class DataMinerAgent implements AiProvider {
         const apiKey = process.env.GEMINI_API_KEY || '';
         this.hasApiKey = !!apiKey;
         this.genAI = new GoogleGenerativeAI(apiKey || 'dummy');
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     }
 
     async analyzeDigitalVacuum(sector: string, locale: string = 'zh'): Promise<AiResponse<DigitalVacuumScore>> {
@@ -65,7 +65,7 @@ Respond in ${lang}. Output ONLY valid JSON:
             const usage = result.response.usageMetadata;
             return {
                 result: parseAiJson<DigitalVacuumScore>(text, ['sector', 'vacuum_ratio', 'vacuum_grade']),
-                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: usage?.candidatesTokenCount || 0, total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-1.5-flash' }
+                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: (usage?.candidatesTokenCount || 0) + (usage?.thoughtsTokenCount || 0), total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-2.5-flash' }
             };
         } catch (error) {
             console.error('DataMinerAgent.analyzeDigitalVacuum failed:', error);
@@ -112,7 +112,7 @@ Respond in ${lang}. Output ONLY valid JSON:
             const usage = result.response.usageMetadata;
             return {
                 result: parseAiJson<TAMExpansion>(text, ['sector', 'current_tam_cny', 'expanded_tam_cny']),
-                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: usage?.candidatesTokenCount || 0, total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-1.5-flash' }
+                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: (usage?.candidatesTokenCount || 0) + (usage?.thoughtsTokenCount || 0), total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-2.5-flash' }
             };
         } catch (error) {
             console.error('DataMinerAgent.calculateTAMExpansion failed:', error);
@@ -159,7 +159,7 @@ export class SocialObserverAgent implements AiProvider {
         const apiKey = process.env.GEMINI_API_KEY || '';
         this.hasApiKey = !!apiKey;
         this.genAI = new GoogleGenerativeAI(apiKey || 'dummy');
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     }
 
     async analyzePainPoints(sector: string, focusArea?: string, locale: string = 'zh'): Promise<AiResponse<PainPointAnalysis>> {
@@ -205,7 +205,7 @@ Respond in ${lang}. Output ONLY valid JSON:
             const usage = result.response.usageMetadata;
             return {
                 result: parseAiJson<PainPointAnalysis>(text, ['sector', 'top_complaints', 'pain_density_score']),
-                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: usage?.candidatesTokenCount || 0, total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-1.5-flash' }
+                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: (usage?.candidatesTokenCount || 0) + (usage?.thoughtsTokenCount || 0), total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-2.5-flash' }
             };
         } catch (error) {
             console.error('SocialObserverAgent.analyzePainPoints failed:', error);
@@ -244,7 +244,7 @@ export class SimulatorAgent implements AiProvider {
         const apiKey = process.env.GEMINI_API_KEY || '';
         this.hasApiKey = !!apiKey;
         this.genAI = new GoogleGenerativeAI(apiKey || 'dummy');
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     }
 
     async simulateCostTransform(sector: string, locale: string = 'zh'): Promise<AiResponse<{
@@ -299,7 +299,7 @@ Respond in ${lang}. Output ONLY valid JSON:
             const usage = result.response.usageMetadata;
             return {
                 result: parseAiJson(text, ['old_mode', 'ai_mode', 'savings_pct']),
-                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: usage?.candidatesTokenCount || 0, total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-1.5-flash' }
+                usage: { input_tokens: usage?.promptTokenCount || 0, output_tokens: (usage?.candidatesTokenCount || 0) + (usage?.thoughtsTokenCount || 0), total_tokens: usage?.totalTokenCount || 0, model_name: 'gemini-2.5-flash' }
             };
         } catch (error) {
             console.error('SimulatorAgent.simulateCostTransform failed:', error);

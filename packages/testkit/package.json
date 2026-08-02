@@ -1,0 +1,14 @@
+{
+  "name": "@house-maint/testkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./agent-runtime": "./src/agent-runtime/index.ts"
+  },
+  "dependencies": {
+    "@house-maint/agent-core": "0.1.0",
+    "@house-maint/contracts": "0.1.0"
+  }
+}

@@ -1,0 +1,4 @@
+- generic [ref=f13e2]:
+  - link "Skip to main content" [ref=f13e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - status "Loading" [ref=f13e4]

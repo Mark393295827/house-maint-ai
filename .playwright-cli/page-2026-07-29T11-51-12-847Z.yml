@@ -1,0 +1,47 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - link "Close and return" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: close
+      - button "Switch language" [ref=e9]:
+        - generic [ref=e10]: language
+        - generic [ref=e11]: EN
+    - main [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: shield_with_heart
+          - heading "Welcome Back" [level=1] [ref=e17]
+          - paragraph [ref=e18]: Sign in to continue
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - text: Phone Number
+            - textbox "Phone" [ref=e23]
+          - generic [ref=e24]:
+            - text: Password
+            - generic [ref=e25]:
+              - textbox "Min 8 characters" [ref=e26]
+              - button "Show password" [ref=e27]:
+                - generic [ref=e28]: visibility
+          - button "Sign In arrow_forward" [ref=e29]:
+            - text: Sign In
+            - generic [ref=e30]: arrow_forward
+        - generic [ref=e31]:
+          - button "Don't have an account?" [ref=e32]
+          - generic [ref=e33]: or
+          - generic [ref=e37]:
+            - button "Google Soon" [ref=e38]:
+              - generic [ref=e44]: Google
+              - generic [ref=e45]: Soon
+            - button "Apple Soon" [ref=e46]:
+              - generic [ref=e49]: Apple
+              - generic [ref=e50]: Soon
+          - generic [ref=e51]:
+            - paragraph [ref=e52]: PRO PORTAL
+            - link "engineering Repairman Sign In chevron_right" [ref=e53] [cursor=pointer]:
+              - /url: /repairman/login
+              - generic [ref=e54]: engineering
+              - generic [ref=e55]: Repairman Sign In
+              - generic [ref=e56]: chevron_right

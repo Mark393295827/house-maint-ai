@@ -1,0 +1,51 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e57]:
+    - generic [ref=e58]:
+      - button "arrow_back" [ref=e59]
+      - 'heading "工单 #6049" [level=1] [ref=e61]'
+    - main [ref=e62]:
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - generic [ref=e65]: ✓
+          - generic [ref=e68]: ✓
+          - generic [ref=e71]: "3"
+        - generic [ref=e73]:
+          - generic [ref=e74]: 待接单
+          - generic [ref=e75]: 施工中
+          - generic [ref=e76]: 已完工
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: 已完工
+          - generic [ref=e80]: 3/15/2026
+        - heading "水管漏水" [level=2] [ref=e81]
+        - paragraph [ref=e82]: 厨房水槽下方的水管漏水，需要维修
+      - generic [ref=e83]:
+        - heading "psychology AI 维修方案" [level=3] [ref=e85]:
+          - generic [ref=e86]: psychology
+          - text: AI 维修方案
+        - generic [ref=e122]:
+          - status "Loading" [ref=e123]
+          - paragraph [ref=e127]: DeepSeek R1 正在思考...
+      - generic [ref=e89]:
+        - button "chat 消息" [ref=e90]:
+          - generic [ref=e91]: chat
+          - text: 消息
+        - generic [ref=e92]:
+          - generic [ref=e93]: verified
+          - text: 已完工
+    - navigation "Main Navigation" [ref=e94]:
+      - menubar [ref=e95]:
+        - menuitem "Home" [ref=e96] [cursor=pointer]:
+          - generic [ref=e97]: home
+        - menuitem "Cases" [ref=e100] [cursor=pointer]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: folder_open
+            - generic [ref=e103]: "19"
+        - menuitem "New" [ref=e105] [cursor=pointer]:
+          - generic [ref=e106]: add_a_photo
+        - menuitem "Library" [ref=e109] [cursor=pointer]:
+          - generic [ref=e110]: auto_stories
+        - menuitem "Profile" [ref=e113] [cursor=pointer]:
+          - generic [ref=e114]: person

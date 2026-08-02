@@ -1,0 +1,814 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "maintenance-policy-runtime-v1",
+  "objective": "Introduce a server-authoritative maintenance policy runtime in bounded, reversible steps: preserve legacy report behavior during cutover, make the Policy Orchestrator the single case-state writer, enable safe parallel proposals through immutable artifacts, and provide truthful UI progress with recovery and independent governance evidence.",
+  "non_goals": [
+    "No production deployment or live-provider calls.",
+    "No direct provider credential changes, client-side provider secrets, or unapproved external messaging/payment/dispatch effects.",
+    "No concurrent legacy and policy-runtime mutation of one migrated case.",
+    "No automatic T3/T4 action enablement.",
+    "No dynamic graph expansion or whole-graph retry."
+  ],
+  "owner": "runtime-integration-owner",
+  "artifact_path": ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts",
+  "state_path": ".agent-state/graphs/maintenance-policy-runtime-v1/state.json",
+  "entry_nodes": [
+    "runtime-baseline-contract"
+  ],
+  "terminal_nodes": [
+    "runtime-release-review"
+  ],
+  "budgets": {
+    "max_nodes": 17,
+    "max_concurrency": 3,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 32400,
+    "tool_calls": 900,
+    "review_changed_lines": 1000
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read repository source, tests, product documents, local fixtures, and local build artifacts.",
+      "Write only the declared server policy, orchestration, contract, test, documentation, receipt, and local output territories for a node.",
+      "Run local unit, integration, lifecycle, privacy, static analysis, build, and fake-provider replay tests."
+    ],
+    "denied": [
+      "Production deployment or shared-database mutation.",
+      "Live AI, payment, messaging, research, map, vendor, or notification calls.",
+      "Writing client-side credentials or raw personal media, prompts, hidden reasoning, or provider payloads to source, fixtures, or receipts.",
+      "Changing legacy report state outside the declared adapter and orchestrator test fixtures.",
+      "Writes outside a declared node territory."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only the failed node's checkpointed territory and retain verified sibling artifacts; keep the policy runtime advisory-only until the separate human release receipt is current."
+  },
+  "nodes": [
+    {
+      "id": "runtime-baseline-contract",
+      "kind": "deterministic",
+      "owner": "runtime-integration-owner",
+      "inputs": [],
+      "outputs": [
+        "runtime_scope"
+      ],
+      "reads": [
+        "docs/maintenance-policy-agent-architecture.md",
+        "docs/ui-agentic-delivery-command-program.md",
+        "server/worker.ts",
+        "server/routes/reports.ts",
+        "server/routes/ai.ts",
+        "server/services",
+        "server/agents",
+        "package.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-scope.json"
+      ],
+      "verifier": "The scope receipt identifies every current report mutator, worker start path, AI/provider boundary, report state, legacy-claw trigger, trusted API boundary, and prohibited external effect.",
+      "timeout_seconds": 180,
+      "max_attempts": 1,
+      "tool_calls": 10,
+      "effect_class": "reversible",
+      "idempotency": "Replace one deterministic scope artifact for the same source hash.",
+      "compensation": "Restore the prior runtime-scope artifact."
+    },
+    {
+      "id": "legacy-lifecycle-contract",
+      "kind": "agent",
+      "owner": "legacy-lifecycle-owner",
+      "inputs": [
+        "runtime_scope"
+      ],
+      "outputs": [
+        "legacy_lifecycle_contract"
+      ],
+      "reads": [
+        "server/routes/reports.ts",
+        "server/services/diagnostics_claw.ts",
+        "server/services/planning_claw.ts",
+        "server/services/vendor_claw.ts",
+        "server/worker.ts",
+        "server/tests"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/legacy-lifecycle-contract.json"
+      ],
+      "verifier": "The contract defines immutable legacy_report_id-to-case_id mapping, workflow_engine_version ownership, status compatibility, cutover flag behavior, legacy-claw skip rules, reconciliation queries, and migration tests.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 32,
+      "effect_class": "reversible",
+      "idempotency": "Replace the contract only for the same baseline source hashes.",
+      "compensation": "Restore the prior legacy-lifecycle contract artifact."
+    },
+    {
+      "id": "policy-authority-contract",
+      "kind": "agent",
+      "owner": "policy-authority-owner",
+      "inputs": [
+        "runtime_scope"
+      ],
+      "outputs": [
+        "policy_authority_contract"
+      ],
+      "reads": [
+        "docs/maintenance-policy-agent-architecture.md",
+        "server/routes",
+        "server/services",
+        "server/agents",
+        "server/middleware",
+        "server/tests"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/policy-authority-contract.json"
+      ],
+      "verifier": "The contract identifies sole writers, case/version semantics, action authority, T0-T4 thresholds, approvals, financial boundary, provider/egress restrictions, and exact policy-epoch checks.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 32,
+      "effect_class": "reversible",
+      "idempotency": "Replace the contract only for the same baseline source hashes.",
+      "compensation": "Restore the prior policy-authority contract artifact."
+    },
+    {
+      "id": "governance-evaluation-contract",
+      "kind": "agent",
+      "owner": "runtime-governance-owner",
+      "inputs": [
+        "runtime_scope"
+      ],
+      "outputs": [
+        "governance_evaluation_contract"
+      ],
+      "reads": [
+        "docs/maintenance-policy-agent-architecture.md",
+        "server/middleware/piplBlur.ts",
+        "server/services/aiUsage.ts",
+        "server/tests",
+        "src/agenticInit.ts"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/governance-evaluation-contract.json"
+      ],
+      "verifier": "The contract freezes consent, tenancy, retention/erasure, processor/residency, fixture, evaluator, outcome-ledger, telemetry, kill-switch, and human-review SLA requirements without exposing sensitive data.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 32,
+      "effect_class": "reversible",
+      "idempotency": "Replace the contract only for the same baseline source hashes.",
+      "compensation": "Restore the prior governance-evaluation contract artifact."
+    },
+    {
+      "id": "runtime-architecture-freeze",
+      "kind": "deterministic",
+      "owner": "runtime-integration-owner",
+      "inputs": [
+        "legacy_lifecycle_contract",
+        "policy_authority_contract",
+        "governance_evaluation_contract"
+      ],
+      "outputs": [
+        "runtime_architecture"
+      ],
+      "reads": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/legacy-lifecycle-contract.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/policy-authority-contract.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/governance-evaluation-contract.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-architecture.json"
+      ],
+      "verifier": "One hash-addressed decision record defines the legacy adapter, case identity, sole writer, run/lease objects, artifact schemas, JoinPolicy, evaluator gates, progress API, outbox semantics, and rollout limits with no unresolved ownership conflicts.",
+      "timeout_seconds": 300,
+      "max_attempts": 1,
+      "tool_calls": 10,
+      "effect_class": "reversible",
+      "idempotency": "Deterministic synthesis from three compatible contracts.",
+      "compensation": "Restore the prior runtime-architecture artifact."
+    },
+    {
+      "id": "policy-persistence-schema",
+      "kind": "agent",
+      "owner": "policy-data-migration-owner",
+      "inputs": [
+        "runtime_architecture"
+      ],
+      "outputs": [
+        "runtime_persistence_contract"
+      ],
+      "reads": [
+        "server/db/schema.ts",
+        "server/models/schema.sql",
+        "server/models/schema.pg.sql",
+        "server/db/migrations",
+        "drizzle.config.ts",
+        "server/tests/sqlite-migration-convergence.test.ts",
+        "server/tests/postgres-schema-parity.test.ts",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-architecture.json"
+      ],
+      "writes": [
+        "server/db/schema.ts",
+        "server/models/schema.sql",
+        "server/models/schema.pg.sql",
+        "server/db/migrations",
+        "server/tests/policy/persistence",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-persistence-contract.json"
+      ],
+      "verifier": "Forward-only SQLite/Postgres-parity schema migrations introduce durable Case, AgentRun, RunReceipt, Artifact, JoinPolicy, PolicyDecision, ActionProposal, Approval, OutboxEvent, outcome-ledger, and tombstone records with indexes/unique constraints; schema and data backfill plans are separate, convergence/rollback receipts pass, and no deployed migration is edited.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 70,
+      "effect_class": "reversible",
+      "idempotency": "Generate one new forward migration set and matching schema artifacts for the same runtime-architecture hash.",
+      "compensation": "Use a new forward compensating migration for applied schema changes; restore only unapplied local migration artifacts."
+    },
+    {
+      "id": "case-identity-adapter",
+      "kind": "agent",
+      "owner": "legacy-adapter-owner",
+      "inputs": [
+        "runtime_persistence_contract"
+      ],
+      "outputs": [
+        "case_identity_contract"
+      ],
+      "reads": [
+        "server/routes/reports.ts",
+        "server/config/database.ts",
+        "server/services",
+        "server/tests",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-persistence-contract.json"
+      ],
+      "writes": [
+        "server/policy/caseIdentityAdapter.ts",
+        "server/policy/legacyReportAdapter.ts",
+        "server/tests/policy/caseIdentityAdapter.test.ts",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/case-identity-adapter.json"
+      ],
+      "verifier": "Tests prove one immutable report-to-case mapping, explicit workflow-engine ownership, compatible non-terminal verification semantics, atomic adapter updates, and reconciliation of divergence without changing terminal completed semantics.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 60,
+      "effect_class": "reversible",
+      "idempotency": "Repeatable migration fixtures and adapter writes for the same runtime-persistence-contract hash.",
+      "compensation": "Restore the case-identity adapter territory and fixture checkpoints."
+    },
+    {
+      "id": "legacy-mutator-cutover",
+      "kind": "agent",
+      "owner": "legacy-cutover-owner",
+      "inputs": [
+        "case_identity_contract"
+      ],
+      "outputs": [
+        "cutover_guard_bundle"
+      ],
+      "reads": [
+        "server/routes/reports.ts",
+        "server/routes/ai.ts",
+        "server/routes/payments.ts",
+        "server/routes/workers.ts",
+        "server/services/diagnostics_claw.ts",
+        "server/services/planning_claw.ts",
+        "server/services/vendor_claw.ts",
+        "server/services/matching.ts",
+        "server/services/learning.ts",
+        "server/worker.ts",
+        "server/tests",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/case-identity-adapter.json"
+      ],
+      "writes": [
+        "server/routes/reports.ts",
+        "server/routes/ai.ts",
+        "server/routes/payments.ts",
+        "server/routes/workers.ts",
+        "server/services/diagnostics_claw.ts",
+        "server/services/planning_claw.ts",
+        "server/services/vendor_claw.ts",
+        "server/services/matching.ts",
+        "server/services/learning.ts",
+        "server/tests/policy/legacy-cutover",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/cutover-guard-bundle.json"
+      ],
+      "verifier": "Integration tests prove every legacy route, diagnosis/planning/vendor claw, payment-to-matching mutator, retry path, and legacy learning query checks workflow_engine_version and cannot write or promote patterns from a migrated case; a mixed cohort proves completing an unmigrated report cannot mutate or invoke legacy learning for a migrated completed report, and any bypass is detected by reconciliation.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 70,
+      "effect_class": "reversible",
+      "idempotency": "Apply the same guarded cutover rules once per case-identity contract hash.",
+      "compensation": "Restore guarded legacy mutator territories to the recorded compatibility checkpoint."
+    },
+    {
+      "id": "orchestrator-control-plane",
+      "kind": "agent",
+      "owner": "policy-orchestrator-owner",
+      "inputs": [
+        "cutover_guard_bundle"
+      ],
+      "outputs": [
+        "orchestration_core"
+      ],
+      "reads": [
+        "server/policy/caseIdentityAdapter.ts",
+        "server/policy/legacyReportAdapter.ts",
+        "server/routes/reports.ts",
+        "server/tests/policy",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/cutover-guard-bundle.json"
+      ],
+      "writes": [
+        "server/policy/orchestrator",
+        "server/policy/store",
+        "server/tests/policy/orchestrator",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/orchestration-core.json"
+      ],
+      "verifier": "Policy tests prove only the orchestrator controls Case and AgentRun lifecycle, CAS transitions, policy epochs, JoinPolicy creation, approvals, and atomic Decision/ActionProposal/Outbox transaction creation.",
+      "timeout_seconds": 4200,
+      "max_attempts": 2,
+      "tool_calls": 90,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only orchestration territories from the same cutover-guard bundle.",
+      "compensation": "Restore the orchestration-core checkpoint."
+    },
+    {
+      "id": "agent-artifact-adapters",
+      "kind": "agent",
+      "owner": "agent-adapter-owner",
+      "inputs": [
+        "cutover_guard_bundle"
+      ],
+      "outputs": [
+        "agent_adapter_bundle"
+      ],
+      "reads": [
+        "server/agents",
+        "server/services",
+        "server/middleware/piplBlur.ts",
+        "server/tests",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/cutover-guard-bundle.json"
+      ],
+      "writes": [
+        "server/policy/adapters",
+        "server/policy/artifacts",
+        "server/tests/policy/adapters",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/agent-adapter-bundle.json"
+      ],
+      "verifier": "Diagnosis, planning, material/BOM, fault advisory, and approved retrieval adapters accept sanitized references, emit immutable schema-valid candidates/RunReceipts, respect policy epoch cancellation, and cannot directly mutate legacy reports or cases.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 80,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only adapter/artifact territories from the same cutover-guard bundle.",
+      "compensation": "Restore the agent-adapter checkpoint."
+    },
+    {
+      "id": "recovery-outbox-control",
+      "kind": "agent",
+      "owner": "runtime-recovery-owner",
+      "inputs": [
+        "orchestration_core"
+      ],
+      "outputs": [
+        "recovery_outbox_bundle"
+      ],
+      "reads": [
+        "server/policy/orchestrator",
+        "server/policy/store",
+        "server/worker.ts",
+        "server/services",
+        "server/tests/policy",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/orchestration-core.json"
+      ],
+      "writes": [
+        "server/policy/queue",
+        "server/policy/outbox",
+        "server/workers/policy",
+        "server/tests/policy/recovery",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/recovery-outbox-bundle.json"
+      ],
+      "verifier": "Fake-provider tests prove atomic claims, lease heartbeats/reclaim, bounded retries/dead-letter ownership, quotas/circuit breakers/timeouts, stale-epoch quarantine, at-least-once delivery with destination idempotency, decision/approval/payload/case/tenant/policy-epoch revalidation before effect, webhook deduplication, and reconciliation receipts.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 75,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only recovery/outbox territories from the same orchestration-core hash.",
+      "compensation": "Restore the recovery-outbox checkpoint."
+    },
+    {
+      "id": "runtime-worker-bootstrap",
+      "kind": "agent",
+      "owner": "runtime-bootstrap-owner",
+      "inputs": [
+        "recovery_outbox_bundle"
+      ],
+      "outputs": [
+        "runtime_worker_bootstrap"
+      ],
+      "reads": [
+        "server/worker.ts",
+        "server/index.ts",
+        "server/package.json",
+        "package.json",
+        "docker-compose.yml",
+        "server/Dockerfile",
+        "server/policy/queue",
+        "server/policy/outbox",
+        "server/workers/policy",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/recovery-outbox-bundle.json"
+      ],
+      "writes": [
+        "server/worker.ts",
+        "server/package.json",
+        "package.json",
+        "docker-compose.yml",
+        "server/Dockerfile",
+        "server/tests/policy/runtime-bootstrap",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-worker-bootstrap.json"
+      ],
+      "verifier": "Local process and container-compose tests prove the policy worker starts with standard development/deployment commands, reports readiness, drains/cancels safely on shutdown, exposes no credentials, and can execute fake-provider queue/lease/outbox recovery without live effects.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 45,
+      "effect_class": "reversible",
+      "idempotency": "Regenerate bootstrap configuration only from the same recovery/outbox bundle hash.",
+      "compensation": "Restore worker startup/configuration checkpoint and retain the disabled policy-worker mode."
+    },
+    {
+      "id": "policy-evaluator-pack",
+      "kind": "agent",
+      "owner": "policy-evaluator-owner",
+      "inputs": [
+        "agent_adapter_bundle"
+      ],
+      "outputs": [
+        "evaluator_bundle"
+      ],
+      "reads": [
+        "server/policy/adapters",
+        "server/policy/artifacts",
+        "server/middleware/piplBlur.ts",
+        "server/services/aiUsage.ts",
+        "server/tests",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/agent-adapter-bundle.json"
+      ],
+      "writes": [
+        "server/policy/evaluators",
+        "server/policy/fixtures",
+        "server/tests/policy/evaluators",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/evaluator-bundle.json"
+      ],
+      "verifier": "Versioned synthetic fixtures and deterministic contract, safety, privacy/residency, authority, lifecycle, grounding, experience, policy-epoch, erasure, and outcome-ledger checks pass; no fixture contains real media, secrets, prompts, or hidden reasoning.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 65,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only evaluator/fixture territories from the same adapter bundle hash.",
+      "compensation": "Restore the evaluator-pack checkpoint."
+    },
+    {
+      "id": "case-progress-contract",
+      "kind": "agent",
+      "owner": "runtime-progress-owner",
+      "inputs": [
+        "orchestration_core",
+        "evaluator_bundle"
+      ],
+      "outputs": [
+        "runtime_progress_contract"
+      ],
+      "reads": [
+        "server/policy/orchestrator",
+        "server/policy/evaluators",
+        "server/routes",
+        "src/services/socket.ts",
+        "server/tests",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/orchestration-core.json",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/evaluator-bundle.json"
+      ],
+      "writes": [
+        "server/contracts/policy",
+        "server/routes/case-progress.ts",
+        "server/services/caseProgress.ts",
+        "server/tests/policy/case-progress",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-progress-contract.json"
+      ],
+      "verifier": "The case-progress/v1 API and socket contract exposes only opaque, short-lived, case/tenant/role-authorized safe-render references; preserves logical intake idempotency; and provides bilingual progress, retryability, fallback, and correlation semantics without provider internals.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 50,
+      "effect_class": "reversible",
+      "idempotency": "Rebuild only progress contract territories from matching orchestration/evaluator hashes.",
+      "compensation": "Restore the case-progress contract checkpoint."
+    },
+    {
+      "id": "case-progress-api-mount",
+      "kind": "agent",
+      "owner": "runtime-api-mount-owner",
+      "inputs": [
+        "runtime_progress_contract"
+      ],
+      "outputs": [
+        "mounted_runtime_progress_contract"
+      ],
+      "reads": [
+        "server/index.ts",
+        "server/socket.ts",
+        "server/routes/case-progress.ts",
+        "server/services/caseProgress.ts",
+        "server/contracts/policy",
+        "server/tests",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-progress-contract.json"
+      ],
+      "writes": [
+        "server/index.ts",
+        "server/socket.ts",
+        "server/tests/policy/case-progress-mount",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/mounted-runtime-progress-contract.json"
+      ],
+      "verifier": "Integration tests prove the route and authorized socket event are registered in the actual server startup path, reject cross-tenant/role/bearer-reference access, preserve current compatibility routes, and return case-progress/v1 from a fake-provider run without client changes.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 50,
+      "effect_class": "reversible",
+      "idempotency": "Mount only the same verified progress contract hash once per server startup configuration hash.",
+      "compensation": "Restore server route/socket registration checkpoint and preserve the existing compatible API path."
+    },
+    {
+      "id": "runtime-verification",
+      "kind": "agent-team",
+      "owner": "independent-runtime-quality-owner",
+      "inputs": [
+        "runtime_worker_bootstrap",
+        "evaluator_bundle",
+        "mounted_runtime_progress_contract"
+      ],
+      "outputs": [
+        "runtime_verification_receipt"
+      ],
+      "reads": [
+        "docs/maintenance-policy-agent-architecture.md",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts",
+        "server/policy",
+        "server/contracts/policy",
+        "server/tests",
+        "package.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-verification.json",
+        "output/policy-orchestrator"
+      ],
+      "verifier": "Fresh fake-provider replay proves persistence migration convergence, legacy cutover isolation, single-writer CAS, emergency static fallback, worker bootstrap/readiness/drain, run/lease recovery, policy-epoch containment, evaluator fixtures, tenancy/erasure controls, post-approval effect binding, outbox reconciliation, mounted UI-safe progress, and advisory-only rollout controls.",
+      "timeout_seconds": 4200,
+      "max_attempts": 2,
+      "tool_calls": 80,
+      "effect_class": "reversible",
+      "idempotency": "Replace verification receipts only for matching implementation hashes.",
+      "compensation": "Remove failed verification receipts and preserve source checkpoints."
+    },
+    {
+      "id": "runtime-release-review",
+      "kind": "human-gate",
+      "owner": "runtime-product-governance-approval-owner",
+      "inputs": [
+        "runtime_verification_receipt"
+      ],
+      "outputs": [
+        "runtime_approval_receipt"
+      ],
+      "reads": [
+        "docs/maintenance-policy-agent-architecture.md",
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-verification.json",
+        "output/policy-orchestrator"
+      ],
+      "writes": [
+        ".agent-state/graphs/maintenance-policy-runtime-v1/artifacts/runtime-release-approval.json"
+      ],
+      "verifier": "A designated product, security, and operations approver accepts only advisory-only rollout scope, verified manual/emergency fallback, current kill-switch/rollback evidence, and all unresolved T3/T4 decisions being blocked.",
+      "timeout_seconds": 900,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "reversible",
+      "idempotency": "One approval receipt bound to architecture, implementation, verification, and policy hashes.",
+      "compensation": "Invalidate the approval receipt if any bound hash changes."
+    }
+  ],
+  "edges": [
+    {
+      "from": "runtime-baseline-contract",
+      "to": "legacy-lifecycle-contract",
+      "type": "data",
+      "payload_schema": "runtime_scope",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "runtime-baseline-contract",
+      "to": "policy-authority-contract",
+      "type": "data",
+      "payload_schema": "runtime_scope",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "runtime-baseline-contract",
+      "to": "governance-evaluation-contract",
+      "type": "data",
+      "payload_schema": "runtime_scope",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "legacy-lifecycle-contract",
+      "to": "runtime-architecture-freeze",
+      "type": "data",
+      "payload_schema": "legacy_lifecycle_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "policy-authority-contract",
+      "to": "runtime-architecture-freeze",
+      "type": "data",
+      "payload_schema": "policy_authority_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "governance-evaluation-contract",
+      "to": "runtime-architecture-freeze",
+      "type": "data",
+      "payload_schema": "governance_evaluation_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "runtime-architecture-freeze",
+      "to": "policy-persistence-schema",
+      "type": "data",
+      "payload_schema": "runtime_architecture",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "policy-persistence-schema",
+      "to": "case-identity-adapter",
+      "type": "data",
+      "payload_schema": "runtime_persistence_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "case-identity-adapter",
+      "to": "legacy-mutator-cutover",
+      "type": "data",
+      "payload_schema": "case_identity_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "legacy-mutator-cutover",
+      "to": "orchestrator-control-plane",
+      "type": "data",
+      "payload_schema": "cutover_guard_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "legacy-mutator-cutover",
+      "to": "agent-artifact-adapters",
+      "type": "data",
+      "payload_schema": "cutover_guard_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "orchestrator-control-plane",
+      "to": "recovery-outbox-control",
+      "type": "data",
+      "payload_schema": "orchestration_core",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "agent-artifact-adapters",
+      "to": "policy-evaluator-pack",
+      "type": "data",
+      "payload_schema": "agent_adapter_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "orchestrator-control-plane",
+      "to": "case-progress-contract",
+      "type": "data",
+      "payload_schema": "orchestration_core",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "policy-evaluator-pack",
+      "to": "case-progress-contract",
+      "type": "data",
+      "payload_schema": "evaluator_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "recovery-outbox-control",
+      "to": "runtime-worker-bootstrap",
+      "type": "data",
+      "payload_schema": "recovery_outbox_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "case-progress-contract",
+      "to": "case-progress-api-mount",
+      "type": "data",
+      "payload_schema": "runtime_progress_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "runtime-worker-bootstrap",
+      "to": "runtime-verification",
+      "type": "verification",
+      "payload_schema": "runtime_worker_bootstrap",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "policy-evaluator-pack",
+      "to": "runtime-verification",
+      "type": "verification",
+      "payload_schema": "evaluator_bundle",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "case-progress-api-mount",
+      "to": "runtime-verification",
+      "type": "verification",
+      "payload_schema": "mounted_runtime_progress_contract",
+      "condition": "verified",
+      "failure_route": ""
+    },
+    {
+      "from": "runtime-verification",
+      "to": "runtime-release-review",
+      "type": "verification",
+      "payload_schema": "runtime_verification_receipt",
+      "condition": "verified",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "runtime-contract-freeze",
+      "target": "runtime-architecture-freeze",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "legacy-lifecycle-contract",
+        "policy-authority-contract",
+        "governance-evaluation-contract"
+      ],
+      "verifier": "All three contracts are fresh, hash-compatible, and establish one report/case identity, one case-state writer, one privacy/evaluation policy, and no unresolved external-effect authority.",
+      "quorum": null
+    },
+    {
+      "id": "runtime-progress-join",
+      "target": "case-progress-contract",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "orchestrator-control-plane",
+        "policy-evaluator-pack"
+      ],
+      "verifier": "The progress contract consumes compatible orchestration and evaluator hashes, exposes no provider internals, and has complete tenant/role/safe-render authorization checks.",
+      "quorum": null
+    },
+    {
+      "id": "runtime-verification-join",
+      "target": "runtime-verification",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "runtime-worker-bootstrap",
+        "policy-evaluator-pack",
+        "case-progress-api-mount"
+      ],
+      "verifier": "Worker-bootstrap, evaluator, and mounted-progress artifacts have matching policy/case schemas, disjoint writer territories, fake-provider test evidence, reachable route/socket registration, and advisory-only rollout controls.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The human runtime-release-review verifier accepts the fresh runtime verification receipt.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one changed attempt.",
+    "A legacy/policy dual writer, report/case mapping conflict, non-atomic transition/effect, schema mismatch, or unsafe external-call attempt is detected.",
+    "Any implementation exposes a credential, real personal media, hidden reasoning, or unapproved provider/egress path.",
+    "Manual report, messaging, emergency, or rollback behavior loses parity."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/maintenance-policy-runtime-v1/checkpoint.json",
+    "write_back": ".agent-state/graphs/maintenance-policy-runtime-v1/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

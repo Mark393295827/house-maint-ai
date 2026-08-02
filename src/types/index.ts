@@ -54,11 +54,14 @@ export interface Report {
     image_urls?: string[];
     status: ReportStatus;
     matched_worker_id?: number;
+    worker_user_id?: number;
     latitude?: number;
     longitude?: number;
     urgency_score?: number;
     created_at: string;
     updated_at?: string;
+    resolution_plan?: unknown;
+    priority_protocol?: string;
     // Computed / optional join fields
     requiredSkills?: string[];
 }

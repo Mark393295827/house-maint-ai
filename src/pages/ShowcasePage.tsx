@@ -16,6 +16,11 @@ import { getOperatingStageCopies, type OperatingStageCopy } from '../constants/o
 import MeteorShower from '../components/MeteorShower';
 import '../showcase-antigravity.css';
 
+// Temporarily disabled: this canvas owns both the firefly animation and
+// the global pointer-down burst effect. Keep the component available so the
+// showcase interaction can be restored with a single flag change.
+const SHOWCASE_INTERACTIVE_EFFECTS_ENABLED = false;
+
 function useCountUp(target: number, duration = 2000, startOnVisible = true) {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
@@ -444,7 +449,7 @@ const ShowcasePage = () => {
 
     return (
         <div className="showcase-gravity">
-            <MeteorShower />
+            {SHOWCASE_INTERACTIVE_EFFECTS_ENABLED && <MeteorShower />}
             <header className="gravity-header showcase-glass-bar" aria-label="House Maint AI">
                 <a className="gravity-brand" href="#showcase-top" aria-label="House Maint AI home">
                     <span className="gravity-brand-mark">

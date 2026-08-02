@@ -1,0 +1,13 @@
+{
+  "name": "@house-maint/persistence",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cases": "./src/cases/index.ts",
+    "./runs": "./src/runs/index.ts",
+    "./outbox": "./src/outbox/index.ts"
+  },
+  "dependencies": { "@house-maint/contracts": "0.1.0" }
+}

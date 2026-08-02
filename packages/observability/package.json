@@ -1,0 +1,12 @@
+{
+  "name": "@house-maint/observability",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./security": "./src/security/index.ts",
+    "./runs": "./src/runs/index.ts"
+  },
+  "dependencies": { "@house-maint/contracts": "0.1.0" }
+}

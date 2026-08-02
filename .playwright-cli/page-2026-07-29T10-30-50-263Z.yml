@@ -1,0 +1,19 @@
+- generic [ref=f9e2]:
+  - link "Skip to main content" [ref=f9e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f9e61]:
+    - generic [ref=f9e63]:
+      - button "arrow_back" [ref=f9e64]
+      - generic [ref=f9e66]: W
+      - heading "Wang Shifu" [level=2] [ref=f9e78]
+    - main [ref=f9e69]:
+      - generic [ref=f9e80]:
+        - paragraph [ref=f9e81]: "Audit fixture: I accepted report 6072 and am on the way. 中文"
+        - paragraph [ref=f9e82]: 10:30 AM
+      - generic [ref=f9e84]:
+        - paragraph [ref=f9e85]: Thanks — please message before arrival. ✅
+        - paragraph [ref=f9e86]: 06:30 PM
+    - generic [ref=f9e74]:
+      - textbox "Type a message..." [ref=f9e75]
+      - button "Send message" [disabled] [ref=f9e76]:
+        - generic [ref=f9e77]: send
