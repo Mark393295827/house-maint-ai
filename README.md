@@ -2,7 +2,7 @@
 
 # 🏠 House Maint AI
 
-### Agent-Native Residential Maintenance Platform · WeChat-Native · Modular Monolith Architecture
+### Agent-Native Residential Maintenance Platform · WeChat-Native · Modular Workspace Monolith
 
 **The full-stack AI platform transforming home repair in China.**
 From a tenant's photo to a dispatched technician — in 30 seconds.
@@ -21,7 +21,7 @@ From a tenant's photo to a dispatched technician — in 30 seconds.
 <br/>
 
 > **🎯 Built exclusively for the Chinese WeChat ecosystem.**
-> Transforming residential maintenance triage with a **Domain-First Control Plane**, vendor-neutral **Agent Runtime Kernel**, native WeChat mini-programs, and automated local technician (师傅) dispatch.
+> Transforming residential maintenance triage with a **Domain-First Control Plane**, a vendor-neutral **Agent Runtime Kernel**, native WeChat mini-programs, and automated local technician (师傅) dispatch.
 
 ---
 
@@ -35,7 +35,7 @@ From a tenant's photo to a dispatched technician — in 30 seconds.
 
 ---
 
-## ⚡ Product at a Glance
+## ⚡ Product UI at a Glance
 
 <div align="center">
   <img src="./assets/screenshots/user_dashboard.jpg" width="22%" alt="Operations Command Center" />
@@ -44,11 +44,11 @@ From a tenant's photo to a dispatched technician — in 30 seconds.
   <img src="./assets/screenshots/worker_leads.jpg" width="22%" alt="Worker Job Leads" />
 </div>
 
-<p align="center"><sub>Operations Hub · AI Diagnosis · Worker Match · Technician Portal</sub></p>
+<p align="center"><sub>Operations Hub · AI Diagnosis Chat · Worker Match · Technician Portal</sub></p>
 
 ---
 
-## 🧠 The Vision & Architecture
+## 🧠 Core Vision & Architecture
 
 House Maint AI is an **agent-native B2B2C triage & dispatch platform** solving core friction in urban property maintenance.
 
@@ -104,20 +104,20 @@ house-maint-ai/
 
 ---
 
-## 🌟 Product Showcase
+## 🌟 Actual UI Screenshots & Product Showcase
 
-### 1. 📱 Consumer App — AI-Powered Diagnosis
+### 1. 📱 Consumer App — AI-Powered Multimodal Diagnosis
 
 The tenant uploads photos or describes an issue; the agent kernel generates a typed diagnosis and repair strategy, and auto-matches qualified technicians.
 
 <div align="center">
-  <img src="./assets/screenshots/showcase_landing.jpg" width="22%" alt="Welcome Screen" />
-  <img src="./assets/screenshots/user_login.jpg" width="22%" alt="WeChat Login" />
-  <img src="./assets/screenshots/ai_diagnosis_chat.jpg" width="22%" alt="AI Diagnosis Chat" />
-  <img src="./assets/screenshots/worker_matching.jpg" width="22%" alt="Smart Worker Match" />
+  <img src="./assets/screenshots/showcase_landing.jpg" width="22%" alt="Welcome Screen UI" />
+  <img src="./assets/screenshots/user_login.jpg" width="22%" alt="WeChat Login UI" />
+  <img src="./assets/screenshots/ai_diagnosis_chat.jpg" width="22%" alt="AI Diagnosis Chat UI" />
+  <img src="./assets/screenshots/worker_matching.jpg" width="22%" alt="Smart Worker Match UI" />
 </div>
 
-<p align="center"><sub>Landing → Login → AI Chat Diagnosis → Worker Match Result</sub></p>
+<p align="center"><sub>Welcome Landing → WeChat Login → AI Chat Diagnosis → Worker Match Result</sub></p>
 
 - 🔍 **30-Second AI Triage**: Multimodal damage classification with structured repair planning.
 - 🔒 **PIPL Privacy Safeguards**: Automated blurring of private residential spaces in photos.
@@ -130,10 +130,10 @@ The tenant uploads photos or describes an issue; the agent kernel generates a ty
 A dedicated interface for technicians (师傅) to view job leads, manage schedules, and complete repairs.
 
 <div align="center">
-  <img src="./assets/screenshots/worker_login.jpg" width="22%" alt="Worker Login Portal" />
-  <img src="./assets/screenshots/worker_leads.jpg" width="22%" alt="Live Job Leads" />
-  <img src="./assets/screenshots/worker_service_request.jpg" width="22%" alt="Service Request Alert" />
-  <img src="./assets/screenshots/maintenance_calendar.jpg" width="22%" alt="Maintenance Planner" />
+  <img src="./assets/screenshots/worker_login.jpg" width="22%" alt="Worker Login Portal UI" />
+  <img src="./assets/screenshots/worker_leads.jpg" width="22%" alt="Live Job Leads UI" />
+  <img src="./assets/screenshots/worker_service_request.jpg" width="22%" alt="Service Request Alert UI" />
+  <img src="./assets/screenshots/maintenance_calendar.jpg" width="22%" alt="Maintenance Planner UI" />
 </div>
 
 <p align="center"><sub>Worker Login → Job Leads Feed → Live Service Request → Maintenance Planner</sub></p>
@@ -143,15 +143,76 @@ A dedicated interface for technicians (师傅) to view job leads, manage schedul
 
 ---
 
-### 3. 🏢 Enterprise Mission Control
+### 3. 📚 Community Knowledge Base & User Profiles
+
+Crowd-sourced repair knowledge library, case history, and user settings.
+
+<div align="center">
+  <img src="./assets/screenshots/knowledge_base.jpg" width="22%" alt="Knowledge Base UI" />
+  <img src="./assets/screenshots/case_library.jpg" width="22%" alt="Case Library UI" />
+  <img src="./assets/screenshots/user_profile.jpg" width="22%" alt="User Profile UI" />
+  <img src="./assets/screenshots/worker_registration.jpg" width="22%" alt="Worker Registration UI" />
+</div>
+
+<p align="center"><sub>Knowledge Base → Case Library → User Profile → Worker Onboarding</sub></p>
+
+---
+
+### 4. 🏢 Enterprise Mission Control
 
 Command center for property managers featuring portfolio-wide observability and AI agent runtime monitoring.
 
 <div align="center">
-  <img src="./assets/screenshots/mission_control_v2.jpg" width="95%" alt="Mission Control Dashboard" />
+  <img src="./assets/screenshots/mission_control_v2.jpg" width="95%" alt="Mission Control Dashboard UI" />
 </div>
 
 <p align="center"><sub>Enterprise Mission Control — 4D Metrics · Live Geo-Tracking · System Load Swarm</sub></p>
+
+---
+
+### 5. 🤖 AI Agent Swarm & Operations
+
+LLM multi-agent orchestration for diagnosis, planning, CFO cost controls, and automated market intelligence.
+
+<div align="center">
+  <img src="./assets/screenshots/agent_swarm.jpg" width="95%" alt="LLM Agent Swarm Dashboard UI" />
+</div>
+
+<p align="center"><sub>Agent Swarm — DiagnosisAgent · PlanningAgent · CFO Agent · Intelligence Scanner</sub></p>
+
+---
+
+### 6. 📊 Enterprise Data Hub
+
+Portfolio management, ticket tracking, worker directory, and analytics dashboards.
+
+<div align="center">
+  <img src="./assets/screenshots/property_portfolio.jpg" width="48%" alt="Property Portfolio UI" />
+  <img src="./assets/screenshots/worker_directory.jpg" width="48%" alt="Worker Directory UI" />
+</div>
+<div align="center">
+  <img src="./assets/screenshots/ticket_management.jpg" width="48%" alt="Ticket Management UI" />
+  <img src="./assets/screenshots/analytics_dashboard.jpg" width="48%" alt="Analytics Dashboard UI" />
+</div>
+
+<p align="center"><sub>Property Portfolio · Worker Directory · Ticket Management · Analytics Dashboard</sub></p>
+
+---
+
+### 7. 🌐 Marketing Showcase Site
+
+Interactive showcase site demonstrating platform statistics, feature breakdown, and live previews.
+
+<div align="center">
+  <img src="./assets/screenshots/showcase_hero.jpg" width="48%" alt="Showcase Hero UI" />
+  <img src="./assets/screenshots/showcase_features.jpg" width="48%" alt="Showcase Features UI" />
+</div>
+<div align="center">
+  <img src="./assets/screenshots/showcase_demo.jpg" width="48%" alt="Showcase Demo UI" />
+  <img src="./assets/screenshots/showcase_stats.jpg" width="48%" alt="Showcase Stats UI" />
+</div>
+
+<p align="center"><sub>Showcase Hero · Features Grid · Interactive Device Preview · Platform Stats</sub></p>
 
 ---
 
