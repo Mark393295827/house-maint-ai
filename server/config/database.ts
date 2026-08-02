@@ -170,10 +170,12 @@ export class SQLiteFallback {
                 this.db.exec(sql);
                 return { rows: [], rowCount: 0 };
             }
-        } catch (error) {
-            console.error('SQLite query error:', error);
-            console.error('Original SQL:', text);
-            console.error('Converted SQL:', sql);
+        } catch (error: any) {
+            if (!(error.message && error.message.includes('duplicate column name'))) {
+                console.error('SQLite query error:', error);
+                console.error('Original SQL:', text);
+                console.error('Converted SQL:', sql);
+            }
             throw error;
         }
     }
