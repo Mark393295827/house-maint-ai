@@ -59,7 +59,7 @@ async function insertFeedback(input: {
  * POST /api/ai/feedback
  * Submit feedback on an AI diagnosis result
  */
-router.post('/', authenticate, async (req, res, next) => {
+router.post('/', authenticate, async (req, res, _next) => {
     try {
         const parsed = feedbackSchema.safeParse(req.body);
         if (!parsed.success) {

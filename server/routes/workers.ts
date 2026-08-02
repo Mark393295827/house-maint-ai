@@ -1,5 +1,4 @@
 import express from 'express';
-import { z } from 'zod';
 import db from '../config/database.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { cacheMiddleware, clearCache } from '../middleware/cache.js';
@@ -17,10 +16,12 @@ function sanitizeWorker<T extends {
     user_id?: unknown;
 }>(worker: T): Omit<T, 'phone' | 'latitude' | 'longitude' | 'user_id'> & { locationAvailable: boolean } {
     const {
-        phone: _phone,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+phone: _phone,
         latitude,
         longitude,
-        user_id: _userId,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+user_id: _userId,
         ...safeWorker
     } = worker;
 
