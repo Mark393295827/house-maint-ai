@@ -1,0 +1,19 @@
+{
+  "name": "@house-maint/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "houseMaint": {
+    "role": "durable-agent-worker",
+    "compatibilityEntrypoint": "../../server/worker.ts",
+    "migrationState": "compatibility"
+  },
+  "dependencies": {
+    "@house-maint/agent-adapters": "0.1.0",
+    "@house-maint/agent-core": "0.1.0",
+    "@house-maint/contracts": "0.1.0",
+    "@house-maint/observability": "0.1.0",
+    "@house-maint/persistence": "0.1.0",
+    "@house-maint/policy": "0.1.0"
+  }
+}

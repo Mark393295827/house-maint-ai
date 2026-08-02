@@ -1,0 +1,230 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "qm-agent-native-foundation-remediation-v1",
+  "objective": "Repair the four defects rejected by the independent foundation join without replaying or invalidating already verified reconstruction work.",
+  "non_goals": [
+    "No downstream capability, coordination, surface, cutover, or legacy-decommission work.",
+    "No live provider, external delivery, production mutation, credential access, or real customer data.",
+    "No whole-graph replay, dynamic expansion, overlapping writer territory, or weakening of the deferred live PostgreSQL gates."
+  ],
+  "owner": "foundation-remediation-integrator",
+  "artifact_path": ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts",
+  "state_path": ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/state.json",
+  "entry_nodes": [
+    "r0-rejection-snapshot"
+  ],
+  "terminal_nodes": [
+    "r3-independent-remediation-review"
+  ],
+  "budgets": {
+    "max_nodes": 4,
+    "max_concurrency": 2,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 5400,
+    "tool_calls": 90,
+    "review_changed_lines": 320
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read reconstruction contracts, receipts, events, affected source, migrations, and tests.",
+      "Write only the declared domain/migration or runtime/test repair territory and isolated remediation artifacts.",
+      "Run local static validation, typecheck, lint, unit, integration, adversarial, and build tests using synthetic fixtures."
+    ],
+    "denied": [
+      "Read, print, copy, commit, or transmit provider credential values or production data.",
+      "Call a live model, payment, dispatch, notification, messaging, storage, or other external provider.",
+      "Deploy, publish, push, mutate production state, or bypass the mandatory downstream live PostgreSQL checks.",
+      "Modify security-foundation, workspace, adapter, coordination, surface, or legacy-decommission territories."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only the failed repair node's exact checkpoint and artifact; preserve original accepted receipts and unrelated user work."
+  },
+  "nodes": [
+    {
+      "id": "r0-rejection-snapshot",
+      "kind": "deterministic",
+      "owner": "foundation-remediation-integrator",
+      "inputs": [],
+      "outputs": [
+        "foundation_rejection_snapshot"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/state.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/events.jsonl",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/domain-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/runtime-receipt.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/foundation-rejection-snapshot.json"
+      ],
+      "verifier": "The snapshot binds the rejected j1 attempt, exact four findings, affected base receipt hashes, current graph hash, and the unchanged downstream PostgreSQL obligations.",
+      "timeout_seconds": 300,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "reversible",
+      "idempotency": "Recompute the same content-addressed rejection snapshot from append-only evidence.",
+      "compensation": "Restore or remove only the rejection snapshot artifact."
+    },
+    {
+      "id": "r1-domain-scope-migration-repair",
+      "kind": "agent-team",
+      "owner": "domain-remediation-owner",
+      "inputs": [
+        "foundation_rejection_snapshot"
+      ],
+      "outputs": [
+        "domain_remediation_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/foundation-rejection-snapshot.json",
+        "packages/contracts/src",
+        "packages/domain/src",
+        "packages/persistence/src/cases",
+        "server/db/migrations/postgres/006_case_event_immutability.sql",
+        "server/db/migrations/reconstruction",
+        "tests/contract/cases",
+        "tests/integration/cases"
+      ],
+      "writes": [
+        "packages/domain/src",
+        "server/db/migrations/reconstruction",
+        "tests/contract/cases",
+        "tests/integration/cases",
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/domain-remediation-receipt.json"
+      ],
+      "verifier": "Focused tests prove property and unit ancestry is enforced after projection load for commands, reads, and timelines; the forward migration temporarily removes only the immutable update trigger around its backfill and recreates it before commit; canonical projection guards reject direct canonical mutation and canonical-to-legacy downgrades; structural PostgreSQL tests bind statement ordering.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 34,
+      "effect_class": "reversible",
+      "idempotency": "The same scoped command and migration inputs converge on the same denial or canonical projection and receipt hashes.",
+      "compensation": "Restore only domain, reconstruction migration, affected case-test, and repair-artifact checkpoints."
+    },
+    {
+      "id": "r2-runtime-deadline-repair",
+      "kind": "agent-team",
+      "owner": "runtime-remediation-owner",
+      "inputs": [
+        "foundation_rejection_snapshot"
+      ],
+      "outputs": [
+        "runtime_remediation_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/foundation-rejection-snapshot.json",
+        "packages/contracts/src",
+        "packages/agent-core/src",
+        "packages/testkit/src/agent-runtime",
+        "tests/contract/agent-runtime",
+        "tests/integration/agent-runtime"
+      ],
+      "writes": [
+        "packages/agent-core/src",
+        "packages/testkit/src/agent-runtime",
+        "tests/contract/agent-runtime",
+        "tests/integration/agent-runtime",
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/runtime-remediation-receipt.json"
+      ],
+      "verifier": "Deterministic tests prove an evaluator that ignores abort cannot exceed the task wall deadline, evaluator elapsed time is included in task and run wall usage, cancellation remains bounded, and no provider, domain-effect, credential, or mutable-domain import is introduced.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 34,
+      "effect_class": "reversible",
+      "idempotency": "Duplicate deadline and cancellation signals converge on one bounded terminal task/run receipt.",
+      "compensation": "Restore only agent-core, runtime testkit, affected runtime-test, and repair-artifact checkpoints."
+    },
+    {
+      "id": "r3-independent-remediation-review",
+      "kind": "agent-team",
+      "owner": "independent-remediation-reviewer",
+      "inputs": [
+        "domain_remediation_receipt",
+        "runtime_remediation_receipt"
+      ],
+      "outputs": [
+        "foundation_remediation_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/domain-remediation-receipt.json",
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/runtime-remediation-receipt.json",
+        "packages/domain/src",
+        "packages/agent-core/src",
+        "server/db/migrations/reconstruction",
+        "tests/contract/cases",
+        "tests/integration/cases",
+        "tests/contract/agent-runtime",
+        "tests/integration/agent-runtime"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/remediation-receipt.json"
+      ],
+      "verifier": "A fresh-context reviewer reproduces all four exploit/failure cases, targeted typecheck/lint/tests, dependency and secret/effect scans, receipt file hashes, and the full build and regression suites; it releases one receipt only when every critical finding is closed without weakening deferred live PostgreSQL gates.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 16,
+      "effect_class": "reversible",
+      "idempotency": "Reduce the same verified repair hashes into one terminal remediation receipt.",
+      "compensation": "Restore or remove only the independent remediation receipt."
+    }
+  ],
+  "edges": [
+    {
+      "from": "r0-rejection-snapshot",
+      "to": "r1-domain-scope-migration-repair",
+      "type": "data",
+      "payload_schema": "foundation_rejection_snapshot",
+      "condition": "the rejected foundation attempt and affected receipt hashes are frozen",
+      "failure_route": ""
+    },
+    {
+      "from": "r0-rejection-snapshot",
+      "to": "r2-runtime-deadline-repair",
+      "type": "data",
+      "payload_schema": "foundation_rejection_snapshot",
+      "condition": "the rejected foundation attempt and affected receipt hashes are frozen",
+      "failure_route": ""
+    },
+    {
+      "from": "r1-domain-scope-migration-repair",
+      "to": "r3-independent-remediation-review",
+      "type": "verification",
+      "payload_schema": "domain_remediation_receipt",
+      "condition": "domain and migration repair verifier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "r2-runtime-deadline-repair",
+      "to": "r3-independent-remediation-review",
+      "type": "verification",
+      "payload_schema": "runtime_remediation_receipt",
+      "condition": "runtime deadline repair verifier passed",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "remediation-barrier",
+      "target": "r3-independent-remediation-review",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "r1-domain-scope-migration-repair",
+        "r2-runtime-deadline-repair"
+      ],
+      "verifier": "Both repair receipts are fresh, non-overlapping, bound to the same rejection snapshot, and independently close all four original findings.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The independent remediation receipt passes and is bound to current repair hashes.",
+    "A credential, private-content, cross-organization, production, financial, or external-effect boundary is crossed.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one materially changed attempt.",
+    "A writer overlap, dynamic dependency, graph cycle, whole-graph retry, or weakening of downstream PostgreSQL proof is proposed.",
+    "Independent verification finds any unresolved critical or high foundation defect."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/checkpoint.json",
+    "write_back": ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

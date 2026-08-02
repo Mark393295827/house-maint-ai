@@ -1,0 +1,8 @@
+{
+  "name": "@house-maint/policy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": { "@house-maint/contracts": "0.1.0" }
+}

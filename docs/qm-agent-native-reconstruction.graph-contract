@@ -1,0 +1,761 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "qm-agent-native-reconstruction-v1",
+  "objective": "Reconstruct House Maint AI into a domain-first modular monolith plus a durable, scoped, vendor-neutral agent runtime while preserving existing resident, worker, enterprise, payment, and compatibility behavior.",
+  "non_goals": [
+    "No production deployment, external publication, live provider call, credential mutation, real payment, real worker assignment, or real customer delivery.",
+    "No direct replacement of the public multi-tenant domain boundary with QM.",
+    "No general shell or browser sandbox in the resident maintenance critical path.",
+    "No dynamic graph expansion, graph cycle, overlapping writer territory, or whole-graph retry.",
+    "No legacy deletion before independent adoption verification and a named human cutover approval."
+  ],
+  "owner": "reconstruction-integration-owner",
+  "artifact_path": ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts",
+  "state_path": ".agent-state/graphs/qm-agent-native-reconstruction-v1/state.json",
+  "entry_nodes": [
+    "g0-baseline"
+  ],
+  "terminal_nodes": [
+    "g12-terminal-verification"
+  ],
+  "budgets": {
+    "max_nodes": 15,
+    "max_concurrency": 4,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 43200,
+    "tool_calls": 480,
+    "review_changed_lines": 1000
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read repository source, tests, documentation, local receipts, and the pinned public QM reference.",
+      "Write only the active node's declared local source, test, contract, artifact, and verification territories after explicit blueprint activation.",
+      "Run local static validation, typecheck, lint, unit, integration, Postgres, fake-provider, security, browser, and rollback tests.",
+      "Use synthetic or de-identified fixtures and fake model/tool providers only."
+    ],
+    "denied": [
+      "Read, print, copy, commit, or transmit provider credential values or private production data.",
+      "Call a live model, payment, dispatch, notification, messaging, storage, or other external provider.",
+      "Deploy, publish, push, enable a production flag, or mutate production infrastructure or data.",
+      "Send a real message, assign a real worker, settle or refund money, or transition a real case.",
+      "Discard unrelated user changes or allow an agent adapter to write domain state directly."
+    ],
+    "approval_required": [],
+    "rollback": "Keep reconstruction features default-off; restore only the failed node's checkpoint or inverse patch; preserve accepted case-event data, verified branches, compatibility routes, and unrelated user changes."
+  },
+  "nodes": [
+    {
+      "id": "g0-baseline",
+      "kind": "deterministic",
+      "owner": "reconstruction-integration-owner",
+      "inputs": [],
+      "outputs": [
+        "baseline_receipt"
+      ],
+      "reads": [
+        "README.md",
+        "ARCHITECTURE.md",
+        "package.json",
+        "server/package.json",
+        "src",
+        "server",
+        "tests",
+        "docs",
+        ".agent-state"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/baseline-receipt.json"
+      ],
+      "verifier": "The receipt records commit and dirty-worktree hashes, public route and writer inventories, data-model conflicts, provider/secret flows without values, test baselines, previous graph ownership, measurable graph width, and preserved user journeys.",
+      "timeout_seconds": 1200,
+      "max_attempts": 1,
+      "tool_calls": 18,
+      "effect_class": "reversible",
+      "idempotency": "Recompute one content-addressed baseline receipt without source mutation.",
+      "compensation": "Restore or remove only the baseline artifact."
+    },
+    {
+      "id": "g1-contract-freeze",
+      "kind": "agent",
+      "owner": "architecture-contract-owner",
+      "inputs": [
+        "baseline_receipt"
+      ],
+      "outputs": [
+        "reconstruction_contract"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/baseline-receipt.json",
+        "docs/qm-agent-native-reconstruction-blueprint.md",
+        "docs/backend-practical-iteration-blueprint.md",
+        "docs/maintenance-policy-agent-architecture.md",
+        "docs/voice-first-sol-multi-agent-blueprint.md"
+      ],
+      "writes": [
+        "packages/contracts",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/reconstruction-contract.json"
+      ],
+      "verifier": "Versioned Zod and TypeScript contracts cover scope, case command/event, task, run, artifact, evaluator, approval, delivery, progress, error, budget, cancellation, and feature compatibility; client schemas contain no provider, credential, hidden-reasoning, or mutable domain authority fields.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 26,
+      "effect_class": "reversible",
+      "idempotency": "Regenerate contract files and the isolated receipt from the same accepted baseline hash.",
+      "compensation": "Restore the contracts checkpoint and contract artifact."
+    },
+    {
+      "id": "g2-workspace-seam",
+      "kind": "deterministic",
+      "owner": "workspace-integration-owner",
+      "inputs": [
+        "reconstruction_contract"
+      ],
+      "outputs": [
+        "workspace_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/reconstruction-contract.json",
+        "package.json",
+        "server/package.json",
+        "tsconfig.json",
+        "vite.config.ts"
+      ],
+      "writes": [
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        "apps/web/package.json",
+        "apps/api/package.json",
+        "apps/worker/package.json",
+        "apps/miniprogram/package.json",
+        "packages/domain/package.json",
+        "packages/agent-core/package.json",
+        "packages/agent-adapters/package.json",
+        "packages/policy/package.json",
+        "packages/persistence/package.json",
+        "packages/observability/package.json",
+        "packages/plugin-chassis/package.json",
+        "packages/testkit/package.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/workspace-receipt.json"
+      ],
+      "verifier": "Workspace discovery, compatibility entrypoints, dependency direction, build, typecheck, and current startup pass without moving or deleting existing runtime behavior.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 22,
+      "effect_class": "reversible",
+      "idempotency": "Apply the same workspace manifest and package stubs once.",
+      "compensation": "Restore root manifests and remove only unreferenced workspace stubs."
+    },
+    {
+      "id": "g3-domain-consolidation",
+      "kind": "agent-team",
+      "owner": "domain-migration-owner",
+      "inputs": [
+        "reconstruction_contract"
+      ],
+      "outputs": [
+        "domain_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/reconstruction-contract.json",
+        "server/db",
+        "server/models",
+        "server/routes/reports.ts",
+        "server/routes/cases.routes.ts",
+        "server/routes/reportCompatibility.routes.ts",
+        "server/services/authorization",
+        "server/services/case-events"
+      ],
+      "writes": [
+        "packages/domain/src",
+        "packages/persistence/src/cases",
+        "apps/api/src/modules/cases",
+        "server/db/migrations/reconstruction",
+        "tests/contract/cases",
+        "tests/integration/cases",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/domain-receipt.json"
+      ],
+      "verifier": "Deterministic reducer/command tests and structural Postgres migration/store checks prove one canonical case projection/event history, strict organization scope, optimistic versioning, replay/idempotency, compatibility report parity, and no dual writer among reports, old cases, and maintenance_cases; live Postgres migration, concurrency, trigger-denial, and restart/replay proofs remain owned by g7 and g9.",
+      "timeout_seconds": 4200,
+      "max_attempts": 2,
+      "tool_calls": 38,
+      "effect_class": "reversible",
+      "idempotency": "Forward-compatible migrations and adapters produce the same projection and compatibility receipt from the same inputs.",
+      "compensation": "Disable canonical-case feature flags, restore compatibility adapters, and use forward repair migrations only."
+    },
+    {
+      "id": "g4-agent-kernel",
+      "kind": "agent-team",
+      "owner": "agent-runtime-owner",
+      "inputs": [
+        "reconstruction_contract"
+      ],
+      "outputs": [
+        "runtime_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/reconstruction-contract.json",
+        "server/agents",
+        "server/services/ai.ts",
+        "server/services/agentTelemetry.ts",
+        "server/worker.ts",
+        "server/config/secrets.ts"
+      ],
+      "writes": [
+        "packages/agent-core/src",
+        "packages/testkit/src/agent-runtime",
+        "tests/contract/agent-runtime",
+        "tests/integration/agent-runtime",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/runtime-receipt.json"
+      ],
+      "verifier": "Fake-harness and deterministic store-contract tests prove scoped sessions, runs, tasks, leases, signals, immutable artifacts, capability routing, budgets, cancellation, retry caps, duplicate-claim safety, snapshot restart recovery, and complete run lineage without a direct domain-effect import; durable Postgres implementation and process-restart proof remain owned by g7.",
+      "timeout_seconds": 4800,
+      "max_attempts": 2,
+      "tool_calls": 42,
+      "effect_class": "reversible",
+      "idempotency": "Store and claim contracts make duplicate enqueue, claim, completion, and signal delivery converge on one terminal receipt.",
+      "compensation": "Disable the new runtime worker and restore only agent-kernel and testkit checkpoints."
+    },
+    {
+      "id": "g5-scope-security",
+      "kind": "agent-team",
+      "owner": "security-policy-owner",
+      "inputs": [
+        "reconstruction_contract"
+      ],
+      "outputs": [
+        "security_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/reconstruction-contract.json",
+        "server/middleware",
+        "server/services/authorization",
+        "server/config/secrets.ts",
+        "server/routes/uploads.ts",
+        "server/routes/payments.ts",
+        "server/socket.ts"
+      ],
+      "writes": [
+        "packages/policy/src",
+        "packages/observability/src/security",
+        "apps/api/src/modules/authz",
+        "tests/evals/security",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/security-receipt.json"
+      ],
+      "verifier": "Adversarial fixtures prove server-resolved scope, data-class/tool grants, redacted audit, secret-value exclusion, purpose/retention/region gates, command and egress policy, approval revocation, kill switches, and cross-organization denial across API, task, artifact, media, socket, and delivery boundaries.",
+      "timeout_seconds": 4200,
+      "max_attempts": 2,
+      "tool_calls": 38,
+      "effect_class": "reversible",
+      "idempotency": "Policy evaluation and audit receipts are deterministic for the same principal, scope, policy version, and requested capability.",
+      "compensation": "Keep stricter existing authorization active and restore only new policy/security checkpoints."
+    },
+    {
+      "id": "j1-foundation-integration",
+      "kind": "deterministic",
+      "owner": "reconstruction-integration-owner",
+      "inputs": [
+        "workspace_receipt",
+        "domain_receipt",
+        "runtime_receipt",
+        "security_receipt"
+      ],
+      "outputs": [
+        "foundation_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/workspace-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/domain-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/runtime-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/security-receipt.json",
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/remediation-receipt.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json"
+      ],
+      "verifier": "A barrier check proves contract hashes match, dependency directions are valid, there is one correctly ancestry-scoped case writer, canonical migration/writer guards are safe, runtime tasks and evaluators obey resolved scopes, policy versions, cancellation, and wall deadlines, no writer territory overlaps, the bounded remediation receipt is current when present, current journeys still build, and all foundation tests are fresh.",
+      "timeout_seconds": 1200,
+      "max_attempts": 2,
+      "tool_calls": 16,
+      "effect_class": "reversible",
+      "idempotency": "Reduce the same verified branch hashes into one foundation receipt.",
+      "compensation": "Restore or remove only the foundation receipt."
+    },
+    {
+      "id": "g6-capability-migration",
+      "kind": "agent-team",
+      "owner": "capability-adapter-owner",
+      "inputs": [
+        "foundation_receipt"
+      ],
+      "outputs": [
+        "adapter_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json",
+        "server/agents",
+        "server/services/ai.ts",
+        "server/routes/ai.ts",
+        "server/routes/agent.routes.ts"
+      ],
+      "writes": [
+        "packages/agent-adapters/src",
+        "tests/contract/agent-adapters",
+        "tests/evals/agent-output",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adapter-receipt.json"
+      ],
+      "verifier": "Diagnosis, clarification, hypothesis, plan, BOM, estimate, fault, match-criteria, bilingual-response, and independent-critic adapters emit only versioned artifacts; fake-route tests enforce budgets and evaluator independence; no adapter imports domain repositories or external-effect clients.",
+      "timeout_seconds": 4800,
+      "max_attempts": 2,
+      "tool_calls": 42,
+      "effect_class": "reversible",
+      "idempotency": "The same task/input/policy hashes produce one accepted artifact identity or one deterministic conflict receipt.",
+      "compensation": "Disable capability-v2 routing and restore only adapter/evaluator checkpoints."
+    },
+    {
+      "id": "g7-durable-coordination",
+      "kind": "agent-team",
+      "owner": "coordination-delivery-owner",
+      "inputs": [
+        "foundation_receipt"
+      ],
+      "outputs": [
+        "coordination_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json",
+        "server/worker.ts",
+        "server/services/diagnostics_claw.ts",
+        "server/services/planning_claw.ts",
+        "server/services/vendor_claw.ts",
+        "server/services/matching.ts",
+        "server/services/notifications.ts",
+        "server/socket.ts"
+      ],
+      "writes": [
+        "apps/worker/src",
+        "packages/persistence/src/runs",
+        "packages/persistence/src/outbox",
+        "packages/observability/src/runs",
+        "tests/integration/coordination",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json"
+      ],
+      "verifier": "Postgres and fake-delivery tests prove canonical case migration, expected-version and same-key concurrency, trigger denial, committed replay, durable task claim/restart, cancellation, decision/approval revalidation, idempotent outbox delivery, no duplicate assignment/message, scoped realtime events, and graceful drain without direct model-owned effects.",
+      "timeout_seconds": 4800,
+      "max_attempts": 2,
+      "tool_calls": 42,
+      "effect_class": "reversible",
+      "idempotency": "Duplicate command, job, webhook, and delivery inputs converge on one recorded effect receipt.",
+      "compensation": "Disable worker/outbox-v2 flags, drain leases, and restore coordination checkpoints without deleting accepted artifacts."
+    },
+    {
+      "id": "g8-surface-plugins",
+      "kind": "agent-team",
+      "owner": "surface-plugin-owner",
+      "inputs": [
+        "foundation_receipt"
+      ],
+      "outputs": [
+        "surface_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json",
+        "src",
+        "miniprogram",
+        "server/routes/wechat.ts",
+        "server/routes/messages.ts",
+        "server/routes/notifications.ts"
+      ],
+      "writes": [
+        "apps/web/src",
+        "apps/miniprogram/src",
+        "packages/plugin-chassis/src",
+        "plugins",
+        "tests/e2e/surfaces",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json"
+      ],
+      "verifier": "Browser and signed-plugin tests prove current resident, worker, enterprise, payment callback, review, voice, camera, text, and manual journeys consume one case/session/progress contract; external identities bind to internal scope; no browser timer or plugin becomes workflow authority.",
+      "timeout_seconds": 4800,
+      "max_attempts": 2,
+      "tool_calls": 42,
+      "effect_class": "reversible",
+      "idempotency": "Surface adapters render and submit the same versioned contracts without duplicate commands or deliveries.",
+      "compensation": "Restore surface/plugin checkpoints and keep existing routes as compatibility fallbacks."
+    },
+    {
+      "id": "j2-pilot-integration",
+      "kind": "deterministic",
+      "owner": "reconstruction-integration-owner",
+      "inputs": [
+        "adapter_receipt",
+        "coordination_receipt",
+        "surface_receipt"
+      ],
+      "outputs": [
+        "pilot_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adapter-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/pilot-receipt.json"
+      ],
+      "verifier": "The diagnose_and_plan pilot proves compatible task/artifact/progress hashes, bounded execution, one case writer, evaluated bilingual output, durable restart behavior, preserved compatibility routes, and no real provider or external effect.",
+      "timeout_seconds": 1500,
+      "max_attempts": 1,
+      "tool_calls": 18,
+      "effect_class": "reversible",
+      "idempotency": "Reduce the same three verified branch hashes into one pilot receipt.",
+      "compensation": "Restore or remove only the pilot receipt."
+    },
+    {
+      "id": "g9-independent-adoption",
+      "kind": "agent-team",
+      "owner": "independent-adoption-owner",
+      "inputs": [
+        "pilot_receipt"
+      ],
+      "outputs": [
+        "adoption_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/pilot-receipt.json",
+        "docs/qm-agent-native-reconstruction-blueprint.md",
+        "apps",
+        "packages",
+        "plugins",
+        "src",
+        "server",
+        "tests"
+      ],
+      "writes": [
+        "output/qm-agent-native-reconstruction-verification",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adoption-receipt.json"
+      ],
+      "verifier": "A fresh-context owner reproduces graph/contract validation, build, targeted and full tests, Postgres concurrency/restart, fake-provider budgets, security/adversarial fixtures, browser journeys, duplicate-effect tests, secret/content scans, feature-flag rollback, metric lineage, and current-function preservation.",
+      "timeout_seconds": 4800,
+      "max_attempts": 2,
+      "tool_calls": 44,
+      "effect_class": "reversible",
+      "idempotency": "Re-run independent verification against one pilot hash and overwrite only isolated evidence.",
+      "compensation": "Restore or remove only independent verification output and receipt artifacts."
+    },
+    {
+      "id": "g10-cutover-human-gate",
+      "kind": "human-gate",
+      "owner": "product-security-cutover-owner",
+      "inputs": [
+        "adoption_receipt"
+      ],
+      "outputs": [
+        "cutover_approval_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adoption-receipt.json",
+        "output/qm-agent-native-reconstruction-verification",
+        "docs/qm-agent-native-reconstruction-blueprint.md"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/cutover-approval.json"
+      ],
+      "verifier": "A named product/security owner issues an approve or reject receipt bound to implementation and verification hashes and explicitly decides canonical-case cutover, model routes and data classes, cost budgets, media policy, human approval thresholds, Postgres readiness, rollback owner, and legacy-removal scope.",
+      "timeout_seconds": 3600,
+      "max_attempts": 1,
+      "tool_calls": 2,
+      "effect_class": "reversible",
+      "idempotency": "One immutable scoped decision per reviewed adoption hash.",
+      "compensation": "Revoke the local approval receipt and keep all reconstruction flags default-off."
+    },
+    {
+      "id": "g11-legacy-decommission",
+      "kind": "agent-team",
+      "owner": "legacy-decommission-owner",
+      "inputs": [
+        "cutover_approval_receipt"
+      ],
+      "outputs": [
+        "decommission_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/cutover-approval.json",
+        "server/agents",
+        "server/services/diagnostics_claw.ts",
+        "server/services/planning_claw.ts",
+        "server/services/vendor_claw.ts",
+        "server/routes/agent.routes.ts",
+        "src/agenticInit.ts",
+        "src/gateway",
+        "src/skills"
+      ],
+      "writes": [
+        "server/agents",
+        "server/services/diagnostics_claw.ts",
+        "server/services/planning_claw.ts",
+        "server/services/vendor_claw.ts",
+        "server/routes/agent.routes.ts",
+        "src/agenticInit.ts",
+        "src/gateway",
+        "src/skills",
+        "dev/agents",
+        ".codex/skills",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/decommission-receipt.json"
+      ],
+      "verifier": "The approval hash is current; compatibility coverage proves retired browser timers, polling claws, duplicate agent routes, and ambiguous engineering assets have no remaining runtime caller; all preserved journeys and rollback tests pass.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 30,
+      "effect_class": "reversible",
+      "idempotency": "Remove or relocate only the approved legacy territory once, bound to the adoption and cutover hashes.",
+      "compensation": "Restore the exact legacy checkpoint and keep new runtime feature flags disabled."
+    },
+    {
+      "id": "g12-terminal-verification",
+      "kind": "agent-team",
+      "owner": "terminal-verification-owner",
+      "inputs": [
+        "adoption_receipt",
+        "decommission_receipt"
+      ],
+      "outputs": [
+        "terminal_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adoption-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/decommission-receipt.json",
+        "apps",
+        "packages",
+        "plugins",
+        "dev",
+        "src",
+        "server",
+        "tests"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/terminal-receipt.json"
+      ],
+      "verifier": "Independent terminal checks prove all accepted product journeys, one canonical case writer, durable replay/restart, scoped access, bounded agent execution, no duplicate effect, no secret/content leakage, removal of approved legacy callers, feature-flag rollback, and no production mutation; the receipt lists remaining production decisions explicitly.",
+      "timeout_seconds": 4800,
+      "max_attempts": 2,
+      "tool_calls": 44,
+      "effect_class": "reversible",
+      "idempotency": "Produce one terminal receipt for the accepted adoption and decommission hashes.",
+      "compensation": "Restore or remove only the terminal receipt; do not replay the graph."
+    }
+  ],
+  "edges": [
+    {
+      "from": "g0-baseline",
+      "to": "g1-contract-freeze",
+      "type": "data",
+      "payload_schema": "baseline_receipt",
+      "condition": "baseline verified and previous graph ownership recorded",
+      "failure_route": ""
+    },
+    {
+      "from": "g1-contract-freeze",
+      "to": "g2-workspace-seam",
+      "type": "data",
+      "payload_schema": "reconstruction_contract",
+      "condition": "contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g1-contract-freeze",
+      "to": "g3-domain-consolidation",
+      "type": "data",
+      "payload_schema": "reconstruction_contract",
+      "condition": "contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g1-contract-freeze",
+      "to": "g4-agent-kernel",
+      "type": "data",
+      "payload_schema": "reconstruction_contract",
+      "condition": "contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g1-contract-freeze",
+      "to": "g5-scope-security",
+      "type": "data",
+      "payload_schema": "reconstruction_contract",
+      "condition": "contracts verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g2-workspace-seam",
+      "to": "j1-foundation-integration",
+      "type": "data",
+      "payload_schema": "workspace_receipt",
+      "condition": "workspace seam verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g3-domain-consolidation",
+      "to": "j1-foundation-integration",
+      "type": "data",
+      "payload_schema": "domain_receipt",
+      "condition": "domain consolidation verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g4-agent-kernel",
+      "to": "j1-foundation-integration",
+      "type": "data",
+      "payload_schema": "runtime_receipt",
+      "condition": "agent kernel verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g5-scope-security",
+      "to": "j1-foundation-integration",
+      "type": "data",
+      "payload_schema": "security_receipt",
+      "condition": "security boundary verified",
+      "failure_route": ""
+    },
+    {
+      "from": "j1-foundation-integration",
+      "to": "g6-capability-migration",
+      "type": "data",
+      "payload_schema": "foundation_receipt",
+      "condition": "foundation barrier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "j1-foundation-integration",
+      "to": "g7-durable-coordination",
+      "type": "data",
+      "payload_schema": "foundation_receipt",
+      "condition": "foundation barrier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "j1-foundation-integration",
+      "to": "g8-surface-plugins",
+      "type": "data",
+      "payload_schema": "foundation_receipt",
+      "condition": "foundation barrier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "g6-capability-migration",
+      "to": "j2-pilot-integration",
+      "type": "data",
+      "payload_schema": "adapter_receipt",
+      "condition": "capability adapters verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g7-durable-coordination",
+      "to": "j2-pilot-integration",
+      "type": "data",
+      "payload_schema": "coordination_receipt",
+      "condition": "durable coordination verified",
+      "failure_route": ""
+    },
+    {
+      "from": "g8-surface-plugins",
+      "to": "j2-pilot-integration",
+      "type": "data",
+      "payload_schema": "surface_receipt",
+      "condition": "surface and plugin adapters verified",
+      "failure_route": ""
+    },
+    {
+      "from": "j2-pilot-integration",
+      "to": "g9-independent-adoption",
+      "type": "verification",
+      "payload_schema": "pilot_receipt",
+      "condition": "diagnose_and_plan pilot barrier passed",
+      "failure_route": ""
+    },
+    {
+      "from": "g9-independent-adoption",
+      "to": "g10-cutover-human-gate",
+      "type": "verification",
+      "payload_schema": "adoption_receipt",
+      "condition": "independent adoption verification passed with no unresolved critical issue",
+      "failure_route": ""
+    },
+    {
+      "from": "g10-cutover-human-gate",
+      "to": "g11-legacy-decommission",
+      "type": "data",
+      "payload_schema": "cutover_approval_receipt",
+      "condition": "named owner approved the exact decommission scope",
+      "failure_route": ""
+    },
+    {
+      "from": "g9-independent-adoption",
+      "to": "g12-terminal-verification",
+      "type": "verification",
+      "payload_schema": "adoption_receipt",
+      "condition": "adoption receipt remains current",
+      "failure_route": ""
+    },
+    {
+      "from": "g11-legacy-decommission",
+      "to": "g12-terminal-verification",
+      "type": "verification",
+      "payload_schema": "decommission_receipt",
+      "condition": "approved legacy removal and rollback tests passed",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "foundation-barrier",
+      "target": "j1-foundation-integration",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "g2-workspace-seam",
+        "g3-domain-consolidation",
+        "g4-agent-kernel",
+        "g5-scope-security"
+      ],
+      "verifier": "All four branch receipts are fresh, contract-compatible, buildable, free of writer overlap, and jointly prove one scoped case writer plus a durable effect-free agent kernel.",
+      "quorum": null
+    },
+    {
+      "id": "pilot-barrier",
+      "target": "j2-pilot-integration",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "g6-capability-migration",
+        "g7-durable-coordination",
+        "g8-surface-plugins"
+      ],
+      "verifier": "Adapter, coordination, and surface receipts share exact contract/foundation hashes and prove the diagnose_and_plan pilot without a dual writer, live provider, external effect, or compatibility regression.",
+      "quorum": null
+    },
+    {
+      "id": "terminal-barrier",
+      "target": "g12-terminal-verification",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "g9-independent-adoption",
+        "g11-legacy-decommission"
+      ],
+      "verifier": "The independent adoption receipt is current and the approved decommission receipt proves removed paths have no remaining caller and can be restored from the recorded checkpoint.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The terminal verifier passes and records remaining production decisions.",
+    "A credential, private-content, cross-organization, financial, production, or external-effect boundary is crossed.",
+    "The product/security cutover owner rejects or does not issue the scoped approval receipt.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one changed attempt.",
+    "A writer overlap, incompatible contract, dual lifecycle writer, dynamic dependency, graph cycle, or whole-graph retry is proposed.",
+    "Independent verification finds an unresolved critical security, durability, compatibility, accessibility, duplicate-effect, or rollback failure."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/qm-agent-native-reconstruction-v1/checkpoint.json",
+    "write_back": ".agent-state/graphs/qm-agent-native-reconstruction-v1/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}
