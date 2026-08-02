@@ -50,12 +50,12 @@ const WelcomePage = () => {
                             {isZh ? 'Agent 运行内核 + 领域主控引擎双内核架构' : 'Agent Kernel + Domain Control Plane Architecture'}
                         </div>
                         <h1 className="text-5xl lg:text-7xl font-black leading-[1.05] tracking-[-0.03em] mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                            {isZh ? '从照片报修到师傅接单，30秒全链路闭环。' : 'From photo triage to verified dispatch in 30 seconds.'}
+                            {isZh ? '从报修到验收，一条微信闭环。' : 'From report to verified repair in one WeChat-native loop.'}
                         </h1>
                         <p className="text-xl lg:text-2xl font-bold text-[#86868b] max-w-3xl mx-auto leading-relaxed opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200 fill-mode-forwards">
                             {isZh
-                                ? '基于模块化 Workspace 与微信生态原生集成。Agent 引擎完成多模态视觉分级、责任边界判断、DIY 指引分流与智能派单。'
-                                : 'Built on modular workspace packages and native WeChat integration. Agent runtime handles multimodal vision triage, liability resolution, DIY deflection, and smart dispatch.'}
+                                ? '基于模块化 Workspace 与微信生态原生集成。拍照、语音或视频提交问题，AI 完成分级、DIY 分流、师傅派单、验收回访和业主报表。'
+                                : 'Built on modular workspace packages and native WeChat integration. Submit photos, voice, or video. AI handles triage, DIY deflection, worker dispatch, repair verification, and owner reporting.'}
                         </p>
 
                         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
