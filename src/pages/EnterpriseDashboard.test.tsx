@@ -25,10 +25,10 @@ describe('EnterpriseDashboardHome', () => {
         localStorage.clear();
     });
 
-    it('renders a summary-first dashboard around the six-stage operating loop', () => {
+    it('renders a summary-first dashboard around the six-stage operating loop', async () => {
         renderDashboard();
 
-        expect(screen.getByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
         expect(screen.getByText('六阶段运营闭环')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /24\/7 微信接入/ })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /AI 诊断与责任判断/ })).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe('EnterpriseDashboardHome', () => {
         const user = userEvent.setup();
         renderDashboard();
 
-        const mapPanel = screen.getByTestId('operations-map-panel');
+        const mapPanel = await screen.findByTestId('operations-map-panel');
         await user.click(screen.getByRole('button', { name: '展开地图' }));
 
         expect(mapPanel).toHaveClass('is-expanded');
@@ -61,7 +61,8 @@ describe('EnterpriseDashboardHome', () => {
         const user = userEvent.setup();
         renderDashboard();
 
-        const intakeCard = screen.getByText('接入工单').closest('article');
+        const intakeText = await screen.findByText('接入工单');
+        const intakeCard = intakeText.closest('article');
         expect(intakeCard).not.toBeNull();
         expect(within(intakeCard as HTMLElement).getByText('2,785')).toBeInTheDocument();
 
@@ -75,7 +76,7 @@ describe('EnterpriseDashboardHome', () => {
         const user = userEvent.setup();
         renderDashboard();
 
-        const diagnosisStage = screen.getByRole('button', { name: /AI 诊断与责任判断/ });
+        const diagnosisStage = await screen.findByRole('button', { name: /AI 诊断与责任判断/ });
         await user.click(diagnosisStage);
         expect(diagnosisStage).toHaveAttribute('aria-pressed', 'true');
         expect(screen.getByText('HM-240721')).toBeInTheDocument();
@@ -93,10 +94,10 @@ describe('EnterpriseDashboardHome', () => {
         expect(within(slaCard as HTMLElement).getByText('91.7')).toBeInTheDocument();
     });
 
-    it('renders the same analytical structure in English', () => {
+    it('renders the same analytical structure in English', async () => {
         renderDashboard('en');
 
-        expect(screen.getByRole('heading', { name: 'Property Operations Overview' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Property Operations Overview' })).toBeInTheDocument();
         expect(screen.getByText('Six-stage operating loop')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /DIY deflection/ })).toBeInTheDocument();
         expect(screen.getByText('Live operations map')).toBeInTheDocument();
