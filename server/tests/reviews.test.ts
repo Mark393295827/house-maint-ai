@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
@@ -26,11 +26,19 @@ const app = express();
 app.use(express.json());
 app.use('/api/reviews', reviewRoutes);
 
+const clearTestDb = async () => {
+    await db.query('DELETE FROM reviews');
+    await db.query('DELETE FROM reports');
+    await db.query('DELETE FROM workers');
+    await db.query('DELETE FROM users');
+};
+
 describe('Reviews API Integration', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
         try {
             console.log('Seeding review test data...');
             // Rely on global tests/setup.ts which sets DB_USE_SQLITE=true
+            await clearTestDb();
             await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (1, '13800138001', 'hash', 'Alice', 'user')`);
             await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (2, '13800138002', 'hash', 'Bob Worker', 'worker')`);
             await db.query(`INSERT INTO workers (id, user_id, skills, rating) VALUES (1, 2, '["plumbing"]', 5.0)`);
@@ -61,6 +69,8 @@ describe('Reviews API Integration', () => {
     });
 
     it('should fetch worker reviews with reviewer name', async () => {
+        // Need to add a review first since tests are isolated by beforeEach
+        await db.query(`INSERT INTO reviews (report_id, user_id, worker_id, rating, comment) VALUES (1, 1, 1, 5, 'Perfect job!')`);
         const res = await request(app).get('/api/reviews/worker/1');
         expect(res.status).toBe(200);
         expect(res.body.reviews).toHaveLength(1);
