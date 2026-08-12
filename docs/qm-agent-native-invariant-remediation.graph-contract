@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "qm-agent-native-invariant-remediation-v1",
+  "objective": "Close independently discovered retry, expiry, scope-grant, persistence-integrity, adoption/effect-coupling, and worker-budget invariants without replaying accepted branches or enabling production effects.",
+  "non_goals": [
+    "Do not mutate accepted foundation, recovery, pilot, adoption, surface, or historical receipts.",
+    "Do not call providers, read credentials, use customer data, send notifications, deploy, decommission legacy paths, or cross the human cutover gate.",
+    "Do not broaden contracts or package manifests unless a node proves the smallest typed boundary is required; no overlapping writers or whole-graph retry."
+  ],
+  "owner": "invariant-remediation-integrator",
+  "artifact_path": ".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts",
+  "state_path": ".agent-state/graphs/qm-agent-native-invariant-remediation-v1/state.json",
+  "entry_nodes": ["r0-audit-snapshot"],
+  "terminal_nodes": ["r3-independent-review"],
+  "budgets": {"max_nodes": 4, "max_concurrency": 1, "max_attempts_per_node": 2, "wall_time_seconds": 10800, "tool_calls": 180, "review_changed_lines": 700},
+  "permission_boundary": {
+    "allowed": ["Read current graph state, accepted receipts, source, and synthetic tests.", "Write only the active node's declared source/test/receipt territories.", "Run finite local Vitest, TypeScript, ESLint, build, embedded PostgreSQL, static boundary, and cleanup checks."],
+    "denied": ["Provider endpoints, credentials, private/customer data, production state, external delivery, deployment, destructive migration, package manifests, accepted receipts, human-gate approval, and main graph source outside explicit parent integration."],
+    "approval_required": [],
+    "rollback": "Restore only the active remediation node's declared files and receipt; preserve accepted branches and graph state."
+  },
+  "nodes": [
+    {
+      "id": "r0-audit-snapshot", "kind": "deterministic", "owner": "invariant-remediation-integrator", "inputs": [], "outputs": ["invariant_audit_snapshot"],
+      "reads": ["docs/qm-agent-native-reconstruction.graph-contract", "docs/qm-agent-native-pilot-input-bridge-remediation.graph-contract", ".agent-state/graphs/qm-agent-native-reconstruction-v1/state.json", ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adoption-receipt.json", ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/remediation-receipt.json", "packages/persistence/src/runs", "apps/worker/src", "packages/agent-core/src", "packages/agent-adapters/src", "tests/integration"],
+      "writes": [".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/audit-snapshot.json"],
+      "verifier": "Content-address the current graph/receipt/source hashes and freeze only the independently reproduced P1/P2 findings; no source mutation.",
+      "timeout_seconds": 600, "max_attempts": 1, "tool_calls": 12, "effect_class": "reversible", "idempotency": "Same current bytes produce identical snapshot.", "compensation": "Remove only the snapshot."
+    },
+    {
+      "id": "r1-persistence-invariants", "kind": "agent-team", "owner": "persistence-invariant-owner", "inputs": ["invariant_audit_snapshot"], "outputs": ["persistence_invariant_receipt"],
+      "reads": [".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/audit-snapshot.json", "packages/persistence/src/runs", "packages/contracts/src", "packages/agent-core/src/memory-store.ts", "tests/integration/coordination", "tests/integration/agent-runtime", "tests/integration/agent-runtime/composition-lifecycle.integration.test.ts"],
+      "writes": ["packages/persistence/src/runs/postgres-run-store.ts", "packages/persistence/src/runs/001_durable_coordination.postgres.sql", "packages/persistence/src/runs/003_external_input_lineage.postgres.sql", "packages/persistence/src/runs/types.ts", "tests/integration/coordination", "tests/integration/agent-runtime/external-input-lineage.integration.test.ts", "tests/integration/agent-runtime/composition-lifecycle.integration.test.ts", ".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/persistence-repair-receipt.json"],
+      "verifier": "TDD and live embedded PostgreSQL prove scope expiry/grants/scheduling, lease/task expiry transitions, deterministic retry classification, canonical artifact/evaluation IDs, immutable/tamper-detectable stored rows, legacy planless compatibility, and zero cleanup residue.",
+      "timeout_seconds": 3000, "max_attempts": 2, "tool_calls": 48, "effect_class": "reversible", "idempotency": "Exact repair bytes and tests converge; conflicting stored identities reject before mutation.", "compensation": "Restore only r1 territory and receipt."
+    },
+    {
+      "id": "r2-coordinator-worker-invariants", "kind": "agent-team", "owner": "coordinator-invariant-owner", "inputs": ["persistence_invariant_receipt"], "outputs": ["coordinator_invariant_receipt"],
+      "reads": [".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/persistence-repair-receipt.json", "apps/worker/src", "packages/agent-core/src", "packages/agent-adapters/src", "packages/persistence/src/outbox", "tests/integration/pilot"],
+      "writes": ["apps/worker/src/diagnose-and-plan-coordinator.ts", "apps/worker/src/durable-coordination-worker.ts", "apps/worker/src/ports.ts", "apps/worker/src/adapter-capability-port.ts", "tests/integration/pilot/diagnose-and-plan.pilot.integration.test.ts", ".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/coordinator-repair-receipt.json"],
+      "verifier": "TDD and finite pilot prove adoption/effect retry convergence, effect requires adoption, deterministic faults do not retry, critic usage is budgeted, and realtime/progress remains scope-authorized without route metadata.",
+      "timeout_seconds": 3000, "max_attempts": 2, "tool_calls": 42, "effect_class": "reversible", "idempotency": "Repeated adoption/effect requests converge to the same command/outbox identities.", "compensation": "Restore only r2 territory and receipt."
+    },
+    {
+      "id": "r3-independent-review", "kind": "agent-team", "owner": "independent-invariant-reviewer", "inputs": ["persistence_invariant_receipt", "coordinator_invariant_receipt"], "outputs": ["invariant_remediation_receipt"],
+      "reads": ["docs/qm-agent-native-invariant-remediation.graph-contract", ".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/audit-snapshot.json", ".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/persistence-repair-receipt.json", ".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/coordinator-repair-receipt.json", ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adoption-receipt.json", "packages", "apps", "tests"],
+      "writes": [".agent-state/graphs/qm-agent-native-invariant-remediation-v1/artifacts/remediation-receipt.json"],
+      "verifier": "Fresh context recomputes hashes and independently reproduces all audited exploits, focused/live/full regressions, build, static boundary, and cleanup; emits terminal acceptance only with no critical/high defect.",
+      "timeout_seconds": 4200, "max_attempts": 2, "tool_calls": 52, "effect_class": "reversible", "idempotency": "Same accepted maker hashes and evidence yield one terminal receipt.", "compensation": "Remove only the terminal receipt."
+    }
+  ],
+  "edges": [
+    {"from":"r0-audit-snapshot","to":"r1-persistence-invariants","type":"data","payload_schema":"invariant_audit_snapshot","condition":"audit findings frozen","failure_route":""},
+    {"from":"r1-persistence-invariants","to":"r2-coordinator-worker-invariants","type":"data","payload_schema":"persistence_invariant_receipt","condition":"persistence gates green","failure_route":""},
+    {"from":"r1-persistence-invariants","to":"r3-independent-review","type":"data","payload_schema":"persistence_invariant_receipt","condition":"persistence receipt current","failure_route":""},
+    {"from":"r2-coordinator-worker-invariants","to":"r3-independent-review","type":"verification","payload_schema":"coordinator_invariant_receipt","condition":"coordinator receipt current","failure_route":""}
+  ],
+  "joins": [{"id":"invariant-review-join","target":"r3-independent-review","mode":"all","inputs":["r1-persistence-invariants","r2-coordinator-worker-invariants"],"quorum":null,"verifier":"Both maker receipts are current and the independent reviewer reproduces all declared invariants."}],
+  "stop_conditions": ["Terminal independent receipt passes.", "Any provider/credential/customer/production/external effect boundary appears.", "Budget exhausted, repeated failure signature, writer overlap, dynamic expansion, or weakened security/durability gate."],
+  "recovery": {"checkpoint":".agent-state/graphs/qm-agent-native-invariant-remediation-v1/checkpoint.json","write_back":".agent-state/graphs/qm-agent-native-invariant-remediation-v1/events.jsonl","whole_graph_rerun":false}
+}

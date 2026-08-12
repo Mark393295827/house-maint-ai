@@ -268,12 +268,12 @@
         ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/domain-receipt.json",
         ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/runtime-receipt.json",
         ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/security-receipt.json",
-        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/remediation-receipt.json"
+        ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts/remediation-receipt.json"
       ],
       "writes": [
         ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json"
       ],
-      "verifier": "A barrier check proves contract hashes match, dependency directions are valid, there is one correctly ancestry-scoped case writer, canonical migration/writer guards are safe, runtime tasks and evaluators obey resolved scopes, policy versions, cancellation, and wall deadlines, no writer territory overlaps, the bounded remediation receipt is current when present, current journeys still build, and all foundation tests are fresh.",
+      "verifier": "A barrier check proves contract hashes match, dependency directions are valid, there is one correctly ancestry-scoped case writer, canonical migration/writer guards and current-projection authorization of idempotent open-case receipt replays are safe, runtime tasks and evaluators obey resolved scopes, policy versions, cancellation, and wall deadlines, no writer territory overlaps, the bounded v2 remediation receipt is current, current journeys still build, and all foundation tests are fresh.",
       "timeout_seconds": 1200,
       "max_attempts": 2,
       "tool_calls": 16,
@@ -315,66 +315,7 @@
     {
       "id": "g7-durable-coordination",
       "kind": "agent-team",
-      "owner": "coordination-delivery-owner",
-      "inputs": [
-        "foundation_receipt"
-      ],
-      "outputs": [
-        "coordination_receipt"
-      ],
-      "reads": [
-        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json",
-        "server/worker.ts",
-        "server/services/diagnostics_claw.ts",
-        "server/services/planning_claw.ts",
-        "server/services/vendor_claw.ts",
-        "server/services/matching.ts",
-        "server/services/notifications.ts",
-        "server/socket.ts"
-      ],
-      "writes": [
-        "apps/worker/src",
-        "packages/persistence/src/runs",
-        "packages/persistence/src/outbox",
-        "packages/observability/src/runs",
-        "tests/integration/coordination",
-        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json"
-      ],
-      "verifier": "Postgres and fake-delivery tests prove canonical case migration, expected-version and same-key concurrency, trigger denial, committed replay, durable task claim/restart, cancellation, decision/approval revalidation, idempotent outbox delivery, no duplicate assignment/message, scoped realtime events, and graceful drain without direct model-owned effects.",
-      "timeout_seconds": 4800,
-      "max_attempts": 2,
-      "tool_calls": 42,
-      "effect_class": "reversible",
-      "idempotency": "Duplicate command, job, webhook, and delivery inputs converge on one recorded effect receipt.",
-      "compensation": "Disable worker/outbox-v2 flags, drain leases, and restore coordination checkpoints without deleting accepted artifacts."
-    },
-    {
-      "id": "g8-surface-plugins",
-      "kind": "agent-team",
-      "owner": "surface-plugin-owner",
-      "inputs": [
-        "foundation_receipt"
-      ],
-      "outputs": [
-        "surface_receipt"
-      ],
-      "reads": [
-        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json",
-        "src",
-        "miniprogram",
-        "server/routes/wechat.ts",
-        "server/routes/messages.ts",
-        "server/routes/notifications.ts"
-      ],
-      "writes": [
-        "apps/web/src",
-        "apps/miniprogram/src",
-        "packages/plugin-chassis/src",
-        "plugins",
-        "tests/e2e/surfaces",
-        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json"
-      ],
-      "verifier": "Browser and signed-plugin tests prove current resident, worker, enterprise, payment callback, review, voice, camera, text, and manual journeys consume one case/session/progress contract; external identities bind to internal scope; no browser timer or plugin becomes workflow authority.",
+      "owner": "coÛ›≠¢Gß≤⁄Óù∆≠yﬂw authority.",
       "timeout_seconds": 4800,
       "max_attempts": 2,
       "tool_calls": 42,
@@ -397,17 +338,18 @@
       "reads": [
         ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adapter-receipt.json",
         ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json",
-        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json"
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/remediation-receipt.json"
       ],
       "writes": [
         ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/pilot-receipt.json"
       ],
-      "verifier": "The diagnose_and_plan pilot proves compatible task/artifact/progress hashes, bounded execution, one case writer, evaluated bilingual output, durable restart behavior, preserved compatibility routes, and no real provider or external effect.",
+      "verifier": "The diagnose_and_plan pilot proves compatible task/artifact/progress hashes, bounded execution, one case writer, evaluated bilingual output, durable restart behavior, preserved compatibility routes, and no real provider or external effect. Admission additionally requires the current independently accepted pilot-input bridge recovery receipt and its exact content-addressed dependency hashes.",
       "timeout_seconds": 1500,
       "max_attempts": 1,
       "tool_calls": 18,
       "effect_class": "reversible",
-      "idempotency": "Reduce the same three verified branch hashes into one pilot receipt.",
+      "idempotency": "Reduce the same three verified branch hashes plus the accepted pilot-input bridge recovery receipt into one pilot receipt.",
       "compensation": "Restore or remove only the pilot receipt."
     },
     {
@@ -729,7 +671,7 @@
         "g7-durable-coordination",
         "g8-surface-plugins"
       ],
-      "verifier": "Adapter, coordination, and surface receipts share exact contract/foundation hashes and prove the diagnose_and_plan pilot without a dual writer, live provider, external effect, or compatibility regression.",
+      "verifier": "Adapter, coordination, and surface receipts share exact contract/foundation hashes and the current pilot-input bridge recovery receipt is terminally accepted; together they prove the diagnose_and_plan pilot without a dual writer, live provider, external effect, or compatibility regression.",
       "quorum": null
     },
     {
