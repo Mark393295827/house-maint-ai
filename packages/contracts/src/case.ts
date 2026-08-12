@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { ArtifactEnvelopeSchema } from './artifact.js';
+import { EvaluationReceiptSchema } from './effects.js';
 import {
     CapabilityIdSchema,
     CorrelationIdSchema,
@@ -39,12 +41,65 @@ const DiagnoseAndPlanPayloadSchema = z.object({
     requested_capability: z.literal('maintenance.diagnose-and-plan.v1'),
 }).strict();
 
-const UpdateCasePayloadSchema = z.object({
+const UpdateCaseFieldsPayloadSchema = z.object({
     title: z.string().trim().min(2).max(200).optional(),
     priority: CasePrioritySchema.optional(),
     property_id: PositiveIdSchema.nullable().optional(),
     unit_id: PositiveIdSchema.nullable().optional(),
 }).strict().refine((value) => Object.keys(value).length > 0, 'At least one update field is required');
+
+export const AgentArtifactAdoptionSchema = z.object({
+    artifact: ArtifactEnvelopeSchema,
+    evaluation: EvaluationReceiptSchema,
+    producer_route_id: OpaqueIdSchema,
+    evaluator_route_id: OpaqueIdSchema,
+}).strict().superRefine((value, context) => {
+    if (value.artifact.evaluation_state !== 'accepted') {
+        context.addIssue({
+            code: 'custom',
+            path: ['artifact', 'evaluation_state'],
+            message: 'Only an accepted artifact can be adopted by a case',
+        });
+    }
+    if (value.evaluation.artifact_id !== value.artifact.artifact_id) {
+        context.addIssue({
+            code: 'custom',
+            path: ['evaluation', 'artifact_id'],
+            message: 'Evaluation receipt must bind the adopted artifact',
+        });
+    }
+    if (value.evaluation.decision !== 'accept' || !value.evaluation.independent_route
+        || value.evaluation.checks.some((check) => check.status === 'fail')) {
+        context.addIssue({
+            code: 'custom',
+            path: ['evaluation'],
+            message: 'Artifact adoption requires an independently accepted evaluation with no failed check',
+        });
+    }
+    if (value.producer_route_id === value.evaluator_route_id) {
+        context.addIssue({
+            code: 'custom',
+            path: ['evaluator_route_id'],
+            message: 'The evaluator route must be distinct from the producer route',
+        });
+    }
+    if (Date.parse(value.evaluation.evaluated_at) < Date.parse(value.artifact.created_at)) {
+        context.addIssue({
+            code: 'custom',
+            path: ['evaluation', 'evaluated_at'],
+            message: 'Evaluation cannot predate the artifact',
+        });
+    }
+});
+
+const AgentArtifactAdoptionPayloadSchema = z.object({
+    agent_artifact_adoption: AgentArtifactAdoptionSchema,
+}).strict();
+
+const UpdateCasePayloadSchema = z.union([
+    UpdateCaseFieldsPayloadSchema,
+    AgentArtifactAdoptionPayloadSchema,
+]);
 
 const CaseActionPayloadSchema = z.object({
     reason_code: z.string().min(2).max(80),
@@ -77,6 +132,37 @@ export const CaseCommandEnvelopeSchema = z.object({
     }
     if (value.body.type !== 'open_case' && !value.case_id) {
         context.addIssue({ code: 'custom', path: ['case_id'], message: 'Existing-case commands require case_id' });
+    }
+    if (value.body.type === 'update_case' && 'agent_artifact_adoption' in value.body.payload) {
+        const adoption = value.body.payload.agent_artifact_adoption;
+        if (adoption.artifact.organization_id !== value.organization_id) {
+            context.addIssue({
+                code: 'custom',
+                path: ['body', 'payload', 'agent_artifact_adoption', 'artifact', 'organization_id'],
+                message: 'Adopted artifact must belong to the command organization',
+            });
+        }
+        if (adoption.artifact.case_id !== value.case_id) {
+            context.addIssue({
+                code: 'custom',
+                path: ['body', 'payload', 'agent_artifact_adoption', 'artifact', 'case_id'],
+                message: 'Adopted artifact must belong to the command case',
+            });
+        }
+        if (adoption.artifact.case_version !== value.expected_version) {
+            context.addIssue({
+                code: 'custom',
+                path: ['body', 'payload', 'agent_artifact_adoption', 'artifact', 'case_version'],
+                message: 'Adopted artifact must bind the command source case version',
+            });
+        }
+        if (Date.parse(adoption.evaluation.evaluated_at) > Date.parse(value.requested_at)) {
+            context.addIssue({
+                code: 'custom',
+                path: ['requested_at'],
+                message: 'Artifact adoption cannot be requested before its evaluation',
+            });
+        }
     }
 });
 
@@ -129,3 +215,4 @@ export type CaseCommandEnvelope = z.infer<typeof CaseCommandEnvelopeSchema>;
 export type CaseEventEnvelope = z.infer<typeof CaseEventEnvelopeSchema>;
 export type CaseProjection = z.infer<typeof CaseProjectionSchema>;
 export type CaseCapability = z.infer<typeof CapabilityIdSchema>;
+export type AgentArtifactAdoption = z.infer<typeof AgentArtifactAdoptionSchema>;

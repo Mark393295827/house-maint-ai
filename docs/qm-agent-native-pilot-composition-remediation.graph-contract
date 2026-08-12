@@ -1,0 +1,313 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "qm-agent-native-pilot-composition-remediation-v1",
+  "objective": "Repair only the composition, staged-run lifecycle, independent-evaluation, truthful bilingual progress, and accepted-artifact adoption seams that block the already-approved diagnose_and_plan pilot.",
+  "non_goals": [
+    "No replay or third attempt of accepted g6, g7, or g8 branch work.",
+    "No production provider, customer data, real payment, dispatch, notification, deployment, credential, or external delivery.",
+    "No legacy deletion, cutover decision, broad UI redesign, dynamic graph expansion, graph cycle, whole-graph retry, or overlapping writer territory.",
+    "No weakening of scope, case-version, policy-version, budget, evaluator-independence, idempotency, or live PostgreSQL cleanup gates."
+  ],
+  "owner": "pilot-composition-remediation-integrator",
+  "artifact_path": ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts",
+  "state_path": ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/state.json",
+  "entry_nodes": [
+    "p0-pilot-blocker-snapshot"
+  ],
+  "terminal_nodes": [
+    "p4-independent-review"
+  ],
+  "budgets": {
+    "max_nodes": 5,
+    "max_concurrency": 2,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 10800,
+    "tool_calls": 170,
+    "review_changed_lines": 800
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read the main reconstruction graph, command program, accepted branch receipts, frozen contracts, affected source, and synthetic tests.",
+      "Write only the active remediation node's declared source, migration, test, and artifact territories.",
+      "Run strict graph validation, static checks, typecheck, lint, unit, integration, fake-provider, live disposable PostgreSQL, browser, build, and content-hash verification.",
+      "Use only synthetic or de-identified fixtures, injected deterministic routes, fake delivery, and the isolated local PostgreSQL harness."
+    ],
+    "denied": [
+      "Read, print, copy, commit, or transmit provider credentials or private production data.",
+      "Call a live model, payment, dispatch, notification, messaging, storage, deployment, or other external provider.",
+      "Mutate production state, broaden scope, let an adapter write domain state directly, or allow a producer to approve its own artifact.",
+      "Modify accepted surface/plugin files, unrelated legacy code, package manifests, lockfiles, main graph contracts, or decommission paths."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only the failed remediation node's declared files and receipt; preserve accepted parent receipts, canonical case events, successful sibling branches, compatibility routes, and unrelated user work."
+  },
+  "nodes": [
+    {
+      "id": "p0-pilot-blocker-snapshot",
+      "kind": "deterministic",
+      "owner": "pilot-composition-remediation-integrator",
+      "inputs": [],
+      "outputs": [
+        "pilot_blocker_snapshot"
+      ],
+      "reads": [
+        "docs/qm-agent-native-reconstruction.graph-contract",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/state.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/events.jsonl",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/foundation-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adapter-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json",
+        "packages/contracts/src",
+        "packages/agent-core/src",
+        "packages/agent-adapters/src",
+        "packages/domain/src",
+        "packages/persistence/src/runs",
+        "apps/worker/src",
+        "apps/web/src"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/blocker-snapshot.json"
+      ],
+      "verifier": "The snapshot content-addresses the accepted parent receipts and graph, binds the current affected source, and records mutation-free probes for the unresolved composition capability, run task-budget exhaustion, premature terminalization, unproven evaluator independence, incorrect composition order/progress, and missing accepted-artifact command path.",
+      "timeout_seconds": 600,
+      "max_attempts": 1,
+      "tool_calls": 12,
+      "effect_class": "reversible",
+      "idempotency": "Recompute the same snapshot from the same accepted receipts and source bytes.",
+      "compensation": "Restore or remove only the blocker snapshot."
+    },
+    {
+      "id": "p1-run-lifecycle-repair",
+      "kind": "agent-team",
+      "owner": "run-lifecycle-remediation-owner",
+      "inputs": [
+        "pilot_blocker_snapshot"
+      ],
+      "outputs": [
+        "run_lifecycle_repair_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/blocker-snapshot.json",
+        "packages/contracts/src/runtime.ts",
+        "packages/agent-core/src/types.ts",
+        "packages/agent-core/src/memory-store.ts",
+        "packages/persistence/src/runs",
+        "tests/contract/agent-runtime",
+        "tests/integration/agent-runtime"
+      ],
+      "writes": [
+        "packages/contracts/src/runtime.ts",
+        "packages/agent-core/src/types.ts",
+        "packages/agent-core/src/memory-store.ts",
+        "packages/persistence/src/runs/types.ts",
+        "packages/persistence/src/runs/postgres-run-store.ts",
+        "packages/persistence/src/runs/002_composition_lifecycle.postgres.sql",
+        "tests/integration/agent-runtime/composition-lifecycle.integration.test.ts",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/run-lifecycle-repair-receipt.json"
+      ],
+      "verifier": "Memory and live PostgreSQL tests prove a declared four-task plan can stage artifact-dependent tasks without premature terminalization, per-task retry attempts do not cap total run tasks, lease restart/reclaim stays bounded, unknown or conflicting plan identities fail closed, and duplicate task/run inputs converge.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 36,
+      "effect_class": "reversible",
+      "idempotency": "The same run plan, task, input-artifact, and policy hashes converge; conflicting reuse fails closed.",
+      "compensation": "Restore only the declared runtime contract, memory/PostgreSQL run-store files, forward migration, lifecycle test, and maker receipt."
+    },
+    {
+      "id": "p2-case-artifact-adoption",
+      "kind": "agent-team",
+      "owner": "case-artifact-adoption-owner",
+      "inputs": [
+        "pilot_blocker_snapshot"
+      ],
+      "outputs": [
+        "case_artifact_adoption_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/blocker-snapshot.json",
+        "packages/contracts/src/case.ts",
+        "packages/contracts/src/artifact.ts",
+        "packages/domain/src/command-service.ts",
+        "packages/domain/src/reducer.ts",
+        "packages/domain/src/types.ts",
+        "packages/persistence/src/cases",
+        "tests/contract/cases",
+        "tests/integration/cases"
+      ],
+      "writes": [
+        "packages/contracts/src/case.ts",
+        "packages/domain/src/command-service.ts",
+        "tests/contract/cases/agent-artifact-adoption.contract.test.ts",
+        "tests/integration/cases/agent-artifact-adoption.integration.test.ts",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/case-artifact-adoption-receipt.json"
+      ],
+      "verifier": "A scoped system command can append agent_artifact_accepted only for an independently accepted artifact matching organization, case, current version, policy, and idempotency receipt; stale, cross-scope, unevaluated, producer-self-approved, replay-conflict, and direct adapter writes fail closed while the reducer exposes one accepted artifact identity.",
+      "timeout_seconds": 2400,
+      "max_attempts": 2,
+      "tool_calls": 28,
+      "effect_class": "reversible",
+      "idempotency": "The same evaluated artifact adoption command emits one canonical event; conflicting or stale commands deny.",
+      "compensation": "Restore only the declared case contract/service/tests and maker receipt."
+    },
+    {
+      "id": "p3-diagnose-plan-bridge",
+      "kind": "agent-team",
+      "owner": "diagnose-plan-bridge-owner",
+      "inputs": [
+        "run_lifecycle_repair_receipt",
+        "case_artifact_adoption_receipt"
+      ],
+      "outputs": [
+        "diagnose_plan_bridge_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/run-lifecycle-repair-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/case-artifact-adoption-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adapter-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json",
+        "packages/contracts/src",
+        "packages/domain/src",
+        "packages/agent-core/src",
+        "packages/agent-adapters/src",
+        "packages/persistence/src/runs",
+        "apps/worker/src",
+        "apps/web/src",
+        "tests/integration/coordination",
+        "tests/e2e/surfaces"
+      ],
+      "writes": [
+        "packages/agent-core/src/artifact-finalizer.ts",
+        "packages/agent-core/src/index.ts",
+        "packages/agent-adapters/src/composition.ts",
+        "packages/agent-adapters/src/registry.ts",
+        "packages/agent-adapters/src/index.ts",
+        "apps/worker/src/ports.ts",
+        "apps/worker/src/adapter-capability-port.ts",
+        "apps/worker/src/diagnose-and-plan-coordinator.ts",
+        "apps/worker/src/durable-coordination-worker.ts",
+        "apps/worker/src/index.ts",
+        "tests/integration/pilot/diagnose-and-plan.pilot.integration.test.ts",
+        "tests/integration/pilot/tsconfig.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/bridge-repair-receipt.json"
+      ],
+      "verifier": "A fresh disposable PostgreSQL pilot executes diagnosis to repair-plan to independent-critic to bilingual-next-action with artifact-hash dependencies, distinct producer/evaluator route identities, truthful intermediate progress, final Chinese/English copy derived from the accepted artifact, one canonical case writer, restart/reclaim, duplicate convergence, one fake delivery receipt, and zero live-provider or external effect.",
+      "timeout_seconds": 4200,
+      "max_attempts": 2,
+      "tool_calls": 44,
+      "effect_class": "reversible",
+      "idempotency": "The same confirmed command, run plan, artifact lineage, evaluation, progress, and synthetic effect keys reduce to identical identities without duplicate writes or delivery.",
+      "compensation": "Disable only the new coordinator route and restore the declared bridge files, pilot tests, and maker receipt."
+    },
+    {
+      "id": "p4-independent-review",
+      "kind": "agent-team",
+      "owner": "independent-pilot-remediation-reviewer",
+      "inputs": [
+        "diagnose_plan_bridge_receipt"
+      ],
+      "outputs": [
+        "pilot_composition_remediation_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/blocker-snapshot.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/run-lifecycle-repair-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/case-artifact-adoption-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/bridge-repair-receipt.json",
+        "packages/contracts/src",
+        "packages/domain/src",
+        "packages/agent-core/src",
+        "packages/agent-adapters/src",
+        "packages/persistence/src/runs",
+        "apps/worker/src",
+        "apps/web/src",
+        "tests/contract/cases",
+        "tests/contract/agent-runtime",
+        "tests/integration/cases",
+        "tests/integration/agent-runtime",
+        "tests/integration/coordination",
+        "tests/integration/pilot",
+        "tests/e2e/surfaces"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/remediation-receipt.json"
+      ],
+      "verifier": "A fresh-context reviewer recomputes graph, parent, maker, and source hashes; reproduces all six original blockers as closed; runs the integrated live PostgreSQL pilot twice with exact cleanup; proves distinct evaluator identity and one canonical case writer; runs focused contracts, strict type/lint/import/secret/effect checks, surface browser journeys, production build, and complete node/UI regressions; and emits a terminal receipt only with no unresolved critical or high defect.",
+      "timeout_seconds": 5400,
+      "max_attempts": 2,
+      "tool_calls": 40,
+      "effect_class": "reversible",
+      "idempotency": "Reduce the same current maker/source hashes and fresh independent evidence into one terminal remediation receipt.",
+      "compensation": "Restore or remove only the terminal remediation receipt."
+    }
+  ],
+  "edges": [
+    {
+      "from": "p0-pilot-blocker-snapshot",
+      "to": "p1-run-lifecycle-repair",
+      "type": "data",
+      "payload_schema": "pilot_blocker_snapshot",
+      "condition": "parent hashes and lifecycle blockers are frozen",
+      "failure_route": ""
+    },
+    {
+      "from": "p0-pilot-blocker-snapshot",
+      "to": "p2-case-artifact-adoption",
+      "type": "data",
+      "payload_schema": "pilot_blocker_snapshot",
+      "condition": "parent hashes and artifact-adoption blocker are frozen",
+      "failure_route": ""
+    },
+    {
+      "from": "p1-run-lifecycle-repair",
+      "to": "p3-diagnose-plan-bridge",
+      "type": "data",
+      "payload_schema": "run_lifecycle_repair_receipt",
+      "condition": "run lifecycle maker receipt is current and green",
+      "failure_route": ""
+    },
+    {
+      "from": "p2-case-artifact-adoption",
+      "to": "p3-diagnose-plan-bridge",
+      "type": "data",
+      "payload_schema": "case_artifact_adoption_receipt",
+      "condition": "case artifact adoption maker receipt is current and green",
+      "failure_route": ""
+    },
+    {
+      "from": "p3-diagnose-plan-bridge",
+      "to": "p4-independent-review",
+      "type": "verification",
+      "payload_schema": "diagnose_plan_bridge_receipt",
+      "condition": "integrated maker pilot and cleanup pass",
+      "failure_route": ""
+    }
+  ],
+  "joins": [
+    {
+      "id": "composition-repair-barrier",
+      "target": "p3-diagnose-plan-bridge",
+      "mode": "barrier-verifier",
+      "inputs": [
+        "p1-run-lifecycle-repair",
+        "p2-case-artifact-adoption"
+      ],
+      "verifier": "Both maker receipts share the blocker snapshot and graph hash, have disjoint source/test manifests, and jointly expose compatible runtime and canonical case contracts without weakening scope or writer authority.",
+      "quorum": null
+    }
+  ],
+  "stop_conditions": [
+    "The independent terminal receipt passes and binds current implementation hashes.",
+    "A credential, private-content, cross-organization, production, financial, customer, or external-effect boundary is crossed.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one materially changed attempt.",
+    "A writer overlap, dynamic dependency, graph cycle, whole-graph retry, or weakened PostgreSQL/cleanup/evaluator gate is proposed.",
+    "Independent verification finds any unresolved critical or high defect."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/checkpoint.json",
+    "write_back": ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

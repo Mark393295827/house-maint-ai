@@ -1,0 +1,41 @@
+{
+  "schema": "surface-plugin-manifest/v1",
+  "version": "1.0.0",
+  "key_id": "key:surface:synthetic:1",
+  "issued_at": "2026-08-01T00:00:00.000Z",
+  "expires_at": "2027-08-01T00:00:00.000Z",
+  "core_contract": "surface-plugin-core/v1",
+  "plugin_id": "plugin:surface:web",
+  "channel": "web",
+  "grants": {
+    "capabilities": [
+      "maintenance.diagnose-and-plan.v1"
+    ],
+    "data_classes": [
+      "personal",
+      "sensitive_media",
+      "financial"
+    ],
+    "scope_kinds": [
+      "case",
+      "property",
+      "organization"
+    ],
+    "actions": [
+      "read",
+      "contribute",
+      "manage",
+      "media",
+      "verify",
+      "report"
+    ],
+    "purposes": [
+      "maintenance-case"
+    ],
+    "retention_days": 30
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "value": "iwr6CTX99vgMUJ5Ov9O9B-409G7j9mt2DocAdN-XIqx0rhS0tILIZu3HJEh9UFt-UwFl_70M19FyIdyrE3_uDA"
+  }
+}

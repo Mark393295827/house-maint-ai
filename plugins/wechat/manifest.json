@@ -1,0 +1,37 @@
+{
+  "schema": "surface-plugin-manifest/v1",
+  "version": "1.0.0",
+  "key_id": "key:surface:synthetic:1",
+  "issued_at": "2026-08-01T00:00:00.000Z",
+  "expires_at": "2027-08-01T00:00:00.000Z",
+  "core_contract": "surface-plugin-core/v1",
+  "plugin_id": "plugin:surface:wechat",
+  "channel": "wechat",
+  "grants": {
+    "capabilities": [
+      "maintenance.diagnose-and-plan.v1"
+    ],
+    "data_classes": [
+      "personal",
+      "sensitive_media"
+    ],
+    "scope_kinds": [
+      "case",
+      "property"
+    ],
+    "actions": [
+      "read",
+      "contribute",
+      "message",
+      "media"
+    ],
+    "purposes": [
+      "maintenance-case"
+    ],
+    "retention_days": 30
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "value": "EMt1KW_RATflg4xsA4_xtYZkM5Elm0G1llOJRuU1QNqq31r7DtIh3bO0gyHp4jo-MjtCuzwvlbXSbW8pli94CA"
+  }
+}

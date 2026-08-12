@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Surface contract fixture</title></head>
+<body>
+<main id="surface"></main>
+<script type="module">
+import { createSurfaceViewModel } from '/apps/web/src/index.ts';
+
+const params = new URLSearchParams(location.search);
+const audience = params.get('audience') || 'resident';
+const locale = params.get('locale') || 'bilingual';
+const viewport_width = Number(params.get('width') || innerWidth);
+const now = '2026-08-02T06:00:00.000Z';
+const scope = {
+  schema: 'effective-scope/v1', scope_id: 'case:42', scope_kind: 'case', organization_id: 1,
+  case_id: 42, property_id: 10, unit_id: 100,
+  principal: { principal_id: 'principal:1', actor_kind: 'member', organization_id: 1, membership_id: 101, user_id: 201, role: audience === 'enterprise' ? 'manager' : 'resident', authenticated_at: '2026-08-02T05:50:00.000Z' },
+  actions: ['read', 'contribute', 'manage', 'verify', 'message', 'media', 'report'], data_classes: ['personal'],
+  capabilities: ['maintenance.diagnose-and-plan.v1'], tool_grants: [], purposes: ['maintenance-case'],
+  region: 'cn-east', retention_days: 30, policy_version: 'policy:test:v1',
+  resolved_at: '2026-08-02T05:55:00.000Z', expires_at: '2026-08-02T07:00:00.000Z'
+};
+const view = createSurfaceViewModel({
+  schema: 'surface-session/v1', session_id: 'session:42', scope,
+  case: { schema: 'case-projection/v1', id: 42, organization_id: 1, property_id: 10, unit_id: 100, title: 'Kitchen leak', status: 'open', stage: 'diagnosis', priority: 'urgent', version: 7, active_run_id: 'run:42', accepted_artifact_ids: [], created_at: now, updated_at: now, closed_at: null },
+  progress: { schema: 'case-progress/v1', organization_id: 1, case_id: 42, case_version: 7, stage: 'diagnosis', run: { run_id: 'run:42', status: 'working', progress_percent: 55 }, next_action: { kind: 'review_plan', display: { zh_cn: '请查看维修建议。', en_us: 'Review the repair guidance.' }, artifact_id: null }, updated_at: now },
+  artifacts: [], captured_at: now
+}, { audience, locale, viewport_width, now });
+const root = document.querySelector('#surface');
+root.dataset.layout = view.layout;
+root.dataset.audience = view.audience;
+root.dataset.contract = 'case-progress/v1';
+root.dataset.controls = view.controls.join(',');
+root.dataset.providerFree = String(!/provider_name|model_name|deepseek|gemini|openai/i.test(JSON.stringify(view)));
+const title = document.createElement('h1'); title.textContent = `${view.title.zh_cn} / ${view.title.en_us}`;
+const progress = document.createElement('p'); progress.dataset.testid = 'progress'; progress.textContent = `${view.progress_percent}%`;
+const action = document.createElement('p'); action.dataset.testid = 'next-action'; action.textContent = `${view.next_action.zh_cn} / ${view.next_action.en_us}`;
+root.append(title, progress, action);
+</script>
+</body>
+</html>

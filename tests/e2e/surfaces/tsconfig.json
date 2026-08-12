@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node", "vitest/globals", "@playwright/test"]
+  },
+  "include": [
+    "../../../packages/plugin-chassis/src/**/*.ts",
+    "../../../apps/web/src/**/*.ts",
+    "../../../apps/miniprogram/src/**/*.ts",
+    "./**/*.ts"
+  ]
+}

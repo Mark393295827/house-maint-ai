@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node", "vitest/globals"],
+    "strict": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "diagnose-and-plan.pilot.integration.test.ts",
+    "../../../packages/agent-core/src/**/*.ts",
+    "../../../packages/agent-adapters/src/**/*.ts",
+    "../../../apps/worker/src/**/*.ts"
+  ]
+}

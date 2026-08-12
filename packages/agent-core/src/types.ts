@@ -1,5 +1,7 @@
 import type {
     AgentRun,
+    AgentRunInput,
+    AgentRunPlan,
     AgentTaskEnvelope,
     ArtifactEnvelope,
     EffectiveScope,
@@ -154,6 +156,7 @@ export interface RuntimeSnapshot {
     readonly tasks: readonly StoredTask[];
     readonly artifacts: readonly ArtifactEnvelope[];
     readonly evaluations: readonly EvaluationReceipt[];
+    readonly external_inputs: readonly AgentRunInput[];
     readonly cancellations: readonly CancellationSignal[];
     readonly events: readonly RuntimeEvent[];
     readonly idempotency: {
@@ -167,6 +170,7 @@ export interface RunLineage {
     readonly session: AgentSession;
     readonly run: AgentRun;
     readonly tasks: readonly StoredTask[];
+    readonly external_inputs: readonly AgentRunInput[];
     readonly artifacts: readonly ArtifactEnvelope[];
     readonly evaluations: readonly EvaluationReceipt[];
     readonly cancellations: RuntimeSnapshot['cancellations'];
@@ -186,6 +190,7 @@ export interface CreateRunInput {
     readonly case_id: number;
     readonly case_version: number;
     readonly budget: ExecutionBudget;
+    readonly plan?: AgentRunPlan;
     readonly policy_version: string;
     readonly idempotency_key: string;
 }

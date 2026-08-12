@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "qm-agent-native-foundation-receipt-replay-remediation-v2",
+  "objective": "Close the independently reproduced open_case stale-receipt ancestry bypass without replaying accepted foundation work or reopening unrelated repairs.",
+  "non_goals": [
+    "No changes to runtime, security, workspace, capability, coordination, surface, cutover, or legacy territories.",
+    "No live provider, external delivery, credential access, production mutation, or real customer data.",
+    "No whole-graph replay, dynamic expansion, overlapping writer, third attempt in remediation v1, or weakening of downstream live PostgreSQL gates."
+  ],
+  "owner": "receipt-replay-remediation-integrator",
+  "artifact_path": ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts",
+  "state_path": ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/state.json",
+  "entry_nodes": [
+    "s0-rejection-snapshot"
+  ],
+  "terminal_nodes": [
+    "s2-independent-review"
+  ],
+  "budgets": {
+    "max_nodes": 3,
+    "max_concurrency": 1,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 5400,
+    "tool_calls": 54,
+    "review_changed_lines": 120
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read reconstruction and remediation contracts, receipts, events, affected domain source, repository contracts, and synthetic tests.",
+      "Write only the declared command-service/test repair territory and isolated v2 remediation artifacts.",
+      "Run local static validation, typecheck, lint, unit, integration, build, UI regression, and content-hash checks with synthetic fixtures."
+    ],
+    "denied": [
+      "Read, print, copy, commit, or transmit provider credential values or production data.",
+      "Call a live model, payment, dispatch, notification, messaging, storage, or other external provider.",
+      "Deploy, publish, push, mutate production state, or weaken mandatory downstream live PostgreSQL proof.",
+      "Modify runtime, migration, persistence, security, workspace, pilot, surface, or legacy-decommission source."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only command-service, its affected synthetic case test, and the failed v2 artifact checkpoint; preserve all accepted receipts and unrelated user work."
+  },
+  "nodes": [
+    {
+      "id": "s0-rejection-snapshot",
+      "kind": "deterministic",
+      "owner": "receipt-replay-remediation-integrator",
+      "inputs": [],
+      "outputs": [
+        "receipt_replay_rejection_snapshot"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/state.json",
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/events.jsonl",
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/remediation-receipt.json",
+        ".agent-state/graphs/qm-agent-native-foundation-remediation-v1/artifacts/domain-remediation-receipt.json"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts/rejection-snapshot.json"
+      ],
+      "verifier": "The snapshot binds r3 attempt-2 rejection, the exact stale open_case receipt replay, current source and parent graph hashes, already green broad gates, and unchanged live PostgreSQL obligations.",
+      "timeout_seconds": 300,
+      "max_attempts": 1,
+      "tool_calls": 6,
+      "effect_class": "reversible",
+      "idempotency": "Recompute the same content-addressed rejection snapshot from durable evidence.",
+      "compensation": "Restore or remove only the v2 rejection snapshot."
+    },
+    {
+      "id": "s1-open-case-replay-scope-repair",
+      "kind": "agent-team",
+      "owner": "domain-replay-remediation-owner",
+      "inputs": [
+        "receipt_replay_rejection_snapshot"
+      ],
+      "outputs": [
+        "receipt_replay_repair_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts/rejection-snapshot.json",
+        "packages/contracts/src",
+        "packages/domain/src/command-service.ts",
+        "packages/domain/src/types.ts",
+        "packages/persistence/src/cases",
+        "tests/contract/cases",
+        "tests/integration/cases/in-memory-command-authority.test.ts"
+      ],
+      "writes": [
+        "packages/domain/src/command-service.ts",
+        "tests/integration/cases/in-memory-command-authority.test.ts",
+        ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts/repair-receipt.json"
+      ],
+      "verifier": "Adversarial tests prove that after a canonical case moves outside the old property or unit, replaying its original open_case idempotency key under the old narrow scope returns not_found without exposing the stale receipt; valid in-scope duplicate opens still converge; commands, reads, timelines, versions, and receipts retain their prior behavior.",
+      "timeout_seconds": 1800,
+      "max_attempts": 2,
+      "tool_calls": 24,
+      "effect_class": "reversible",
+      "idempotency": "The same open command converges only after current canonical ancestry authorization; out-of-scope replays deterministically deny.",
+      "compensation": "Restore only command-service, the affected integration test, and the v2 maker receipt."
+    },
+    {
+      "id": "s2-independent-review",
+      "kind": "agent-team",
+      "owner": "independent-replay-remediation-reviewer",
+      "inputs": [
+        "receipt_replay_repair_receipt"
+      ],
+      "outputs": [
+        "foundation_remediation_v2_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts/rejection-snapshot.json",
+        ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts/repair-receipt.json",
+        "packages/domain/src/command-service.ts",
+        "packages/domain/src/types.ts",
+        "packages/persistence/src/cases",
+        "tests/contract/cases",
+        "tests/integration/cases"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/artifacts/remediation-receipt.json"
+      ],
+      "verifier": "A fresh-context reviewer reproduces the stale open_case receipt exploit as denied, recomputes all receipt/source hashes, reruns focused case/runtime/security contracts, strict typecheck/lint/import checks, production build, and complete node/UI regressions, and releases a terminal receipt only if no critical or high foundation defect remains and live PostgreSQL obligations are preserved.",
+      "timeout_seconds": 3000,
+      "max_attempts": 2,
+      "tool_calls": 24,
+      "effect_class": "reversible",
+      "idempotency": "Reduce one current maker receipt and fresh verification evidence into one v2 terminal receipt.",
+      "compensation": "Restore or remove only the v2 terminal receipt."
+    }
+  ],
+  "edges": [
+    {
+      "from": "s0-rejection-snapshot",
+      "to": "s1-open-case-replay-scope-repair",
+      "type": "data",
+      "payload_schema": "receipt_replay_rejection_snapshot",
+      "condition": "r3 attempt-2 rejection and exact exploit are frozen",
+      "failure_route": ""
+    },
+    {
+      "from": "s1-open-case-replay-scope-repair",
+      "to": "s2-independent-review",
+      "type": "verification",
+      "payload_schema": "receipt_replay_repair_receipt",
+      "condition": "maker receipt and focused adversarial verifier pass",
+      "failure_route": ""
+    }
+  ],
+  "joins": [],
+  "stop_conditions": [
+    "The v2 independent terminal receipt passes and binds current implementation hashes.",
+    "A credential, private-content, cross-organization, production, financial, or external-effect boundary is crossed.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one materially changed attempt.",
+    "A writer overlap, dynamic dependency, graph cycle, whole-graph retry, or weakened PostgreSQL gate is proposed.",
+    "Independent verification finds any unresolved critical or high foundation defect."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/checkpoint.json",
+    "write_back": ".agent-state/graphs/qm-agent-native-foundation-receipt-replay-remediation-v2/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

@@ -140,6 +140,32 @@ describe('in-memory canonical command authority', () => {
         expect(await repository.load(1, caseId)).toMatchObject({ property_id: 10, unit_id: 100, version: 2 });
     });
 
+    it('denies an original open receipt replay after the canonical property changes', async () => {
+        const { repository, service } = setup();
+        const command = openCaseCommand({
+            propertyId: 10, unitId: 100, key: 'property-open-replay',
+        });
+        const oldPropertyScope = caseScope({ propertyId: 10 });
+        const opened = await service.execute({ command, scope: oldPropertyScope });
+        const validReplay = await service.execute({ command, scope: oldPropertyScope });
+        expect(validReplay).toEqual({ ...opened, replayed: true });
+        expect(repository.getWriteAudit()).toHaveLength(1);
+
+        await service.execute({
+            command: existingCaseCommand({
+                type: 'update_case', caseId: opened.projection.id, expectedVersion: 1,
+                key: 'move-opened-property', payload: { property_id: 99, unit_id: null },
+            }),
+            scope: caseScope(),
+        });
+        expect(await repository.load(1, opened.projection.id))
+            .toMatchObject({ property_id: 99, unit_id: null, version: 2 });
+
+        await expect(service.execute({ command, scope: oldPropertyScope }))
+            .rejects.toMatchObject({ code: 'not_found' });
+        expect(repository.getWriteAudit()).toHaveLength(2);
+    });
+
     it('enforces unit ancestry for commands, reads, timelines, and projection changes', async () => {
         const { repository, service } = setup();
         const opened = await service.execute({
@@ -166,6 +192,27 @@ describe('in-memory canonical command authority', () => {
             scope: caseScope({ propertyId: 10, unitId: 100 }),
         })).rejects.toMatchObject({ code: 'not_found' });
         expect(await repository.load(1, caseId)).toMatchObject({ property_id: 10, unit_id: 100, version: 1 });
+    });
+
+    it('denies an original open receipt replay after the canonical unit changes', async () => {
+        const { repository, service } = setup();
+        const command = openCaseCommand({ propertyId: 10, unitId: 100, key: 'unit-open-replay' });
+        const oldUnitScope = caseScope({ propertyId: 10, unitId: 100 });
+        const opened = await service.execute({ command, scope: oldUnitScope });
+
+        await service.execute({
+            command: existingCaseCommand({
+                type: 'update_case', caseId: opened.projection.id, expectedVersion: 1,
+                key: 'move-opened-unit', payload: { unit_id: 200 },
+            }),
+            scope: caseScope(),
+        });
+        expect(await repository.load(1, opened.projection.id))
+            .toMatchObject({ property_id: 10, unit_id: 200, version: 2 });
+
+        await expect(service.execute({ command, scope: oldUnitScope }))
+            .rejects.toMatchObject({ code: 'not_found' });
+        expect(repository.getWriteAudit()).toHaveLength(2);
     });
 
     it('records only the canonical projection, history, and receipt write set', async () => {

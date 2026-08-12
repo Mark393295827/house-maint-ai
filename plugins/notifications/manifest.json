@@ -1,0 +1,32 @@
+{
+  "schema": "surface-plugin-manifest/v1",
+  "version": "1.0.0",
+  "key_id": "key:surface:synthetic:1",
+  "issued_at": "2026-08-01T00:00:00.000Z",
+  "expires_at": "2027-08-01T00:00:00.000Z",
+  "core_contract": "surface-plugin-core/v1",
+  "plugin_id": "plugin:surface:notifications",
+  "channel": "internal_ops",
+  "grants": {
+    "capabilities": [],
+    "data_classes": [
+      "personal"
+    ],
+    "scope_kinds": [
+      "case",
+      "organization"
+    ],
+    "actions": [
+      "read",
+      "message"
+    ],
+    "purposes": [
+      "maintenance-case"
+    ],
+    "retention_days": 30
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "value": "UzgoV9N2SOEqW_LENLWJYs5dMhwwPLDjQOQ-9FS8evTbdq49AUyWSYUIXIXnajPwRxkFUUKrjDWVxDgR8PPUCw"
+  }
+}

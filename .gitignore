@@ -61,6 +61,8 @@ tmp/pdfs/
 !playwright.config.js
 !src/**/*.json
 !server/**/*.json
+!plugins/trust.json
+!plugins/*/manifest.json
 !*.config.js
 !*.config.ts
 

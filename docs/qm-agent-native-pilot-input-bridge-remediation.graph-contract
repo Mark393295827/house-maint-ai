@@ -1,0 +1,272 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "qm-agent-native-pilot-input-bridge-remediation-v2",
+  "objective": "Add a typed, content-addressed external-input lineage boundary and immutable evaluation proof, then complete and independently verify the already-bounded diagnose-to-plan-to-critic-to-bilingual pilot without replaying accepted work.",
+  "non_goals": [
+    "No replay or mutation of accepted foundation, g6, g7, g8, p1 lifecycle, or p2 case-adoption receipts.",
+    "No live model, production credential, customer data, real delivery, payment, dispatch, deployment, legacy deletion, or external provider effect.",
+    "No hardcoded diagnosis, side-channel intake payload, caller-supplied route proof, dynamic graph expansion, whole-graph retry, writer overlap, or weakening of scope, policy, case-version, budget, idempotency, evaluation, PostgreSQL, or cleanup gates.",
+    "No main j2 attempt until this graph has a current independently accepted terminal receipt."
+  ],
+  "owner": "pilot-input-bridge-recovery-integrator",
+  "artifact_path": ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts",
+  "state_path": ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/state.json",
+  "entry_nodes": [
+    "q0-rejection-dependency-snapshot"
+  ],
+  "terminal_nodes": [
+    "q3-independent-recovery-review"
+  ],
+  "budgets": {
+    "max_nodes": 4,
+    "max_concurrency": 1,
+    "max_attempts_per_node": 2,
+    "wall_time_seconds": 12600,
+    "tool_calls": 190,
+    "review_changed_lines": 1000
+  },
+  "permission_boundary": {
+    "allowed": [
+      "Read the parent reconstruction graph, the failed v1 overlay, accepted receipts, frozen contracts, affected source, and synthetic tests.",
+      "Write only the active recovery node's declared contract, runtime, migration, worker, test, and receipt territories.",
+      "Run strict graph/hash/import/secret/effect checks, typecheck, lint, build, unit, integration, browser, fake-route, and finite disposable PostgreSQL verification.",
+      "Use only synthetic or de-identified ArtifactEnvelope fixtures, immutable injected route bindings, fake delivery, and the isolated local PostgreSQL harness."
+    ],
+    "denied": [
+      "Read, print, copy, commit, transmit, or call any provider credential, private production content, or live AI endpoint.",
+      "Call a live payment, dispatch, notification, messaging, storage, deployment, or other external provider.",
+      "Mutate production state, let an adapter or worker write canonical case state directly, or permit a producer or aliased producer capability to approve its own artifact.",
+      "Modify accepted surface/plugin files, unrelated legacy code, package manifests, lockfiles, the failed v1 contract, decommission paths, or main j2 implementation files outside the later explicit parent amendment."
+    ],
+    "approval_required": [],
+    "rollback": "Restore only the failed recovery node's declared files and receipt; preserve accepted parent receipts, canonical case events, successful sibling branches, compatibility routes, and unrelated user work."
+  },
+  "nodes": [
+    {
+      "id": "q0-rejection-dependency-snapshot",
+      "kind": "deterministic",
+      "owner": "pilot-input-bridge-recovery-integrator",
+      "inputs": [],
+      "outputs": [
+        "input_bridge_rejection_snapshot"
+      ],
+      "reads": [
+        "docs/qm-agent-native-reconstruction.graph-contract",
+        "docs/qm-agent-native-pilot-composition-remediation.graph-contract",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/state.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/events.jsonl",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/state.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/checkpoint.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/events.jsonl",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/blocker-snapshot.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/run-lifecycle-repair-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/case-artifact-adoption-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adapter-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json",
+        "packages/contracts/src/runtime.ts",
+        "packages/agent-core/src/types.ts",
+        "packages/agent-core/src/memory-store.ts",
+        "packages/agent-core/src/artifact-finalizer.ts",
+        "packages/persistence/src/runs",
+        "packages/agent-adapters/src/composition.ts",
+        "packages/agent-adapters/src/registry.ts",
+        "apps/worker/src",
+        "apps/web/src/index.ts",
+        "tests/integration/pilot"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/rejection-snapshot.json"
+      ],
+      "verifier": "The snapshot content-addresses both parent contracts and ledgers, accepted p1/p2 and g6/g7/g8 receipts, every bounded partial p3 file, and mutation-free proofs for missing confirmed-intake ingress, evaluation receipt substitution, artifact payload/hash substitution, evaluator aliasing, untrusted route identity, and unconsumed main j2.",
+      "timeout_seconds": 900,
+      "max_attempts": 1,
+      "tool_calls": 16,
+      "effect_class": "reversible",
+      "idempotency": "Recompute identical snapshot bytes from identical current parent and source hashes.",
+      "compensation": "Restore or remove only the rejection snapshot."
+    },
+    {
+      "id": "q1-external-input-evaluation-repair",
+      "kind": "agent-team",
+      "owner": "external-input-lineage-owner",
+      "inputs": [
+        "input_bridge_rejection_snapshot"
+      ],
+      "outputs": [
+        "external_input_evaluation_repair_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/rejection-snapshot.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/run-lifecycle-repair-receipt.json",
+        "packages/contracts/src/artifact.ts",
+        "packages/contracts/src/effects.ts",
+        "packages/contracts/src/registry.ts",
+        "packages/contracts/src/runtime.ts",
+        "packages/contracts/tests/contracts.test.ts",
+        "packages/agent-core/src",
+        "packages/persistence/src/runs",
+        "tests/contract/agent-runtime",
+        "tests/integration/agent-runtime",
+        "tests/integration/coordination/live-postgres.integration.test.ts"
+      ],
+      "writes": [
+        "packages/contracts/src/runtime.ts",
+        "packages/contracts/src/registry.ts",
+        "packages/contracts/tests/contracts.test.ts",
+        "packages/agent-core/src/types.ts",
+        "packages/agent-core/src/memory-store.ts",
+        "packages/agent-core/src/kernel.ts",
+        "packages/persistence/src/runs/types.ts",
+        "packages/persistence/src/runs/postgres-run-store.ts",
+        "packages/persistence/src/runs/003_external_input_lineage.postgres.sql",
+        "tests/contract/agent-runtime/external-input-lineage.contract.test.ts",
+        "tests/integration/agent-runtime/external-input-lineage.integration.test.ts",
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/external-input-repair-receipt.json"
+      ],
+      "verifier": "Memory and live PostgreSQL tests prove an immutable plan declares ordered external ArtifactEnvelope identities, registerExternalInput verifies canonical payload and artifact hashes plus an accepted evaluation and durable producer/evaluator route proof bound to the run command/scope/organization/case/version/policy/data-class/retention, exact duplicate bytes converge, conflicting bytes or authority deny, restart preserves exact order, task inputs equal declared external inputs followed by dependency outputs, lineage distinguishes external inputs, and evaluation-id conflicts compare complete stored receipt and route-proof bytes before any task mutation.",
+      "timeout_seconds": 3600,
+      "max_attempts": 2,
+      "tool_calls": 48,
+      "effect_class": "reversible",
+      "idempotency": "The same run, plan, command, ordered content-addressed input, accepted evaluation, and route proof converge; any changed content, receipt, route, or authority under an existing identity conflicts.",
+      "compensation": "Restore only the declared runtime contract/store files, forward migration, focused tests, and maker receipt."
+    },
+    {
+      "id": "q2-diagnose-plan-bridge-retry",
+      "kind": "agent-team",
+      "owner": "diagnose-plan-bridge-recovery-owner",
+      "inputs": [
+        "external_input_evaluation_repair_receipt"
+      ],
+      "outputs": [
+        "diagnose_plan_bridge_recovery_receipt"
+      ],
+      "reads": [
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/rejection-snapshot.json",
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/external-input-repair-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/run-lifecycle-repair-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/case-artifact-adoption-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/adapter-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/coordination-receipt.json",
+        ".agent-state/graphs/qm-agent-native-reconstruction-v1/artifacts/surface-receipt.json",
+        "packages/contracts/src",
+        "packages/domain/src",
+        "packages/agent-core/src",
+        "packages/agent-adapters/src",
+        "packages/persistence/src/runs",
+        "packages/persistence/src/outbox",
+        "apps/worker/src",
+        "apps/web/src",
+        "tests/integration/coordination",
+        "tests/e2e/surfaces"
+      ],
+      "writes": [
+        "packages/agent-core/src/artifact-finalizer.ts",
+        "packages/agent-core/src/index.ts",
+        "packages/agent-adapters/src/composition.ts",
+        "packages/agent-adapters/src/registry.ts",
+        "packages/agent-adapters/src/index.ts",
+        "apps/worker/src/ports.ts",
+        "apps/worker/src/adapter-capability-port.ts",
+        "apps/worker/src/diagnose-and-plan-coordinator.ts",
+        "apps/worker/src/durable-coordination-worker.ts",
+        "apps/worker/src/index.ts",
+        "tests/integration/pilot/diagnose-and-plan.pilot.integration.test.ts",
+        "tests/integration/pilot/tsconfig.json",
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/bridge-recovery-receipt.json"
+      ],
+      "verifier": "A finite fresh disposable PostgreSQL pilot runs confirmed external photo/text evidence through diagnosis, repair plan, approved independent critic, and bilingual next action in exact lineage order; recomputes artifact and evaluation identities; obtains route identities only from immutable registry bindings; rejects producer aliases, incomplete checks, payload or evaluation substitution, critic rework, stale authority, and conflicting duplicates; survives restart/reclaim; publishes truthful 25/50/75/100 progress; adopts exactly one bilingual artifact through CaseCommandService; exposes no critic or route metadata; and creates one deterministic fake delivery with zero live-provider effect.",
+      "timeout_seconds": 4800,
+      "max_attempts": 2,
+      "tool_calls": 62,
+      "effect_class": "reversible",
+      "idempotency": "The same confirmed command, plan, ordered intake, route bindings, artifact/evaluation lineage, adoption, progress, and fake effect keys reduce to identical durable identities without duplicate writes or delivery.",
+      "compensation": "Disable only the new composition coordinator and restore the declared bridge source, pilot tests, and maker receipt."
+    },
+    {
+      "id": "q3-independent-recovery-review",
+      "kind": "agent-team",
+      "owner": "independent-pilot-recovery-reviewer",
+      "inputs": [
+        "diagnose_plan_bridge_recovery_receipt"
+      ],
+      "outputs": [
+        "pilot_input_bridge_remediation_receipt"
+      ],
+      "reads": [
+        "docs/qm-agent-native-pilot-input-bridge-remediation.graph-contract",
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/rejection-snapshot.json",
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/external-input-repair-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/bridge-recovery-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/run-lifecycle-repair-receipt.json",
+        ".agent-state/graphs/qm-agent-native-pilot-composition-remediation-v1/artifacts/case-artifact-adoption-receipt.json",
+        "packages/contracts/src",
+        "packages/domain/src",
+        "packages/agent-core/src",
+        "packages/agent-adapters/src",
+        "packages/persistence/src/runs",
+        "packages/persistence/src/outbox",
+        "apps/worker/src",
+        "apps/web/src",
+        "tests/contract/agent-runtime",
+        "tests/contract/cases",
+        "tests/integration/agent-runtime",
+        "tests/integration/cases",
+        "tests/integration/coordination",
+        "tests/integration/pilot",
+        "tests/e2e/surfaces"
+      ],
+      "writes": [
+        ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/artifacts/remediation-receipt.json"
+      ],
+      "verifier": "A fresh-context reviewer recomputes both graph contracts, failed-v1 ledger, parent/maker/current-source hashes and exact writer manifests; independently reproduces every rejection-snapshot exploit as closed; runs the live PostgreSQL pilot twice with exact process/directory cleanup; runs focused contracts, strict type/lint/import/secret/effect gates, surface Chromium journeys, production build, and complete node/UI regressions; and emits a terminal receipt only with no unresolved critical or high defect.",
+      "timeout_seconds": 6000,
+      "max_attempts": 2,
+      "tool_calls": 64,
+      "effect_class": "reversible",
+      "idempotency": "Reduce the same current maker/source hashes and fresh independent evidence into one terminal recovery receipt.",
+      "compensation": "Restore or remove only the terminal recovery receipt."
+    }
+  ],
+  "edges": [
+    {
+      "from": "q0-rejection-dependency-snapshot",
+      "to": "q1-external-input-evaluation-repair",
+      "type": "data",
+      "payload_schema": "input_bridge_rejection_snapshot",
+      "condition": "failed-v1, accepted parent, partial source, and exploit hashes are frozen",
+      "failure_route": ""
+    },
+    {
+      "from": "q1-external-input-evaluation-repair",
+      "to": "q2-diagnose-plan-bridge-retry",
+      "type": "data",
+      "payload_schema": "external_input_evaluation_repair_receipt",
+      "condition": "memory and live PostgreSQL ingress/evaluation maker receipt is current and green",
+      "failure_route": ""
+    },
+    {
+      "from": "q2-diagnose-plan-bridge-retry",
+      "to": "q3-independent-recovery-review",
+      "type": "verification",
+      "payload_schema": "diagnose_plan_bridge_recovery_receipt",
+      "condition": "integrated maker pilot, restart, adversarial matrix, and cleanup pass",
+      "failure_route": ""
+    }
+  ],
+  "joins": [],
+  "stop_conditions": [
+    "The independent terminal receipt passes and binds current implementation hashes.",
+    "A credential, private-content, cross-organization, production, financial, customer, or external-effect boundary is crossed.",
+    "Any graph or node budget is exhausted.",
+    "The same failure signature repeats after one materially changed attempt.",
+    "A writer overlap, undeclared dependency, dynamic expansion, graph cycle, whole-graph retry, or weakened PostgreSQL, cleanup, evaluator, or canonical-writer gate is proposed.",
+    "Independent verification finds any unresolved critical or high defect."
+  ],
+  "recovery": {
+    "checkpoint": ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/checkpoint.json",
+    "write_back": ".agent-state/graphs/qm-agent-native-pilot-input-bridge-remediation-v2/events.jsonl",
+    "whole_graph_rerun": false
+  }
+}

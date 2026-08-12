@@ -1,4 +1,5 @@
 export * from './errors.js';
+export * from './artifact-finalizer.js';
 export * from './kernel.js';
 export * from './memory-store.js';
 export * from './types.js';

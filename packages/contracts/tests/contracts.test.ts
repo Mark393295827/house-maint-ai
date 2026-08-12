@@ -174,7 +174,7 @@ describe('agent-native public contracts', () => {
 
     it('publishes the complete versioned runtime registry', () => {
         expect(Object.keys(CONTRACT_SCHEMAS).sort()).toEqual([
-            'action-proposal/v1', 'agent-artifact/v1', 'agent-run/v1', 'agent-task/v1',
+            'action-proposal/v1', 'agent-artifact/v1', 'agent-run-input/v1', 'agent-run/v1', 'agent-task/v1',
             'approval-receipt/v1', 'approval-request/v1', 'cancellation-signal/v1',
             'case-command/v1', 'case-event/v1', 'case-progress/v1', 'case-projection/v1',
             'delivery-receipt/v1', 'delivery/v1', 'effective-scope/v1', 'error/v1',

@@ -1,6 +1,7 @@
 import {
     CaseCommandEnvelopeSchema,
     EffectiveScopeSchema,
+    type AgentArtifactAdoption,
     type CaseCommandEnvelope,
     type CaseEventEnvelope,
     type CaseProjection,
@@ -28,6 +29,12 @@ const allowedActions: Record<CommandType, ReadonlyArray<EffectiveScope['actions'
     reopen_case: ['manage'],
 };
 
+function artifactAdoption(command: CaseCommandEnvelope): AgentArtifactAdoption | null {
+    if (command.body.type !== 'update_case'
+        || !('agent_artifact_adoption' in command.body.payload)) return null;
+    return command.body.payload.agent_artifact_adoption;
+}
+
 function parseInput(input: ExecuteCaseCommandInput): {
     command: CaseCommandEnvelope;
     scope: EffectiveScope;
@@ -49,8 +56,24 @@ function authorize(command: CaseCommandEnvelope, scope: EffectiveScope, now: str
         || Date.parse(scope.expires_at) <= Date.parse(command.requested_at)) {
         throw new CaseDomainError('scope_expired', 'The resolved scope is expired for this command');
     }
-    if (!allowedActions[command.body.type].some((action) => scope.actions.includes(action))) {
+    const adoption = artifactAdoption(command);
+    const requiredActions = adoption ? (['verify'] as const) : allowedActions[command.body.type];
+    if (!requiredActions.some((action) => scope.actions.includes(action))) {
         throw new CaseDomainError('forbidden', 'The resolved scope does not grant this case command');
+    }
+    if (adoption) {
+        if (scope.principal.actor_kind !== 'system' || scope.scope_kind !== 'case'
+            || scope.case_id !== command.case_id) {
+            throw new CaseDomainError('forbidden', 'Artifact adoption requires a case-scoped system principal');
+        }
+        if (adoption.artifact.scope_id !== scope.scope_id
+            || adoption.artifact.policy_version !== scope.policy_version) {
+            throw new CaseDomainError('forbidden', 'Artifact scope and policy must match the resolved system scope');
+        }
+        if (!scope.data_classes.includes(adoption.artifact.data_class)
+            || adoption.artifact.retention_days > scope.retention_days) {
+            throw new CaseDomainError('forbidden', 'Artifact data handling exceeds the resolved system scope');
+        }
     }
     if (command.body.type === 'open_case') {
         if (scope.scope_kind === 'case') {
@@ -118,6 +141,26 @@ function eventPayload(command: CaseCommandEnvelope, hash: string): {
                 },
             };
         case 'update_case':
+            if ('agent_artifact_adoption' in command.body.payload) {
+                const adoption = command.body.payload.agent_artifact_adoption;
+                return {
+                    eventType: 'agent_artifact_accepted',
+                    payload: {
+                        artifact_id: adoption.artifact.artifact_id,
+                        artifact_schema_name: adoption.artifact.schema_name,
+                        artifact_payload_hash: adoption.artifact.payload_hash,
+                        artifact_case_version: adoption.artifact.case_version,
+                        evaluation_id: adoption.evaluation.evaluation_id,
+                        evaluation_decision: adoption.evaluation.decision,
+                        independent_route: adoption.evaluation.independent_route,
+                        policy_version: adoption.artifact.policy_version,
+                        producer_run_id: adoption.artifact.producer_run_id,
+                        producer_task_id: adoption.artifact.producer_task_id,
+                        producer_route_id: adoption.producer_route_id,
+                        evaluator_route_id: adoption.evaluator_route_id,
+                    },
+                };
+            }
             return { eventType: 'case_updated', payload: { ...command.body.payload } };
         case 'resolve_case':
             return { eventType: 'case_resolved', payload: { ...command.body.payload } };
@@ -203,9 +246,15 @@ export class CaseCommandService {
             assertProjectionInScope(scope, projection);
             return { event, projection };
         });
-        // Idempotency receipts are intentionally resolved before the repository
-        // reloads the projection. Re-check the returned canonical projection so
-        // a receipt replay cannot bypass a newly resolved narrower scope.
+        // Stores intentionally resolve idempotency receipts before current state,
+        // so an open receipt's projection is historical. Treat its case id only
+        // as identity and authorize the separately loaded canonical projection
+        // before any receipt data leaves this service.
+        if (command.body.type === 'open_case') {
+            const current = await this.repository.load(command.organization_id, result.projection.id);
+            if (!current) throw new CaseDomainError('not_found', 'Maintenance case was not found');
+            assertProjectionInScope(scope, current);
+        }
         assertProjectionInScope(scope, result.projection);
         return result;
     }

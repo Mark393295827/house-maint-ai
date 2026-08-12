@@ -2,6 +2,7 @@ import {
     ArtifactEnvelopeSchema,
     EvaluationReceiptSchema,
     type AgentTaskEnvelope,
+    type AgentRunInput,
     type ArtifactEnvelope,
     type EvaluationReceipt,
     type EffectiveScope,
@@ -33,6 +34,7 @@ export class AgentKernel {
 
     openSession(input: OpenSessionInput) { return this.store.openSession(input); }
     createRun(input: CreateRunInput) { return this.store.createRun(input); }
+    registerExternalInput(input: AgentRunInput) { return this.store.registerExternalInput(input); }
     enqueueTask(task: AgentTaskEnvelope) { return this.store.enqueueTask(task); }
     claimNext(workerId: string, leaseMs: number) { return this.store.claimNext(workerId, leaseMs); }
 

@@ -11,7 +11,13 @@ import {
     EvaluationReceiptSchema,
     FeatureCompatibilitySchema,
 } from './effects.js';
-import { AgentRunSchema, AgentTaskEnvelopeSchema, CancellationSignalSchema, ExecutionBudgetSchema } from './runtime.js';
+import {
+    AgentRunInputSchema,
+    AgentRunSchema,
+    AgentTaskEnvelopeSchema,
+    CancellationSignalSchema,
+    ExecutionBudgetSchema,
+} from './runtime.js';
 import { EffectiveScopeSchema, PrincipalSchema } from './scope.js';
 
 /**
@@ -29,6 +35,7 @@ export const CONTRACT_SCHEMAS = {
     'cancellation-signal/v1': CancellationSignalSchema,
     'agent-task/v1': AgentTaskEnvelopeSchema,
     'agent-run/v1': AgentRunSchema,
+    'agent-run-input/v1': AgentRunInputSchema,
     'agent-artifact/v1': ArtifactEnvelopeSchema,
     'evaluation-receipt/v1': EvaluationReceiptSchema,
     'approval-request/v1': ApprovalRequestSchema,
