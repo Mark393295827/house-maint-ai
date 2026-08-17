@@ -1,5 +1,5 @@
 
-import mixpanel from 'mixpanel-browser';
+import * as mixpanel from 'mixpanel-browser';
 
 /**
  * Analytics Service (Mixpanel)

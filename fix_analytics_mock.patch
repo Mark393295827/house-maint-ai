@@ -1,0 +1,15 @@
+--- src/pages/ShowcasePage.test.ts
++++ src/pages/ShowcasePage.test.ts
+@@ -8,6 +8,12 @@
+ import { LanguageProvider } from '../i18n/LanguageContext';
+ import { getOperatingStageCopies } from '../constants/operatingModel';
+
++vi.mock('../services/analytics', () => ({
++    default: {
++        track: vi.fn(),
++    },
++}));
++
+ const renderShowcase = () =>
+     render(
+         React.createElement(
