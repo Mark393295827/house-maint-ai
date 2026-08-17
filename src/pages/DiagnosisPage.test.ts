@@ -241,6 +241,7 @@ describe('DiagnosisPage operating loop', () => {
     });
 
     it('does not duplicate a created report when local metrics are malformed', async () => {
+        const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         localStorage.setItem('inquiry_metrics', '{malformed');
         await completeInquiry();
 
@@ -249,9 +250,11 @@ describe('DiagnosisPage operating loop', () => {
         await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(1));
         expect(mocks.navigate).toHaveBeenCalledWith('/match?report_id=42&category=plumbing');
         expect(mocks.showToast).not.toHaveBeenCalled();
+        spy.mockRestore();
     });
 
     it('surfaces report creation failures and permits a retry', async () => {
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
         mocks.mutateAsync
             .mockRejectedValueOnce(new Error('Report service unavailable'))
             .mockResolvedValueOnce({ report: { id: 42 } });
@@ -265,5 +268,6 @@ describe('DiagnosisPage operating loop', () => {
         fireEvent.click(screen.getByRole('button', { name: /match provider now/i }));
         await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(2));
         expect(mocks.navigate).toHaveBeenCalledWith('/match?report_id=42&category=plumbing');
+        spy.mockRestore();
     });
 });

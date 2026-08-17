@@ -8,6 +8,12 @@ import ShowcasePage from './ShowcasePage';
 import { LanguageProvider } from '../i18n/LanguageContext';
 import { getOperatingStageCopies } from '../constants/operatingModel';
 
+vi.mock('../services/analytics', () => ({
+    default: {
+        track: vi.fn(),
+    },
+}));
+
 const renderShowcase = () =>
     render(
         React.createElement(

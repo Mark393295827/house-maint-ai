@@ -132,6 +132,7 @@ describe('WorkerDashboardPage', () => {
     });
 
     it('rolls back the availability button when the API update fails', async () => {
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
         mockUpdateWorkerAvailability.mockRejectedValueOnce(new Error('network down'));
 
         renderPage();
@@ -143,6 +144,7 @@ describe('WorkerDashboardPage', () => {
         });
         expect(await screen.findByRole('button', { name: 'Go offline' })).toBeInTheDocument();
         expect(screen.getByText('Could not update availability.')).toBeInTheDocument();
+        spy.mockRestore();
     });
 
     it('accepts an available order and moves the worker into the jobs tab', async () => {
