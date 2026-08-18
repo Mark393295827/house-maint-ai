@@ -25,11 +25,11 @@ describe('EnterpriseDashboardHome', () => {
         localStorage.clear();
     });
 
-    it('renders a summary-first dashboard around the six-stage operating loop', () => {
+    it('renders a summary-first dashboard around the six-stage operating loop', async () => {
         renderDashboard();
 
-        expect(screen.getByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
-        expect(screen.getByText('六阶段运营闭环')).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
+        expect(await screen.findByText('六阶段运营闭环')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /24\/7 微信接入/ })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /AI 诊断与责任判断/ })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /DIY 分流/ })).toBeInTheDocument();
@@ -93,11 +93,11 @@ describe('EnterpriseDashboardHome', () => {
         expect(within(slaCard as HTMLElement).getByText('91.7')).toBeInTheDocument();
     });
 
-    it('renders the same analytical structure in English', () => {
+    it('renders the same analytical structure in English', async () => {
         renderDashboard('en');
 
-        expect(screen.getByRole('heading', { name: 'Property Operations Overview' })).toBeInTheDocument();
-        expect(screen.getByText('Six-stage operating loop')).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Property Operations Overview' })).toBeInTheDocument();
+        expect(await screen.findByText('Six-stage operating loop')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /DIY deflection/ })).toBeInTheDocument();
         expect(screen.getByText('Live operations map')).toBeInTheDocument();
         expect(screen.getByText('SLA exception queue')).toBeInTheDocument();
