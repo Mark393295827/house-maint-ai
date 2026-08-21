@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { LanguageProvider } from '../i18n/LanguageContext';
 import { EnterpriseDashboardHome } from './EnterpriseDashboard';
+import { act } from 'react';
 
 vi.mock('../components/EnterpriseMap', () => ({
     default: () => <div data-testid="enterprise-map" />,
@@ -25,10 +26,10 @@ describe('EnterpriseDashboardHome', () => {
         localStorage.clear();
     });
 
-    it('renders a summary-first dashboard around the six-stage operating loop', () => {
-        renderDashboard();
+    it('renders a summary-first dashboard around the six-stage operating loop', async () => {
+        await act(async () => { renderDashboard(); });
 
-        expect(screen.getByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
         expect(screen.getByText('六阶段运营闭环')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /24\/7 微信接入/ })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /AI 诊断与责任判断/ })).toBeInTheDocument();
@@ -45,7 +46,9 @@ describe('EnterpriseDashboardHome', () => {
 
     it('expands and collapses the restored operations map', async () => {
         const user = userEvent.setup();
-        renderDashboard();
+        await act(async () => { renderDashboard(); });
+
+        expect(await screen.findByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
 
         const mapPanel = screen.getByTestId('operations-map-panel');
         await user.click(screen.getByRole('button', { name: '展开地图' }));
@@ -59,7 +62,9 @@ describe('EnterpriseDashboardHome', () => {
 
     it('updates KPI totals when the time range changes', async () => {
         const user = userEvent.setup();
-        renderDashboard();
+        await act(async () => { renderDashboard(); });
+
+        expect(await screen.findByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
 
         const intakeCard = screen.getByText('接入工单').closest('article');
         expect(intakeCard).not.toBeNull();
@@ -73,7 +78,9 @@ describe('EnterpriseDashboardHome', () => {
 
     it('links stage, category, and region filters to dashboard data', async () => {
         const user = userEvent.setup();
-        renderDashboard();
+        await act(async () => { renderDashboard(); });
+
+        expect(await screen.findByRole('heading', { name: '物业运营总览' })).toBeInTheDocument();
 
         const diagnosisStage = screen.getByRole('button', { name: /AI 诊断与责任判断/ });
         await user.click(diagnosisStage);
@@ -93,10 +100,10 @@ describe('EnterpriseDashboardHome', () => {
         expect(within(slaCard as HTMLElement).getByText('91.7')).toBeInTheDocument();
     });
 
-    it('renders the same analytical structure in English', () => {
-        renderDashboard('en');
+    it('renders the same analytical structure in English', async () => {
+        await act(async () => { renderDashboard('en'); });
 
-        expect(screen.getByRole('heading', { name: 'Property Operations Overview' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Property Operations Overview' })).toBeInTheDocument();
         expect(screen.getByText('Six-stage operating loop')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /DIY deflection/ })).toBeInTheDocument();
         expect(screen.getByText('Live operations map')).toBeInTheDocument();
