@@ -24,7 +24,7 @@ const UserAssetsCard = () => {
             await addAssetMutation.mutateAsync(newAsset);
             setShowAddForm(false);
             setNewAsset({ name: '', type: 'appliance', brand: '', model: '' });
-        } catch (_err) {
+        } catch {
             alert('Failed to add asset');
         }
     };

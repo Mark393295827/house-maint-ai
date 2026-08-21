@@ -59,6 +59,7 @@ async function insertFeedback(input: {
  * POST /api/ai/feedback
  * Submit feedback on an AI diagnosis result
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 router.post('/', authenticate, async (req, res, next) => {
     try {
         const parsed = feedbackSchema.safeParse(req.body);

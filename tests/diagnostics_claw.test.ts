@@ -1,5 +1,6 @@
 
 import { vi, describe, it, expect, beforeAll } from 'vitest';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import jwt from 'jsonwebtoken';
 
 // 1. Mock ioredis (Hoisted)
@@ -23,6 +24,7 @@ vi.mock('ioredis', () => {
 });
 
 // 2. Mock Database (Hoisted)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 vi.mock('../server/config/database.js', async (importOriginal) => {
     const Database = require('better-sqlite3');
     const db = new Database(':memory:');

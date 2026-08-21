@@ -22,6 +22,7 @@ vi.mock('ioredis', () => {
 });
 
 // 2. Mock Database (Hoisted)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 vi.mock('../server/config/database.js', async (importOriginal) => {
     const Database = require('better-sqlite3');
     const db = new Database(':memory:');

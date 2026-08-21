@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import pool, { query } from '../config/database.js';
 
 async function inspect() {

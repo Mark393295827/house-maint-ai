@@ -90,7 +90,7 @@ export class PlanningClawService {
             let plan: any = {};
             try {
                 plan = typeof planString === 'string' ? JSON.parse(planString) : planString;
-            } catch (_e) {
+            } catch {
                 // Fallback if parsing fails
                 plan = { steps: [], priority_protocol: 'batch' };
             }

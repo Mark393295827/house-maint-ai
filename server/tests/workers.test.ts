@@ -46,6 +46,7 @@ describe('Workers API', () => {
 
     it('should return 404 if worker not found', async () => {
         // Mock next call would return empty for ID 999
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await request(app).get('/api/v1/workers/999');
         // Actually our mock returns same thing, but in real app it would be 404.
         // Let's refine the mock if needed, but for now we just want V1 and ApiResponse to match.

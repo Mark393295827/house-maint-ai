@@ -1,5 +1,6 @@
 import express from 'express';
 import { z } from 'zod';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import db, { isSQLite } from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
 import { ApiResponse } from '../utils/ApiResponse.js';

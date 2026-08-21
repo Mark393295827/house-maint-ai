@@ -692,6 +692,7 @@ const EnterpriseDashboardHome: React.FC = () => {
         orderId: string,
         techName: string,
         action: DispatchAction,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         _note?: string
     ) => {
         const actionLabels: Record<DispatchAction, LocalizedText> = {

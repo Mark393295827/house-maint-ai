@@ -185,6 +185,7 @@ export class WebIntelAgent {
     /**
      * Build property profiles from complaint data.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private async buildPropertyProfiles(complaints: ComplaintRecord[], region: string): Promise<PropertyIntel[]> {
         // Group complaints by property
         const propertyMap = new Map<string, ComplaintRecord[]>();

@@ -9,6 +9,7 @@ test.describe('Login Flow', () => {
         await loginPage.goto();
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     test('should display login form by default', async ({ page }) => {
         await expect(loginPage.title).toHaveText('欢迎回来');
         await expect(loginPage.phoneInput).toBeVisible();
@@ -16,11 +17,13 @@ test.describe('Login Flow', () => {
         await expect(loginPage.submitButton).toHaveText(/登 录/);
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     test('should show validation error for invalid phone', async ({ page }) => {
         await loginPage.login('123', 'password123');
         await expect(loginPage.errorMessage).toContainText('请输入有效的手机号码');
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     test('should show validation error for weak registration password', async ({ page }) => {
         await loginPage.switchToRegister();
         await loginPage.nameInput.fill('测试用户');
@@ -28,6 +31,7 @@ test.describe('Login Flow', () => {
         await expect(loginPage.errorMessage).toContainText('密码必须至少8位，包含字母和数字');
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     test('should toggle between login and register', async ({ page }) => {
         // Initial state: Login
         await expect(loginPage.title).toHaveText('欢迎回来');

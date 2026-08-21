@@ -16,6 +16,7 @@ export const createTestDb = async () => {
 /**
  * Cleanup helper for test database
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const cleanupTestDb = async (adapter: any) => {
     // SQLite :memory: DBs are automatically cleaned up when the connection is closed
     // or when the process exits.

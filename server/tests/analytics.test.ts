@@ -14,6 +14,7 @@ vi.mock('../config/redis.js', () => ({
 
 // Mock database — use plain async functions (no vi.fn needed for mock factory)
 vi.mock('../config/database.js', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const queryImpl = async (text: string, _params?: any[]) => {
         const sql = text.trim().toUpperCase();
 

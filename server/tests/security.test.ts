@@ -1,9 +1,6 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
-import express from 'express';
-import helmet from 'helmet';
-import hpp from 'hpp';
 
 // Mock database to prevent connection errors during HPP test
 vi.mock('../config/database.js', () => ({

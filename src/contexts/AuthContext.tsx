@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (data.user) {
                     connectSocket();
                 }
-            } catch (_err) {
+            } catch {
                 // No valid cookie — user is not authenticated
                 setUser(null);
                 // If we expected to be logged in (e.g., had a previous session), notify

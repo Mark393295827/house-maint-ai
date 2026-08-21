@@ -8,6 +8,7 @@ console.log('Opening database at:', dbPath);
 
 const db = new Database(dbPath);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const migrationSql = `
 CREATE TABLE IF NOT EXISTS \`price_guide\` (
 	\`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,

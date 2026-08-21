@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 import app from '../index.js';
 import { generateAccessToken } from '../middleware/auth.js';
