@@ -223,6 +223,7 @@ router.post('/login', async (req, res, next) => {
         res.cookie('refreshToken', refreshToken, getRefreshCookieOptions());
 
         // Remove sensitive data before sending
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password_hash: _, ...safeUser } = user;
 
         res.json(ApiResponse.success({ user: safeUser }, 'Login successful'));
@@ -329,6 +330,7 @@ router.post('/refresh', async (req, res, next) => {
         res.cookie('refreshToken', newRefreshToken, getRefreshCookieOptions());
 
         // Remove sensitive data
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password_hash: _, ...safeUser } = user;
 
         res.json(ApiResponse.success({ user: safeUser }, 'Token refreshed'));

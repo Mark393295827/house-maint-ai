@@ -170,6 +170,7 @@ export const learningService = {
                     consecutiveChange = 1; // Increment consecutive count
                 } else if (rating >= 4) {
                     scoreChange = 0.2;
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     consecutiveChange = -999; // Reset (hacky way, or read value first) -> Better to use SQL case
                 } else if (rating <= 2) {
                     scoreChange = -2.0;

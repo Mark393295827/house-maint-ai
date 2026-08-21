@@ -442,6 +442,7 @@ if (useSQLite) {
     pool = pgPool as unknown as DatabaseAdapter;
 
     // Test connection
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     pgPool.on('error', (err, _client) => {
         console.error('Unexpected error on idle client', err);
         process.exit(-1);

@@ -73,6 +73,7 @@ export class MatchingService {
         return worker.available ? 100 : 50;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     calculateAssetMatchScore(_workerSkills: string[], _reportDescription: string, _userAssets: UserAssetRow[]): number {
         // Kept for metadata but removed from core weighted score in v1.0 spec
         return 0;

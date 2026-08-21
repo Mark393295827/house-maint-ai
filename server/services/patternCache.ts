@@ -126,7 +126,7 @@ class PatternCache {
                 'UPDATE patterns SET usage_count = usage_count + 1, last_used = CURRENT_TIMESTAMP WHERE problem_type = $1 AND context_signature = $2',
                 [problemType, contextSignature]
             );
-        } catch (_error) {
+        } catch {
             // Ignore errors for stats updates
         }
     }

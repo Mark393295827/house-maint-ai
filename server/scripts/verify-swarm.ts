@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import db, { query, isSQLite } from '../config/database.js';
 import { diagnosticsClaw } from '../services/diagnostics_claw.js';
 import { planningClaw } from '../services/planning_claw.js';

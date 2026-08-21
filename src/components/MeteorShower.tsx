@@ -367,6 +367,7 @@ class Firefly {
     orbitAngle: number;
     orbitSpeed: number;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     constructor(_width: number, _height: number) {
         // Initialize contained within upper-left logo position
         const brandMark = document.querySelector('.gravity-brand-mark');

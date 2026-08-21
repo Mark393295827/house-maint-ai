@@ -40,6 +40,7 @@ function structure(database: Database.Database, table: string) {
     return {
         columns: database.pragma(`table_info('${table}')`),
         foreignKeys: (database.pragma(`foreign_key_list('${table}')`) as Array<Record<string, unknown>>)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .map(({ id: _id, ...foreignKey }) => foreignKey)
             .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
         uniqueColumns,

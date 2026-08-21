@@ -8,6 +8,7 @@ import { ZodError } from 'zod';
 import jwt from 'jsonwebtoken';
 const { JsonWebTokenError, TokenExpiredError } = jwt;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
     // console.error('Error:', err); // Removed in production, can keep for dev if needed
     Sentry.captureException(err);

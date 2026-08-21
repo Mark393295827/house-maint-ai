@@ -14,6 +14,7 @@ describe('API Routing Integration Tests', () => {
         }))
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     endpoints.forEach(({ path, method, expectedStatus }, index) => {
         it(`Integration Test ${index + 1}: ${method.toUpperCase()} ${path} should enforce security/routing`, async () => {
             const res = await request(app)[method](path);

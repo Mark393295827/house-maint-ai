@@ -8,6 +8,7 @@ interface ActivityCardProps {
     hasActivity?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ActivityCard = ({ hasActivity: _hasActivity = true }: ActivityCardProps) => {
     const { t, locale } = useLanguage();
     const navigate = useNavigate();

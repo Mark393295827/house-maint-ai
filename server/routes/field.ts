@@ -164,7 +164,7 @@ router.get('/web-intel/known-complaints', (req: Request, res: Response) => {
         keywords: ['物业', '维修', '投诉'],
         sources: ['government'],
     });
-    defaultScan.then(report => res.json(report)).catch(e =>
+    defaultScan.then(report => res.json(report)).catch(() =>
         res.status(500).json({ error: 'Failed to load known complaints' })
     );
 });
