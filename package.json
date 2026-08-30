@@ -11,7 +11,7 @@
     "scripts": {
         "dev": "vite",
         "dev:server": "cd server && npm run dev",
-        "dev:worker": "npm --prefix server exec -- tsx worker.ts",
+        "dev:worker": "cd server && npx tsx worker.ts",
         "dev:all": "npx -y concurrently -n FE,BE,WORKER -c cyan,green,magenta \"npm run dev\" \"npm run dev:server\" \"npm run dev:worker\"",
         "build": "tsc -b && vite build",
         "lint": "eslint .",
