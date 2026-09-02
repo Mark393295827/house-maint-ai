@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@house-maint/agent-core": "0.1.0",
     "@house-maint/contracts": "0.1.0"
   }

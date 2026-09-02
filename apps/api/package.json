@@ -12,6 +12,7 @@
     "@house-maint/contracts": "0.1.0",
     "@house-maint/domain": "0.1.0",
     "@house-maint/persistence": "0.1.0",
-    "@house-maint/policy": "0.1.0"
+    "@house-maint/policy": "0.1.0",
+    "express": "^5.2.1"
   }
 }
