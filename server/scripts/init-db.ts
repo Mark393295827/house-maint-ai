@@ -24,7 +24,7 @@ const initDb = async () => {
         }
 
         // Insert test data
-        const passwordHash = bcrypt.hashSync('123456', 10);
+        const passwordHash = bcrypt.hashSync('12345678a', 10);
 
         const testUsers = [
             { phone: '13800138001', name: 'Alex 用户', avatar: 'https://randomuser.me/api/portraits/men/1.jpg', role: 'user' },
