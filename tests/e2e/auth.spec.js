@@ -17,7 +17,7 @@ test.describe('Critical User Flow', () => {
 
         // Fill credentials
         await page.getByPlaceholder('1xx xxxx xxxx').fill('13800138001');
-        await page.getByPlaceholder('Min 8 characters').fill('123456');
+        await page.getByPlaceholder('Min 8 characters').fill('12345678a');
 
         // Click login
         await page.getByRole('button', { name: '登 录' }).click();
@@ -31,7 +31,7 @@ test.describe('Critical User Flow', () => {
         // Login first
         await page.goto('/login');
         await page.getByPlaceholder('1xx xxxx xxxx').fill('13800138001');
-        await page.getByPlaceholder('Min 8 characters').fill('123456');
+        await page.getByPlaceholder('Min 8 characters').fill('12345678a');
         await page.getByRole('button', { name: '登 录' }).click();
         await expect(page).toHaveURL('/');
 
