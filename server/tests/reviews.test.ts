@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
@@ -27,14 +27,19 @@ app.use(express.json());
 app.use('/api/reviews', reviewRoutes);
 
 describe('Reviews API Integration', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
         try {
             console.log('Seeding review test data...');
+            await db.query(`DELETE FROM reviews`);
+            await db.query(`DELETE FROM reports`);
+            await db.query(`DELETE FROM workers`);
+            await db.query(`DELETE FROM users`);
             // Rely on global tests/setup.ts which sets DB_USE_SQLITE=true
             await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (1, '13800138001', 'hash', 'Alice', 'user')`);
             await db.query(`INSERT INTO users (id, phone, password_hash, name, role) VALUES (2, '13800138002', 'hash', 'Bob Worker', 'worker')`);
             await db.query(`INSERT INTO workers (id, user_id, skills, rating) VALUES (1, 2, '["plumbing"]', 5.0)`);
             await db.query(`INSERT INTO reports (id, user_id, title, description, status, matched_worker_id) VALUES (1, 1, 'Leaky Pipe', 'Fix it', 'completed', 1)`);
+            await db.query(`INSERT INTO reviews (report_id, worker_id, user_id, rating, comment, created_at) VALUES (1, 1, 1, 5, 'Perfect job!', CURRENT_TIMESTAMP)`);
             console.log('Seeding complete.');
         } catch (error) {
             console.error('Test Seeding Failed:', error);
@@ -43,6 +48,7 @@ describe('Reviews API Integration', () => {
     });
 
     it('should submit a review and update worker rating', async () => {
+        await db.query(`DELETE FROM reviews`);
         const res = await request(app)
             .post('/api/reviews')
             .send({
