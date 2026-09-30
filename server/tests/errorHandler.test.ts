@@ -78,6 +78,20 @@ describe('Error Handler Middleware', () => {
         });
     });
 
+    it('should handle SQLITE_CONSTRAINT_UNIQUE with 409', () => {
+        const error = {
+            code: 'SQLITE_CONSTRAINT_UNIQUE'
+        };
+
+        errorHandler(error as any, req as Request, res as Response, next);
+
+        expect(status).toHaveBeenCalledWith(409);
+        expect(json).toHaveBeenCalledWith({
+            status: 'fail',
+            error: 'Duplicate entry'
+        });
+    });
+
     it('should handle AppError with correct status and message', () => {
         const error = new AppError('Custom operational error', 403);
 
