@@ -52,7 +52,7 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
 
     // SQLite/DB Errors (using loose typing for err as it can be any object)
     const errorCode = (err as any).code;
-    if (errorCode === 'SQLITE_CONSTRAINT') {
+    if (errorCode === 'SQLITE_CONSTRAINT' || errorCode === 'SQLITE_CONSTRAINT_UNIQUE') {
         res.status(409).json({
             status: 'fail',
             error: 'Duplicate entry'
