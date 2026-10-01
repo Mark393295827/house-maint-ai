@@ -75,7 +75,7 @@ const loginSchema = z.object({
  *                 description: Mobile phone number
  *               password:
  *                 type: string
- *                 minLength: 6
+ *                 minLength: 8
  *                 description: User password
  *               name:
  *                 type: string
