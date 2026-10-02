@@ -69,7 +69,7 @@ jobs:
         DB_NAME: house_maint
         DB_USER: postgres
         DB_PASSWORD: postgres
-      run: npm test -- --run
+      run: npm run test
 
     - name: Check Test Coverage
       env:
