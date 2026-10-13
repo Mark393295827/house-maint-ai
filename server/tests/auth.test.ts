@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import app from '../index.js';
+import { clearTestDb } from './integration/setup.js';
 
 describe('Auth API Integration', () => {
     const testUser = {
@@ -9,6 +10,10 @@ describe('Auth API Integration', () => {
         password: 'Password123!',
         role: 'user'
     };
+
+    beforeEach(async () => {
+        await clearTestDb();
+    });
 
     it('should register a new user via v1', async () => {
         const res = await request(app)
@@ -22,6 +27,11 @@ describe('Auth API Integration', () => {
     });
 
     it('should login the user via v1', async () => {
+        await request(app)
+            .post('/api/v1/auth/register')
+            .set('X-CSRF-Token', 'test')
+            .send(testUser);
+
         const res = await request(app)
             .post('/api/v1/auth/login')
             .send({
@@ -34,6 +44,11 @@ describe('Auth API Integration', () => {
     });
 
     it('should fail login with wrong password', async () => {
+        await request(app)
+            .post('/api/v1/auth/register')
+            .set('X-CSRF-Token', 'test')
+            .send(testUser);
+
         const res = await request(app)
             .post('/api/v1/auth/login')
             .send({
