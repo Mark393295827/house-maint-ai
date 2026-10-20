@@ -88,3 +88,4 @@ debug_*.txt
 lint-output.json
 lint_*.txt
 git_status_output.txt
+.claude
