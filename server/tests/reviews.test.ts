@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
@@ -26,8 +26,11 @@ const app = express();
 app.use(express.json());
 app.use('/api/reviews', reviewRoutes);
 
+import { clearTestDb } from './integration/setup.js';
+
 describe('Reviews API Integration', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
+        await clearTestDb();
         try {
             console.log('Seeding review test data...');
             // Rely on global tests/setup.ts which sets DB_USE_SQLITE=true
@@ -61,6 +64,14 @@ describe('Reviews API Integration', () => {
     });
 
     it('should fetch worker reviews with reviewer name', async () => {
+        await request(app)
+            .post('/api/reviews')
+            .send({
+                booking_id: 1,
+                rating: 5,
+                comment: 'Perfect job!'
+            });
+
         const res = await request(app).get('/api/reviews/worker/1');
         expect(res.status).toBe(200);
         expect(res.body.reviews).toHaveLength(1);
